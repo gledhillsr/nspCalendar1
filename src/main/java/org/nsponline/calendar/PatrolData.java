@@ -64,7 +64,7 @@ public class PatrolData {
   /* ----- uncomment the following to run from the Internet ------ */
 //  final static String IP_ADDRESS = "166.70.236.73";
 /* ----- uncomment the following to run local ------*/
-//    final static String IP_ADDRESS = "127.0.0.1";   /* used in loginHelp */
+//    final static String IP_ADDRESS = "127.0.0.1";   /* used in LoginHelp */
 /*----- end local declarations ------*/
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confermations)*****
@@ -801,6 +801,7 @@ public class PatrolData {
       return resortMap.get(resort);
     }
     System.out.println("**** Error, unknown resort (" + resort + ")");
+    Thread.currentThread().dumpStack();
     return "Error, invalid resort (" + resort + ")";
   }
 
@@ -810,7 +811,9 @@ public class PatrolData {
     if (validResort(resort)) {
       return jdbcLoc + resort;
     }
-    System.out.println("**** Error, unknown resort (" + resort + ")");
+
+    System.out.println("****** Error, unknown resort (" + resort + ")");
+    Thread.currentThread().dumpStack();
     return "invalidResort";
   }
 

@@ -11,15 +11,15 @@
     </description>
 
     <servlet>
-        <servlet-name>Hello2Servlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.Hello2</servlet-class>
+        <servlet-name>StatusServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.Status</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>memberLoginServlet</servlet-name>
+        <servlet-name>MemberLoginServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.MemberLogin</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>loginHelpServlet</servlet-name>
+        <servlet-name>LoginHelpServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.LoginHelp</servlet-class>
     </servlet>
     <servlet>
@@ -40,16 +40,16 @@
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>Hello2Servlet</servlet-name>
-        <url-pattern>/hello2</url-pattern>
+        <servlet-name>StatusServlet</servlet-name>
+        <url-pattern>/Status</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>memberLoginServlet</servlet-name>
-        <url-pattern>/memberLogin</url-pattern>
+        <servlet-name>MemberLoginServlet</servlet-name>
+        <url-pattern>/MemberLogin</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>loginHelpServlet</servlet-name>
-        <url-pattern>/loginHelp</url-pattern>
+        <servlet-name>LoginHelpServlet</servlet-name>
+        <url-pattern>/LoginHelp</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MonthCalendarServlet</servlet-name>

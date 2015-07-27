@@ -209,7 +209,7 @@ public class ChangeShift extends HttpServlet {
 //      out.println("<!--");
 //      out.println("<a href=\"javascript:closewindow()\" Target=\"_self\"><IMG SRC=\"/nspImages/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to Home Page\" ALIGN=\"BOTTOM\" width=\"32\" height=\"32\"></a>");
 //      out.println("-->");
-    out.println("<a href=\"MonthCalendar?resort=" + resort + "&month=" + month + "&year=" + year + "\"><IMG SRC=\"/nspImages/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to Volunteer Roster\" ALIGN=\"BOTTOM\" width=\"32\" height=\"32\"></a>");
+    out.println("<a href=\"MonthCalendar?resort=" + resort + "&month=" + month + "&year=" + year + "\"><IMG SRC=\"images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to Volunteer Roster\" ALIGN=\"BOTTOM\" width=\"32\" height=\"32\"></a>");
     out.println("</font>");
     out.println("</td></tr>");
     out.println("</table>");

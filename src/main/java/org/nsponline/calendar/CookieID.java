@@ -37,7 +37,7 @@ public class CookieID {
         if (trace) {
           System.out.println("error, lastResort=(" + lastResort + "), resort=(" + resort + ")");
         }
-        String newLoc = PatrolData.SERVLET_URL + "memberLogin?resort=" + resort + "&" + NSP_goto + "=" + parent;
+        String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resort + "&" + NSP_goto + "=" + parent;
         if (trace) {
           System.out.println(",,calling sendRedirect(" + newLoc + ")");
         }

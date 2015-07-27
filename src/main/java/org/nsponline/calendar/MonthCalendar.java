@@ -90,19 +90,20 @@ public class MonthCalendar extends HttpServlet {
       SessionData sessionData = new SessionData(getServletContext(), out);  //todo ........
 //      noLoginParameter = request.getParameter("noLogin");
 //      idParameter = request.getParameter("ID");
+      idParameter = sessionData.getLoggedInUserId();
+      if (idParameter != null && !idParameter.isEmpty()) {
+        idParameter = "&ID=" + idParameter;
+      }
+      else {
+        idParameter = "";
+      }
 //      if (noLoginParameter != null && !noLoginParameter.equals("")) {
 //        //nlLogin does exist
-//        if (idParameter == null || idParameter.equals(""))  //ID does NOT exist
-//        {
-//          noLogin = true;
-//        }
-//      }
+      noLogin = idParameter.isEmpty();  //ID does NOT exist
       System.out.println("Starting MonthCalendar. noLogin=" + noLogin);
       System.out.println("idParameter=" + idParameter);
       System.out.println("noLoginParameter=" + noLoginParameter);
       szMyID = sessionData.getLoggedInUserId();
-      noLogin = szMyID == null;
-      idParameter = "";
 ////todo hack
 //noLogin = false;
 //      if (!noLogin) {
@@ -113,9 +114,10 @@ public class MonthCalendar extends HttpServlet {
 //        szMyID = "";
 //      }
       resort = request.getParameter("resort");
-System.out.println("resort=("+resort+")");
-System.out.println("noLogin=("+noLogin+")");
-System.out.println("szMyID=("+szMyID+")");
+System.out.println("--resort=("+resort+")");
+System.out.println("--noLogin=("+noLogin+")");
+System.out.println("--szMyID=("+szMyID+")");
+System.out.println("--idParameter=("+idParameter+")");
 
       isDirector = false;
       ds = null;
@@ -415,7 +417,7 @@ System.out.println("finished with MonthCalendar");
 
 //cancel button pressed
     out.println("function goLogin() {");
-    String szLogin = "MonthCalendar?resort=" + resort + idParameter + "&month=" + currMonth + "&year=" + currYear;
+    String szLogin = "MemberLogin?resort=" + resort;
     out.println("window.location=\"" + szLogin + "\"");
     out.println("}");
 
@@ -474,7 +476,7 @@ System.out.println("finished with MonthCalendar");
     out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
     out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
     out.println("</head>");
-    out.println("<BODY TEXT=\"#000000\" ALINK=\"#ff0000\" BGCOLOR=\"#FFFFFF\" BACKGROUND=\"/nspImages/ncmnthbk.jpg\">");
+    out.println("<BODY TEXT=\"#000000\" ALINK=\"#ff0000\" BGCOLOR=\"#FFFFFF\" BACKGROUND=\"images/ncmnthbk.jpg\">");
     out.println("<body>");
     out.println("<FORM name=\"myForm\">");
 //do I need this here???
@@ -505,23 +507,23 @@ System.out.println("finished with MonthCalendar");
     if (noLogin) {
       szPrevHTML += "&noLogin=1";
     }
-    szPrevHTML += idParameter;
-    out.println("<a href=\"" + szPrevHTML + "\"><IMG SRC=\"/nspImages/ncvwprev.gif\" BORDER=\"0\" ALT=\"Previous month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+//    szPrevHTML += idParameter;
+    out.println("<a href=\"" + szPrevHTML + "\"><IMG SRC=\"images/ncvwprev.gif\" BORDER=\"0\" ALT=\"Previous month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
 //insert page for next button
     String szNextHTML = "MonthCalendar?resort=" + resort + idParameter + "&month=" + nextMonth + "&year=" + nextYear;
     if (noLogin) {
       szNextHTML += "&noLogin=1";
     }
-    szNextHTML += idParameter;
-    out.println("<a href=\"" + szNextHTML + "\"><IMG SRC=\"/nspImages/ncvwnext.gif\" BORDER=\"0\" ALT=\"Next month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+//    szNextHTML += idParameter;
+    out.println("<a href=\"" + szNextHTML + "\"><IMG SRC=\"images/ncvwnext.gif\" BORDER=\"0\" ALT=\"Next month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
 //home month button
 //  if(currMonth != realCurrMonth) {
     String szCurrHTML = "MonthCalendar?resort=" + resort + idParameter + "&month=" + realCurrMonth + "&year=" + realCurrYear;
     if (noLogin) {
       szCurrHTML += "&noLogin=1";
     }
-    szCurrHTML += idParameter;
-    out.println("<a href=\"" + szCurrHTML + "\" Target=\"_self\"><IMG SRC=\"/nspImages/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "\" ALIGN=\"MIDDLE\" width=\"32\" height=\"32\"></a>");
+//    szCurrHTML += idParameter;
+    out.println("<a href=\"" + szCurrHTML + "\" Target=\"_self\"><IMG SRC=\"images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "\" ALIGN=\"MIDDLE\" width=\"32\" height=\"32\"></a>");
 //  }
     out.println("</FONT></TD></TR>");
     out.println("<TR><TD VALIGN=\"Bottom\" ALIGN=\"RIGHT\" height=\"21\">");
@@ -530,7 +532,7 @@ System.out.println("finished with MonthCalendar");
     out.println("");
     out.println("</TD></TR></table>");
     out.println("");
-    out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"/nspImages/ncclear.gif\" width=\"3\" height=\"3\"></TD></TR></table>");
+    out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"images/ncclear.gif\" width=\"3\" height=\"3\"></TD></TR></table>");
     out.println("");
     out.println("<TABLE BORDER=\"3\" CELLSPACING=\"0\" CELLPADDING=\"1\" WIDTH=\"100%\"><TR>");
     out.println("<TD WIDTH=\"" + wkEndWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#800000\">");
@@ -555,7 +557,7 @@ System.out.println("finished with MonthCalendar");
 //---------------
   public void printEndOfPage(PrintWriter out, String resort) {
     out.println("</TABLE>");
-    out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"/nspImages/ncclear.gif\" width=\"3\" height=\"4\"></TD></TR></table>");
+    out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"images/ncclear.gif\" width=\"3\" height=\"4\"></TD></TR></table>");
 //        out.println("</CENTER>");
     out.println("<font size=1>As of: " + trialTime);
 

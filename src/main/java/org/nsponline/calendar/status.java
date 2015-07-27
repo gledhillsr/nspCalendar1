@@ -12,7 +12,7 @@ import java.io.PrintWriter;
  * Simple Hello servlet.
  */
 
-public final class Hello2 extends HttpServlet {
+public final class Status extends HttpServlet {
 
 
   /**
@@ -32,7 +32,7 @@ public final class Hello2 extends HttpServlet {
     PrintWriter writer = response.getWriter();
     writer.println("<html>");
     writer.println("<head>");
-    writer.println("<title>NSP Online Servlet Page</title>");
+    writer.println("<title>NSP Online Servlet Status</title>");
     writer.println("</head>");
     writer.println("<body bgcolor=white>");
 
@@ -42,24 +42,18 @@ public final class Hello2 extends HttpServlet {
     writer.println("<img src=\"images/maestro.png\">");
     writer.println("</td>");
     writer.println("<td>");
-    writer.println("<h1>NSP Online Servlet</h1>");
+    writer.println("<h1>NSP Online Servlet Status</h1>");
     writer.println("</td>");
     writer.println("</tr>");
     writer.println("</table>");
 
     writer.println("<br>NSP Online.org");
-    writer.println("<br>1) added memberLogin");
-    writer.println("<br>2) renamed war to calendar-1");
-    writer.println("<br>3) added loginHelp");
-    writer.println("<br>4) fixed link in MemberLogin from nscCode to calendar-1");
-    writer.println("<br>5) connect to DB  :-)");
-    writer.println("<br>6) MonthCalendar, NewIndividualAssignment");
-    writer.println("<br>7) DayShifts - Calendar");
-    writer.println("<br>8) ChangeShift - Calendar");
-    writer.println("<br>9) ProcessChanges - Calendar - ChangeShift, MailMan!!");
-    writer.println("<br>10) Emails are 'silently' broken ;-(");
-    writer.println("<br>11) fixed broken link in LoginHelp.  but is a hack");
-    writer.println("<br>11) WIP hiding credentials. adding to MonthCalendar6..");
+    writer.println("<br>added to git");
+    writer.println("<br>WIP credentials from session, and getting to run from nsponline.org");
+    writer.println("<br>calendar to login page");
+    writer.println("<br>");
+    writer.println("<br>");
+    writer.println("<br>");
 
     writer.println("</body>");
     writer.println("</html>");

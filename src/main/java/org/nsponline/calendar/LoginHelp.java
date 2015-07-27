@@ -136,25 +136,25 @@ public class LoginHelp extends HttpServlet {
   private boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
     boolean validLogin = false;
     ResultSet rs;
-//System.out.println("loginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
+//System.out.println("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
     if (ID == null || pass == null) {
       return false;
     }
 
     try {
-//System.out.println("loginHelp: loading JData driver");
+//System.out.println("LoginHelp: loading JData driver");
       //noinspection unused
       Driver drv = (Driver) Class.forName(PatrolData.JDBC_DRIVER).newInstance();
-//System.out.println("loginHelp: driver ="+drv);
-//System.out.println("loginHelp: driver loaded");
+//System.out.println("LoginHelp: driver ="+drv);
+//System.out.println("LoginHelp: driver loaded");
     }
     catch (Exception e) {
-      out.println("loginHelp: Cannot find mysql driver, reason:" + e.toString());
+      out.println("LoginHelp: Cannot find mysql driver, reason:" + e.toString());
       return false;
     }
 
     if (ID.equalsIgnoreCase(PatrolData.backDoorUser) && pass.equalsIgnoreCase(PatrolData.backDoorPass)) {
-//System.out.println("Back Door login in loginHelp");
+//System.out.println("Back Door login in LoginHelp");
 //        Cookie cookie = new Cookie(CookieID.NSP_fullname, "Steve Gledhill");
 //        cookie.setMaxAge(-1); //default is -1, indicating cookie is for current session only
 //        response.addCookie(cookie);
@@ -209,7 +209,7 @@ public class LoginHelp extends HttpServlet {
     }
     catch (Exception e) {
       out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-      System.out.println("in loginHelp.  ID of editor:" + ID);
+      System.out.println("in LoginHelp.  ID of editor:" + ID);
     } //end try
 //System.out.println("<br>valid="+valid);
 //out.println("<br>");
@@ -236,7 +236,7 @@ public class LoginHelp extends HttpServlet {
     out.println("<font face=verdana, arial size=2 color=black>");
     out.println("<b>" + PatrolData.getResortFullName(resort) + " Login Help</b><p>");
     out.println("Please enter the following information.  If we find match in the member database, you'll get instant access.<br><b>If you have assigned yourself a password, your Last name will no longer work.</b><p>");
-    out.println("<form action=" + PatrolData.SERVLET_URL + "loginHelp method=post>");
+    out.println("<form action=" + PatrolData.SERVLET_URL + "LoginHelp method=post>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + CookieID.NSP_goto + "\" VALUE=\"" + szParent + "\">\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">\n");
 
@@ -289,15 +289,15 @@ public class LoginHelp extends HttpServlet {
     out.println("<table>");
     out.println("<tr>");
     out.println("<td align=center>");
-    out.println("<img src=/nspImages/MembershipCard.jpg alt=\"NSP Membership Card\" border=0 width=\"210\" height=\"138\">");
+    out.println("<img src=images/MembershipCard.jpg alt=\"NSP Membership Card\" border=0 width=\"210\" height=\"138\">");
     out.println("</td>");
     out.println("<td align=center>");
-    out.println("<img src=/nspImages/OECCard.jpg alt=\"NSP Membership Card.\" width=\"210\" height=\"148\">");
+    out.println("<img src=images/OECCard.jpg alt=\"NSP Membership Card.\" width=\"210\" height=\"148\">");
     out.println("</td>");
     out.println("</tr>");
     out.println("<tr>");
     out.println("<td align=center>");
-    out.println("<img src=/nspImages/label.jpg alt=\"Mailing Label From SPM\" width=\"210\" height=\"93\"><br>");
+    out.println("<img src=images/label.jpg alt=\"Mailing Label From SPM\" width=\"210\" height=\"93\"><br>");
     out.println("</td>");
     out.println("</tr>");
     out.println("</table>");

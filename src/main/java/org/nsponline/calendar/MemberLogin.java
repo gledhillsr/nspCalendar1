@@ -55,9 +55,9 @@ public class MemberLogin extends HttpServlet {
 //        response.addCookie(cookie);
 
       resort = request.getParameter("resort");
-//System.out.println("memberLogin:resort="+resort);
+//System.out.println("MemberLogin:resort="+resort);
       szParent = request.getParameter(CookieID.NSP_goto);
-//System.out.println("memberLogin:szParent="+szParent);
+//System.out.println("MemberLogin:szParent="+szParent);
       printTop(out, resort);
       if (PatrolData.validResort(resort)) {
         printMiddle(out, szParent, resort);
@@ -101,7 +101,7 @@ public class MemberLogin extends HttpServlet {
 
     private void printMiddle(PrintWriter out, String szParent, String resort) {
       out.println("&nbsp;");
-      out.println("<form method=post action=\"" + PatrolData.SERVLET_URL + "loginHelp\">");
+      out.println("<form method=post action=\"" + PatrolData.SERVLET_URL + "LoginHelp\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + CookieID.NSP_goto + "\" VALUE=\"" + szParent + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
 
@@ -125,7 +125,7 @@ public class MemberLogin extends HttpServlet {
       out.println("   <TR>");
       out.println("       <TD colspan=2 align=middle>");
       out.println("       <font face=verdana, size =2 arial >");
-      out.println("        <A href=\"" + PatrolData.SERVLET_URL + "loginHelp?resort=" + resort + "\">Login Help</a></font>");
+      out.println("        <A href=\"" + PatrolData.SERVLET_URL + "LoginHelp?resort=" + resort + "\">Login Help</a></font>");
       out.println("        </TD>");
       out.println("   </TR>");
       out.println("   <TR>");
