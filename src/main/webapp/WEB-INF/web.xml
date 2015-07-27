@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+
+    <display-name>NSPOnline Scheduling</display-name>
+    <description>
+        National Ski Patrol Online Scheduling Software
+    </description>
+
+    <servlet>
+        <servlet-name>Hello2Servlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.Hello2</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>memberLoginServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.MemberLogin</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>loginHelpServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.LoginHelp</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MonthCalendarServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.MonthCalendar</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DayShiftsServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.DayShift</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChangeShiftServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.ChangeShift</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ProcessChangesServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.ProcessChanges</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Hello2Servlet</servlet-name>
+        <url-pattern>/hello2</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>memberLoginServlet</servlet-name>
+        <url-pattern>/memberLogin</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>loginHelpServlet</servlet-name>
+        <url-pattern>/loginHelp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MonthCalendarServlet</servlet-name>
+        <url-pattern>/MonthCalendar</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DayShiftsServlet</servlet-name>
+        <url-pattern>/DayShifts</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChangeShiftServlet</servlet-name>
+        <url-pattern>/ChangeShift</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProcessChangesServlet</servlet-name>
+        <url-pattern>/ProcessChanges</url-pattern>
+    </servlet-mapping>
+
+</web-app> 
