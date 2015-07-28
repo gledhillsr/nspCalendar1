@@ -22,10 +22,10 @@ public class MailMan {
 
   private final static boolean DEBUG = true;
 
-  final static String _smtpHost = "zzzSmtp"; //todo see SessionData.smtpHost
-  private final static String _pop3Host = "zzzPop";
-  private final static String _user = "zzzUser"; //todo see SessionData.emailUser
-  private final static String _password = "zzzPassword"; //todo see SessionData.emailPassword
+//  final static String _smtpHost = "zzzSmtp"; //todo see SessionData.smtpHost
+//  private final static String _pop3Host = "zzzPop";
+//  private final static String _user = "zzzUser"; //todo see SessionData.emailUser
+//  private final static String _password = "zzzPassword"; //todo see SessionData.emailPassword
 
   private final static String POP_MAIL = "pop3";
   private final static String INBOX = "INBOX";
@@ -44,7 +44,7 @@ public class MailMan {
    * @param from     The return address.
    * @param fromText from text
    */
-  public MailMan(String host, String from, String fromText) {
+  public MailMan(String host, String from, String fromText, SessionData sessionData) {
     debugOut("MailMan(host=" + host + ", from=" + from + ", fromText='" + fromText + "')");
     try {
       hostAddress = new InternetAddress(host);
@@ -56,15 +56,15 @@ public class MailMan {
         session.setDebug(false);
         store = session.getStore(POP_MAIL);
 //        debugOut("  getStore=" + store);
-        store.connect(_pop3Host, -1, _user, _password);
-        debugOut("  store.connect(pop3Host=" + _pop3Host + ", user=" + _user);
+        store.connect(sessionData.getPopHost(), -1, sessionData.getEmailUser(), sessionData.getEmailPassword());
+        debugOut("  store.connect(pop3Host=" + sessionData.getPopHost() + ", user=" + sessionData.getEmailUser());
         folder = store.getDefaultFolder();
 //        debugOut("  folder=" + folder);
         folder = folder.getFolder(INBOX);
 //        debugOut("  folder=" + folder);
         folder.open(Folder.READ_WRITE);
         int totalMessages = folder.getMessageCount();
-        debugOut("  MessageCount is " + totalMessages + " for " + _pop3Host);
+        debugOut("  MessageCount is " + totalMessages + " for " + sessionData.getPopHost());
       }
       catch (Exception e) {
         System.out.println("create mail exception e=" + e);
@@ -151,10 +151,10 @@ public class MailMan {
    * @param recipient The recipient.
    * @throws MailManException oops
    */
-  public void sendMessage(String subject, String message, String recipient) throws MailManException {
+  public void sendMessage(String subject, String message, String recipient, SessionData sessionData) throws MailManException {
     String[] recipients = new String[1];
     recipients[0] = recipient;
-    sendMessage(subject, message, recipients);
+    sendMessage(subject, message, recipients, sessionData);
   }
 
   /**
@@ -168,7 +168,7 @@ public class MailMan {
    *                   recipients.
    * @throws MailManException oops
    */
-  public void sendMessage(String subject, String message, String[] recipients) throws MailManException {
+  public void sendMessage(String subject, String message, String[] recipients, SessionData sessionData) throws MailManException {
     debugOut("sendMessage(subject='" + subject + "', message='" + message + "', recipients=" + recipients[0] + ")");
     debugOut("  hostAddress=" + hostAddress.getAddress());
     Properties props = new Properties();
@@ -207,7 +207,7 @@ public class MailMan {
       // send the message
       Transport transport = session.getTransport(SMTP_MAIL);
 //      debugOut("getTransport=" + transport);
-      transport.connect(_smtpHost, _user, _password);
+      transport.connect(sessionData.getSmtpHost(), sessionData.getEmailUser(), sessionData.getEmailPassword());
 //      debugOut("transport.connect(" + _smtpHost + ", user=" + _user + ", pass=" + _password + ")");
       transport.sendMessage(msg, rcptAddresses);
 //      debugOut("transport.close()");

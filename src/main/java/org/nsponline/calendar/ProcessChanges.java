@@ -104,7 +104,7 @@ public class ProcessChanges extends HttpServlet {
         patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
         readParameters(request);
         printTop();
-        printBody();
+        printBody(sessionData);
       }
       else {
         out.println("Invalid host resort (" + resort + ")");
@@ -555,7 +555,7 @@ public class ProcessChanges extends HttpServlet {
   /**
    * printBody
    */
-  public void printBody() {
+  public void printBody(SessionData sessionData) {
 
     DisplayParameters();
     DirectorSettings ds = patrolData.readDirectorSettings();
@@ -619,16 +619,16 @@ public class ProcessChanges extends HttpServlet {
 //          String from="SGledhill@Novell.com" ;
 //          if(!submitter.isDirector()) {
 
-      sendMailNotifications(ds, notifyPatrollers);
+      sendMailNotifications(ds, notifyPatrollers, sessionData);
 
     } // not err in writing assignment data
 //Return to Calendar
     out.println("<A HREF=\"" + PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&ID=" + szMyID + "\">Return to Calendar</A> ");
   }
 
-  private void sendMailNotifications(DirectorSettings ds, boolean notifyPatrollers) {
-    String smtp = "mail.gledhills.com";
-    String from = "steve@gledhills.com";
+  private void sendMailNotifications(DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
+    String smtp = sessionData.getSmtpHost(); //"mail.gledhills.com";
+    String from = sessionData.getEmailUser(); //"steve@gledhills.com";
 //System.out.println("ds.getNotifyChanges()="+ds.getNotifyChanges());
     //noinspection StatementWithEmptyBody
     if (!ds.getNotifyChanges()) {
@@ -645,7 +645,7 @@ public class ProcessChanges extends HttpServlet {
         else {    //hack to stop email
 //              if(submitter.isDirector())
 //                  System.out.println("=== via director ===");
-          MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder");
+          MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
           patrolData.resetRoster();
           MemberData mbr;
           sentToFirst = false;
@@ -654,17 +654,17 @@ public class ProcessChanges extends HttpServlet {
 //    System.out.println("----------------");
           while ((mbr = patrolData.nextMember("")) != null) {
             if (mbr.isDirector() && mbr.getDirector().equalsIgnoreCase("yesEmail")) {
-              mailto(mail, mbr, strChange3, true);
+              mailto(mail, mbr, strChange3, true, sessionData);
             }
 
           } //end while
           //send e-mail to 1st patroller
           if (notifyPatrollers) {
             if (!sentToFirst && member1 != null) {
-              mailto(mail, member1, strChange3, false);
+              mailto(mail, member1, strChange3, false, sessionData);
             }
             if (!sentToSecond && member2 != null) {
-              mailto(mail, member2, strChange3, false);
+              mailto(mail, member2, strChange3, false, sessionData);
             }
           }
 // System.out.println(strChange3); //LOG message
@@ -678,7 +678,7 @@ public class ProcessChanges extends HttpServlet {
    * @param strChange3 zz
    * @param director   not used
    */
-  private void mailto(MailMan mail, MemberData mbr, String strChange3, boolean director) {
+  private void mailto(MailMan mail, MemberData mbr, String strChange3, boolean director, SessionData sessionData) {
     //noinspection StatementWithEmptyBody
     if (director) {
       //todo send director notifications here???
@@ -698,7 +698,7 @@ public class ProcessChanges extends HttpServlet {
           sentToSecond = true;
         }
 //System.out.println("sending to: "+recipient);   //no e-mail, JUST LOG IT
-        mail.sendMessage("Patrol Roster Changed (" + resort + ")", strChange3, recipient);
+        mail.sendMessage("Patrol Roster Changed (" + resort + ")", strChange3, recipient, sessionData);
 //System.out.println("mail was sucessfull");  //no e-mail, JUST LOG IT
       }
       catch (MailManException ex) {

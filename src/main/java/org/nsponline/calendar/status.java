@@ -54,7 +54,7 @@ public final class Status extends HttpServlet {
     writer.println("<br>Directors(login is blank)");
     writer.println("<br>UpdateInfo(login is blank)");
     writer.println("<br>ListAssignments");
-    writer.println("<br>CustomizedList2, SubList");
+    writer.println("<br>CustomizedList2, SubList, EditShifts, PurgeAssignments, EmailForm");
 
     writer.println("</body>");
     writer.println("</html>");

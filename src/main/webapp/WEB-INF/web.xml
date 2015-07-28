@@ -66,6 +66,18 @@
         <servlet-name>PreferencesServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.Preferences</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>EditShiftsServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.EditShifts</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PurgeAssignmentsServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.PurgeAssignments</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EmailFormServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.EmailForm</servlet-class>
+    </servlet>
 
 
 <!--    define & map URL patterns -->
@@ -125,5 +137,16 @@
         <servlet-name>PreferencesServlet</servlet-name>
         <url-pattern>/Preferences</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>EditShiftsServlet</servlet-name>
+        <url-pattern>/EditShifts</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PurgeAssignmentsServlet</servlet-name>
+        <url-pattern>/PurgeAssignments</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EmailFormServlet</servlet-name>
+        <url-pattern>/EmailForm</url-pattern>
+    </servlet-mapping>
 </web-app> 

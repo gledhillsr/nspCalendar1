@@ -74,7 +74,7 @@ public class LoginHelp extends HttpServlet {
     doGet(request, response);
   }
 
-  private boolean mailto(MailMan mail, MemberData mbr, String subject, String message) {
+  private boolean mailto(MailMan mail, MemberData mbr, String subject, String message, SessionData sessionData) {
     if (mbr == null) {
       return false;
     }
@@ -82,7 +82,7 @@ public class LoginHelp extends HttpServlet {
     if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
       System.out.print("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
       try {
-        mail.sendMessage(subject, message, recipient);
+        mail.sendMessage(subject, message, recipient, sessionData);
         System.out.println("  mail was sucessfull");    //no e-mail, JUST LOG IT
         return true;
       }
@@ -122,8 +122,8 @@ public class LoginHelp extends HttpServlet {
           "If you continue to have problems, please contact your director.\n\nThanks.";
       @SuppressWarnings("UnnecessaryLocalVariable")
       String from = email;
-      MailMan mail = new MailMan(MailMan._smtpHost, from, fullName);
-      if (mailto(mail, member, "Here is your password you requested", message)) {
+      MailMan mail = new MailMan(sessionData.getSmtpHost(), from, fullName, sessionData);
+      if (mailto(mail, member, "Here is your password you requested", message, sessionData)) {
         return 0; //mail was sent
       }
       else {

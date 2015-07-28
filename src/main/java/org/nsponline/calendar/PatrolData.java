@@ -14,6 +14,7 @@ public class PatrolData {
 
   //  final static String JDBC_DRIVER = "org.gjt.mm.mysql.Driver"; //todo change July 32 2015
   final static String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+  final static String newShiftStyle = "--New Shift Style--";
 
   // create a Mountain Standard Time time zone
   final static String[] ids = TimeZone.getAvailableIDs(-7 * 60 * 60 * 1000);
