@@ -96,12 +96,10 @@ public class PatrolData {
   private ResultSet shiftResults;
   private boolean fetchFullData;
   private String localResort;
-  private SessionData sessionData;
 
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData) {
 //todo add a user ID in constructor for debug tracking
 //System.out.println("**11** database--jdbcURL (" + jdbcURL + ") myResort="+myResort);
-    this.sessionData = sessionData;
     rosterResults = null;
     assignmentsStatement = null;
     assignmentResults = null;

@@ -476,7 +476,7 @@ System.out.println("finished with MonthCalendar");
     out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
     out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
     out.println("</head>");
-    out.println("<BODY TEXT=\"#000000\" ALINK=\"#ff0000\" BGCOLOR=\"#FFFFFF\" BACKGROUND=\"images/ncmnthbk.jpg\">");
+    out.println("<BODY TEXT=\"#000000\" ALINK=\"#ff0000\" BGCOLOR=\"#FFFFFF\" BACKGROUND=\"http://nsponline.org/images/ncmnthbk.jpg\">");
     out.println("<body>");
     out.println("<FORM name=\"myForm\">");
 //do I need this here???
@@ -508,14 +508,14 @@ System.out.println("finished with MonthCalendar");
       szPrevHTML += "&noLogin=1";
     }
 //    szPrevHTML += idParameter;
-    out.println("<a href=\"" + szPrevHTML + "\"><IMG SRC=\"images/ncvwprev.gif\" BORDER=\"0\" ALT=\"Previous month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+    out.println("<a href=\"" + szPrevHTML + "\"><IMG SRC=\"http://nsponline.org/images/ncvwprev.gif\" BORDER=\"0\" ALT=\"Previous month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
 //insert page for next button
     String szNextHTML = "MonthCalendar?resort=" + resort + idParameter + "&month=" + nextMonth + "&year=" + nextYear;
     if (noLogin) {
       szNextHTML += "&noLogin=1";
     }
 //    szNextHTML += idParameter;
-    out.println("<a href=\"" + szNextHTML + "\"><IMG SRC=\"images/ncvwnext.gif\" BORDER=\"0\" ALT=\"Next month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+    out.println("<a href=\"" + szNextHTML + "\"><IMG SRC=\"http://nsponline.org/images/ncvwnext.gif\" BORDER=\"0\" ALT=\"Next month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
 //home month button
 //  if(currMonth != realCurrMonth) {
     String szCurrHTML = "MonthCalendar?resort=" + resort + idParameter + "&month=" + realCurrMonth + "&year=" + realCurrYear;
@@ -523,7 +523,7 @@ System.out.println("finished with MonthCalendar");
       szCurrHTML += "&noLogin=1";
     }
 //    szCurrHTML += idParameter;
-    out.println("<a href=\"" + szCurrHTML + "\" Target=\"_self\"><IMG SRC=\"images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "\" ALIGN=\"MIDDLE\" width=\"32\" height=\"32\"></a>");
+    out.println("<a href=\"" + szCurrHTML + "\" Target=\"_self\"><IMG SRC=\"http://nsponline.org/images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "\" ALIGN=\"MIDDLE\" width=\"32\" height=\"32\"></a>");
 //  }
     out.println("</FONT></TD></TR>");
     out.println("<TR><TD VALIGN=\"Bottom\" ALIGN=\"RIGHT\" height=\"21\">");
@@ -931,4 +931,4 @@ System.out.println("finished with MonthCalendar");
     return num;
   }
 
-} //end MonthDalendar class
+}
