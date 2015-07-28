@@ -8,24 +8,26 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class CookieID {
   final static String NSP_goto = "NSPgoto";
-  final static boolean trace = false;
+  final static boolean trace = true;
 
   //Instance data
   String szID = null;
   boolean error;
 
   @SuppressWarnings("UnusedParameters")
-  public CookieID(HttpServletRequest request, HttpServletResponse response, String parent, String owner) {
-    String szParent = null;
-    String lastResort = null;
+  public CookieID(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, String owner) {
     error = false;
     szID = request.getParameter("ID");
-    String resort = request.getParameter("resort");
-    if (trace) {
+    if (szID == null || szID.isEmpty()) {
+      szID = sessionData.getLoggedInUserId();
+      System.out.println("get user id from session(" + szID + ")");
+    }
+    else if (trace) {
       System.out.println("CookieID: ID=(" + szID + ")");
     }
+    String resort = request.getParameter("resort");
     if (trace) {
-      System.out.println("CookieID: NSPgoto=(" + szParent + ")");
+      System.out.println("CookieID: NSPgoto=(" + parent + ")");
     }
     if (trace) {
       System.out.println("CookieID: resort=(" + resort + ")");
@@ -35,7 +37,7 @@ public class CookieID {
       try {
         error = true;
         if (trace) {
-          System.out.println("error, lastResort=(" + lastResort + "), resort=(" + resort + ")");
+          System.out.println("error, resort=(" + resort + ")");
         }
         String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resort + "&" + NSP_goto + "=" + parent;
         if (trace) {
@@ -44,18 +46,18 @@ public class CookieID {
         response.sendRedirect(newLoc);
 
       }
-      catch (Exception ignored) {
+      catch (Exception e) {
+        System.out.println(e.getMessage());
       }
     }
     else {
       if (trace) {
-        System.out.println("Cookie was OK.  id=" + szID + ", parent=" + szParent + ", resort=" + resort);
+        System.out.println("Cookie was OK.  id=" + szID + ", parent=" + parent + ", resort=" + resort);
       }
     }
 
-  } //end CookieID()
+  }
 
-  @SuppressWarnings("unused")
   public String getID() {
     return szID;
   }

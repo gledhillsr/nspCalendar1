@@ -91,16 +91,17 @@ public class ProcessChanges extends HttpServlet {
   public void doGet(HttpServletRequest request,
                     HttpServletResponse response)
       throws IOException, ServletException {
-    CookieID cookie = new CookieID(request, response, "MonthCalendar", "ProcessChanges");
-    szMyID = cookie.getID();
     synchronized (this) {
+      SessionData sessionData = new SessionData(getServletContext(), out);
+      CookieID cookie = new CookieID(sessionData, request, response, "MonthCalendar", "ProcessChanges");
+      szMyID = cookie.getID();
       resort = request.getParameter("resort");
 
       response.setContentType("text/html");
       out = response.getWriter();
 
       if (PatrolData.validResort(resort)) {
-        patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, new SessionData(getServletContext(), out));
+        patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
         readParameters(request);
         printTop();
         printBody();

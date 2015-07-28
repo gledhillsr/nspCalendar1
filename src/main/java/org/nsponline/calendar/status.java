@@ -51,9 +51,9 @@ public final class Status extends HttpServlet {
     writer.println("<br>added to git");
     writer.println("<br>WIP credentials from session, and getting to run from nsponline.org");
     writer.println("<br>calendar to login page");
-    writer.println("<br>Directors");
-    writer.println("<br>UpdateInfo");
-    writer.println("<br>");
+    writer.println("<br>Directors(login is blank)");
+    writer.println("<br>UpdateInfo(login is blank)");
+    writer.println("<br>ListAssignments");
 
     writer.println("</body>");
     writer.println("</html>");

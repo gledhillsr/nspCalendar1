@@ -46,6 +46,10 @@
         <servlet-name>UpdateInfoServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.UpdateInfo</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ListAssignmentsServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.ListAssignments</servlet-class>
+    </servlet>
 
 <!--    define & map URL patterns -->
     <servlet-mapping>
@@ -83,6 +87,10 @@
     <servlet-mapping>
         <servlet-name>UpdateInfoServlet</servlet-name>
         <url-pattern>/UpdateInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ListAssignmentsServlet</servlet-name>
+        <url-pattern>/ListAssignments</url-pattern>
     </servlet-mapping>
 
 </web-app> 
