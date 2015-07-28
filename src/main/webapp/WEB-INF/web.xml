@@ -50,6 +50,23 @@
         <servlet-name>ListAssignmentsServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.ListAssignments</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CustomizedListServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.CustomizedList</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CustomizedList2Servlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.CustomizedList2</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SubListServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.SubList</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PreferencesServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.Preferences</servlet-class>
+    </servlet>
+
 
 <!--    define & map URL patterns -->
     <servlet-mapping>
@@ -91,6 +108,22 @@
     <servlet-mapping>
         <servlet-name>ListAssignmentsServlet</servlet-name>
         <url-pattern>/ListAssignments</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomizedListServlet</servlet-name>
+        <url-pattern>/CustomizedList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomizedList2Servlet</servlet-name>
+        <url-pattern>/CustomizedList2</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SubListServlet</servlet-name>
+        <url-pattern>/SubList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PreferencesServlet</servlet-name>
+        <url-pattern>/Preferences</url-pattern>
     </servlet-mapping>
 
 </web-app> 

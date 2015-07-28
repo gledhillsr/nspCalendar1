@@ -68,8 +68,8 @@ public class MonthCalendar extends HttpServlet {
     String resort;
 
     response.setContentType("text/html");
-    out = response.getWriter();
     synchronized (this) {
+      out = response.getWriter();
       textFontSize = 10;
       currYear = 0;   //not initialized
       currMonth = 0; //0 based month
