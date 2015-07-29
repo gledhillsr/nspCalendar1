@@ -1,10 +1,15 @@
 package org.nsponline.calendar;
 
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.lang.*;
-import java.sql.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 /**
  * @author Steve Gledhill
@@ -28,9 +33,14 @@ public class LoginHelp extends HttpServlet {
     SessionData sessionData = new SessionData(request.getSession(), out);
     if (isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
       try {
-        String BASE_URL = "http://nsponline.org/"; //TODO fix me to work with any url.  It was "http://localhost/" bit that does not work
+      //  String BASE_URL = "http://nsponline.org/"; //TODO fix me to work with any url.  It was "http://localhost/" bit that does not work
         sessionData.setLoggedInUserId(id);
-        String newLoc = BASE_URL + resort + "/index.php?resort=" + resort + "&NSPgoto=" + szParent + "&ID=" + id;
+       // if (szParent == null || szParent.isEmpty()) {
+szParent = "MonthCalendar"; //todo srg hack
+       // }
+       // String newLoc = BASE_URL + resort + "/index.php?resort=" + resort + "&NSPgoto=" + szParent + "&ID=" + id;
+        String newLoc = PatrolData.SERVLET_URL + szParent + "?resort=" + resort + "&ID=" + id;
+        System.out.println("LoginHelp redirect to: " + newLoc);
         response.sendRedirect(newLoc);
       }
       catch (Exception ignore) {
@@ -289,15 +299,15 @@ public class LoginHelp extends HttpServlet {
     out.println("<table>");
     out.println("<tr>");
     out.println("<td align=center>");
-    out.println("<img src=images/MembershipCard.jpg alt=\"NSP Membership Card\" border=0 width=\"210\" height=\"138\">");
+    out.println("<img src=http://nsponline.org/images/MembershipCard.jpg alt=\"NSP Membership Card\" border=0 width=\"210\" height=\"138\">");
     out.println("</td>");
     out.println("<td align=center>");
-    out.println("<img src=images/OECCard.jpg alt=\"NSP Membership Card.\" width=\"210\" height=\"148\">");
+    out.println("<img src=http://nsponline.org/images/OECCard.jpg alt=\"NSP Membership Card.\" width=\"210\" height=\"148\">");
     out.println("</td>");
     out.println("</tr>");
     out.println("<tr>");
     out.println("<td align=center>");
-    out.println("<img src=images/label.jpg alt=\"Mailing Label From SPM\" width=\"210\" height=\"93\"><br>");
+    out.println("<img src=http://nsponline.org/images/label.jpg alt=\"Mailing Label From SPM\" width=\"210\" height=\"93\"><br>");
     out.println("</td>");
     out.println("</tr>");
     out.println("</table>");

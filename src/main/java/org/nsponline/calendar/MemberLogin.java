@@ -48,13 +48,6 @@ public class MemberLogin extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
 
-      SessionData sessionData = new SessionData(request.getSession(), out);
-
-//no default cookie, since other login attempts start here
-//        Cookie cookie = new Cookie("NSPgoto", "UpdateInfo");
-//      cookie.setMaxAge(60*30); //default is -1, indicating cookie is for current session only
-//        response.addCookie(cookie);
-
       resort = request.getParameter("resort");
 //System.out.println("MemberLogin:resort="+resort);
       szParent = request.getParameter(CookieID.NSP_goto);
