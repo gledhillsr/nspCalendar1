@@ -87,7 +87,7 @@ public class EmailForm extends HttpServlet {
     synchronized (this) {
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
 
       debugOut("Entering EmailForm...");
 

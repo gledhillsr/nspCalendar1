@@ -51,7 +51,7 @@ public class Preferences extends HttpServlet {
     response.setContentType("text/html");
     synchronized (this) {
       out = response.getWriter();
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       CookieID cookie = new CookieID(sessionData, request, response, "Preferences", null);
       resort = request.getParameter("resort");
       szMyID = cookie.getID();

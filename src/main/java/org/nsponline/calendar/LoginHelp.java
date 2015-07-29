@@ -25,7 +25,7 @@ public class LoginHelp extends HttpServlet {
     response.setContentType("text/html");
     out = response.getWriter();
 
-    SessionData sessionData = new SessionData(getServletContext(), out);
+    SessionData sessionData = new SessionData(request.getSession(), out);
     if (isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
       try {
         String BASE_URL = "http://nsponline.org/"; //TODO fix me to work with any url.  It was "http://localhost/" bit that does not work
@@ -42,7 +42,7 @@ public class LoginHelp extends HttpServlet {
       String ID2 = request.getParameter("ID2");
       String email = request.getParameter("email");
       if (ID2 != null || email != null) {
-        int ret = sendPassword(out, ID2, email, resort, new SessionData(getServletContext(), out));
+        int ret = sendPassword(out, ID2, email, resort, sessionData);
         if (ret == 0) {
           out.println("Note: an email of the ID and password was just sent.<br>");
         }

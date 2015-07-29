@@ -27,7 +27,7 @@ public class Directors extends HttpServlet {
     response.setContentType("text/html");
     synchronized (this) {
       out = response.getWriter();
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       CookieID cookie = new CookieID(sessionData, request, response, "Directors", null);
 //      if(cookie.error)
 //        return;

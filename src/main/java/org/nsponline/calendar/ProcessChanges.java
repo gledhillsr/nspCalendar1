@@ -92,7 +92,7 @@ public class ProcessChanges extends HttpServlet {
                     HttpServletResponse response)
       throws IOException, ServletException {
     synchronized (this) {
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       CookieID cookie = new CookieID(sessionData, request, response, "MonthCalendar", "ProcessChanges");
       szMyID = cookie.getID();
       resort = request.getParameter("resort");

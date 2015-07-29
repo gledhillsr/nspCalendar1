@@ -48,7 +48,7 @@ public class UpdateInfo extends HttpServlet {
 //            usingCookie = false;
 //        } else {
 //            usingCookie = true;
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       if (debug) {
         System.out.println("Entering UpdateInfo");
       }

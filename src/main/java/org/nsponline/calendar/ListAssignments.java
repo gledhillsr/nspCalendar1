@@ -28,7 +28,7 @@ public class ListAssignments extends HttpServlet {
 //System.out.println("ListAssignment: resort="+request.getParameter("resort"));
 //System.out.println("ListAssignment: NSPgoto="+request.getParameter("NSPgoto"));
 //System.out.println("ListAssignment: ID="+request.getParameter("ID"));
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
 
       CookieID cookie = new CookieID(sessionData, request, response, "ListAssignments", null);
       if (cookie.error) {

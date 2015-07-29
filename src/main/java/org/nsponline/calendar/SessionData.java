@@ -1,6 +1,7 @@
 package org.nsponline.calendar;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,10 +34,10 @@ public class SessionData {
   private String emailPassword;
   private String backDoorUser;
   private String backDoorPassword;
-  private ServletContext servletContext;
+  private HttpSession session;
 
-  public SessionData(ServletContext servletContext, PrintWriter out) {
-    this.servletContext = servletContext;
+  public SessionData(HttpSession session, PrintWriter out) {
+    this.session = session;
     readCredentials(out);
   }
 
@@ -75,14 +76,14 @@ public class SessionData {
       out.println("ERROR, could not read user information from properties file.");
       return;
     }
-    servletContext.setAttribute(DB_USER, dbUser);
-    servletContext.setAttribute(DB_PASSWORD, dbPassword);
-    servletContext.setAttribute(SMTP_HOST, smtpHost);
-    servletContext.setAttribute(POP_HOST, popHost);
-    servletContext.setAttribute(EMAIL_USER, emailUser);
-    servletContext.setAttribute(EMAIL_PASSWORD, emailPassword);
-    servletContext.setAttribute(BACK_DOOR_USER, backDoorUser);
-    servletContext.setAttribute(BACK_DOOR_PASSWORD, backDoorPassword);
+    session.setAttribute(DB_USER, dbUser);
+    session.setAttribute(DB_PASSWORD, dbPassword);
+    session.setAttribute(SMTP_HOST, smtpHost);
+    session.setAttribute(POP_HOST, popHost);
+    session.setAttribute(EMAIL_USER, emailUser);
+    session.setAttribute(EMAIL_PASSWORD, emailPassword);
+    session.setAttribute(BACK_DOOR_USER, backDoorUser);
+    session.setAttribute(BACK_DOOR_PASSWORD, backDoorPassword);
     if (DEBUG) {
       //write to Tomcat logs, never to screen
       System.out.println(DB_USER + "=" + dbUser);
@@ -98,14 +99,14 @@ public class SessionData {
 
   public String getDbUser() {
     if (DEBUG) {
-      System.out.println("dbUser=" + dbUser);
+      System.out.println("SessionData.dbUser=" + dbUser);
     }
     return dbUser;
   }
 
   public String getDbPassword() {
     if (DEBUG) {
-      System.out.println("dbPassword=" + dbPassword);
+      System.out.println("SessionData.dbPassword=" + dbPassword);
     }
     return dbPassword;
   }
@@ -136,15 +137,15 @@ public class SessionData {
 
   public void setLoggedInUserId(String loggedInUserId) {
     if (DEBUG) {
-      System.out.println("setLoggedInUserId=" + loggedInUserId);
+      System.out.println("SessionData.setLoggedInUserId=" + loggedInUserId);
     }
-    servletContext.setAttribute(LOGGED_IN_USER_ID, loggedInUserId);
+    session.setAttribute(LOGGED_IN_USER_ID, loggedInUserId);
   }
 
   public String getLoggedInUserId() {
-    String userId = (String) servletContext.getAttribute(LOGGED_IN_USER_ID);
+    String userId = (String) session.getAttribute(LOGGED_IN_USER_ID);
     if (DEBUG) {
-      System.out.println("getLoggedInUserId=" + userId);
+      System.out.println("SessionData.getLoggedInUserId=" + userId);
     }
     return userId;
   }

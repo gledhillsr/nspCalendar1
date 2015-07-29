@@ -24,7 +24,7 @@ public class SubList extends HttpServlet {
     response.setContentType("text/html");
     synchronized (this) {
       out = response.getWriter();
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       System.out.println("starting SubList");
       out = response.getWriter();
       CookieID cookie = new CookieID(sessionData, request, response, "SubList", null);

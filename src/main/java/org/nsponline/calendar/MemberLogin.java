@@ -4,6 +4,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -47,7 +48,7 @@ public class MemberLogin extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
 
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
 
 //no default cookie, since other login attempts start here
 //        Cookie cookie = new Cookie("NSPgoto", "UpdateInfo");

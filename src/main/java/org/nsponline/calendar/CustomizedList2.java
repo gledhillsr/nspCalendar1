@@ -86,7 +86,7 @@ public class CustomizedList2 extends HttpServlet {
     response.setContentType("text/html");
     synchronized (this) {
       out = response.getWriter();
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       directorSettings = null;
       CookieID cookie = new CookieID(sessionData, request, response, "CustomizedList2", null);
       resort = request.getParameter("resort");

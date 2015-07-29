@@ -66,7 +66,7 @@ public class ChangeShift extends HttpServlet {
     out = response.getWriter();
 
     synchronized (this) {
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
 //      CookieID cookie = new CookieID(request, response, "MonthCalendar", "ChangeShift");
 //      szMyID = cookie.getID();
       resort = request.getParameter("resort");
@@ -81,7 +81,7 @@ public class ChangeShift extends HttpServlet {
       visibleRadioButtons = 0;
       printTop();
       if (PatrolData.validResort(resort)) {
-        printMiddle();
+        printMiddle(sessionData);
       }
       else {
         out.println("Invalid host resort.");
@@ -219,13 +219,13 @@ public class ChangeShift extends HttpServlet {
   /**
    * @param id of patroller where the user clicked
    */
-  private void isThisPositionEmpty(String id) {
+  private void isThisPositionEmpty(String id, SessionData sessionData) {
     String name;
     name = NumToName.get(id); //format ,"Steve Gledhill"
 //        if (blink) {
     hisName = name;
     hisName1 = hisNumber = id;
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, new SessionData(getServletContext(), out)); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
     MemberData md = patrol.getMemberByID(id);
 //			??PatrolData??
     if (md != null) {
@@ -306,7 +306,7 @@ public class ChangeShift extends HttpServlet {
     }
   } //addnames
 
-  private void findIfPositionWasEmpty() {
+  private void findIfPositionWasEmpty(SessionData sessionData) {
     for (int assignmentGroup = 0; assignmentGroup < totalAssignmentGroupsForToday; ++assignmentGroup) {
       for (int offsetWithinGroup = 0; offsetWithinGroup < assignmentGroups[assignmentGroup].getCount(); ++offsetWithinGroup) {
         String id = assignmentGroups[assignmentGroup].getPosID(offsetWithinGroup);
@@ -315,7 +315,7 @@ public class ChangeShift extends HttpServlet {
         }
         if ((assignmentGroup + 1) == pos && offsetWithinGroup == index) {
           debugOut("look for patroller at assignment group" + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
-          isThisPositionEmpty(id);
+          isThisPositionEmpty(id, sessionData);
         }
       }
     }
@@ -325,10 +325,10 @@ public class ChangeShift extends HttpServlet {
 // printMiddle (submitterID, transaction, selectedID, date1, pos1, listName)
 //------------
   @SuppressWarnings("deprecation")
-  private void printMiddle() {
+  private void printMiddle(SessionData sessionData) {
 //        int i;
 // print small date view
-    findIfPositionWasEmpty();
+    findIfPositionWasEmpty(sessionData);
 //      out.println("</table>");
 //      out.println("<HR>");    //Horziontal Rule
 

@@ -26,7 +26,7 @@ public class CustomizedList extends HttpServlet {
       resort = request.getParameter("resort");
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       CookieID cookie = new CookieID(sessionData, request, response, "CustomizedList", null);
 
       isDirector = false;

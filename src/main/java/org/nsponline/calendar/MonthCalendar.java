@@ -87,7 +87,7 @@ public class MonthCalendar extends HttpServlet {
         textLen = 0;  //undefined
       }
 
-      SessionData sessionData = new SessionData(getServletContext(), out);  //todo ........
+      SessionData sessionData = new SessionData(request.getSession(), out);  //todo ........
 //      noLoginParameter = request.getParameter("noLogin");
 //      idParameter = request.getParameter("ID");
       idParameter = sessionData.getLoggedInUserId();

@@ -74,7 +74,7 @@ public class DayShift extends HttpServlet {
       }
 //      CookieID cookie = new CookieID(request, response, "DayShifts", null);
 //      IDOfEditor = cookie.getID(); //editor's ID
-      SessionData sessionData = new SessionData(getServletContext(), out);
+      SessionData sessionData = new SessionData(request.getSession(), out);
       IDOfEditor = sessionData.getLoggedInUserId();
       doAssignments = request.getParameter("doAssignments") != null;
       resort = request.getParameter("resort");
