@@ -76,14 +76,14 @@ public class SessionData {
       out.println("ERROR, could not read user information from properties file.");
       return;
     }
-    session.setAttribute(DB_USER, dbUser);
-    session.setAttribute(DB_PASSWORD, dbPassword);
-    session.setAttribute(SMTP_HOST, smtpHost);
-    session.setAttribute(POP_HOST, popHost);
-    session.setAttribute(EMAIL_USER, emailUser);
-    session.setAttribute(EMAIL_PASSWORD, emailPassword);
-    session.setAttribute(BACK_DOOR_USER, backDoorUser);
-    session.setAttribute(BACK_DOOR_PASSWORD, backDoorPassword);
+//    session.setAttribute(DB_USER, dbUser);
+//    session.setAttribute(DB_PASSWORD, dbPassword);
+//    session.setAttribute(SMTP_HOST, smtpHost);
+//    session.setAttribute(POP_HOST, popHost);
+//    session.setAttribute(EMAIL_USER, emailUser);
+//    session.setAttribute(EMAIL_PASSWORD, emailPassword);
+//    session.setAttribute(BACK_DOOR_USER, backDoorUser);
+//    session.setAttribute(BACK_DOOR_PASSWORD, backDoorPassword);
     if (DEBUG) {
       //write to Tomcat logs, never to screen
       System.out.println(DB_USER + "=" + dbUser);
