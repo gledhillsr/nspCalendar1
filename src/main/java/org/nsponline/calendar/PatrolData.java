@@ -42,6 +42,7 @@ public class PatrolData {
     resortMap.put("JacksonHole", "Jackson Hole Fire/EMS");
     resortMap.put("JacksonSpecialEvents", "Jackson Hole Fire/EMS Special Events");
     resortMap.put("MountKato", "Mount Kato");
+    resortMap.put("NorwayMountain", "Norway Mountain");
     resortMap.put("PebbleCreek", "Pebble Creek");
     resortMap.put("PineCreek", "Pine Creek");
     resortMap.put("PineMountain", "Pine Mountain");

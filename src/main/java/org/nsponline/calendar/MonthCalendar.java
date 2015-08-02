@@ -436,7 +436,7 @@ public class MonthCalendar extends HttpServlet {
       out.println("");
       out.println("</TD></TR></table>");
       out.println("");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"images/ncclear.gif\" width=\"3\" height=\"3\"></TD></TR></table>");
+      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"http://nsponline.org/images/ncclear.gif\" width=\"3\" height=\"3\"></TD></TR></table>");
       out.println("");
       out.println("<TABLE BORDER=\"3\" CELLSPACING=\"0\" CELLPADDING=\"1\" WIDTH=\"100%\"><TR>");
       out.println("<TD WIDTH=\"" + wkEndWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#800000\">");
@@ -458,7 +458,7 @@ public class MonthCalendar extends HttpServlet {
 
     public void printEndOfPage(PrintWriter out, String resort) {
       out.println("</TABLE>");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"images/ncclear.gif\" width=\"3\" height=\"4\"></TD></TR></table>");
+      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"http://nsponline.org/images/ncclear.gif\" width=\"3\" height=\"4\"></TD></TR></table>");
       out.println("<font size=1>As of: " + trialTime);
 
       out.println("&nbsp;&nbsp;");
