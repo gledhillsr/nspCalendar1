@@ -78,7 +78,10 @@
         <servlet-name>EmailFormServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.EmailForm</servlet-class>
     </servlet>
-
+    <servlet>
+        <servlet-name>MemberListServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.MemberList</servlet-class>
+    </servlet>
 
 <!--    define & map URL patterns -->
     <servlet-mapping>
@@ -149,4 +152,9 @@
         <servlet-name>EmailFormServlet</servlet-name>
         <url-pattern>/EmailForm</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MemberListServlet</servlet-name>
+        <url-pattern>/MemberList</url-pattern>
+    </servlet-mapping>
+
 </web-app> 
