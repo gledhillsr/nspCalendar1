@@ -494,17 +494,17 @@ public class MonthCalendar extends HttpServlet {
 
       out.println("&nbsp;&nbsp;");
       out.println("<a href=\"javascript:printHelp()\">Help</a>");
-      out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-      out.println("<!--WEBBOT bot=\"HTMLMarkup\" startspan ALT=\"Site Meter\" -->");
-      out.println("<script type=\"text/javascript\" language=\"JavaScript\">var site=\"s20SkiPatrol\"</script>");
-      out.println("<script type=\"text/javascript\" language=\"JavaScript1.2\" src=\"http://s20.sitemeter.com/js/counter.js?site=s20SkiPatrol\">");
-      out.println("</script>");
-      out.println("<noscript>");
-      out.println("<a href=\"http://s20.sitemeter.com/stats.asp?site=s20SkiPatrol\" target=\"_top\">");
-      out.println("<img src=\"http://s20.sitemeter.com/meter.asp?site=s20SkiPatrol\" alt=\"Site Meter\" border=\"0\"/></a>");
-      out.println("</noscript>");
-      out.println("<!-- Copyright (c)2005 Site Meter -->");
-      out.println("<!--WEBBOT bot=\"HTMLMarkup\" Endspan -->");
+//      out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+//      out.println("<!--WEBBOT bot=\"HTMLMarkup\" startspan ALT=\"Site Meter\" -->");
+//      out.println("<script type=\"text/javascript\" language=\"JavaScript\">var site=\"s20SkiPatrol\"</script>");
+//      out.println("<script type=\"text/javascript\" language=\"JavaScript1.2\" src=\"http://s20.sitemeter.com/js/counter.js?site=s20SkiPatrol\">");
+//      out.println("</script>");
+//      out.println("<noscript>");
+//      out.println("<a href=\"http://s20.sitemeter.com/stats.asp?site=s20SkiPatrol\" target=\"_top\">");
+//      out.println("<img src=\"http://s20.sitemeter.com/meter.asp?site=s20SkiPatrol\" alt=\"Site Meter\" border=\"0\"/></a>");
+//      out.println("</noscript>");
+//      out.println("<!-- Copyright (c)2005 Site Meter -->");
+//      out.println("<!--WEBBOT bot=\"HTMLMarkup\" Endspan -->");
 
       out.println("</font>");
       out.println("</FORM>");

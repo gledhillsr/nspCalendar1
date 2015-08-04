@@ -38,15 +38,14 @@ public class SessionData {
 
   public SessionData(HttpSession session, PrintWriter out) {
     this.session = session;
-    readCredentials(out);
+    readCredentials(new Properties(), out);
   }
 
-  public SessionData() {
-    throw new IllegalStateException("SessionData not yet implemented");
+  public SessionData(Properties properties, PrintWriter out) {
+    readCredentials(properties, out);
   }
 
-  private void readCredentials(PrintWriter out) {
-    Properties properties = new Properties();
+  private void readCredentials(Properties properties, PrintWriter out) {
     FileInputStream inStream;
     try {
       inStream = new FileInputStream(PROPERTIES_FILE);
