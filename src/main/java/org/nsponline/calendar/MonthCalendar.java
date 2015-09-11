@@ -17,13 +17,12 @@ import java.util.Hashtable;
  */
 public class MonthCalendar extends HttpServlet {
 
-  private final static boolean DEBUG= false;
+  private final static boolean DEBUG= true;
 
   private final static String szMonths[] = {
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"};
   private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-//  private final static SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("'('H:mm')'");
 
   public void doGet(HttpServletRequest request,
                     HttpServletResponse response)
@@ -37,10 +36,6 @@ public class MonthCalendar extends HttpServlet {
       throws IOException, ServletException {
     doGet(request, response);
   }
-
-//  static public String DateToCalendarString(java.util.Date date) {
-//    return dateTimeFormatter.format(date);
-//  }
 
   private class MonthCalendarInternal {
     Calendar calendar;
@@ -137,16 +132,20 @@ public class MonthCalendar extends HttpServlet {
         if (noLoginParameter != null && !noLoginParameter.equals("")) {
           textFontSize = cvtToInt(noLoginParameter);
         }
+        PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
-        printTop(out);
+        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles());
+        //      out.println("<title>Shift Schedule</title>");
+
+        outerPage.printResortHeader(out);
 
         monthData = new Assignments[32][Shifts.MAX + 5]; //all shifts for all days in 1 month
         getDateInfo(); //reset calendar to 1st of month
-        readData(out, resort, sessionData);
+        readData(patrol);
         printTopOfPage(out, resort);
         printCalendarDays(out, resort);
         printEndOfPage(out, resort);
-        printBottom(out);
+        outerPage.printResortFooter(out);
       }
     }
 
@@ -184,10 +183,9 @@ public class MonthCalendar extends HttpServlet {
       }
     }
 
-    private void readData(PrintWriter out, String resort, SessionData sessionData) {
+    private void readData(PatrolData patrol) {
       int day, pos;
       MemberData member;
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       ds = patrol.readDirectorSettings();
       while ((member = patrol.nextMember("")) != null) {
         Names.put(member.idNum, member.getFullName() + ", " + member.getHomePhone());
@@ -202,7 +200,7 @@ public class MonthCalendar extends HttpServlet {
       maxAssignmentCnt = 0;
 
       populateMonthDataArray(patrol);
-
+      String resort = patrol.getResortInfo().getResortShortName();
       //  decide if I will make weekend shifts in two columns
       if (resort.contains("Jackson")) {
         maxNameLen = 30;
@@ -318,32 +316,12 @@ public class MonthCalendar extends HttpServlet {
       }
     }
 
-    public void printTop(PrintWriter out) {
-      out.println("<html>");
-      out.println("<head>");
-      out.println("<meta http-equiv=\"Content-Language\" content=\"en-us\">");
-      out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">");
-      out.println("<title>Shift Schedule</title>");
-//force page NOT to be cached
-      out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
-      out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
-
-
-      out.println("<style type=\"text/css\">");
-      out.println("<!-- ");
-      out.println("td    {font-size:" + textFontSize + "; font-face:arial,helvetica; padding:1px}");
-
-      out.println("//-->");
-      out.println("</style>");
-
-
-      out.println("</head>");
-      out.println("<body>");
-    }
-
-    private void printBottom(PrintWriter out) {
-      out.println("</body>");
-      out.println("</html>");
+    public String getJavaScriptAndStyles() {
+      return "<style type=\"text/css\">\n" +
+        "<!-- \n" +
+        "td    {font-size:" + textFontSize + "; font-face:arial,helvetica; padding:1px}\n" +
+        "//-->\n" +
+        "</style>";
     }
 
     public void printTopOfPage(PrintWriter out, String resort) {
@@ -394,7 +372,7 @@ public class MonthCalendar extends HttpServlet {
       out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
       out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
       out.println("</head>");
-      out.println("<BODY TEXT=\"#000000\" ALINK=\"#ff0000\" BGCOLOR=\"#FFFFFF\" BACKGROUND=\"http://nsponline.org/images/ncmnthbk.jpg\">");
+      out.println("<BODY TEXT=\"#000000\" ALINK=\"#ff0000\" BGCOLOR=\"#FFFFFF\" BACKGROUND=\"/images/ncmnthbk.jpg\">");
       out.println("<body>");
       out.println("<FORM name=\"myForm\">");
       out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\">");
@@ -415,20 +393,20 @@ public class MonthCalendar extends HttpServlet {
       if (noLogin) {
         szPrevHTML += "&noLogin=1";
       }
-      out.println("<a href=\"" + szPrevHTML + "\"><IMG SRC=\"http://nsponline.org/images/ncvwprev.gif\" BORDER=\"0\" ALT=\"Previous month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+      out.println("<a href=\"" + szPrevHTML + "\"><IMG SRC=\"/images/ncvwprev.gif\" BORDER=\"0\" ALT=\"Previous month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
 //insert page for next button
       String szNextHTML = "MonthCalendar?resort=" + resort + idParameter + "&month=" + nextMonth + "&year=" + nextYear;
       if (noLogin) {
         szNextHTML += "&noLogin=1";
       }
 //    szNextHTML += idParameter;
-      out.println("<a href=\"" + szNextHTML + "\"><IMG SRC=\"http://nsponline.org/images/ncvwnext.gif\" BORDER=\"0\" ALT=\"Next month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+      out.println("<a href=\"" + szNextHTML + "\"><IMG SRC=\"/images/ncvwnext.gif\" BORDER=\"0\" ALT=\"Next month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
 //home month button
       String szCurrHTML = "MonthCalendar?resort=" + resort + idParameter + "&month=" + realCurrMonth + "&year=" + realCurrYear;
       if (noLogin) {
         szCurrHTML += "&noLogin=1";
       }
-      out.println("<a href=\"" + szCurrHTML + "\" Target=\"_self\"><IMG SRC=\"http://nsponline.org/images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "\" ALIGN=\"MIDDLE\" width=\"32\" height=\"32\"></a>");
+      out.println("<a href=\"" + szCurrHTML + "\" Target=\"_self\"><IMG SRC=\"/images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "\" ALIGN=\"MIDDLE\" width=\"32\" height=\"32\"></a>");
       out.println("</FONT></TD></TR>");
       out.println("<TR><TD VALIGN=\"Bottom\" ALIGN=\"RIGHT\" height=\"21\">");
       out.println("");
@@ -436,7 +414,7 @@ public class MonthCalendar extends HttpServlet {
       out.println("");
       out.println("</TD></TR></table>");
       out.println("");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"http://nsponline.org/images/ncclear.gif\" width=\"3\" height=\"3\"></TD></TR></table>");
+      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"/images/ncclear.gif\" width=\"3\" height=\"3\"></TD></TR></table>");
       out.println("");
       out.println("<TABLE BORDER=\"3\" CELLSPACING=\"0\" CELLPADDING=\"1\" WIDTH=\"100%\"><TR>");
       out.println("<TD WIDTH=\"" + wkEndWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#800000\">");
@@ -458,7 +436,7 @@ public class MonthCalendar extends HttpServlet {
 
     public void printEndOfPage(PrintWriter out, String resort) {
       out.println("</TABLE>");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"http://nsponline.org/images/ncclear.gif\" width=\"3\" height=\"4\"></TD></TR></table>");
+      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"/images/ncclear.gif\" width=\"3\" height=\"4\"></TD></TR></table>");
       out.println("<font size=1>As of: " + trialTime);
 
       out.println("&nbsp;&nbsp;");
