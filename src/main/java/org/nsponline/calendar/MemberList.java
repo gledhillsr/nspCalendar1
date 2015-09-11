@@ -7,26 +7,25 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-
+/**
+ * @author Steve Gledhill
+ *
+ * List all patrollers who are not marked as "inactive"
+ */
 public class MemberList extends HttpServlet {
+  static final boolean DEBUG = false;
 
-  public void doGet(HttpServletRequest request,
-                    HttpServletResponse response)
-      throws IOException, ServletException {
-
-    response.setContentType("text/html");
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalMemberList(request, response);
   }
 
-  public void doPost(HttpServletRequest request,
-                     HttpServletResponse response)
-      throws IOException, ServletException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     doGet(request, response);
   }
 
   private class LocalMemberList {
     PrintWriter out;
-    String szMyID;
+    String patrollerId;
     boolean isDirector = false;
     String ePatrollerList = "";
     private String resort;
@@ -36,32 +35,30 @@ public class MemberList extends HttpServlet {
                             HttpServletResponse response)
         throws IOException, ServletException {
 
+      debugOut("inside MemberList");
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request.getSession(), out);
-      ds = null;
-      CookieID cookie = new CookieID(sessionData, request, response, "MemberList", null);
-      if (cookie.error) {
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList");
+      if (credentials.hasInvalidCredentials()) {
         return;
       }
-      resort = request.getParameter("resort");
-      szMyID = cookie.getID();
-      if (szMyID != null) {
-        readData(sessionData, szMyID);
-      }
+      //by now, sessionData.getID and sessionData.getLoggedInResort are valid
+      ds = null;
+      resort = sessionData.getLoggedInResort();
+      patrollerId = sessionData.getLoggedInUserId();
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      readData(sessionData, patrollerId);
 
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      outerPage.printResortHeader(out);
       printTop();
-      int count = 0;
-      if (PatrolData.validResort(resort)) {
-        count = printBody(sessionData);
-      }
-      else {
-        out.println("Invalid host resort.");
-      }
+      int count = printBody(sessionData);
       printBottom(count);
+      outerPage.printResortFooter(out);
     }
 
-    public void readData(SessionData sessionData, String IDOfEditor) {
+    private void readData(SessionData sessionData, String IDOfEditor) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       ds = patrol.readDirectorSettings();
 
@@ -82,14 +79,7 @@ public class MemberList extends HttpServlet {
       isDirector = editor != null && editor.isDirector();
     }
 
-    public void printTop() {
-      out.println("<html><head>");
-      out.println("<meta http-equiv=\"Content-Language\" content=\"en-us\">");
-      out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">");
-      out.println("<title>" + PatrolData.getResortFullName(resort) + " Ski Patrollers</title>");
-      out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
-      out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
-      out.println("</head><body>");
+    private void printTop() {
       out.println("<script>");
       out.println("function printWindow(){");
       out.println("   bV = parseInt(navigator.appVersion)");
@@ -103,11 +93,11 @@ public class MemberList extends HttpServlet {
         //getEmail()
         out.println("<p><Bold>");
         String options = "&BAS=1&INA=1&SR=1&SRA=1&ALM=1&PRO=1&AUX=1&TRA=1&CAN=1&FullTime=1&PartTime=1&Inactive=1&ALL=1"; //default
-        String loc = "EmailForm?resort=" + resort + "&ID=" + szMyID + options;
+        String loc = "EmailForm?resort=" + resort + "&ID=" + patrollerId + options;
         out.println("<INPUT TYPE=\"button\" VALUE=\"e-mail THESE patrollers\" onClick=window.location=\"" + loc + "\">");
         out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 
-        out.println("<a href=\"javascript:printWindow()\">Print This Page</a></p>");
+//        out.println("<a href=\"javascript:printWindow()\">Print This Page</a></p>");
       }
       out.println("<table  style=\"font-size: 10pt; face=\'Verdana, Arial, Helvetica\' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
       out.println(" <tr>");
@@ -123,10 +113,9 @@ public class MemberList extends HttpServlet {
     private void printBottom(int count) {
       out.println("</table>");
       out.println("<br>As of: " + new java.util.Date() + ",  <b>" + count + " members listed.</b>");
-      out.println("</body></html>");
     }
 
-    public int printBody(SessionData sessionData) {
+    private int printBody(SessionData sessionData) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       MemberData member = patrol.nextMember("&nbsp;");
       int count = 0;
@@ -139,6 +128,12 @@ public class MemberList extends HttpServlet {
       }
       patrol.close(); //must close connection!
       return count;
+    }
+  }
+
+  private void debugOut(String str) {
+    if (DEBUG) {
+      System.out.println("SubList-Debug: " + str);
     }
   }
 }

@@ -9,71 +9,56 @@ import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+/**
+ * @author Steve Gledhill
+ *         <p/>
+ *         List calendar assignments for the patroller.
+ *         Brighton patrollers also get a view of the locker room assignments
+ */
 public class ListAssignments extends HttpServlet {
+  private final static boolean DEBUG = false;
 
-  public void doGet(HttpServletRequest request,
-                    HttpServletResponse response)
-      throws IOException, ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
     new LocalListAssignments(request, response);
   }
 
-  public void doPost(HttpServletRequest request,
-                     HttpServletResponse response)
-      throws IOException, ServletException {
-    doGet(request, response);
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    new LocalListAssignments(request, response);
   }
 
 
   private class LocalListAssignments {
-    private LocalListAssignments(HttpServletRequest request,
-                                 HttpServletResponse response) throws IOException, ServletException {
 
-      String szMyID;
+    private LocalListAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+      String patrollerId;
       PrintWriter out;
       String resort;
 
       response.setContentType("text/html");
       out = response.getWriter();
-//System.out.println("ListAssignment: resort="+request.getParameter("resort"));
-//System.out.println("ListAssignment: NSPgoto="+request.getParameter("NSPgoto"));
-//System.out.println("ListAssignment: ID="+request.getParameter("ID"));
       SessionData sessionData = new SessionData(request.getSession(), out);
-
-      CookieID cookie = new CookieID(sessionData, request, response, "ListAssignments", null);
-      if (cookie.error) {
+      debugOut("inside ListAssignments");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "ListAssignments");
+      if (credentials.hasInvalidCredentials()) {
         return;
       }
-      resort = request.getParameter("resort");
-      szMyID = sessionData.getLoggedInUserId();
-      if (szMyID != null) {
+      //by now, sessionData.getLoggedInUserId and sessionData.getLoggedInResort are valid
+      resort = sessionData.getLoggedInResort();
+      patrollerId = sessionData.getLoggedInUserId();
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
-        printTop(out);
-        if (PatrolData.validResort(resort)) {
-          printMiddle(out, resort, szMyID, sessionData);
-        }
-        else {
-          out.println("Invalid host resort.");
-        }
-        printBottom(out);
-      }
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      outerPage.printResortHeader(out);
+      printTop(out);
+      printMiddle(out, resort, patrollerId, sessionData);
+      printBottom(out);
+      outerPage.printResortFooter(out);
+      debugOut("leaving ListAssignments");
     }
 
-    //---------
-// printTop
-//---------
     public void printTop(PrintWriter out) {
-      out.println("<HTML>");
-      out.println("<HEAD>");
-      out.println("<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=windows-1252\">");
-      out.println("<META HTTP-EQUIV=\"Content-Language\" CONTENT=\"en-us\">");
-      out.println("<TITLE>List My Shift Assignments</TITLE>");
-
-      out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
-      out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
-      out.println("</HEAD>");
-
-      out.println("<BODY BGCOLOR=\"#FFEEFF\">");
 
       out.println("<script>");
       out.println("function printWindow(){");
@@ -82,21 +67,13 @@ public class ListAssignments extends HttpServlet {
       out.println("}");
       out.println("</script>");
 
-//      out.println("<h1 align=\"center\">Shift Summary</h1>");
-//      out.println("<h3><img border=\"0\" src=\"/nspImages/ski_accident_md_wht.gif\" width=\"140\" height=\"120\"></h3>");
-      out.println("<h1><img border=\"0\" src=\"http://nsponline.org/images/ski_accident_md_wht.gif\" align=top>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Shift Summary</h1>");
+      out.println("<h1><img border=\"0\" src=\"/images/ski_accident_md_wht.gif\" align=top>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Shift Summary</h1>");
     }
 
-    //------------
-// printMiddle (submitterID, transaction, selectedID, date1, pos1, listName)
-//------------
     private void printMiddle(PrintWriter out, String resort, String szMyID, SessionData sessionData) {
       String myName;
       int myID;
       int i;
-//    java.util.Date date1;
-//    int dayShiftCnt = 0;
-//    int nightShiftCnt = 0;
       int[] shiftCounts = new int[Assignments.MAX_SHIFT_TYPES];
       if (szMyID.equalsIgnoreCase(PatrolData.backDoorUser)) {
         //backdoor login, don't display anything
@@ -111,21 +88,22 @@ public class ListAssignments extends HttpServlet {
 
       patrol.resetAssignments();
       patrol.resetRoster();
-//    int myNightCount = 0;
       Assignments ns;
       if (resort.equals("Brighton")) {
         Calendar calendar = new GregorianCalendar();
 
+        //noinspection MagicConstant
         calendar.set(2013, 3, 1);  //(yyyy,mm,dd) Month is 0 based
 
-        out.println("Display your: <a target='main' href=\"http://nsponline.org/screenshots/history.php?ID=" + szMyID + "\"><b>check-in history</b></a>");
-        out.println(" or <a target='main' href=\"http://nsponline.org/screenshots/ski_credits.php?ID=" + szMyID + "\"><b>Ski Credits Earnigs report</b></a>");
+        out.println("Display your: <a target='main' href=\"/screenshots/history.php?ID=" + szMyID + "\"><b>check-in history</b></a>");
+        out.println(" or <a target='main' href=\"screenshots/ski_credits.php?ID=" + szMyID + "\"><b>Ski Credits Earnigs report</b></a>");
 
         out.println(" (Ski History & Credits are updated at different times, so may not appear in sync.)<br>");
       }
       out.println("<p><font size=5>" + myName + "'s Assignment Schedule for " + PatrolData.getResortFullName(resort) + "</font>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font></p>");
+//      out.println("<a href=\"javascript:printWindow()\">Print This Page</a>");
+      out.println("</font></p>");
       out.println("<div align=\"left\">");
       out.println("  <table border=\"1\" width=\"550\" bgcolor=\"#FFFFFF\" cellpadding=\"0\" cellspacing=\"0\">");
 //loop through all assignments
@@ -175,12 +153,8 @@ public class ListAssignments extends HttpServlet {
       }
       out.println("<br><b>Total shifts</b>:&nbsp;&nbsp;&nbsp;<b>" + totalShifts + "</b>"); //brighton
 
-    } // end printMiddle
+    }
 
-
-    //------------
-// showNight
-//------------
     private void showNight(PrintWriter out, String fullString, boolean ok, int shiftType) {
       out.println("<tr><td>");
       if (!ok) {
@@ -198,14 +172,15 @@ public class ListAssignments extends HttpServlet {
       out.println("</td></tr>");
     }
 
-    //------------
-// printBottom
-//------------
     private void printBottom(PrintWriter out) {
       out.println("<br><br>As of: " + new java.util.Date());
-      out.println("</body>");
-      out.println("</html>");
-    } //end printBottom()
+    }
   }
 
-} //end class ListAssignments
+  @SuppressWarnings("unused")
+  private void debugOut(String str) {
+    if (DEBUG) {
+      System.out.println("ListAssignments-Debug: " + str);
+    }
+  }
+}
