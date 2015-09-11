@@ -723,16 +723,16 @@ public class PatrolData {
         out.println("<tr>");
 //delete button
 //              out.println("<td width=\"103\"><input onClick=\"DeleteBtn()\" type=\"button\" value=\"Delete\" name=\"delete_"+validShifts+"\"></td>");
-        out.println("<td><input type=\"submit\" value=\"Delete\" name=\"delete_" + validShifts + "\"></td>");
-        out.println("<td>Start: <input type=\"text\" onKeyDown=\"javascript:return captureEnter(event.keyCode)\" name=\"startTime_" + validShifts + "\" size=\"7\" value=\"" + data.getStartString() + "\"></td>");
-        out.println("<td>End: <input type=\"text\" onKeyDown=\"javascript:return captureEnter(event.keyCode)\" name=\"endTime_" + validShifts + "\" size=\"7\" value=\"" + data.getEndString() + "\"></td>");
+        out.println("<td><input type='submit' value='Delete' name='delete_" + validShifts + "'></td>");
+        out.println("<td>Start: <input type='text' onKeyDown='javascript:return captureEnter(event.keyCode)' name='startTime_" + validShifts + "' size='7' value='" + data.getStartString() + "'></td>");
+        out.println("<td>End: <input type='text' onKeyDown='javascript:return captureEnter(event.keyCode)' name='endTime_" + validShifts + "' size='7' value='" + data.getEndString() + "'></td>");
         out.println("<td>Patroller&nbsp;Count:&nbsp;");
 //                out.println("<input type=\"text\" name=\"count_"+validShifts+"\" size=\"4\" value=\""+data.getCount()+"\">");
         countDropDown(out, "count_" + validShifts, data.getCount());
         out.println("</td>");
 //add Day/Seing/Night shift
         out.println("<td>&nbsp;");
-        out.println("<select size=1 name=\"shift_" + validShifts + "\">");
+        out.println("<select size=1 name='shift_" + validShifts + "'>");
 //System.out.println("in AddShiftsToTable, data.getType()="+data.getType());
         for (int j = 0; j < Assignments.MAX_SHIFT_TYPES; ++j) {
           String sel = (data.getType() == j) ? "selected" : "";
@@ -748,8 +748,7 @@ public class PatrolData {
   }
 
 //--------------------
-
-  // AddAssignmentsToTable
+// AddAssignmentsToTable
 //--------------------
   static public void AddAssignmentsToTable(PrintWriter out, Vector assignments) {
     int validShifts = 0;
@@ -773,7 +772,7 @@ public class PatrolData {
       out.println("</td>");
 //add Day/Seing/Night shift
       out.println("<td>&nbsp;&nbsp; ");
-      out.println("<select size=1 name=\"shift_" + validShifts + "\">");
+      out.println("<select size=1 name='shift_" + validShifts + "'>");
 //System.out.println("in AddAssignmentsToTable, data.getType()="+data.getType());
       for (int j = 0; j < Assignments.MAX_SHIFT_TYPES; ++j) {
         String sel = (data.getType() == j) ? "selected" : "";
@@ -786,7 +785,7 @@ public class PatrolData {
       ++validShifts;
 //            }
     }
-    out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"shiftCount\" VALUE=\"" + validShifts + "\">");
+    out.println("<INPUT TYPE='HIDDEN\' NAME='shiftCount' VALUE='" + validShifts + "'>");
   }
 
   static public boolean validResort(String resort) {

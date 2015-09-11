@@ -91,10 +91,13 @@ public class EmailForm extends HttpServlet {
 
       debugOut("Entering EmailForm...");
 
-      CookieID cookie = new CookieID(sessionData, request, response, "EmailForm", null);
-//      szMyID = cookie.getID();
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "EmailForm");
+      if (credentials.hasInvalidCredentials()) {
+        return;
+      }
+
       szMyID = sessionData.getLoggedInUserId();
-      resort = request.getParameter("resort");
+      resort = sessionData.getLoggedInResort();
       if (szMyID != null) {
         readData(request);
         BuildLists(szMyID, sessionData);
@@ -316,8 +319,6 @@ public class EmailForm extends HttpServlet {
   }
 
 //  private void mailTo2(String fromEmailAddr, MemberData member, String subject, String newMessage) {
-//    final String username = "steve@gledhills.com";
-//    final String password = "gandalf2";
 //
 //    Properties props = new Properties();
 //    props.put("mail.smtp.auth", "true");
