@@ -33,11 +33,12 @@ public class LoginHelp extends HttpServlet {
 
   class InternalLoginHelp {
 
+    String resort;
+
     InternalLoginHelp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
       PrintWriter out;
       String szParent;
-      String resort;
 
       String id = request.getParameter("ID");
       String pass = request.getParameter("Password");
@@ -250,8 +251,8 @@ public class LoginHelp extends HttpServlet {
       out.println("<font face=verdana, arial size=2 color=black>");
       out.println("<b>" + PatrolData.getResortFullName(resort) + " Login Help</b><p>");
       out.println("Please enter the following information.  If we find match in the member database, you'll get instant access.<br><b>If you have assigned yourself a password, your Last name will no longer work.</b><p>");
-      out.println("<form action=" + PatrolData.SERVLET_URL + "LoginHelp method=post>");
-      out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + CookieID.NSP_goto + "\" VALUE=\"" + szParent + "\">\n");
+      out.println("<form target='_self' action=" + PatrolData.SERVLET_URL + "LoginHelp method=post>");
+      out.println("<INPUT TYPE=\"HIDDEN\" NAME='NSPgoto' VALUE=\"" + szParent + "\">\n");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">\n");
 
       out.println("<table width=349 style=\"border-collapse: collapse\"  bgcolor=\"#EFEFEF\">\n");
@@ -320,7 +321,7 @@ public class LoginHelp extends HttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        System.out.println("LoginHelp-Debug: " + str);
+        System.out.println("DEBUG-LoginHelp(" + resort + "): " + str);
       }
     }
   }

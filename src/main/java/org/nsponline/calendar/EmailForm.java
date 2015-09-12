@@ -490,7 +490,7 @@ public class EmailForm extends HttpServlet {
   //---------
 
   private void printMiddle(PrintWriter out, String resort, String szMyID) {
-    out.println("<form name=\"form\" method=\"post\" action=\"" + PatrolData.SERVLET_URL + "EmailForm\">");
+    out.println("<form target='_self' name=\"form\" method=\"post\" action=\"" + PatrolData.SERVLET_URL + "EmailForm\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">");
 //      out.println("<form action=\""+PatrolData.SERVLET_URL+"UpdateInfo\" method=POST id=form02 name=form02>");
@@ -781,9 +781,9 @@ public class EmailForm extends HttpServlet {
     } //end while loop (all assignments)
   } //readAssignments
 
-  private void debugOut(String s) {
+  private void debugOut(String msg) {
     if (DEBUG) {
-      System.out.println("DEBUG: " + s);
+      System.out.println("DEBUG-EmailForm(" + resort + "): " + msg);
     }
   }
 

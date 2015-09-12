@@ -30,11 +30,12 @@ public class ListAssignments extends HttpServlet {
 
   private class LocalListAssignments {
 
+    String resort;
+
     private LocalListAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
       String patrollerId;
       PrintWriter out;
-      String resort;
 
       response.setContentType("text/html");
       out = response.getWriter();
@@ -175,12 +176,11 @@ public class ListAssignments extends HttpServlet {
     private void printBottom(PrintWriter out) {
       out.println("<br><br>As of: " + new java.util.Date());
     }
-  }
 
-  @SuppressWarnings("unused")
-  private void debugOut(String str) {
-    if (DEBUG) {
-      System.out.println("ListAssignments-Debug: " + str);
+    private void debugOut(String msg) {
+      if (DEBUG) {
+        System.out.println("DEBUG-ListAssignments(" + resort + "): " + msg);
+      }
     }
   }
 }

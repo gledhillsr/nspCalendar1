@@ -194,7 +194,7 @@ public class PurgeAssignments extends HttpServlet {
 //------------
   public void printBody() {
     out.println("<h1 align=\"center\">Delete Old Assignments for " + PatrolData.getResortFullName(resort) + "</h1>");
-    out.println("<form onSubmit=\"return validate()\" action=\"" + PatrolData.SERVLET_URL + "PurgeAssignments\" method=POST>");
+    out.println("<form target='_self' onSubmit=\"return validate()\" action=\"" + PatrolData.SERVLET_URL + "PurgeAssignments\" method=POST>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"XYZ\" VALUE=\"XYZ\">");
@@ -215,7 +215,7 @@ public class PurgeAssignments extends HttpServlet {
     out.println("  </select>&nbsp;&nbsp;<br>");
 
     out.println("  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-    out.println("<input type=\"submit\" value=\"Delete Old Assignments\" name=\"btnDelete\">");
+    out.println("<input type=\"submit\" value=\"Delete Old Assignments...\" name=\"btnDelete\">");
     out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     out.println("  <input type=\"button\" value=\"Cancel\" name=\"B3\" onClick=\"goHome()\"></p>");
 

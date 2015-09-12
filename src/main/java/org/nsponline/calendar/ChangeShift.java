@@ -143,16 +143,13 @@ public class ChangeShift extends HttpServlet {
     }   //err
   } //end readParameterDate
 
-  private void debugOut(String s) {
+  private void debugOut(String msg) {
     //noinspection ConstantConditions
     if (DEBUG) {
-      System.out.println("DEBUG (" + resort + "): " + s);
+      System.out.println("DEBUG-ChangeShift(" + resort + "): " + msg);
     }
   }
 
-  //---------
-// printTop
-//---------
   public void printTop() {
     out.println("<HTML>");
     out.println("<HEAD>");
@@ -339,7 +336,7 @@ public class ChangeShift extends HttpServlet {
 //      out.println("bot=\"SaveResults\" endspan i-checksum=\"43374\" -->");
 
     String nextURL = "ProcessChanges";
-    out.print("<form action=" + nextURL + " method=POST id=form02 name=form02>\n");
+    out.print("<form target='_self' action=" + nextURL + " method=POST id=form02 name=form02>\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">\n");
 

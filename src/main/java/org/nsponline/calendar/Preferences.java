@@ -274,7 +274,7 @@ public class Preferences extends HttpServlet {
     }
 
     out.println("<h1 align=\"center\">Web Site Preferences for " + PatrolData.getResortFullName(resort) + "</h1>");
-    out.println("<form name=myForm action=\"" + PatrolData.SERVLET_URL + "Preferences\" method=POST>");
+    out.println("<form target='_self' name=myForm action=\"" + PatrolData.SERVLET_URL + "Preferences\" method=POST>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"XYZ\" VALUE=\"XYZ\">");

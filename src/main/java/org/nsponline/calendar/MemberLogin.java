@@ -24,12 +24,11 @@ public class MemberLogin extends HttpServlet {
   }
 
   private class MemberLoginInternal {
-    //no instance data..
+    String resort;
 
     public MemberLoginInternal(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       PrintWriter out;
       String szParent;
-      String resort;
 
       response.setContentType("text/html");
       out = response.getWriter();
@@ -81,8 +80,8 @@ public class MemberLogin extends HttpServlet {
 
     private void printMiddle(PrintWriter out, String szParent, String resort) {
       out.println("&nbsp;");
-      out.println("<form method=post action='" + PatrolData.SERVLET_URL + "LoginHelp'>");
-      out.println("<INPUT TYPE='HIDDEN' NAME='" + CookieID.NSP_goto + "' VALUE='" + szParent + "'>");
+      out.println("<form target='_self' method=post action='" + PatrolData.SERVLET_URL + "LoginHelp'>");
+      out.println("<INPUT TYPE='HIDDEN' NAME='NSPgoto' VALUE='" + szParent + "'>");
       out.println("<INPUT TYPE='HIDDEN' NAME='resort' VALUE='" + resort + "'>");
 
       out.println("  <TABLE WIDTH=450 BGCOLOR=#ABABAB ALIGN=center BORDER=0 CELLSPACING=1 CELLPADDING=5>");
@@ -105,7 +104,7 @@ public class MemberLogin extends HttpServlet {
       out.println("   <TR>");
       out.println("       <TD colspan=2 align=middle>");
       out.println("       <font face=verdana, size =2 arial >");
-      out.println("        <A href='" + PatrolData.SERVLET_URL + "LoginHelp?resort=" + resort + "&NSPgoto=" + szParent + "'>Login Help</a></font>");
+      out.println("        <A href='" + PatrolData.SERVLET_URL + "LoginHelp?resort=" + resort + "&NSPgoto=" + szParent + "' target='_self'>Login Help</a></font>");
       out.println("        </TD>");
       out.println("   </TR>");
       out.println("   <TR>");
@@ -120,11 +119,10 @@ public class MemberLogin extends HttpServlet {
       out.println("   </tr>");
       out.println("</table>");
     }
-  }
-
-  private void debugOut(String str) {
-    if (DEBUG) {
-      System.out.println("MemberLogin-Debug: " + str);
+    private void debugOut(String str) {
+      if (DEBUG) {
+        System.out.println("DEBUG-MemberLogin(" + resort + "): " + str);
+      }
     }
   }
 }

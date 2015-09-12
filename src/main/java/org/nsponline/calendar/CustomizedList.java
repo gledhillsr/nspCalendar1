@@ -328,7 +328,7 @@ public class CustomizedList extends HttpServlet {
   public void printBody() {
     out.println("<h1 align=\"center\">Customized Patrol List</h1>");
 
-    out.println("<form action=\"" + PatrolData.SERVLET_URL + "CustomizedList2\" method=POST>");
+    out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "CustomizedList2\" method=POST>");
 //        out.println("<form name=form1 action=\"CustomizedList2\" method=PUT>");
 
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");

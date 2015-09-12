@@ -7,42 +7,33 @@ import javax.servlet.http.HttpServletResponse;
  * @author Steve Gledhill
  */
 public class CookieID {
-  final static String NSP_goto = "NSPgoto";
   final static boolean trace = true;
 
   //Instance data
   String szID = null;
   boolean error;
+  String resort;
 
   @SuppressWarnings("UnusedParameters")
   public CookieID(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, String owner) {
     error = false;
     szID = request.getParameter("ID");
+    resort = request.getParameter("resort");
     if (szID == null || szID.isEmpty()) {
       szID = sessionData.getLoggedInUserId();
-      System.out.println("get user id from session(" + szID + ")");
+      debugOut("get user id from session(" + szID + ")");
     }
-    else if (trace) {
-      System.out.println("CookieID: ID=(" + szID + ")");
+    else {
+      debugOut("ID=(" + szID + ")");
     }
-    String resort = request.getParameter("resort");
-    if (trace) {
-      System.out.println("CookieID: NSPgoto=(" + parent + ")");
-    }
-    if (trace) {
-      System.out.println("CookieID: resort=(" + resort + ")");
-    }
+    debugOut("NSPgoto=(" + parent + ", resort=(" + resort + ")");
 
     if (szID == null || szID.equals("") || resort == null || resort.equals("")) {
       try {
         error = true;
-        if (trace) {
-          System.out.println("error, resort=(" + resort + ")");
-        }
-        String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resort + "&" + NSP_goto + "=" + parent;
-        if (trace) {
-          System.out.println(",,calling sendRedirect(" + newLoc + ")");
-        }
+        debugOut("error, resort=(" + resort + ")");
+        String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resort + "&NSPgoto=" + parent;
+        debugOut("THIS IS A BUG, SHOULD USE VALIDATECREDENTIALS calling sendRedirect(" + newLoc + ")");
         response.sendRedirect(newLoc);
 
       }
@@ -51,14 +42,18 @@ public class CookieID {
       }
     }
     else {
-      if (trace) {
-        System.out.println("Cookie was OK.  id=" + szID + ", parent=" + parent + ", resort=" + resort);
-      }
-    }
-
+      debugOut("Cookie was OK.  id=" + szID + ", parent=" + parent + ", resort=" + resort);
   }
+
+}
 
   public String getID() {
     return szID;
+  }
+
+  private void debugOut(String msg) {
+    if (trace) {
+      System.out.println("DEBUG-CookieID(" + resort + "): " + msg);
+    }
   }
 }

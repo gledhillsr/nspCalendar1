@@ -345,7 +345,7 @@ public class EditShifts extends HttpServlet {
     out.println("  <table border=\"3\" cellpadding=\"0\" cellspacing=\"0\" width=\"750\" height=\"368\">");
     out.println("    <tr>");
     out.println("      <td width=\"654\" bgcolor=\"#C0C0C0\" height=\"366\">");
-    out.println("<form action=\"" + PatrolData.SERVLET_URL + "EditShifts\" onSubmit=\"return CheckEventName()\" method=POST>");
+    out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "EditShifts\" onSubmit=\"return CheckEventName()\" method=POST>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">");
     out.println("          <h2 align=\"center\">");

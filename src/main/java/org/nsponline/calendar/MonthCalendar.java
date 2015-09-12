@@ -382,7 +382,7 @@ public class MonthCalendar extends HttpServlet {
 
       out.println("</SCRIPT>");
 
-      out.println("<FORM name=\"myForm\">");
+      out.println("<FORM target='_self' name=\"myForm\">");
       out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\">");
       out.println("<TR><TD ALIGN=\"LEFT\" VALIGN=\"Bottom\"><BR>");
       out.println("<FONT FACE=\"Arial, Helvetica\" COLOR=\"000000\" SIZE=\"4\"><B>" + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + szMonths[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
@@ -786,11 +786,11 @@ public class MonthCalendar extends HttpServlet {
       }
       return num;
     }
-  }
 
-  private void debugOut(String str) {
-    if (DEBUG) {
-      System.out.println("MonthCalendar-Debug: " + str);
+    private void debugOut(String str) {
+      if (DEBUG) {
+        System.out.println("DEBUG-MonthCalendar(" + resort + "): " + str);
+      }
     }
   }
 }

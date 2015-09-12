@@ -789,7 +789,7 @@ public class DayShift extends HttpServlet {
       else {
         if ((assignments.size() > 0 || defaultShiftSize > 0) && dropdownShift == null) {
           //ask if director wants to do group assignment
-          out.println("<form action=\"" + PatrolData.SERVLET_URL + "DayShifts\" method=POST>");
+          out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "DayShifts\" method=POST>");
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfEditor + "\">");
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"dayOfWeek\" VALUE=\"" + dayOfWeek + "\">");
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date\" VALUE=\"" + szDate + "\">");
@@ -816,7 +816,7 @@ public class DayShift extends HttpServlet {
     out.println("<div align=\"center\">");
     out.println("  <center>");
     String goHome = PatrolData.SERVLET_URL + "MonthCalendar?month=" + month + "&year=" + year + "&resort=" + resort + "&ID=" + IDOfEditor;
-    out.println("<form action=\"" + goHome + "\" method=POST>");
+    out.println("<form target='_self' action=\"" + goHome + "\" method=POST>");
     out.println("  <table border=\"3\" cellpadding=\"0\" cellspacing=\"0\" width=\"438\">");
     out.println("    <tr>");
     out.println("      <td width=\"424\" colspan=\"3\">");
@@ -861,7 +861,7 @@ public class DayShift extends HttpServlet {
     out.println("  <table border=\"3\" cellpadding=\"0\" cellspacing=\"0\" width=\"375\" height=\"281\">");
     out.println("    <tr>");
     out.println("      <td width=\"554\" bgcolor=\"#C0C0C0\" height=\"279\">");
-    out.println("<form action=\"" + PatrolData.SERVLET_URL + "DayShifts\" onSubmit=\"return CheckEventName()\" method=POST>");
+    out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "DayShifts\" onSubmit=\"return CheckEventName()\" method=POST>");
 
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfEditor + "\">");
     if (dropdownShift != null && !dropdownShift.equals("") && !dropdownShift.equals("--New Shift Style--") && dropdownShift2 != null) {
@@ -970,7 +970,7 @@ public class DayShift extends HttpServlet {
     out.println("<table border=\"1\" width=\"100%\">");
     String action = PatrolData.SERVLET_URL + "DayShifts?resort=" + resort + "&dayOfWeek=" + dayOfWeek + "&date=" + date + "&month=" + month + "&year=" + year + "&ID=" + IDOfEditor;
 //System.out.println("action="+action);
-    out.println("<form action=\"" + action + "\" method=POST>");
+    out.println("<form target='_self' action=\"" + action + "\" method=POST>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"saveAssignmentBtn\" VALUE=\"yes\">");
     out.println("  <tr>");
     out.println("    <td width=\"100%\" bgcolor=\"#C0C0C0\">");

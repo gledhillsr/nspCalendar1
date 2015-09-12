@@ -137,11 +137,11 @@ public class SubList extends HttpServlet {
         member = patrol.nextMember("&nbsp;");   // "&nbsp;" is the default string field
       }
     }
-  }
 
-  private void debugOut(String str) {
-    if (DEBUG) {
-      System.out.println("SubList-Debug: " + str);
+    private void debugOut(String str) {
+      if (DEBUG) {
+        System.out.println("DEBUG-SubList(" + resort + "): " + str);
+      }
     }
   }
 }

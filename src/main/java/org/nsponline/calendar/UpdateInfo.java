@@ -554,7 +554,7 @@ public class UpdateInfo extends HttpServlet {
       }
       out.println("</table>");
       if (deletePatroller) {
-        out.println("<form action=\"" + PatrolData.SERVLET_URL + "UpdateInfo\" method=POST>");
+        out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "UpdateInfo\" method=POST>");
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
 //System.out.println("+++ in deletePatroller, IDOfEditor="+IDOfEditor);
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfEditor + "\">");
@@ -629,7 +629,7 @@ public class UpdateInfo extends HttpServlet {
       out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font><br>");
 
       out.println("<P>");
-      out.print("<form action=\"");
+      out.print("<form target='_self' action=\"");
       out.print(PatrolData.SERVLET_URL + "UpdateInfo?resort=" + resort + "&ID=" + IDOfEditor);
       out.print("\" ");
 //          out.print("UpdateInfo\" ");
@@ -679,7 +679,7 @@ public class UpdateInfo extends HttpServlet {
 
 //          out.println("Invalid ID number<br>");
       out.println("<P>");
-      out.print("<form action=\"");
+      out.print("<form target='_self' action=\"");
       out.print("UpdateInfo?resort=" + resort + "&ID=" + IDOfEditor + "\" ");
       out.println("method=POST>");
       out.println("Patrol Number:");

@@ -109,7 +109,7 @@ public class Directors extends HttpServlet {
       }
       else {
 //            out.println("<form action=\""+PatrolData.SERVLET_URL+"UpdateInfo\" method=POST id=form02 name=form02>");
-        out.println("<form action=\"UpdateInfo\" method=POST id=form02 name=form02>");
+        out.println("<form target='_self' action=\"UpdateInfo\" method=POST id=form02 name=form02>");
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + patrollerId + "\">");
 

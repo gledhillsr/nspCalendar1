@@ -12,31 +12,26 @@ import javax.servlet.http.HttpServletResponse;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  final static boolean DEBUG = false;
+  final static boolean DEBUG = true;
+  String resortParameter;
 
   private boolean hasInvalidCredentials;
   @SuppressWarnings("UnusedParameters")
   public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent) {
-    String resortParameter = request.getParameter("resort");
+    this.resortParameter = request.getParameter("resort");
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
-    if (DEBUG) {
-      System.out.println("ValidateCredentialsExist: parameters  ID=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
-      System.out.println("ValidateCredentialsExist: sessionData ID=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
-    }
+    debugOut("ValidateCredentialsExist: parameters  ID=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
+    debugOut("ValidateCredentialsExist: sessionData ID=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
 
     hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resortParameter) || Utils.isEmpty(sessionData.getLoggedInUserId());
     if (hasInvalidCredentials) {
       try {
         sessionData.setLoggedInResort(null);
         sessionData.setLoggedInUserId(null);
-        if (DEBUG) {
-          System.out.println("ValidateCredentialsExist: RESETTING logged in resort/userId to null");
-        }
+        debugOut("ValidateCredentialsExist: RESETTING logged in resort/userId to null");
         String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resortParameter + "&NSPgoto=" + parent;
-        if (DEBUG) {
-          System.out.println("ValidateCredentialsExist is calling sendRedirect(" + newLoc + ")");
-        }
+        debugOut("ValidateCredentialsExist is calling sendRedirect(" + newLoc + ")");
         if (Utils.isNotEmpty(parent)) {
           response.sendRedirect(newLoc);
         }
@@ -46,9 +41,13 @@ public class ValidateCredentials {
       }
     }
     else {
-      if (DEBUG) {
-        System.out.println("ValidateCredentialsExist was OK.  id=" + idLoggedIn + ", parent=" + parent + ", resort=" + resortParameter);
-      }
+      debugOut("ValidateCredentialsExist was OK.  id=" + idLoggedIn + ", parent=" + parent + ", resort=" + resortParameter);
+    }
+  }
+
+  private void debugOut(String msg) {
+    if (DEBUG) {
+      System.out.println("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
     }
   }
 

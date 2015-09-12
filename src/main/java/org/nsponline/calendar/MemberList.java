@@ -129,11 +129,10 @@ public class MemberList extends HttpServlet {
       patrol.close(); //must close connection!
       return count;
     }
-  }
-
-  private void debugOut(String str) {
-    if (DEBUG) {
-      System.out.println("SubList-Debug: " + str);
+    private void debugOut(String str) {
+      if (DEBUG) {
+        System.out.println("DEBUG-SubList(" + resort + "): " + str);
+      }
     }
   }
 }

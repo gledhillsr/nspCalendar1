@@ -153,9 +153,9 @@ public class CustomizedList2 extends HttpServlet {
     debugOut("MinDays=" + minDays);
   }
 
-  private void debugOut(String s) {
+  private void debugOut(String msg) {
     if (debug) {
-      System.out.println("DEBUG: " + s);
+      System.out.println("DEBUG-CustomizedList2(" + resort + "): " + msg);
     }
   }
 
