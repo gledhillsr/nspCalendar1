@@ -28,7 +28,7 @@
     </servlet>
     <servlet>
         <servlet-name>DayShiftsServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.DayShift</servlet-class>
+        <servlet-class>org.nsponline.calendar.DayShifts</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ChangeShiftServlet</servlet-name>

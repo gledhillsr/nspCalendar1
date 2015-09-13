@@ -73,7 +73,7 @@ public class Directors extends HttpServlet {
       while ((member = patrol.nextMember("")) != null) {
         sortedRoster[rosterSize++] = member.getLast() + ", " + member.getFirst();
       }
-      if (readID.equalsIgnoreCase(PatrolData.backDoorUser)) {
+      if (readID.equalsIgnoreCase(sessionData.getBackDoorUser())) {
         isDirector = true;
       }
       else {

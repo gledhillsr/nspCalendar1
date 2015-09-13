@@ -59,8 +59,9 @@ public class LoginHelp extends HttpServlet {
         }
         // String newLoc = BASE_URL + resort + "/index.php?resort=" + resort + "&NSPgoto=" + szParent + "&ID=" + id;
         String newLoc = PatrolData.SERVLET_URL + szParent + "?resort=" + resort + "&ID=" + id;
-        debugOut("LoginHelp (valid login) sendRedirect to: " + newLoc);
+        debugOut("LoginHelp (valid login) sendRedirect to (& return): " + newLoc);
         response.sendRedirect(newLoc);
+        return;
       }
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles());
@@ -121,7 +122,7 @@ public class LoginHelp extends HttpServlet {
     public int sendPassword(PrintWriter out, String ID, String email, String resort, SessionData sessionData) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       MemberData member = null;
-      if (ID != null && !ID.equalsIgnoreCase(PatrolData.backDoorUser) && ID.length() > 4) {
+      if (ID != null && !ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && ID.length() > 4) {
         member = patrol.getMemberByID(ID); //ID from cookie
         if (member != null) {
           email = member.getEmail();
@@ -172,7 +173,7 @@ public class LoginHelp extends HttpServlet {
         return false;
       }
 
-      if (ID.equalsIgnoreCase(PatrolData.backDoorUser) && pass.equalsIgnoreCase(PatrolData.backDoorPass)) {
+      if (ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && pass.equalsIgnoreCase(sessionData.getBackDoorPassword())) {
         return true;
       }    // Try to connect to the database
       try {
@@ -209,25 +210,19 @@ public class LoginHelp extends HttpServlet {
 //only check for last name as a login, UNTIL they get a password
 
           if (validLogin) {
-//            Cookie cookie = new Cookie(CookieID.NSP_fullname, firstName + " " + lastName);
             java.util.Date trialTime = new java.util.Date();
             //Login: Sun Jul 26 23:31:26 UTC 2015, Steve Gledhill, 192443 (Brighton)
             System.out.println("Login: " + trialTime + ", " + firstName + " " + lastName + ", " + ID + " (" + resort + ")");
-//            cookie.setMaxAge(-1); //default is -1, indicating cookie is for current session only
-//            response.addCookie(cookie);
 
           }
         } //end if
 
         c.close();
-//System.out.println ("loginhelp closed static connection for " + resort + " at " + PatrolData.getCurrentDateTimeString());
       }
       catch (Exception e) {
         out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-        System.out.println("in LoginHelp.  ID of editor:" + ID);
+        System.out.println("LoginHelp. Error connecting or reading table:" + e.getMessage());
       } //end try
-//System.out.println("<br>valid="+valid);
-//out.println("<br>");
 
       return validLogin;
     }

@@ -14,12 +14,12 @@ import java.util.Hashtable;
 
 /**
  * @author Steve Gledhill
- *
- * display a 1 month calendar
+ *         <p/>
+ *         display a 1 month calendar
  */
 public class MonthCalendar extends HttpServlet {
 
-  private final static boolean DEBUG= false;
+  private final static boolean DEBUG = false;
 
   private final static String szMonths[] = {
       "January", "February", "March", "April", "May", "June",
@@ -27,12 +27,11 @@ public class MonthCalendar extends HttpServlet {
   private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
     new MonthCalendarInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    doGet(request, response);
+    new MonthCalendarInternal(request, response);
   }
 
   private class MonthCalendarInternal {
@@ -125,17 +124,18 @@ public class MonthCalendar extends HttpServlet {
       }
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
-        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles());
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles());
 
-        outerPage.printResortHeader(out);
+      outerPage.printResortHeader(out);
 
-        monthData = new Assignments[32][Shifts.MAX + 5]; //all shifts for all days in 1 month
-        getDateInfo(); //reset calendar to 1st of month
-        readData(out, resort, sessionData);
-        printTopOfPage(out, resort);
-        printCalendarDays(out, resort);
-        printEndOfPage(out, resort);
-        outerPage.printResortFooter(out);
+      monthData = new Assignments[32][Shifts.MAX + 5]; //all shifts for all days in 1 month
+      getDateInfo(); //reset calendar to 1st of month
+      readData(out, resort, sessionData);
+
+      printTopOfPage(out, resort);
+      printCalendarDays(out, resort);
+      printEndOfPage(out, resort);
+      outerPage.printResortFooter(out);
     }
 
     private void getDateInfo() {
@@ -193,7 +193,7 @@ public class MonthCalendar extends HttpServlet {
       maxAssignmentCnt = 0;
 
       populateMonthDataArray(patrol);
-//      String resort = patrol.getResortInfo().getResortShortName();
+
       //  decide if I will make weekend shifts in two columns
       if (resort.contains("Jackson")) {
         maxNameLen = 30;
@@ -310,11 +310,10 @@ public class MonthCalendar extends HttpServlet {
     }
 
     public String getJavaScriptAndStyles() {
-      return "<style type=\"text/css\">\n" +
-        "<!-- \n" +
-        "td    {font-size:" + textFontSize + "; font-face:arial,helvetica; padding:1px}\n" +
-        "//-->\n" +
-        "</style>";
+      return "<style type='text/css'>\n" +
+          ".calendar td    {font-size:" + textFontSize + "; font-face:arial,helvetica; padding:1px}\n" +
+          ".calendar a    {target:_self}\n" +
+          "</style>";
     }
 
     public void printTopOfPage(PrintWriter out, String resort) {
@@ -323,17 +322,17 @@ public class MonthCalendar extends HttpServlet {
       out.println("<html>");
       out.println("<head><title>" + PatrolData.getResortFullName(resort) + " Schedule</title>");
 
-      out.println("<SCRIPT LANGUAGE = \"JavaScript\">");
+      out.println("<SCRIPT LANGUAGE = 'JavaScript'>");
 
 //cancel button pressed
       out.println("function goLogin() {");
       String szLogin = "MemberLogin?resort=" + resort;
-      out.println("window.location=\"" + szLogin + "\"");
+      out.println("window.location='" + szLogin + "'");
       out.println("}");
 
 
       out.println("function dispEvent(url,wname) {");
-      out.println("    window.open(url, wname, \"scrollbars=yes,toolbar=no,status=no,location=no,menubar=no,resizable=yes,height=450,width=620,left=10,top=10\")");
+      out.println("    window.open(url, wname, 'scrollbars=yes,toolbar=no,status=no,location=no,menubar=no,resizable=yes,height=450,width=620,left=10,top=10')");
       out.println("}");
 
       out.println("function printWindow(){");
@@ -382,73 +381,80 @@ public class MonthCalendar extends HttpServlet {
 
       out.println("</SCRIPT>");
 
-      out.println("<FORM target='_self' name=\"myForm\">");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\">");
-      out.println("<TR><TD ALIGN=\"LEFT\" VALIGN=\"Bottom\"><BR>");
-      out.println("<FONT FACE=\"Arial, Helvetica\" COLOR=\"000000\" SIZE=\"4\"><B>" + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + szMonths[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
+      out.println("<FORM target='_self' name='myForm'>");
+      out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'>");
+      out.println("<TR><TD ALIGN='LEFT' VALIGN='Bottom'><BR>");
+      out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + szMonths[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
       out.println("<font size=3>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       if (notLoggedIn) {
-        out.println("<INPUT TYPE=\"button\" VALUE=\"Login for complete details\" onClick=\"goLogin()\">");
+        out.println("<INPUT TYPE='button' VALUE='Login for complete details' onClick='goLogin()'>");
       }
       out.println("</font>");
 
-      out.println("</TD><TD VALIGN=\"Bottom\" ALIGN=\"RIGHT\">");
+      out.println("</TD><TD VALIGN='Bottom' ALIGN='RIGHT'>");
       out.println("");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"1\" WIDTH=\"100%\" height=\"38\"><TR><TD VALIGN=\"Bottom\" ALIGN=\"RIGHT\" NOWRAP height=\"34\"><FONT SIZE=\"2\" FACE=\"Arial, Helvetica\">");
+      out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='1' WIDTH='100%' height='38'><TR><TD VALIGN='Bottom' ALIGN='RIGHT' NOWRAP height='34'><FONT SIZE='2' FACE='Arial, Helvetica'>");
 //insert page for previous button
       String szPrevHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + prevMonth + "&year=" + prevYear;
       if (notLoggedIn) {
         szPrevHTML += "&noLogin=1";
       }
-      out.println("<a href=\"" + szPrevHTML + "\"><IMG SRC=\"/images/ncvwprev.gif\" BORDER=\"0\" ALT=\"Previous month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+      out.println("<a target='_self' href='" + szPrevHTML + "'><IMG SRC='/images/ncvwprev.gif' BORDER='0' ALT='Previous month' ALIGN='MIDDLE' width='32' height='23'></a>");
 //insert page for next button
       String szNextHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + nextMonth + "&year=" + nextYear;
       if (notLoggedIn) {
         szNextHTML += "&noLogin=1";
       }
 //    szNextHTML += idParameter;
-      out.println("<a href=\"" + szNextHTML + "\"><IMG SRC=\"/images/ncvwnext.gif\" BORDER=\"0\" ALT=\"Next month\" ALIGN=\"MIDDLE\" width=\"32\" height=\"23\"></a>");
+      out.println("<a target='_self' href='" + szNextHTML + "'><IMG SRC='/images/ncvwnext.gif' BORDER='0' ALT='Next month' ALIGN='MIDDLE' width='32' height='23'></a>");
 //home month button
       String szCurrHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + realCurrMonth + "&year=" + realCurrYear;
       if (notLoggedIn) {
         szCurrHTML += "&noLogin=1";
       }
-      out.println("<a href=\"" + szCurrHTML + "\" Target=\"_self\"><IMG SRC=\"/images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "\" ALIGN=\"MIDDLE\" width=\"32\" height=\"32\"></a>");
+      out.println("<a href='" + szCurrHTML + "' Target='_self'><IMG SRC='/images/ncgohome.gif' BORDER='0' ALT='Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "' ALIGN='MIDDLE' width='32' height='32'></a>");
       out.println("</FONT></TD></TR>");
-      out.println("<TR><TD VALIGN=\"Bottom\" ALIGN=\"RIGHT\" height=\"21\">");
+      out.println("<TR><TD VALIGN='Bottom' ALIGN='RIGHT' height='21'>");
       out.println("");
       out.println("</TD></TR></table>");
       out.println("");
       out.println("</TD></TR></table>");
       out.println("");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"/images/ncclear.gif\" width=\"3\" height=\"3\"></TD></TR></table>");
+      out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'><TR><TD><img src='/images/ncclear.gif' width='3' height='3'></TD></TR></table>");
       out.println("");
-      out.println("<TABLE BORDER=\"3\" CELLSPACING=\"0\" CELLPADDING=\"1\" WIDTH=\"100%\"><TR>");
-      out.println("<TD WIDTH=\"" + wkEndWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#800000\">");
-      out.println("<CENTER><B><FONT face=\"arial,helvetica\" SIZE=\"2\" COLOR=\"#FFFFFF\">Sunday</FONT></B></CENTER></TD>");
-      out.println("<TD WIDTH=\"" + dayWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#000080\">");
-      out.println("<CENTER><B><FONT  face=\"arial,helvetica\" SIZE=\"2\" COLOR=\"#FFFFFF\">Monday</FONT></B></CENTER></TD>");
-      out.println("<TD WIDTH=\"" + dayWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#000080\">");
-      out.println("<CENTER><B><FONT  face=\"arial,helvetica\" SIZE=\"2\" COLOR=\"#FFFFFF\">Tuesday</FONT></B></CENTER></TD>");
-      out.println("<TD WIDTH=\"" + dayWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#000080\">");
-      out.println("<CENTER><B><FONT  face=\"arial,helvetica\" SIZE=\"2\" COLOR=\"#FFFFFF\">Wednesday</FONT></B></CENTER></TD>");
-      out.println("<TD WIDTH=\"" + dayWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#000080\">");
-      out.println("<CENTER><B><FONT  face=\"arial,helvetica\" SIZE=\"2\" COLOR=\"#FFFFFF\">Thursday</FONT></B></CENTER></TD>");
-      out.println("<TD WIDTH=\"" + dayWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#000080\">");
-      out.println("<CENTER><B><FONT  face=\"arial,helvetica\" SIZE=\"2\" COLOR=\"#FFFFFF\">Friday</FONT></B></CENTER></TD>");
-      out.println("<TD WIDTH=\"" + wkEndWidth + "%\" VALIGN=\"TOP\" HEIGHT=\"15\" BGCOLOR=\"#800000\">");
-      out.println("<CENTER><B><FONT face=\"arial,helvetica\" SIZE=\"2\" COLOR=\"#FFFFFF\">Saturday</FONT></B></CENTER></TD>");
+
+      //make default font small for calendar shifts
+      out.println("<style type='text/css'>\n");
+      out.println("  .calendar td    {font-size:10; font-face:arial,helvetica; padding:1px}\n");
+//      out.println("  a    {target:_self}\n"); //todo srg WIP
+      out.println("</style>\n");
+
+      out.println("<TABLE class='calendar' BORDER='3' CELLSPACING='0' CELLPADDING='1' WIDTH='100%'><TR>");
+      out.println("<TD WIDTH='" + wkEndWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#800000'>");
+      out.println("<CENTER><B><FONT face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Sunday</FONT></B></CENTER></TD>");
+      out.println("<TD WIDTH='" + dayWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#000080'>");
+      out.println("<CENTER><B><FONT  face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Monday</FONT></B></CENTER></TD>");
+      out.println("<TD WIDTH='" + dayWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#000080'>");
+      out.println("<CENTER><B><FONT  face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Tuesday</FONT></B></CENTER></TD>");
+      out.println("<TD WIDTH='" + dayWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#000080'>");
+      out.println("<CENTER><B><FONT  face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Wednesday</FONT></B></CENTER></TD>");
+      out.println("<TD WIDTH='" + dayWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#000080'>");
+      out.println("<CENTER><B><FONT  face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Thursday</FONT></B></CENTER></TD>");
+      out.println("<TD WIDTH='" + dayWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#000080'>");
+      out.println("<CENTER><B><FONT  face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Friday</FONT></B></CENTER></TD>");
+      out.println("<TD WIDTH='" + wkEndWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#800000'>");
+      out.println("<CENTER><B><FONT face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Saturday</FONT></B></CENTER></TD>");
       out.println("</TR>");
     }
 
     public void printEndOfPage(PrintWriter out, String resort) {
       out.println("</TABLE>");
-      out.println("<TABLE BORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><TR><TD><img src=\"/images/ncclear.gif\" width=\"3\" height=\"4\"></TD></TR></table>");
+      out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'><TR><TD><img src='/images/ncclear.gif' width='3' height='4'></TD></TR></table>");
       out.println("<font size=1>As of: " + trialTime);
 
       out.println("&nbsp;&nbsp;");
-      out.println("<a href=\"javascript:printWindow()\">Print page</a>");
+      out.println("<a href='javascript:printWindow()'>Print page</a>");
 
       out.println("&nbsp;&nbsp;");
 
@@ -457,7 +463,7 @@ public class MonthCalendar extends HttpServlet {
         go += "&month=" + szMonth + "&year=" + szYear;
       }
 
-      out.println("Font Size:<SELECT NAME=\"FontSize\" SIZE=1  onChange='resizeMe(\"" + go + "\")' >");
+      out.println("Font Size:<SELECT NAME='FontSize' SIZE=1  onChange='resizeMe('" + go + "')' >");
       out.println("<OPTION " + ((textFontSize == 12) ? "SELECTED" : "") + ">12");
       out.println("<OPTION " + ((textFontSize == 11) ? "SELECTED" : "") + ">11");
       out.println("<OPTION " + ((textFontSize == 10) ? "SELECTED" : "") + ">10");
@@ -471,7 +477,7 @@ public class MonthCalendar extends HttpServlet {
           go += "&month=" + szMonth + "&year=" + szYear;
         }
 
-        out.println("&nbsp;&nbsp;Name Len:<SELECT NAME=\"textLen\" SIZE=1  onChange='resizeMe(\"" + go + "\")' >");
+        out.println("&nbsp;&nbsp;Name Len:<SELECT NAME='textLen' SIZE=1  onChange='resizeMe('" + go + "')' >");
         out.println("<OPTION " + ((maxNameLen == 15) ? "SELECTED" : "") + ">Condensed");
         out.println("<OPTION " + ((maxNameLen == 20) ? "SELECTED" : "") + ">Medium");
         out.println("<OPTION " + ((maxNameLen == 30) ? "SELECTED" : "") + ">Full");
@@ -479,18 +485,18 @@ public class MonthCalendar extends HttpServlet {
       }
 
       out.println("&nbsp;&nbsp;");
-      out.println("<a href=\"javascript:printHelp()\">Help</a>");
+      out.println("<a href='javascript:printHelp()'>Help</a>");
 //      out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-//      out.println("<!--WEBBOT bot=\"HTMLMarkup\" startspan ALT=\"Site Meter\" -->");
-//      out.println("<script type=\"text/javascript\" language=\"JavaScript\">var site=\"s20SkiPatrol\"</script>");
-//      out.println("<script type=\"text/javascript\" language=\"JavaScript1.2\" src=\"http://s20.sitemeter.com/js/counter.js?site=s20SkiPatrol\">");
+//      out.println("<!--WEBBOT bot='HTMLMarkup' startspan ALT='Site Meter' -->");
+//      out.println("<script type='text/javascript' language='JavaScript'>var site='s20SkiPatrol'</script>");
+//      out.println("<script type='text/javascript' language='JavaScript1.2' src='http://s20.sitemeter.com/js/counter.js?site=s20SkiPatrol'>");
 //      out.println("</script>");
 //      out.println("<noscript>");
-//      out.println("<a href=\"http://s20.sitemeter.com/stats.asp?site=s20SkiPatrol\" target=\"_top\">");
-//      out.println("<img src=\"http://s20.sitemeter.com/meter.asp?site=s20SkiPatrol\" alt=\"Site Meter\" border=\"0\"/></a>");
+//      out.println("<a href='http://s20.sitemeter.com/stats.asp?site=s20SkiPatrol' target='_top'>");
+//      out.println("<img src='http://s20.sitemeter.com/meter.asp?site=s20SkiPatrol' alt='Site Meter' border='0'/></a>");
 //      out.println("</noscript>");
 //      out.println("<!-- Copyright (c)2005 Site Meter -->");
-//      out.println("<!--WEBBOT bot=\"HTMLMarkup\" Endspan -->");
+//      out.println("<!--WEBBOT bot='HTMLMarkup' Endspan -->");
 
       out.println("</font>");
       out.println("</FORM>");
@@ -563,12 +569,12 @@ public class MonthCalendar extends HttpServlet {
 //build hyperlink tags
       String htmData = "ChangeShift?resort=" + resort + patrollerIdTag + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day +
           "&month=" + currMonth + "&year=" + currYear + "&pos=";
-      String htmDisplayData = "<a href=\"DayShifts?resort=" + resort + "&dayOfWeek=" + (dayOfWeek - 1) +
+      String htmDisplayData = "<a target='_self' href='DayShifts?resort=" + resort + "&dayOfWeek=" + (dayOfWeek - 1) +
           "&date=" + day + "&month=" + currMonth + "&year=" + currYear + patrollerIdTag +
-          "\" Title=\"Shift Details..\"><B><font face=\"arial,helvetica\" color=\"#0000FF\" size=4>" +
+          "' Title='Shift Details..'><B><font face='arial,helvetica' color='#0000FF' size=4>" +
           Integer.toString(day) + "</font></B></a>";
       if (notLoggedIn) {
-        htmDisplayData = "<B><font face=\"arial,helvetica\" color=\"#0000FF\" size=4>" + Integer.toString(day) + "</font></B>";
+        htmDisplayData = "<B><font face='arial,helvetica' color='#0000FF' size=4>" + Integer.toString(day) + "</font></B>";
       }
       boolean inSeason = true;
       boolean blackoutDate = false;
@@ -595,13 +601,13 @@ public class MonthCalendar extends HttpServlet {
           //no data for this day, FILL OUT BLANK FORM
           //
           if (!inSeason) {
-            out.println("<font color=\"#FF0000\" size=\"4\">&nbsp;&nbsp;CLOSED</font>");
+            out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;CLOSED</font>");
           }
           else if (blackoutDate) {
-            out.println("<font color=\"#FF0000\" size=\"4\">&nbsp;&nbsp;Not Yet Available</font>");
+            out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;Not Yet Available</font>");
           }
           else {
-            out.println("<TABLE WIDTH=\"100%\" Border=\"0\" CELLPADDING=\"0\" CellSpacing=\"0\">");
+            out.println("<TABLE WIDTH='100%' Border='0' CELLPADDING='0' CellSpacing='0'>");
             int count = 0;
             for (int i = 0; i < Shifts.MAX; ++i) {
               Shifts shift = WeeklyShifts[dayOfWeek][i];
@@ -616,16 +622,16 @@ public class MonthCalendar extends HttpServlet {
           }
         }
         else if (!inSeason) {
-          out.println("<font color=\"#FF0000\" size=\"4\">&nbsp;&nbsp;CLOSED</font>");
+          out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;CLOSED</font>");
         }
 
       }
       else if (data[day][0].getPosID(0).equals("1")) {
 //special flag, we are closed this day (patroller[0] ID = 1)
         out.println(htmDisplayData);
-        out.println("<font color=\"#FF0000\" size=\"4\">&nbsp;&nbsp;CLOSED</font>");
+        out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;CLOSED</font>");
         if (eventName != null) {
-          out.println("<BR><font size=\"2\">" + eventName + "</font>");
+          out.println("<BR><font size='2'>" + eventName + "</font>");
         }
 
       }
@@ -633,13 +639,13 @@ public class MonthCalendar extends HttpServlet {
 //Normal day
         if (eventName != null) {
           out.println(htmDisplayData);
-          out.println("<BR><font size=\"2\">" + eventName + "</font>");
+          out.println("<BR><font size='2'>" + eventName + "</font>");
 //                out.println(eventName);
         }
         else {
           out.println(htmDisplayData);
         }
-        out.println("<TABLE WIDTH=\"100%\" Border=\"0\" CELLPADDING=\"0\" CellSpacing=\"0\">");
+        out.println("<TABLE WIDTH='100%' Border='0' CELLPADDING='0' CellSpacing='0'>");
         int posCount = 0;
         htmData = "ChangeShift?resort=" + resort + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day + "&month=" + currMonth + "&year=" + currYear + patrollerIdTag + "&pos=";
         for (int i = 0; i < assignmentCount && !notLoggedIn; ++i) {
@@ -760,17 +766,17 @@ public class MonthCalendar extends HttpServlet {
 //System.out.println("ERROR with newIndividualAssignment id did not match current ID");
             }
             else if (newIndividualAssignment.getNeedsReplacement()) {
-              cellBackgroundStart = "<div style=\"background: #FFFF00\">"; //was FFC8C8
+              cellBackgroundStart = "<div style='background: #FFFF00'>"; //was FFC8C8
               cellBackgroundEnd = "</div>";
             }
           }
         }
 // end highlight ------------------------------------------
-        out.println(szRowStart + "<a href=\"" + html + "\" Title=\"" + QuickTip + "\">" + cellBackgroundStart +
+        out.println(szRowStart + "<a target='_self' href='" + html + "' Title='" + QuickTip + "'>" + cellBackgroundStart +
             szName + cellBackgroundEnd + "</a>" + szRowEnd);
       }
       else {
-        out.println(szRowStart + "<font face=\"arial,helvetica\" color=\"#000000\">" + szName + "</font>" + szRowEnd);
+        out.println(szRowStart + "<font face='arial,helvetica' color='#000000'>" + szName + "</font>" + szRowEnd);
       }
     }
 

@@ -16,6 +16,15 @@ import java.util.Vector;
  */
 public class EmailForm extends HttpServlet {
 
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    new LocalEmailForm(request, response);
+  }
+
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    new LocalEmailForm(request, response);
+  }
+
+  private class LocalEmailForm {
   //    private final static String fallback_smtp = "zimbra.xmission.com";
   private final static String fallback_from = "steve@gledhills.com";
 
@@ -72,19 +81,8 @@ public class EmailForm extends HttpServlet {
   boolean messageIsUnique;
   String fullPatrolName;
 
-  /**
-   * http get request
-   *
-   * @param request  standard request
-   * @param response standard response
-   * @throws IOException
-   * @throws ServletException
-   */
-  public void doGet(HttpServletRequest request,
-                    HttpServletResponse response)
-      throws IOException, ServletException {
+  private LocalEmailForm(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-    synchronized (this) {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request.getSession(), out);
@@ -105,36 +103,20 @@ public class EmailForm extends HttpServlet {
 
       String Submit = request.getParameter("Submit");
 
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+
+    OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+    outerPage.printResortHeader(out);
       printTop(out, Submit);
-      if (PatrolData.validResort(resort)) {
-        if (Submit != null) {
-          debugOut("resort " + resort + ", sending emails");
-          SendEmails(request, szMyID, sessionData);
-          //SLOW OPERATION HERE
-        }
-        else {
-          printMiddle(out, resort, szMyID);
-        }
+      if (Submit != null) {
+        debugOut("resort " + resort + ", sending emails");
+        //todo make this a thread
+        SendEmails(request, szMyID, sessionData);
       }
       else {
-        out.println("Invalid host resort.");
+        printMiddle(out, resort, szMyID);
       }
-      printBottom(out);
-    }
-  }
-
-  /**
-   * main http entry into this module
-   *
-   * @param request  standard HttpServletRequest
-   * @param response standard HttpServletResponse
-   * @throws IOException
-   * @throws ServletException
-   */
-  public void doPost(HttpServletRequest request,
-                     HttpServletResponse response)
-      throws IOException, ServletException {
-    doGet(request, response);
+    outerPage.printResortFooter(out);
   }
 
   private boolean readSubject(HttpServletRequest request) {
@@ -395,44 +377,6 @@ public class EmailForm extends HttpServlet {
     return (emailAddress != null && emailAddress.length() > 3 && emailAddress.indexOf('@') > 0);
   }
 
-//  private void mailToAll(MailMan mail, String subject, String message) {
-//    int lastValidIndex = 0;
-//    for (String memberId : memberIds) {
-//      MemberData memberData = patrol.getMemberByID(memberId);
-//      if (isValidAddress(memberData.getEmail())) {
-//        lastValidIndex++;
-//      }
-//    }
-//    PatrolData.logger(resort, "mass email to:" + lastValidIndex + " patrollers.");
-//
-//    String[] recipients = new String[lastValidIndex];
-//    lastValidIndex = 0;
-//    for (String memberId : memberIds) {
-//      MemberData memberData = patrol.getMemberByID(memberId);
-//      String recipient = memberData.getEmail();
-//      PatrolData.logger(resort, "To: " + memberData.getFullName() + ", at address: " + recipient);
-//      if (isValidAddress(recipient)) {
-//        recipients[lastValidIndex++] = recipient;
-//      }
-//    }
-//
-//    if (lastValidIndex > 0) {
-//      try {
-//        mail.sendMessage(subject, message, recipients);
-////                PatrolData.logger(resort, "  mail was sucessfull");    //no e-mail, JUST LOG IT
-//      } catch (MailManException ex) {
-//        PatrolData.logger(resort, "  error " + ex);
-////                PatrolData.logger(resort, "attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
-//      }
-//    }
-//  }
-
-  /**
-   * @param mail    MailMan object
-   * @param mbr     Member data structure for patroller,  used here just to get email address
-   * @param subject subject line of email
-   * @param message body o email
-   */
   private void mailto(MailMan mail, MemberData mbr, String subject, String message, SessionData sessionData) {
     String recipient = mbr.getEmail();
     if (isValidAddress(recipient)) {
@@ -448,46 +392,14 @@ public class EmailForm extends HttpServlet {
     }
   } //end mailto
 
-  /**
-   * output <html><head> sections, and start <body> section
-   *
-   * @param out    output device
-   * @param Submit null indicates Preparing email, any valid string=send emails
-   */
   private void printTop(PrintWriter out, String Submit) {
-
-    out.println("<html>");
-    out.println("<HEAD>");
-    out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">");
-
-    out.println("<title>Email Selected Patrollers</title>");
-    out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
-    out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
-    out.println("</HEAD>");
-    out.println("<body>");
     if (Submit != null) {
       out.println("<H2>Sending Emails, this may take a while (this is currently broken!!!).</H2>");
     }
     else {
       out.println("<H2>Prepare Emails (is currently broken).</H2>");
     }
-//todo srg
   }
-
-  /**
-   * output final tags to close html page
-   *
-   * @param out output device
-   */
-  public void printBottom(PrintWriter out) {
-    out.println("</body>");
-    out.println("</html>");
-  }
-
-//---------
-// printMiddle
-
-  //---------
 
   private void printMiddle(PrintWriter out, String resort, String szMyID) {
     out.println("<form target='_self' name=\"form\" method=\"post\" action=\"" + PatrolData.SERVLET_URL + "EmailForm\">");
@@ -598,6 +510,7 @@ public class EmailForm extends HttpServlet {
       out.println("  </tr>\n");
     }
     out.println("</table>\n");
+    out.println("<br/><br/>");
   }
 
 
@@ -787,13 +700,6 @@ public class EmailForm extends HttpServlet {
     }
   }
 
-
-  /**
-   * convert integer to int
-   *
-   * @param strNum string (normally 6 digits, may be negative)
-   * @return converted number
-   */
   private int cvtToInt(String strNum) {
     int num = 0;
     try {
@@ -807,11 +713,6 @@ public class EmailForm extends HttpServlet {
     return num;
   }
 
-  /**
-   * build list of ???
-   *
-   * @param IDOfEditor patroller ID of the patroller who is doing the editing
-   */
   private void BuildLists(String IDOfEditor, SessionData sessionData) {
     patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
 
@@ -850,4 +751,5 @@ public class EmailForm extends HttpServlet {
     isDirector = editor != null && editor.isDirector();
   }
 
+}
 }

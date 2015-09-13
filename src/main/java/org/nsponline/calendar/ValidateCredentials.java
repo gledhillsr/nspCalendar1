@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  final static boolean DEBUG = true;
+  final static boolean DEBUG = false;
   String resortParameter;
 
   private boolean hasInvalidCredentials;

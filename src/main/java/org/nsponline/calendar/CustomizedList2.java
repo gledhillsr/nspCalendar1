@@ -11,268 +11,265 @@ import java.util.*;
 
 public class CustomizedList2 extends HttpServlet {
 
-  boolean debug = false;    //-----------
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    new LocalCustomizedList2(request, response);
+  }
 
-  PrintWriter out;
-  String szMyID;
-  boolean isDirector = false;
-  //    String ePatrollerList = "";
-  private String resort;
-  private DirectorSettings directorSettings;
-  Vector<String> classificationsToDisplay = null;
-  int commitmentToDisplay = 0;
-  boolean listDirector = false;
-  boolean listAll = false;
-  int instructorFlags = 0;
-  PatrolData patrol = null;
-  //  int memberIndex = 0;
-  int patrollersListed = 0;
-  int textFontSize = 14;
-  Hashtable<String, MemberData> hash;
-  Vector<MemberData> members;
-  int maxShiftCount;
-  int StartDay;
-  int StartMonth;
-  int StartYear;
-  int EndDay;
-  int EndMonth;
-  int EndYear;
-  boolean useMinDays;
-  int minDays;
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    new LocalCustomizedList2(request, response);
+  }
 
-  boolean showClass;
-  boolean showID;
-  boolean showBlank;
-  boolean showBlankWide;
-  boolean firstNameFirst;
-  boolean showSpouse;
-  boolean showAddr;
-  boolean showCity;
-  boolean showState;
-  boolean showZip;
-  boolean showHome;
-  boolean showWork;
-  boolean showCell;
-  boolean showPager;
-  boolean showEmail;
-  boolean showEmergency;
-  boolean showSubsitute;
-  boolean showCommit;
-  boolean showInstructor;
-  boolean showDirector;
-  boolean showLastUpdated;
-  boolean showComments;
-  //    boolean showOldCredits;
-  boolean showCreditDate;
-  boolean showNightCnt;
-  boolean showDayCnt;
-  boolean showSwingCnt;
-  boolean showTrainingCnt;
-  boolean showNightList;
-  boolean showDayList;
-  boolean showSwingList;
-  boolean showTrainingList;
-  boolean showTeamLead;
-  boolean showMentoring;
-  boolean showCreditsEarned;
-  //    boolean showCreditsUsed;
-  boolean showCanEarnCredits;
-  String sort1;
-  String sort2;
-  String sort3;
+  private class LocalCustomizedList2 {
+    boolean debug = false;    //-----------
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
-    response.setContentType("text/html");
-    synchronized (this) {
-      out = response.getWriter();
-      SessionData sessionData = new SessionData(request.getSession(), out);
-      directorSettings = null;
-      CookieID cookie = new CookieID(sessionData, request, response, "CustomizedList2", null);
-      resort = request.getParameter("resort");
+    PrintWriter out;
+    String szMyID;
+    boolean isDirector = false;
+    //    String ePatrollerList = "";
+    private String resort;
+    private DirectorSettings directorSettings;
+    Vector<String> classificationsToDisplay = null;
+    int commitmentToDisplay = 0;
+    boolean listDirector = false;
+    boolean listAll = false;
+    int instructorFlags = 0;
+    PatrolData patrol = null;
+    //  int memberIndex = 0;
+    int patrollersListed = 0;
+    int textFontSize = 14;
+    Hashtable<String, MemberData> hash;
+    Vector<MemberData> members;
+    int maxShiftCount;
+    int StartDay;
+    int StartMonth;
+    int StartYear;
+    int EndDay;
+    int EndMonth;
+    int EndYear;
+    boolean useMinDays;
+    int minDays;
 
-      szMyID = sessionData.getLoggedInUserId();
-      if (szMyID != null) {
+    boolean showClass;
+    boolean showID;
+    boolean showBlank;
+    boolean showBlankWide;
+    boolean firstNameFirst;
+    boolean showSpouse;
+    boolean showAddr;
+    boolean showCity;
+    boolean showState;
+    boolean showZip;
+    boolean showHome;
+    boolean showWork;
+    boolean showCell;
+    boolean showPager;
+    boolean showEmail;
+    boolean showEmergency;
+    boolean showSubsitute;
+    boolean showCommit;
+    boolean showInstructor;
+    boolean showDirector;
+    boolean showLastUpdated;
+    boolean showComments;
+    //    boolean showOldCredits;
+    boolean showCreditDate;
+    boolean showNightCnt;
+    boolean showDayCnt;
+    boolean showSwingCnt;
+    boolean showTrainingCnt;
+    boolean showNightList;
+    boolean showDayList;
+    boolean showSwingList;
+    boolean showTrainingList;
+    boolean showTeamLead;
+    boolean showMentoring;
+    boolean showCreditsEarned;
+    //    boolean showCreditsUsed;
+    boolean showCanEarnCredits;
+    String sort1;
+    String sort2;
+    String sort3;
+
+    private LocalCustomizedList2(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+      response.setContentType("text/html");
+        out = response.getWriter();
+        SessionData sessionData = new SessionData(request.getSession(), out);
+        directorSettings = null;
+        ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2");
+        if (credentials.hasInvalidCredentials()) {
+          return;
+        }
+        resort = sessionData.getLoggedInResort();
+        szMyID = sessionData.getLoggedInUserId();
         readData(request, szMyID, sessionData);
-      }
 
-      patrollersListed = 0;
+        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+        outerPage.printResortHeader(out);
+        patrollersListed = 0;
 
-      printTop();
-      if (PatrolData.validResort(resort)) {
-        printBody();
-      }
-      else {
-        out.println("Invalid host resort.");
-      }
-      printBottom();
-    } //END SYNCRONIZED
-  }
-
-  public void doPost(HttpServletRequest request,
-                     HttpServletResponse response)
-      throws IOException, ServletException {
-    doGet(request, response);
-  }
-
-  private void dumpParameters() {
-    debugOut("Sort1=" + sort1);
-    debugOut("Sort2=" + sort2);
-    debugOut("Sort3=" + sort3);
-
-    debugOut("showClass=" + showClass);
-    debugOut("showID=" + showID);
-    debugOut("showBlank=" + showBlank);
-    debugOut("showBlankWide=" + showBlankWide);
-    debugOut("showSpouse=" + showSpouse);
-    debugOut("showAddr=" + showAddr);
-    debugOut("showCity=" + showCity);
-    debugOut("showState=" + showState);
-    debugOut("showZip=" + showZip);
-    debugOut("showHome=" + showHome);
-    debugOut("showWork=" + showWork);
-    debugOut("showCell=" + showCell);
-    debugOut("showPager=" + showPager);
-    debugOut("showEmail=" + showEmail);
-    debugOut("showEmergency=" + showEmergency);
-    debugOut("showCommit=" + showCommit);
-    debugOut("showInstructor=" + showInstructor);
-    debugOut("showDirector=" + showDirector);
-    debugOut("showLastUpdated=" + showLastUpdated);
-    debugOut("showComments=" + showComments);
-    debugOut("showCreditDate=" + showCreditDate);
-    debugOut("showNightCnt=" + showNightCnt);
-    debugOut("showDayCnt=" + showDayCnt);
-    debugOut("showSwingCnt=" + showSwingCnt);
-    debugOut("showTrainingCnt=" + showTrainingCnt);
-    debugOut("showNightList=" + showNightList);
-    debugOut("showDayList=" + showDayList);
-    debugOut("showSwingList=" + showSwingList);
-    debugOut("showTrainingList=" + showTrainingList);
-    debugOut("useMinDays=" + useMinDays);
-    debugOut("MinDays=" + minDays);
-  }
-
-  private void debugOut(String msg) {
-    if (debug) {
-      System.out.println("DEBUG-CustomizedList2(" + resort + "): " + msg);
+        printTop();
+        if (PatrolData.validResort(resort)) {
+          printBody();
+        }
+        else {
+          out.println("Invalid host resort.");
+        }
+        printBottom();
+        outerPage.printResortFooter(out);
     }
-  }
 
-  private void readData(HttpServletRequest request, String IDOfEditor, SessionData sessionData) {
-    firstNameFirst = true;
-    String szName = request.getParameter("NAME");
-    if (szName != null && szName.equals("LAST")) {
-      firstNameFirst = false;
+    private void dumpParameters() {
+      debugOut("Sort1=" + sort1);
+      debugOut("Sort2=" + sort2);
+      debugOut("Sort3=" + sort3);
+
+      debugOut("showClass=" + showClass);
+      debugOut("showID=" + showID);
+      debugOut("showBlank=" + showBlank);
+      debugOut("showBlankWide=" + showBlankWide);
+      debugOut("showSpouse=" + showSpouse);
+      debugOut("showAddr=" + showAddr);
+      debugOut("showCity=" + showCity);
+      debugOut("showState=" + showState);
+      debugOut("showZip=" + showZip);
+      debugOut("showHome=" + showHome);
+      debugOut("showWork=" + showWork);
+      debugOut("showCell=" + showCell);
+      debugOut("showPager=" + showPager);
+      debugOut("showEmail=" + showEmail);
+      debugOut("showEmergency=" + showEmergency);
+      debugOut("showCommit=" + showCommit);
+      debugOut("showInstructor=" + showInstructor);
+      debugOut("showDirector=" + showDirector);
+      debugOut("showLastUpdated=" + showLastUpdated);
+      debugOut("showComments=" + showComments);
+      debugOut("showCreditDate=" + showCreditDate);
+      debugOut("showNightCnt=" + showNightCnt);
+      debugOut("showDayCnt=" + showDayCnt);
+      debugOut("showSwingCnt=" + showSwingCnt);
+      debugOut("showTrainingCnt=" + showTrainingCnt);
+      debugOut("showNightList=" + showNightList);
+      debugOut("showDayList=" + showDayList);
+      debugOut("showSwingList=" + showSwingList);
+      debugOut("showTrainingList=" + showTrainingList);
+      debugOut("useMinDays=" + useMinDays);
+      debugOut("MinDays=" + minDays);
     }
-    showClass = request.getParameter("CLASS") != null;
-    showID = request.getParameter("SHOW_ID") != null;
-    showBlank = request.getParameter("SHOW_BLANK") != null;
-    showBlankWide = request.getParameter("SHOW_BLANK2") != null;
-    showSpouse = request.getParameter("SPOUSE") != null;
-    showAddr = request.getParameter("ADDR") != null;
-    showCity = request.getParameter("CITY") != null;
-    showState = request.getParameter("STATE") != null;
-    showZip = request.getParameter("ZIP") != null;
-    showHome = request.getParameter("HOME") != null;
-    showWork = request.getParameter("WORK") != null;
-    showCell = request.getParameter("CELL") != null;
-    showPager = request.getParameter("PAGER") != null;
-    showEmail = request.getParameter("EMAIL") != null;
-    showEmergency = request.getParameter("EMERGENCY") != null;
-    showSubsitute = request.getParameter("SUBSITUTE") != null;
-    showCommit = request.getParameter("COMMIT") != null;
-    showInstructor = request.getParameter("INSTRUCTOR") != null;
-    showDirector = request.getParameter("DIRECTOR") != null;
-    showLastUpdated = request.getParameter("LAST_UPDATED") != null;
-    showComments = request.getParameter("COMMENTS") != null;
+
+    private void readData(HttpServletRequest request, String IDOfEditor, SessionData sessionData) {
+      firstNameFirst = true;
+      String szName = request.getParameter("NAME");
+      if (szName != null && szName.equals("LAST")) {
+        firstNameFirst = false;
+      }
+      showClass = request.getParameter("CLASS") != null;
+      showID = request.getParameter("SHOW_ID") != null;
+      showBlank = request.getParameter("SHOW_BLANK") != null;
+      showBlankWide = request.getParameter("SHOW_BLANK2") != null;
+      showSpouse = request.getParameter("SPOUSE") != null;
+      showAddr = request.getParameter("ADDR") != null;
+      showCity = request.getParameter("CITY") != null;
+      showState = request.getParameter("STATE") != null;
+      showZip = request.getParameter("ZIP") != null;
+      showHome = request.getParameter("HOME") != null;
+      showWork = request.getParameter("WORK") != null;
+      showCell = request.getParameter("CELL") != null;
+      showPager = request.getParameter("PAGER") != null;
+      showEmail = request.getParameter("EMAIL") != null;
+      showEmergency = request.getParameter("EMERGENCY") != null;
+      showSubsitute = request.getParameter("SUBSITUTE") != null;
+      showCommit = request.getParameter("COMMIT") != null;
+      showInstructor = request.getParameter("INSTRUCTOR") != null;
+      showDirector = request.getParameter("DIRECTOR") != null;
+      showLastUpdated = request.getParameter("LAST_UPDATED") != null;
+      showComments = request.getParameter("COMMENTS") != null;
 //    showOldCredits    = request.getParameter("CARRY_OVER_CREDITS") != null;
-    showCreditDate = request.getParameter("LAST_CREDIT_UPDATE") != null;
-    showNightCnt = request.getParameter("NIGHT_CNT") != null;
-    showDayCnt = request.getParameter("DAY_CNT") != null;
-    showSwingCnt = request.getParameter("SWING_CNT") != null;
-    showTrainingCnt = request.getParameter("TRAINING_CNT") != null;
-    showNightList = request.getParameter("NIGHT_DETAILS") != null;
-    showSwingList = request.getParameter("SWING_DETAILS") != null;
-    showDayList = request.getParameter("DAY_DETAILS") != null;
-    showTrainingList = request.getParameter("TRAINING_DETAILS") != null;
-    showTeamLead = request.getParameter("TEAM_LEAD") != null;
-    showMentoring = request.getParameter("MENTORING") != null;
-    showCreditsEarned = request.getParameter("CREDITS_EARNED") != null;
+      showCreditDate = request.getParameter("LAST_CREDIT_UPDATE") != null;
+      showNightCnt = request.getParameter("NIGHT_CNT") != null;
+      showDayCnt = request.getParameter("DAY_CNT") != null;
+      showSwingCnt = request.getParameter("SWING_CNT") != null;
+      showTrainingCnt = request.getParameter("TRAINING_CNT") != null;
+      showNightList = request.getParameter("NIGHT_DETAILS") != null;
+      showSwingList = request.getParameter("SWING_DETAILS") != null;
+      showDayList = request.getParameter("DAY_DETAILS") != null;
+      showTrainingList = request.getParameter("TRAINING_DETAILS") != null;
+      showTeamLead = request.getParameter("TEAM_LEAD") != null;
+      showMentoring = request.getParameter("MENTORING") != null;
+      showCreditsEarned = request.getParameter("CREDITS_EARNED") != null;
 //    showCreditsUsed     = request.getParameter("CREDITS_USED") != null;
-    showCanEarnCredits = request.getParameter("CAN_EARN_CREDITS") != null;
+      showCanEarnCredits = request.getParameter("CAN_EARN_CREDITS") != null;
 
-    StartDay = cvtToInt(request.getParameter("StartDay"));
-    StartMonth = cvtToInt(request.getParameter("StartMonth"));
-    StartYear = cvtToInt(request.getParameter("StartYear"));
-    EndDay = cvtToInt(request.getParameter("EndDay"));
-    EndMonth = cvtToInt(request.getParameter("EndMonth"));
-    EndYear = cvtToInt(request.getParameter("EndYear"));
-    useMinDays = request.getParameter("MIN_DAYS") != null;
-    minDays = cvtToInt(request.getParameter("MinDays"));
+      StartDay = cvtToInt(request.getParameter("StartDay"));
+      StartMonth = cvtToInt(request.getParameter("StartMonth"));
+      StartYear = cvtToInt(request.getParameter("StartYear"));
+      EndDay = cvtToInt(request.getParameter("EndDay"));
+      EndMonth = cvtToInt(request.getParameter("EndMonth"));
+      EndYear = cvtToInt(request.getParameter("EndYear"));
+      useMinDays = request.getParameter("MIN_DAYS") != null;
+      minDays = cvtToInt(request.getParameter("MinDays"));
 
 
-    sort1 = request.getParameter("FirstSort");
-    sort2 = request.getParameter("SecondSort");
-    sort3 = request.getParameter("ThirdSort");
+      sort1 = request.getParameter("FirstSort");
+      sort2 = request.getParameter("SecondSort");
+      sort3 = request.getParameter("ThirdSort");
 
-    textFontSize = cvtToInt(request.getParameter("FontSize"));
-    if (debug) {
-      dumpParameters();
-    }
-    String[] incList = {"BAS", "INA", "SR", "SRA", "ALM", "PRO", "AUX", "TRA", "CAN", "OTH"};
-    classificationsToDisplay = new Vector<String>();
-    commitmentToDisplay = 0;
-//classification
-    for (String classification : incList) {
-      String str = request.getParameter(classification);
-      if (str != null) {
-        classificationsToDisplay.add(classification);
+      textFontSize = cvtToInt(request.getParameter("FontSize"));
+      if (debug) {
+        dumpParameters();
       }
-    }
+      String[] incList = {"BAS", "INA", "SR", "SRA", "ALM", "PRO", "AUX", "TRA", "CAN", "OTH"};
+      classificationsToDisplay = new Vector<String>();
+      commitmentToDisplay = 0;
+//classification
+      for (String classification : incList) {
+        String str = request.getParameter(classification);
+        if (str != null) {
+          classificationsToDisplay.add(classification);
+        }
+      }
 //commitment
-    if (request.getParameter("FullTime") != null) {
-      commitmentToDisplay += 4;
-    }
-    if (request.getParameter("PartTime") != null) {
-      commitmentToDisplay += 2;
-    }
-    if (request.getParameter("Inactive") != null) {
-      commitmentToDisplay += 1;
-    }
+      if (request.getParameter("FullTime") != null) {
+        commitmentToDisplay += 4;
+      }
+      if (request.getParameter("PartTime") != null) {
+        commitmentToDisplay += 2;
+      }
+      if (request.getParameter("Inactive") != null) {
+        commitmentToDisplay += 1;
+      }
 
 //instructor/director flags
-    listDirector = false;
-    listAll = false;
-    instructorFlags = 0;
-    if (request.getParameter("ALL") != null) {
-      listAll = true;
-    }
-    if (request.getParameter("ListDirector") != null) {
-      listDirector = true;
-    }
-    if (request.getParameter("OEC") != null) {
-      instructorFlags += 1;
-    }
-    if (request.getParameter("CPR") != null) {
-      instructorFlags += 2;
-    }
-    if (request.getParameter("Ski") != null) {
-      instructorFlags += 4;
-    }
-    if (request.getParameter("Toboggan") != null) {
-      instructorFlags += 8;
-    }
+      listDirector = false;
+      listAll = false;
+      instructorFlags = 0;
+      if (request.getParameter("ALL") != null) {
+        listAll = true;
+      }
+      if (request.getParameter("ListDirector") != null) {
+        listDirector = true;
+      }
+      if (request.getParameter("OEC") != null) {
+        instructorFlags += 1;
+      }
+      if (request.getParameter("CPR") != null) {
+        instructorFlags += 2;
+      }
+      if (request.getParameter("Ski") != null) {
+        instructorFlags += 4;
+      }
+      if (request.getParameter("Toboggan") != null) {
+        instructorFlags += 8;
+      }
 
-    patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
 
-    //read assignments within a range and get shift count
-    readAssignments(patrol); //must read for other code to work
+      //read assignments within a range and get shift count
+      readAssignments(patrol); //must read for other code to work
 
 
-    directorSettings = patrol.readDirectorSettings();
-    String sortString = getSortString();
-    patrol.resetRoster(sortString);
+      directorSettings = patrol.readDirectorSettings();
+      String sortString = getSortString();
+      patrol.resetRoster(sortString);
 //        ePatrollerList = "";
 //        MemberData member = patrol.nextMember("&nbsp;");
 ////      MemberData member = patrol.nextMember("");
@@ -289,367 +286,347 @@ public class CustomizedList2 extends HttpServlet {
 //            }
 //            member = patrol.nextMember("");
 //        }
-    MemberData editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
+      MemberData editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
 //      patrol.close(); //must close connection!
-    isDirector = editor != null && editor.isDirector();
-  }
-
-  /**
-   * showButtonsAtTop
-   */
-  private void showButtonsAtTop() {
-    out.println("<p><font size=\"3\"><Bold>");
-    String options = "";
-//classification
-    for (int j = 0; j < classificationsToDisplay.size(); ++j) {
-      options += "&" + classificationsToDisplay.elementAt(j) + "=1";
+      isDirector = editor != null && editor.isDirector();
     }
+
+    /**
+     * showButtonsAtTop
+     */
+    private void showButtonsAtTop() {
+      out.println("<p><font size=\"3\"><Bold>");
+      String options = "";
+//classification
+      for (int j = 0; j < classificationsToDisplay.size(); ++j) {
+        options += "&" + classificationsToDisplay.elementAt(j) + "=1";
+      }
 
 //commitment
-    if ((commitmentToDisplay & 4) == 4) {
-      options += "&FullTime=1";
-    }
-    if ((commitmentToDisplay & 2) == 2) {
-      options += "&PartTime=1";
-    }
-    if ((commitmentToDisplay & 1) == 1) {
-      options += "&Inactive=1";
-    }
+      if ((commitmentToDisplay & 4) == 4) {
+        options += "&FullTime=1";
+      }
+      if ((commitmentToDisplay & 2) == 2) {
+        options += "&PartTime=1";
+      }
+      if ((commitmentToDisplay & 1) == 1) {
+        options += "&Inactive=1";
+      }
 //Instructor
-    if (listAll) {
-      options += "&ALL=1";
-    }
-    if (listDirector) {
-      options += "&ListDirector=1";
-    }
-    if ((instructorFlags & 1) == 1) {
-      options += "&OEC=1";
-    }
-    if ((instructorFlags & 2) == 2) {
-      options += "&CPR=1";
-    }
-    if ((instructorFlags & 4) == 4) {
-      options += "&Ski=1";
-    }
-    if ((instructorFlags & 8) == 8) {
-      options += "&Toboggan=1";
-    }
+      if (listAll) {
+        options += "&ALL=1";
+      }
+      if (listDirector) {
+        options += "&ListDirector=1";
+      }
+      if ((instructorFlags & 1) == 1) {
+        options += "&OEC=1";
+      }
+      if ((instructorFlags & 2) == 2) {
+        options += "&CPR=1";
+      }
+      if ((instructorFlags & 4) == 4) {
+        options += "&Ski=1";
+      }
+      if ((instructorFlags & 8) == 8) {
+        options += "&Toboggan=1";
+      }
 // day count (1/0), swing count (1/0), night count (1/0), Minimum Shifts (#)
 //fix me ????
-    if (useMinDays && (showDayCnt || showSwingCnt || showNightCnt)) {
-      options += "&MIN_DAYS=1&MinDays=" + minDays;
-      if (showDayCnt) {
-        options += "&DAY_CNT=1";
-      }
-      if (showNightCnt) {
-        options += "&NIGHT_CNT=1";
-      }
-      if (showSwingCnt) {
-        options += "&SWING_CNT=1";
-      }
-      if (showTrainingCnt) {
-        options += "&TRAINING_CNT=1";
-      }
-      options += "&StartDay=" + StartDay;
-      options += "&StartMonth=" + StartMonth;
-      options += "&StartYear=" + StartYear;
-      options += "&EndDay=" + EndDay;
-      options += "&EndMonth=" + EndMonth;
-      options += "&EndYear=" + EndYear;
+      if (useMinDays && (showDayCnt || showSwingCnt || showNightCnt)) {
+        options += "&MIN_DAYS=1&MinDays=" + minDays;
+        if (showDayCnt) {
+          options += "&DAY_CNT=1";
+        }
+        if (showNightCnt) {
+          options += "&NIGHT_CNT=1";
+        }
+        if (showSwingCnt) {
+          options += "&SWING_CNT=1";
+        }
+        if (showTrainingCnt) {
+          options += "&TRAINING_CNT=1";
+        }
+        options += "&StartDay=" + StartDay;
+        options += "&StartMonth=" + StartMonth;
+        options += "&StartYear=" + StartYear;
+        options += "&EndDay=" + EndDay;
+        options += "&EndMonth=" + EndMonth;
+        options += "&EndYear=" + EndYear;
 
-    }
-    String loc = "EmailForm?resort=" + resort + "&ID=" + szMyID + options;
-    if (isDirector || directorSettings.getEmailAll()) {
-      out.println("<INPUT TYPE=\"button\" VALUE=\"e-mail THESE patrollers\" onClick=window.location=\"" + loc + "\">");
-      out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-    }
-    out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font>");
+      }
+      String loc = "EmailForm?resort=" + resort + "&ID=" + szMyID + options;
+      if (isDirector || directorSettings.getEmailAll()) {
+        out.println("<INPUT TYPE=\"button\" VALUE=\"e-mail THESE patrollers\" onClick=window.location=\"" + loc + "\">");
+        out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+      }
+      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font>");
 
 //DownloadThisTable
-    if (isDirector) {
-      out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+      if (isDirector) {
+        out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 //options += "&format=palm";
-      options += "&format=Excel";
-      loc = "download?resort=" + resort + "&ID=" + szMyID + options;
-      out.println("<INPUT  TYPE=\"button\" VALUE=\"Download this table (under construction)\" onClick=window.location=\"" + loc + "\">");
+        options += "&format=Excel";
+        loc = "download?resort=" + resort + "&ID=" + szMyID + options;
+        out.println("<INPUT  TYPE=\"button\" VALUE=\"Download this table (under construction)\" onClick=window.location=\"" + loc + "\">");
+      }
+      out.println("</p>");
     }
-    out.println("</p>");
-  }
 
-  /**
-   * printTop
-   */
-  public void printTop() {
+    /**
+     * printTop
+     */
+    public void printTop() {
 
 //        int headerFontSize = textFontSize+2; //adjust me ?
 
-    out.println("<html><head>");
-    out.println("<meta http-equiv=\"Content-Language\" content=\"en-us\">");
-    out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">");
-    out.println("<title>" + PatrolData.getResortFullName(resort) + " Ski Patrollers</title>");
-    out.println("<style type=\"text/css\">");
-    out.println("<!-- ");
-    out.println("body  {font-size:10; color: #000000; background-color: #ffffff}");
-    out.println("table {border-width:1px; border-color:#000000; border-style:solid; border-collapse:collapse; border-spacing:0}");
-    out.println("th    {font-size:" + textFontSize + "; font-weight: bold; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:2px}");
-    out.println("td    {font-size:" + textFontSize + "; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:1px}");
-    out.println("//-->");
-    out.println("</style>");
-    out.println("<META HTTP-EQUIV=\"Pragma\" CONTENT=\"no-cache\">");
-    out.println("<META HTTP-EQUIV=\"Expires\" CONTENT=\"-1\">");
-    out.println("</head><body>");
+      out.println("<style type=\"text/css\">");
+      out.println("<!-- ");
+      out.println("body  {font-size:10; color: #000000; background-color: #ffffff}");
+      out.println(".list table {border-width:1px; border-color:#000000; border-style:solid; border-collapse:collapse; border-spacing:0}");
+      out.println(".list th    {font-size:" + textFontSize + "; font-weight: bold; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:2px}");
+      out.println(".list td    {font-size:" + textFontSize + "; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:1px}");
+      out.println("//-->");
+      out.println("</style>");
 
-    out.println("<script>");
-    out.println("function printWindow(){");
-    out.println("   bV = parseInt(navigator.appVersion)");
-    out.println("   if (bV >= 4) window.print()");
-    out.println("}");
-    out.println("</script>");
+      out.println("<script>");
+      out.println("function printWindow(){");
+      out.println("   bV = parseInt(navigator.appVersion)");
+      out.println("   if (bV >= 4) window.print()");
+      out.println("}");
+      out.println("</script>");
 
-    out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(resort) + " Ski Patrol</h2></Center></p>");
+      out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(resort) + " Ski Patrol</h2></Center></p>");
 
-    PatrolData.logger(resort, " CustomizedList2, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
-    if (isDirector || (directorSettings != null && directorSettings.getEmailAll())) {
-      showButtonsAtTop();
-    } //end email patrollers...
-    out.println("<table  style=\"font-size: 10pt; face=\'Verdana, Arial, Helvetica\' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
-    out.println(" <tr>");
+      PatrolData.logger(resort, " CustomizedList2, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
+      if (isDirector || (directorSettings != null && directorSettings.getEmailAll())) {
+        showButtonsAtTop();
+      } //end email patrollers...
+      out.println("<table class='list' style=\"font-size: 10pt; face=\'Verdana, Arial, Helvetica\' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
+      out.println(" <tr>");
 
-    MemberData.addColumn(-1);
-    MemberData.addColumn(firstNameFirst ? MemberData.FIRST : MemberData.LAST);
-    if (showBlank) {
-      MemberData.addColumn(MemberData.BLANK);
-    }
-    if (showBlankWide) {
-      MemberData.addColumn(MemberData.BLANK_WIDE);
-    }
-    if (showClass) {
-      MemberData.addColumn(MemberData.CLASSIFICATION);
-    }
-    if (showID) {
-      MemberData.addColumn(MemberData.ID_NUM);
-    }
-    if (showSpouse) {
-      MemberData.addColumn(MemberData.SPOUSE);
-    }
-    if (showAddr) {
-      MemberData.addColumn(MemberData.ADDRESS);
-    }
-    if (showCity) {
-      MemberData.addColumn(MemberData.CITY);
-    }
-    if (showState) {
-      MemberData.addColumn(MemberData.STATE);
-    }
-    if (showZip) {
-      MemberData.addColumn(MemberData.ZIPCODE);
-    }
-    if (showHome) {
-      MemberData.addColumn(MemberData.HOMEPHONE);
-    }
-    if (showWork) {
-      MemberData.addColumn(MemberData.WORKPHONE);
-    }
-    if (showCell) {
-      MemberData.addColumn(MemberData.CELLPHONE);
-    }
-    if (showPager) {
-      MemberData.addColumn(MemberData.PAGER);
-    }
-    if (showEmail) {
-      MemberData.addColumn(MemberData.EMAIL);
-    }
-    if (showEmergency) {
-      MemberData.addColumn(MemberData.EMERGENCY);
-    }
-    if (showSubsitute) {
-      MemberData.addColumn(MemberData.SUB);
-    }
-    if (showCommit) {
-      MemberData.addColumn(MemberData.COMMITMENT);
-    }
-    if (showInstructor) {
-      MemberData.addColumn(MemberData.INSTRUCTOR);
-    }
-    if (showDirector) {
-      MemberData.addColumn(MemberData.DIRECTOR);
-    }
-    if (showLastUpdated) {
-      MemberData.addColumn(MemberData.LAST_UPDATED);
-    }
-    if (showComments) {
-      MemberData.addColumn(MemberData.COMMENTS);
-    }
-    if (showCanEarnCredits) {
-      MemberData.addColumn(MemberData.CAN_EARN_CREDITS);
-    }
+      MemberData.addColumn(-1);
+      MemberData.addColumn(firstNameFirst ? MemberData.FIRST : MemberData.LAST);
+      if (showBlank) {
+        MemberData.addColumn(MemberData.BLANK);
+      }
+      if (showBlankWide) {
+        MemberData.addColumn(MemberData.BLANK_WIDE);
+      }
+      if (showClass) {
+        MemberData.addColumn(MemberData.CLASSIFICATION);
+      }
+      if (showID) {
+        MemberData.addColumn(MemberData.ID_NUM);
+      }
+      if (showSpouse) {
+        MemberData.addColumn(MemberData.SPOUSE);
+      }
+      if (showAddr) {
+        MemberData.addColumn(MemberData.ADDRESS);
+      }
+      if (showCity) {
+        MemberData.addColumn(MemberData.CITY);
+      }
+      if (showState) {
+        MemberData.addColumn(MemberData.STATE);
+      }
+      if (showZip) {
+        MemberData.addColumn(MemberData.ZIPCODE);
+      }
+      if (showHome) {
+        MemberData.addColumn(MemberData.HOMEPHONE);
+      }
+      if (showWork) {
+        MemberData.addColumn(MemberData.WORKPHONE);
+      }
+      if (showCell) {
+        MemberData.addColumn(MemberData.CELLPHONE);
+      }
+      if (showPager) {
+        MemberData.addColumn(MemberData.PAGER);
+      }
+      if (showEmail) {
+        MemberData.addColumn(MemberData.EMAIL);
+      }
+      if (showEmergency) {
+        MemberData.addColumn(MemberData.EMERGENCY);
+      }
+      if (showSubsitute) {
+        MemberData.addColumn(MemberData.SUB);
+      }
+      if (showCommit) {
+        MemberData.addColumn(MemberData.COMMITMENT);
+      }
+      if (showInstructor) {
+        MemberData.addColumn(MemberData.INSTRUCTOR);
+      }
+      if (showDirector) {
+        MemberData.addColumn(MemberData.DIRECTOR);
+      }
+      if (showLastUpdated) {
+        MemberData.addColumn(MemberData.LAST_UPDATED);
+      }
+      if (showComments) {
+        MemberData.addColumn(MemberData.COMMENTS);
+      }
+      if (showCanEarnCredits) {
+        MemberData.addColumn(MemberData.CAN_EARN_CREDITS);
+      }
 //        if(showOldCredits)  MemberData.addColumn(MemberData.CARRY_OVER_CREDITS);
-    if (showCreditsEarned) {
-      MemberData.addColumn(MemberData.CREDITS_EARNED);
-    }
+      if (showCreditsEarned) {
+        MemberData.addColumn(MemberData.CREDITS_EARNED);
+      }
 //        if(showCreditsUsed)     MemberData.addColumn(MemberData.CREDITS_USED);
-    if (showCreditDate) {
-      MemberData.addColumn(MemberData.LAST_CREDIT_UPDATE);
-    }
-    if (showTeamLead) {
-      MemberData.addColumn(MemberData.TEAM_LEAD);
-    }
-    if (showMentoring) {
-      MemberData.addColumn(MemberData.MENTORING);
+      if (showCreditDate) {
+        MemberData.addColumn(MemberData.LAST_CREDIT_UPDATE);
+      }
+      if (showTeamLead) {
+        MemberData.addColumn(MemberData.TEAM_LEAD);
+      }
+      if (showMentoring) {
+        MemberData.addColumn(MemberData.MENTORING);
+      }
+
+      if (showDayCnt) {
+        MemberData.addColumn(MemberData.SHOW_DAY_CNT);
+      }
+      if (showDayList) {
+        MemberData.addColumn(MemberData.SHOW_DAY_LIST);
+      }
+      if (showSwingCnt) {
+        MemberData.addColumn(MemberData.SHOW_SWING_CNT);
+      }
+      if (showSwingList) {
+        MemberData.addColumn(MemberData.SHOW_SWING_LIST);
+      }
+      if (showNightCnt) {
+        MemberData.addColumn(MemberData.SHOW_NIGHT_CNT);
+      }
+      if (showNightList) {
+        MemberData.addColumn(MemberData.SHOW_NIGHT_LIST);
+      }
+      if (showTrainingCnt) {
+        MemberData.addColumn(MemberData.SHOW_TRAINING_CNT);
+      }
+      if (showTrainingList) {
+        MemberData.addColumn(MemberData.SHOW_TRAINING_LIST);
+      }
+
+      MemberData.printMemberListRowHeading(out, resort);
+      out.println(" </tr>");
     }
 
-    if (showDayCnt) {
-      MemberData.addColumn(MemberData.SHOW_DAY_CNT);
-    }
-    if (showDayList) {
-      MemberData.addColumn(MemberData.SHOW_DAY_LIST);
-    }
-    if (showSwingCnt) {
-      MemberData.addColumn(MemberData.SHOW_SWING_CNT);
-    }
-    if (showSwingList) {
-      MemberData.addColumn(MemberData.SHOW_SWING_LIST);
-    }
-    if (showNightCnt) {
-      MemberData.addColumn(MemberData.SHOW_NIGHT_CNT);
-    }
-    if (showNightList) {
-      MemberData.addColumn(MemberData.SHOW_NIGHT_LIST);
-    }
-    if (showTrainingCnt) {
-      MemberData.addColumn(MemberData.SHOW_TRAINING_CNT);
-    }
-    if (showTrainingList) {
-      MemberData.addColumn(MemberData.SHOW_TRAINING_LIST);
+    /**
+     * printBottom
+     */
+    private void printBottom() {
+      out.println("</table>");
+      out.println("Total Patrollers Listed=" + patrollersListed);
+
+      out.println("<br>As of: " + new java.util.Date());
     }
 
-    MemberData.printMemberListRowHeading(out, resort);
-    out.println(" </tr>");
-  }
+    public String getSortString() {
+      String sortString;
+      if (sort1 == null || sort1.equals("Name") || sort1.equals("shiftCnt")) {
+        sortString = firstNameFirst ? "FirstName,LastName" : "LastName,FirstName";
+      }
+      else if (sort1.equals("Class")) {
+        sortString = "ClassificationCode";
+      }
+      else if (sort1.equals("Comm")) {
+        sortString = "Commitment";
+      }
+      else if (sort1.equals("Updt")) {
+        sortString = "lastUpdated";
+      }
+      else {
+        sortString = "FirstName,LastName";
+      }  //should not get hit
 
-  /**
-   * printBottom
-   */
-  private void printBottom() {
-    out.println("</table>");
-    out.println("Total Patrollers Listed=" + patrollersListed);
-
-    out.println("<br>As of: " + new java.util.Date());
-    out.println("</body></html>");
-  }
-
-  /**
-   * getServletInfo
-   *
-   * @return string describing servlet
-   */
-  public String getServletInfo() {
-    return "Create a list of all patrollers";
-  }
-
-  /**
-   * getSortedString
-   *
-   * @return string to describe sorting sequence
-   */
-  public String getSortString() {
-    String sortString;
-    if (sort1 == null || sort1.equals("Name") || sort1.equals("shiftCnt")) {
-      sortString = firstNameFirst ? "FirstName,LastName" : "LastName,FirstName";
-    }
-    else if (sort1.equals("Class")) {
-      sortString = "ClassificationCode";
-    }
-    else if (sort1.equals("Comm")) {
-      sortString = "Commitment";
-    }
-    else if (sort1.equals("Updt")) {
-      sortString = "lastUpdated";
-    }
-    else {
-      sortString = "FirstName,LastName";
-    }  //should not get hit
-
-    if (sort2 == null) {
-      //dont add anything
-    }
-    else if (sort2.equals("Name") && !sort1.equals("shiftCnt")) {
-      sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
-    }
-    else if (sort2.equals("Class")) {
-      sortString += ",ClassificationCode";
-    }
-    else if (sort2.equals("Comm")) {
-      sortString += ",Commitment";
-    }
+      //noinspection StatementWithEmptyBody
+      if (sort2 == null) {
+        //dont add anything
+      }
+      else if ("Name".equals(sort2) && !"shiftCnt".equals(sort1)) {
+        sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
+      }
+      else if (sort2.equals("Class")) {
+        sortString += ",ClassificationCode";
+      }
+      else if (sort2.equals("Comm")) {
+        sortString += ",Commitment";
+      }
 //  else if(Sort1.equals("shiftCnt"))
 //      sortString += "";
 //  else if(Sort1.equals("DCnt"))
 //      sortString += "";
-    else if (sort2.equals("Updt")) {
-      sortString += ",lastUpdated";
-    }
+      else if (sort2.equals("Updt")) {
+        sortString += ",lastUpdated";
+      }
 
-    if (sort3 == null) {
-      //dont add anything
-    }
-    else if (sort3.equals("Name")) {
-      sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
-    }
-    else if (sort3.equals("Class")) {
-      sortString += ",ClassificationCode";
-    }
-    else if (sort3.equals("Comm")) {
-      sortString += ",Commitment";
-    }
+      //noinspection StatementWithEmptyBody
+      if (sort3 == null) {
+        //dont add anything
+      }
+      else if (sort3.equals("Name")) {
+        sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
+      }
+      else if (sort3.equals("Class")) {
+        sortString += ",ClassificationCode";
+      }
+      else if (sort3.equals("Comm")) {
+        sortString += ",Commitment";
+      }
 //  else if(Sort1.equals("shiftCnt"))
 //      sortString += "";
 //  else if(Sort1.equals("DCnt"))
 //      sortString += "";
-    else if (sort3.equals("Updt")) {
-      sortString += ",lastUpdated";
+      else if (sort3.equals("Updt")) {
+        sortString += ",lastUpdated";
+      }
+      return sortString;
     }
-    return sortString;
-  }
 
-  /**
-   * printBody
-   */
-  public void printBody() {
+    /**
+     * printBody
+     */
+    public void printBody() {
 //    String sortString = getSortString();
 //  patrol.resetRoster(sortString);
 
 //  MemberData member = patrol.nextMember("&nbsp;");
-    MemberData member;
-    if ("shiftCnt".equals(sort1)) {
-      if (useMinDays) {
-        maxShiftCount = minDays - 1;
-      }
-      else {
-        maxShiftCount = 40; //todo this is a HACK
-      }
-      TreeMap<String, MemberData> treeMap = new TreeMap<String, MemberData>(Collections.reverseOrder());
-      for (int memberIndex = 0; memberIndex < members.size(); memberIndex++) { //loop through all members
-        member = members.elementAt(memberIndex);
-        Integer totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
-            member.AssignmentCount[Assignments.SWING_TYPE] +
-            member.AssignmentCount[Assignments.TRAINING_TYPE] +
-            member.AssignmentCount[Assignments.NIGHT_TYPE];
-        String key = String.format("%04d-%d", totalAssignments, memberIndex);
-        treeMap.put(key, member);
-      }
-      for (String key : treeMap.keySet()) {
-        String cnt = key.substring(0, 4);
-        String idx = key.substring(5);
-        String cnt1 = cnt.replaceFirst("^0+(?!$)", "");
-        int currentAssignmentCount = new Integer(cnt1);
-        int memberIndex = new Integer(idx);
-        member = members.elementAt(memberIndex);
-        if (!useMinDays || currentAssignmentCount <= maxShiftCount) {
-          member.printMemberListRowData(out);
-          patrollersListed++;
+      MemberData member;
+      if ("shiftCnt".equals(sort1)) {
+        if (useMinDays) {
+          maxShiftCount = minDays - 1;
         }
-      }
+        else {
+          maxShiftCount = 40; //todo this is a HACK
+        }
+        TreeMap<String, MemberData> treeMap = new TreeMap<String, MemberData>(Collections.reverseOrder());
+        for (int memberIndex = 0; memberIndex < members.size(); memberIndex++) { //loop through all members
+          member = members.elementAt(memberIndex);
+          Integer totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
+              member.AssignmentCount[Assignments.SWING_TYPE] +
+              member.AssignmentCount[Assignments.TRAINING_TYPE] +
+              member.AssignmentCount[Assignments.NIGHT_TYPE];
+          String key = String.format("%04d-%d", totalAssignments, memberIndex);
+          treeMap.put(key, member);
+        }
+        for (String key : treeMap.keySet()) {
+          String cnt = key.substring(0, 4);
+          String idx = key.substring(5);
+          String cnt1 = cnt.replaceFirst("^0+(?!$)", "");
+          int currentAssignmentCount = new Integer(cnt1);
+          int memberIndex = new Integer(idx);
+          member = members.elementAt(memberIndex);
+          if (!useMinDays || currentAssignmentCount <= maxShiftCount) {
+            member.printMemberListRowData(out);
+            patrollersListed++;
+          }
+        }
 
 //      for (int currentAssignmentCount = maxShiftCount; currentAssignmentCount >= 0; --currentAssignmentCount) {    //loop from highest shift total back to 0
 //        for (int memberIndex = 0; memberIndex < members.size(); memberIndex++) { //loop through all members
@@ -664,121 +641,125 @@ public class CustomizedList2 extends HttpServlet {
 //          }
 //        }
 //      }
-    }
-    else {
-      int memberIndex = 0;
-      while (memberIndex < members.size()) {
-        member = members.elementAt(memberIndex);
-        int totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
-            member.AssignmentCount[Assignments.SWING_TYPE] +
-            member.AssignmentCount[Assignments.TRAINING_TYPE] +
-            member.AssignmentCount[Assignments.NIGHT_TYPE];
-        if (!useMinDays || totalAssignments < minDays) {
-          member.printMemberListRowData(out);
-          patrollersListed++;
+      }
+      else {
+        int memberIndex = 0;
+        while (memberIndex < members.size()) {
+          member = members.elementAt(memberIndex);
+          int totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
+              member.AssignmentCount[Assignments.SWING_TYPE] +
+              member.AssignmentCount[Assignments.TRAINING_TYPE] +
+              member.AssignmentCount[Assignments.NIGHT_TYPE];
+          if (!useMinDays || totalAssignments < minDays) {
+            member.printMemberListRowData(out);
+            patrollersListed++;
+          }
+          memberIndex++;
         }
-        memberIndex++;
       }
-    }
-    patrol.close(); //must close connection!
-  } //end printBody
+      patrol.close(); //must close connection!
+    } //end printBody
 
 
-  /**
-   * readAssignments
-   *
-   * @param patrol patrolData
-   */
-  public void readAssignments(PatrolData patrol) {
-    Assignments ns;
-    int i;
-    String sortString = getSortString();
-    patrol.resetRoster(sortString);
+    /**
+     * readAssignments
+     *
+     * @param patrol patrolData
+     */
+    public void readAssignments(PatrolData patrol) {
+      Assignments ns;
+      int i;
+      String sortString = getSortString();
+      patrol.resetRoster(sortString);
 //      patrol.resetRoster();
-    MemberData member;
+      MemberData member;
 
-    maxShiftCount = 0;
-    members = new Vector<MemberData>(PatrolData.MAX_PATROLLERS);
-    hash = new Hashtable<String, MemberData>();
+      maxShiftCount = 0;
+      members = new Vector<MemberData>(PatrolData.MAX_PATROLLERS);
+      hash = new Hashtable<String, MemberData>();
 //int xx = 0;
-    while ((member = patrol.nextMember("&nbsp;")) != null) {
-      if (member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
+      while ((member = patrol.nextMember("&nbsp;")) != null) {
+        if (member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
 //              ++count;
-        members.addElement(member);
-        hash.put(member.getID(), member);
+          members.addElement(member);
+          hash.put(member.getID(), member);
+        }
       }
-    }
 
-    patrol.resetAssignments();
+      patrol.resetAssignments();
 //        SimpleDateFormat normalDateFormatter = new SimpleDateFormat ("MM'/'dd'/'yyyy");
-    GregorianCalendar date = new GregorianCalendar(StartYear, StartMonth, StartDay);
-    long startMillis = 0;
-    long endMillis = 99999999999999L;
-    long currMillis;
-    if (StartYear != 0) {
-      startMillis = date.getTimeInMillis();
-    }
-    date = new GregorianCalendar(EndYear, EndMonth, EndDay);
-    if (EndYear != 0) {
-      endMillis = date.getTimeInMillis();
-    }
+      GregorianCalendar date = new GregorianCalendar(StartYear, StartMonth, StartDay);
+      long startMillis = 0;
+      long endMillis = 99999999999999L;
+      long currMillis;
+      if (StartYear != 0) {
+        startMillis = date.getTimeInMillis();
+      }
+      date = new GregorianCalendar(EndYear, EndMonth, EndDay);
+      if (EndYear != 0) {
+        endMillis = date.getTimeInMillis();
+      }
 
-    while ((ns = patrol.readNextAssignment()) != null) {
-      date = new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay());
-      currMillis = date.getTimeInMillis();
-      if (startMillis <= currMillis && currMillis <= endMillis) {
-        for (i = 0; i < Assignments.MAX; ++i) {
-          //              member = patrol.getMemberByID(ns.getPosID(i));
-          member = hash.get(ns.getPosID(i));
-          if (member != null && member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
+      while ((ns = patrol.readNextAssignment()) != null) {
+        date = new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay());
+        currMillis = date.getTimeInMillis();
+        if (startMillis <= currMillis && currMillis <= endMillis) {
+          for (i = 0; i < Assignments.MAX; ++i) {
+            //              member = patrol.getMemberByID(ns.getPosID(i));
+            member = hash.get(ns.getPosID(i));
+            if (member != null && member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
 //                        String tim = ns.getStartingTimeString();
-            if (showDayCnt && ns.isDayShift()) {
-              ++member.AssignmentCount[Assignments.DAY_TYPE];
-              if (maxShiftCount < member.AssignmentCount[Assignments.DAY_TYPE]) {
-                maxShiftCount = member.AssignmentCount[Assignments.DAY_TYPE];
+              if (showDayCnt && ns.isDayShift()) {
+                ++member.AssignmentCount[Assignments.DAY_TYPE];
+                if (maxShiftCount < member.AssignmentCount[Assignments.DAY_TYPE]) {
+                  maxShiftCount = member.AssignmentCount[Assignments.DAY_TYPE];
+                }
+                member.szAssignments[Assignments.DAY_TYPE] += ns.getMyFormattedDate() + " ";
               }
-              member.szAssignments[Assignments.DAY_TYPE] += ns.getMyFormattedDate() + " ";
-            }
-            if (showSwingCnt && ns.isSwingShift()) {
-              ++member.AssignmentCount[Assignments.SWING_TYPE];
-              if (maxShiftCount < member.AssignmentCount[Assignments.SWING_TYPE]) {
-                maxShiftCount = member.AssignmentCount[Assignments.SWING_TYPE];
+              if (showSwingCnt && ns.isSwingShift()) {
+                ++member.AssignmentCount[Assignments.SWING_TYPE];
+                if (maxShiftCount < member.AssignmentCount[Assignments.SWING_TYPE]) {
+                  maxShiftCount = member.AssignmentCount[Assignments.SWING_TYPE];
+                }
+                member.szAssignments[Assignments.SWING_TYPE] += ns.getMyFormattedDate() + " ";
               }
-              member.szAssignments[Assignments.SWING_TYPE] += ns.getMyFormattedDate() + " ";
-            }
-            if (showNightCnt && ns.isNightShift()) {
-              ++member.AssignmentCount[Assignments.NIGHT_TYPE];
-              if (maxShiftCount < member.AssignmentCount[Assignments.NIGHT_TYPE]) {
-                maxShiftCount = member.AssignmentCount[Assignments.NIGHT_TYPE];
+              if (showNightCnt && ns.isNightShift()) {
+                ++member.AssignmentCount[Assignments.NIGHT_TYPE];
+                if (maxShiftCount < member.AssignmentCount[Assignments.NIGHT_TYPE]) {
+                  maxShiftCount = member.AssignmentCount[Assignments.NIGHT_TYPE];
+                }
+                member.szAssignments[Assignments.NIGHT_TYPE] += ns.getMyFormattedDate() + " ";
               }
-              member.szAssignments[Assignments.NIGHT_TYPE] += ns.getMyFormattedDate() + " ";
-            }
-            if (showTrainingCnt && ns.isTrainingShift()) {
-              ++member.AssignmentCount[Assignments.TRAINING_TYPE];
-              if (maxShiftCount < member.AssignmentCount[Assignments.TRAINING_TYPE]) {
-                maxShiftCount = member.AssignmentCount[Assignments.TRAINING_TYPE];
+              if (showTrainingCnt && ns.isTrainingShift()) {
+                ++member.AssignmentCount[Assignments.TRAINING_TYPE];
+                if (maxShiftCount < member.AssignmentCount[Assignments.TRAINING_TYPE]) {
+                  maxShiftCount = member.AssignmentCount[Assignments.TRAINING_TYPE];
+                }
+                member.szAssignments[Assignments.TRAINING_TYPE] += ns.getMyFormattedDate() + " ";
               }
-              member.szAssignments[Assignments.TRAINING_TYPE] += ns.getMyFormattedDate() + " ";
-            }
-          } //end if okToDisplay
-        } //end for loop for shift
-      }
-      else { //end test for date
-      }
-    } //end while loop (all assignments)
-  }
+            } //end if okToDisplay
+          } //end for loop for shift
+        }
+      } //end while loop (all assignments)
+    }
 
-  int cvtToInt(String strNum) {
-    int num = 0;
-    try {
-      if (strNum != null) {
-        num = Integer.parseInt(strNum);
+    int cvtToInt(String strNum) {
+      int num = 0;
+      try {
+        if (strNum != null) {
+          num = Integer.parseInt(strNum);
+        }
+      }
+      catch (Exception e) {
+        //don't know what to do..
+      }
+      return num;
+    }
+
+    private void debugOut(String msg) {
+      if (debug) {
+        System.out.println("DEBUG-CustomizedList2(" + resort + "): " + msg);
       }
     }
-    catch (Exception e) {
-      //don't know what to do..
-    }
-    return num;
   }
 }
-

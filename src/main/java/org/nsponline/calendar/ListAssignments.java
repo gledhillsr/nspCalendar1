@@ -19,14 +19,12 @@ public class ListAssignments extends HttpServlet {
   private final static boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
     new LocalListAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalListAssignments(request, response);
   }
-
 
   private class LocalListAssignments {
 
@@ -48,8 +46,8 @@ public class ListAssignments extends HttpServlet {
       //by now, sessionData.getLoggedInUserId and sessionData.getLoggedInResort are valid
       resort = sessionData.getLoggedInResort();
       patrollerId = sessionData.getLoggedInUserId();
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
       outerPage.printResortHeader(out);
       printTop(out);
@@ -76,7 +74,7 @@ public class ListAssignments extends HttpServlet {
       int myID;
       int i;
       int[] shiftCounts = new int[Assignments.MAX_SHIFT_TYPES];
-      if (szMyID.equalsIgnoreCase(PatrolData.backDoorUser)) {
+      if (szMyID.equalsIgnoreCase(sessionData.getBackDoorUser())) {
         //backdoor login, don't display anything
         out.println("Have a great day<br>");
         return;

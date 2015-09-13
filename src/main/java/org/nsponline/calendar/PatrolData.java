@@ -49,7 +49,7 @@ public class PatrolData {
     resortMap.put("Pomerelle",      new ResortData("Pomerelle", "Pomerelle", "http://www.pomerelle-mtn.com", "/images/PomerelleLogo.gif", IMG_HEIGHT, 80));
     resortMap.put("PowderRidge",    new ResortData("PowderRidge", "Powder Ridge", "http://www.powderridgeskipatrol.com", "/images/PowderRidge.png", IMG_HEIGHT, 80));
     resortMap.put("RMSP",           new ResortData("RMSP", "Ragged Mountain", "http://www.rmskipatrol.com", "/images/RMSP_logo.JPG", IMG_HEIGHT, 80));
-    resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", "http://www.zzz.com", "/images/zzz.jpg", IMG_HEIGHT, 80));
+    resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", "http://www.nspOnline.org", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
     resortMap.put("SnowCreek",      new ResortData("SnowCreek", "SnowCreek", "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
     resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", "http://www.SnowKing.com", "/images/SnowKing.jpg", IMG_HEIGHT, 80));
     resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", "http://www.soldierhollow.com", "/images/SoldierHollow.jpg", IMG_HEIGHT, 60));
@@ -67,8 +67,6 @@ public class PatrolData {
 /*----- end local declarations ------*/
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confermations)*****
-  final static String backDoorUser = "sgled57"; //todo use from Properties file
-  final static String backDoorPass = "gandalf"; //todo use from Properties file
   final static String backDoorFakeFirstName = "System";
   final static String backDoorFakeLastName = "Administrator";
   final static String backDoorEmail = "Steve@Gledhills.com";  //todo do I really need these??
@@ -95,8 +93,10 @@ public class PatrolData {
   private ResultSet shiftResults;
   private boolean fetchFullData;
   private String localResort;
+  private SessionData sessionData;
 
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData) {
+    this.sessionData = sessionData;
 //todo add a user ID in constructor for debug tracking
 //System.out.println("**11** database--jdbcURL (" + jdbcURL + ") myResort="+myResort);
     rosterResults = null;
@@ -409,15 +409,13 @@ public class PatrolData {
     if (szMemberID == null || szMemberID.length() <= 3) {
       return null;
     }
-    else if (szMemberID.equals(backDoorUser)) {
+    else if (szMemberID.equals(sessionData.getBackDoorUser())) {
       member = new MemberData();  //"&nbsp;" is the default
-      if (member != null) {
-        member.setLast(backDoorFakeLastName);
-        member.setFirst(backDoorFakeFirstName);
-        member.setEmail(backDoorEmail);
-        member.setID("000000");
-        member.setDirector("yes");
-      }
+      member.setLast(backDoorFakeLastName);
+      member.setFirst(backDoorFakeFirstName);
+      member.setEmail(backDoorEmail);
+      member.setID("000000");
+      member.setDirector("yes");
       return member;
     }
     try {

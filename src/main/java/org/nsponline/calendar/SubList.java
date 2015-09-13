@@ -84,15 +84,10 @@ public class SubList extends HttpServlet {
         }
 
         out.println("<p><Bold>");
-        if (resort.equals("Sample")) {
-          out.println("(email THESE patrollers disabled for Demo resort)&nbsp;&nbsp;&nbsp;");
-        }
-        else {
-          //todo srg opens a new window.location  ;-(  fix me
-          String options = "&SubList=1"; //show abbreviated list
-          String loc = "EmailForm?resort=" + resort + "&ID=" + IDOfEditor + options;
-          out.println("<INPUT TYPE='button' VALUE='e-mail THESE patrollers' onClick=window.location='" + loc + "'>");
-        }
+        //todo srg opens a new window.location  ;-(  fix me
+        String options = "&SubList=1"; //show abbreviated list
+        String loc = "EmailForm?resort=" + resort + "&ID=" + IDOfEditor + options;
+        out.println("<INPUT TYPE='button' VALUE='e-mail THESE patrollers' onClick=window.location='" + loc + "'>");
       }
       out.println("    <table style='font-size: 10pt; face=\'Verdana, Arial, Helvetica\' ' border='1' width='99%' bordercolordark='#003366' bordercolorlight='#C0C0C0'>");
       out.println("        <tr>");
