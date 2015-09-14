@@ -55,7 +55,7 @@ public class MonthCalendar extends HttpServlet {
     private int prevMonth, prevYear;
 
     private String patrollerId;
-    private Hashtable<Integer, String> Names;
+    private Hashtable<Integer, String> names;
     private boolean isDirector;
     private DirectorSettings directorSettings;
     private boolean denseFormat;
@@ -82,7 +82,7 @@ public class MonthCalendar extends HttpServlet {
       realCurrMonth = 0;
       realCurrYear = 0;
       realCurrDate = 0;
-      Names = new Hashtable<Integer, String>(MemberData.MAX_MEMBERS);
+      names = new Hashtable<Integer, String>(MemberData.MAX_MEMBERS);
 
       //has the user set an "override" for the length of each text row
       if (Utils.isNotEmpty(request.getParameter("textLen"))) {
@@ -179,7 +179,7 @@ public class MonthCalendar extends HttpServlet {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       directorSettings = patrol.readDirectorSettings();
       while ((member = patrol.nextMember("")) != null) {
-        Names.put(member.idNum, member.getFullName() + ", " + member.getHomePhone());
+        names.put(member.idNum, member.getFullName() + ", " + member.getHomePhone());
         if (member.getID().equals(patrollerId) || sessionData.getBackDoorUser().equals(patrollerId)) {
           isDirector = member.isDirector();
         }
@@ -452,40 +452,41 @@ public class MonthCalendar extends HttpServlet {
       out.println("</TABLE>");
       out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'><TR><TD><img src='/images/ncclear.gif' width='3' height='4'></TD></TR></table>");
       out.println("<font size=1>As of: " + trialTime);
-
-      out.println("&nbsp;&nbsp;");
-      out.println("<a href='javascript:printWindow()'>Print page</a>");
-
-      out.println("&nbsp;&nbsp;");
+//removed Set 13, 2015
+//      out.println("&nbsp;&nbsp;");
+//      out.println("<a href='javascript:printWindow()'>Print page</a>");
+//
+//      out.println("&nbsp;&nbsp;");
 
       String go = "MonthCalendar?resort=" + resort + patrollerIdTag;    //hack
       if (szMonth != null) {
         go += "&month=" + szMonth + "&year=" + szYear;
       }
 
-      out.println("Font Size:<SELECT NAME='FontSize' SIZE=1  onChange='resizeMe('" + go + "')' >");
-      out.println("<OPTION " + ((textFontSize == 12) ? "SELECTED" : "") + ">12");
-      out.println("<OPTION " + ((textFontSize == 11) ? "SELECTED" : "") + ">11");
-      out.println("<OPTION " + ((textFontSize == 10) ? "SELECTED" : "") + ">10");
-      out.println("<OPTION " + ((textFontSize == 9) ? "SELECTED" : "") + ">9");
-      out.println("<OPTION " + ((textFontSize == 8) ? "SELECTED" : "") + ">8");
-      out.println("</SELECT>");
+//      out.println("Font Size:<SELECT NAME='FontSize' SIZE=1  onChange='resizeMe(\"" + go + "\")' >");
+//      out.println("<OPTION " + ((textFontSize == 12) ? "SELECTED" : "") + ">12");
+//      out.println("<OPTION " + ((textFontSize == 11) ? "SELECTED" : "") + ">11");
+//      out.println("<OPTION " + ((textFontSize == 10) ? "SELECTED" : "") + ">10");
+//      out.println("<OPTION " + ((textFontSize == 9) ? "SELECTED" : "") + ">9");
+//      out.println("<OPTION " + ((textFontSize == 8) ? "SELECTED" : "") + ">8");
+//      out.println("</SELECT>");
 
       if (denseFormat) {
         go = "MonthCalendar?resort=" + resort + patrollerIdTag;
         if (szMonth != null) {
           go += "&month=" + szMonth + "&year=" + szYear;
         }
-
-        out.println("&nbsp;&nbsp;Name Len:<SELECT NAME='textLen' SIZE=1  onChange='resizeMe('" + go + "')' >");
-        out.println("<OPTION " + ((maxNameLen == 15) ? "SELECTED" : "") + ">Condensed");
-        out.println("<OPTION " + ((maxNameLen == 20) ? "SELECTED" : "") + ">Medium");
-        out.println("<OPTION " + ((maxNameLen == 30) ? "SELECTED" : "") + ">Full");
-        out.println("</SELECT>");
+//removed Set 13, 2015
+//        out.println("&nbsp;&nbsp;Name Len:<SELECT NAME='textLen' SIZE=1  onChange='resizeMe('" + go + "')' >");
+//        out.println("<OPTION " + ((maxNameLen == 15) ? "SELECTED" : "") + ">Condensed");
+//        out.println("<OPTION " + ((maxNameLen == 20) ? "SELECTED" : "") + ">Medium");
+//        out.println("<OPTION " + ((maxNameLen == 30) ? "SELECTED" : "") + ">Full");
+//        out.println("</SELECT>");
       }
+//removed Set 13, 2015
+//      out.println("&nbsp;&nbsp;");
+//      out.println("<a href='javascript:printHelp()'>Help</a>");
 
-      out.println("&nbsp;&nbsp;");
-      out.println("<a href='javascript:printHelp()'>Help</a>");
 //      out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 //      out.println("<!--WEBBOT bot='HTMLMarkup' startspan ALT='Site Meter' -->");
 //      out.println("<script type='text/javascript' language='JavaScript'>var site='s20SkiPatrol'</script>");
@@ -684,7 +685,7 @@ public class MonthCalendar extends HttpServlet {
 //this removes the time prefix from the name in dense format
 //          if(denseFormat)
 //              time = "";
-        QuickTip = Names.get(new Integer(id)); //format ,"Steve Gledhill,(801) 571-7716"
+        QuickTip =names.get(new Integer(id)); //format ,"Steve Gledhill,(801) 571-7716"
         if (QuickTip == null) {
           szName = "Err id (" + id + ")";
         }

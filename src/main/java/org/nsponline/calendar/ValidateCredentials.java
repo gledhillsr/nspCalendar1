@@ -2,6 +2,7 @@ package org.nsponline.calendar;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 
 /**
  * Look at QueryParameters 'ID', and 'resort'
@@ -12,10 +13,12 @@ import javax.servlet.http.HttpServletResponse;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  final static boolean DEBUG = false;
-  String resortParameter;
+  private static final boolean DEBUG = false;
+  @SuppressWarnings("FieldCanBeLocal")
+  private String resortParameter;
 
   private boolean hasInvalidCredentials;
+
   @SuppressWarnings("UnusedParameters")
   public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent) {
     this.resortParameter = request.getParameter("resort");
@@ -33,11 +36,12 @@ public class ValidateCredentials {
         String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resortParameter + "&NSPgoto=" + parent;
         debugOut("ValidateCredentialsExist is calling sendRedirect(" + newLoc + ")");
         if (Utils.isNotEmpty(parent)) {
+//does not work!    response.sendRedirect(URLEncoder.encode(newLoc));
           response.sendRedirect(newLoc);
         }
       }
       catch (Exception e) {
-        System.out.println(e.getMessage());
+        errorOut(e.getMessage());
       }
     }
     else {
@@ -45,8 +49,14 @@ public class ValidateCredentials {
     }
   }
 
+  private void errorOut(String msg) {
+    // NOSONAR
+    System.out.println("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
+  }
+
   private void debugOut(String msg) {
     if (DEBUG) {
+      // NOSONAR
       System.out.println("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
     }
   }

@@ -16,7 +16,7 @@ import java.util.GregorianCalendar;
  *         Brighton patrollers also get a view of the locker room assignments
  */
 public class ListAssignments extends HttpServlet {
-  private final static boolean DEBUG = false;
+  private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalListAssignments(request, response);
@@ -26,9 +26,9 @@ public class ListAssignments extends HttpServlet {
     new LocalListAssignments(request, response);
   }
 
-  private class LocalListAssignments {
+  private final class LocalListAssignments {
 
-    String resort;
+    private String resort;
 
     private LocalListAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 

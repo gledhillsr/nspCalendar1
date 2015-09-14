@@ -4,7 +4,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -13,7 +12,7 @@ import java.io.PrintWriter;
  */
 public class MemberLogin extends HttpServlet {
 
-  private final static boolean DEBUG = true;
+  private static final boolean DEBUG = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new MemberLoginInternal(request, response);
@@ -23,8 +22,8 @@ public class MemberLogin extends HttpServlet {
     new MemberLoginInternal(request, response);
   }
 
-  private class MemberLoginInternal {
-    String resort;
+  private final class MemberLoginInternal {
+    private String resort;
 
     public MemberLoginInternal(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       PrintWriter out;

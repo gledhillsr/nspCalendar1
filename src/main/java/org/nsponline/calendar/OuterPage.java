@@ -10,10 +10,11 @@ import java.net.URL;
  * @author Steve Gledhill
  */
 public class OuterPage {
-  private final static boolean DEBUG = false;
+  private static final boolean DEBUG = false;
 
   private String javaScript;
   private ResortData resortData;
+  private static final int MAX_BUFFER = 4000;
 
   public OuterPage(ResortData resort, String javaScriptAndStyles) {
     resortData = resort;
@@ -21,7 +22,13 @@ public class OuterPage {
   }
 
   public void printResortHeader(PrintWriter out) {
-    String header = readFile("resortHeader1.html");
+    String header;
+    if ("Brighton".equals(resortData.getResortShortName())) {
+      header = readFile("brightonHeader1.html");
+    }
+    else {
+      header = readFile("resortHeader1.html");
+    }
     String str1 = header.
         replaceAll("__RESORT_SHORT", resortData.getResortShortName()).
         replaceAll("__RESORT_LONG", resortData.getResortFullName()).
@@ -44,33 +51,40 @@ public class OuterPage {
     URL fileResource = classLoader.getResource(resourceFile);
     debugOut("readFile: fileResource=" + fileResource);
     if (fileResource == null) {
-      System.out.println("ERROR: OuterPage.readFile(" + resourceFile + ") could not find resource!");
+      errorOut("ERROR: OuterPage.readFile(" + resourceFile + ") could not find resource!");
       return "";
     }
     String fileName = fileResource.getFile();
-    String result = "";
-    byte[] buffer = new byte[4000];
+    //noinspection StringBufferMayBeStringBuilder
+    StringBuffer result = new StringBuffer();
+    byte[] buffer = new byte[MAX_BUFFER];
     try {
       FileInputStream inputStream = new FileInputStream(fileName);
       while(inputStream.read(buffer) != -1) {
-        result += new String(buffer);
+        result.append(new String(buffer));
       }
 
       // Always close files.
       inputStream.close();
     }
     catch (FileNotFoundException ex) {
-      System.out.println("Error, unable to open file '" + fileName + "'");
+      errorOut("Error, unable to open file '" + fileName + "'");
     }
     catch (IOException ex) {
-      System.out.println("Error reading file '" + fileName + "'");
+      errorOut("Error reading file '" + fileName + "'");
     }
     debugOut("readFile: bytes read=" + result.length());
-    return result;
+    return result.toString();
+  }
+
+  private void errorOut(String msg) {
+    // nosonar
+    System.out.println("ERROR: OuterPage: " + msg);
   }
 
   private void debugOut(String msg) {
     if (DEBUG) {
+      // nosonar
       System.out.println("DEBUG: OuterPage: " + msg);
     }
   }

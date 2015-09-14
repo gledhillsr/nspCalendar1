@@ -3,7 +3,11 @@ package org.nsponline.calendar;
 /**
  * @author Steve Gledhill
  */
-public class Utils {
+public final class Utils {
+
+  private Utils() {
+    //nothing to do
+  }
 
   public static boolean isEmpty(String str) {
     return str == null || str.isEmpty();

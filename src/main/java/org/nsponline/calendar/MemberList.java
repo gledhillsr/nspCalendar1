@@ -13,7 +13,7 @@ import java.io.PrintWriter;
  * List all patrollers who are not marked as "inactive"
  */
 public class MemberList extends HttpServlet {
-  static final boolean DEBUG = false;
+  private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalMemberList(request, response);
@@ -23,11 +23,13 @@ public class MemberList extends HttpServlet {
     doGet(request, response);
   }
 
-  private class LocalMemberList {
-    PrintWriter out;
-    String patrollerId;
-    boolean isDirector = false;
-    String ePatrollerList = "";
+  private final class LocalMemberList {
+    private static final int MIN_VALID_EMAIL_SIZE = 6;
+
+    private PrintWriter out;
+    private String patrollerId;
+    private boolean isDirector = false;
+    private String ePatrollerList = "";
     private String resort;
     private DirectorSettings ds;
 
@@ -58,14 +60,14 @@ public class MemberList extends HttpServlet {
       outerPage.printResortFooter(out);
     }
 
-    private void readData(SessionData sessionData, String IDOfEditor) {
+    private void readData(SessionData sessionData, String iDOfEditor) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       ds = patrol.readDirectorSettings();
 
       MemberData member = patrol.nextMember("");
       while (member != null) {
         String em = member.getEmail();
-        if (em != null && em.length() > 6 && em.indexOf('@') > 0 && em.indexOf('.') > 0) {
+        if (em != null && em.length() > MIN_VALID_EMAIL_SIZE && em.indexOf('@') > 0 && em.indexOf('.') > 0) {
           if (ePatrollerList.length() > 2) {
             ePatrollerList += ",";
           }
@@ -74,7 +76,7 @@ public class MemberList extends HttpServlet {
         member = patrol.nextMember("");
       }
 
-      MemberData editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
+      MemberData editor = patrol.getMemberByID(iDOfEditor); //ID from cookie
       patrol.close(); //must close connection!
       isDirector = editor != null && editor.isDirector();
     }

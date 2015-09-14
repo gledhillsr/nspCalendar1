@@ -49,6 +49,10 @@ public class UpdateInfo extends HttpServlet {
     private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       SessionData sessionData = new SessionData(request.getSession(), out);
       debugOut("Entering UpdateInfo");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList");
+      if (credentials.hasInvalidCredentials()) {
+        return;
+      }
       IDOfEditor = sessionData.getLoggedInUserId();
       IDToEdit = IDOfEditor;          //same (for now!)
       resort = request.getParameter("resort");
