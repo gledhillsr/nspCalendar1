@@ -6,4 +6,5 @@
 *.ear
 *.iws
 credentials.properties
+.idea/
 target/
