@@ -51,7 +51,7 @@ public class SubList extends HttpServlet {
         isDirector = editor.isDirector();
       }
 
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printStartOfTable(IDOfEditor);
       printBody();
@@ -127,7 +127,7 @@ public class SubList extends HttpServlet {
         }
 
         if (member.getSub() != null && (member.getSub().startsWith("y") || member.getSub().startsWith("Y"))) {
-          printRow(member.getFullName2(), member.getHomePhone(), member.getWorkPhone(), member.getCellPhone(), member.getPager(), member.getEmail());
+          printRow(member.getFullName_lastNameFirst(), member.getHomePhone(), member.getWorkPhone(), member.getCellPhone(), member.getPager(), member.getEmail());
         }
         member = patrol.nextMember("&nbsp;");   // "&nbsp;" is the default string field
       }

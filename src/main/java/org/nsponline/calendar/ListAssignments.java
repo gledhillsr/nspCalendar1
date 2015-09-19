@@ -48,7 +48,7 @@ public class ListAssignments extends HttpServlet {
       patrollerId = sessionData.getLoggedInUserId();
 
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop(out);
       printMiddle(out, resort, patrollerId, sessionData);

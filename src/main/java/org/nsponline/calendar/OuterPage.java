@@ -1,5 +1,7 @@
 package org.nsponline.calendar;
 
+import com.mysql.jdbc.StringUtils;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -13,12 +15,15 @@ public class OuterPage {
   private static final boolean DEBUG = false;
 
   private String javaScript;
+  private String loggedInUserId;
   private ResortData resortData;
   private static final int MAX_BUFFER = 4000;
 
-  public OuterPage(ResortData resort, String javaScriptAndStyles) {
+
+  public OuterPage(ResortData resort, String javaScriptAndStyles, String loggedInUserId) {
     resortData = resort;
     this.javaScript = javaScriptAndStyles;
+    this.loggedInUserId = loggedInUserId;
   }
 
   public void printResortHeader(PrintWriter out) {
@@ -29,9 +34,11 @@ public class OuterPage {
     else {
       header = readFile("resortHeader1.html");
     }
+    String userIdTag = StringUtils.isNullOrEmpty(loggedInUserId) ? "" : "&ID=" + loggedInUserId;
     String str1 = header.
         replaceAll("__RESORT_SHORT", resortData.getResortShortName()).
         replaceAll("__RESORT_LONG", resortData.getResortFullName()).
+        replaceAll("__USER_ID_TAG", userIdTag).
         replaceAll("__RESORT_URL", resortData.getResortURL()).
         replaceAll("__RESORT_IMG_HEIGHT",  "" + resortData.getImageHeight()).
         replaceAll("__RESORT_IMAGE", resortData.getResortImage()).

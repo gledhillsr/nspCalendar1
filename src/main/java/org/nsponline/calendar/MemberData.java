@@ -270,7 +270,7 @@ public class MemberData {
   public void printEmergencyCallRow(PrintWriter out, String other) {
     out.println("<tr>");
 //old        out.println(" <td>"+getFullName()+"</td>");
-    out.println(" <td>" + getFullName2() + "</td>");
+    out.println(" <td>" + getFullName_lastNameFirst() + "</td>");
     if (other != null) {
       out.println(" <td ALIGN=\"center\">" + other + "</td>");
     }
@@ -365,7 +365,7 @@ public class MemberData {
           str = getClassification();
           break;
         case LAST:
-          str = getFullName2();
+          str = getFullName_lastNameFirst();
           break;
         case FIRST:
           str = getFullName();
@@ -853,7 +853,7 @@ public class MemberData {
     return memberData[FIRST] + " " + memberData[LAST];
   }
 
-  public String getFullName2() {
+  public String getFullName_lastNameFirst() {
     return memberData[LAST] + ", " + memberData[FIRST];
   }
 

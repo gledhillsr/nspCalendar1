@@ -818,7 +818,7 @@ public class PatrolData {
 
   public boolean insertNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
     try {
-      System.out.println("ERROR: PatrolData Under Construction need to insert " + newIndividualAssignment);
+//todo remove me      System.out.println("ERROR: PatrolData Under Construction need to insert " + newIndividualAssignment);
       String qryString = newIndividualAssignment.getInsertSQLString();
       logger("insert newIndividualAssignment- qryString=" + qryString);
       try {

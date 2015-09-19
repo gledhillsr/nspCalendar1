@@ -56,7 +56,7 @@ public class Preferences extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request.getSession(), out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "Preferences");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "Directors");
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -64,7 +64,7 @@ public class Preferences extends HttpServlet {
       szMyID = sessionData.getLoggedInUserId();
       readParameters(request, sessionData);
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
       printBody();

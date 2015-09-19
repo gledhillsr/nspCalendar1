@@ -13,10 +13,13 @@ import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-//import java.sql.Date;
-
 
 public class ProcessChanges extends HttpServlet {
+
+  @SuppressWarnings("FieldCanBeLocal")
+  private static boolean DEBUG = true;
+  @SuppressWarnings("FieldCanBeLocal")
+  private static boolean PAUSE_ON_THIS_SCREEN = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalProcessChanges(request, response);
@@ -28,62 +31,64 @@ public class ProcessChanges extends HttpServlet {
 
   private class LocalProcessChanges {
 
-    PrintWriter out;
-    int date1, month1, year1, dayOfWeek1;
-    int date2, month2, year2, dayOfWeek2;
-    PatrolData patrolData;
-    String strChange3 = "";
+    private PrintWriter out;
+    private int date1, month1, year1, dayOfWeek1;
 
-    Assignments night1, night2;
-    String szSubmitterName;
-    java.util.Date currTime;
-    int nIndex1AsNum;
-    String szMyID;
-    HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
+    @SuppressWarnings("unused")
+    private int date2, month2, year2, dayOfWeek2; //date2 etc all have to do with "trade" which is currently disabled
+    private PatrolData patrolData;
+    private String strChange3 = "";
 
-    final boolean DEBUG = false;
+    private Assignments night1, night2;
+    private String szSubmitterName;
+    private java.util.Date currTime;
+    private int nIndex1AsNum;
+    private String szMyID;
+    private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
 
-    boolean sentToFirst;
-    boolean sentToSecond;
-    String submitterID;
-    String transaction;
-    String selectedID;
-    String szdate1;
-    String pos1;
-    String szPos2;
-    String index1AsString;
-    String listName;
-    String newID;
-    String newName;
-    String secondID;
-    String secondName;
-    String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-    String szTrans[] = {"err", "Insert", "Insert", "remove", "trade days", "Missed Shift"};
-    String szMonths[] = {
+    private boolean sentToFirst;
+    private boolean sentToSecond;
+    private String submitterID;
+    private String transaction;
+    private String selectedID;
+    private String szdate1;
+    private String pos1;
+    private String szPos2;
+    private String index1AsString;
+    private String listName;
+    private String newID;
+    private String newName;
+    private String secondID;
+
+    @SuppressWarnings("unused")
+    private String secondName;  //secondName etc all have to do with "trade" which is currently disabled
+    private String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+//    private String szTrans[] = {"err", "Insert", "Insert", "remove", "trade days", "Missed Shift"};
+    private String szMonths[] = {
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     };
-    MemberData submitter;
-    MemberData member1;
-    MemberData member2;     //replaced member
-    Calendar calendar1;
+    private MemberData submitter;
+    private MemberData member1;
+    private MemberData member2;     //replaced member
+    private Calendar calendar1;
 
-    boolean dupError;
-    int nPos1;
-    boolean err;
+    private boolean dupError;
+    private int nPos1;
+    private boolean err;
     private String resort;
 
-    int transNumber;
-    final int ERROR = 0;
-    final int INSERT = 1;
-    final int REPLACE = 2;
-    final int REMOVE = 3;
-    final int TRADE = 4;
-    final int MISSED_SHIFT = 5;
-    final int NEEDS_REPLACEMENT = 6;
-    final int NO_REPLACEMENT_NEEDED = 7;
+    private int transNumber;
+    private final int ERROR = 0;
+    private final int INSERT = 1;
+    private final int REPLACE = 2;
+    private final int REMOVE = 3;
+    private final int TRADE = 4;
+    private final int MISSED_SHIFT = 5;
+    private final int NEEDS_REPLACEMENT = 6;
+    private final int NO_REPLACEMENT_NEEDED = 7;
 
-    String trans[] = {
+    private String trans[] = {
         "Error",
         "Insert Patroller",
         "Replace Patroller",
@@ -108,13 +113,14 @@ public class ProcessChanges extends HttpServlet {
 
       patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       readParameters(request);
-      OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printBody(sessionData);
+      outerPage.printResortFooter(out);
+      if (!PAUSE_ON_THIS_SCREEN) {
+        response.sendRedirect(PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&resort=" + resort + "&ID=" + szMyID);
+      }
       patrolData.close();
-      outerPage.printResortHeader(out);
-//todo ???
-      response.sendRedirect(PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&resort=" + resort + "&ID=" + szMyID);
     }
 
     private void readParameters(HttpServletRequest request) {
@@ -131,16 +137,15 @@ public class ProcessChanges extends HttpServlet {
       pos1 = request.getParameter("pos1");                //required
       index1AsString = request.getParameter("index1");            //required
       listName = request.getParameter("listName");        //name 'selected' by radio button (can be null if 'remove' existing name)
-      //noinspection ConstantConditions
-      if (DEBUG) {
-        System.out.println("submitterID=" + submitterID);
-        System.out.println("transaction=" + transaction);
-        System.out.println("selectedID=" + selectedID);
-        System.out.println("szdate1=" + szdate1);
-        System.out.println("pos1=" + pos1);
-        System.out.println("index1=" + index1AsString);
-        System.out.println("listName=" + listName);
-      }
+
+      debugOut("submitterID=" + submitterID);
+      debugOut("transaction=" + transaction);
+      debugOut("selectedID=" + selectedID);
+      debugOut("szdate1=" + szdate1);
+      debugOut("pos1=" + pos1);
+      debugOut("index1=" + index1AsString);
+      debugOut("listName=" + listName);
+
       member1 = null;
       member2 = null;
       night1 = null;
@@ -194,7 +199,7 @@ public class ProcessChanges extends HttpServlet {
       }
     }
 
-    private void DisplayParameters() {
+    private void DisplayTransactionInformation() {
       szPos2 = null;
       if (night1 == null) {
         out.println("<h1>Error: Assignment data for " + szdate1 + " not found!</h1><br>");
@@ -232,7 +237,7 @@ public class ProcessChanges extends HttpServlet {
         }
       }
       else if (transaction.startsWith("needsReplacement")) {
-        if (setupForNeedsReplement()) {
+        if (setupForNeedsReplacement()) {
           return; //member not found
         }
       }
@@ -247,7 +252,7 @@ public class ProcessChanges extends HttpServlet {
       }
 
 //Title ie (Insert New Name)
-      out.println("<h1>" + trans[transNumber] + "</h1><br>");
+      out.println("<h2>" + trans[transNumber] + " (this screen is temporary, please validate what you did.)</h2><br>");
 //Insert Steve Gledhill (192443)
 
       if (transNumber == MISSED_SHIFT) {
@@ -257,10 +262,10 @@ public class ProcessChanges extends HttpServlet {
         out.println("REMOVE <B>" + newName + "</B> (" + newID + ")<br><br>");
       }
       else if (transNumber == NEEDS_REPLACEMENT) {
-        out.println("Hilight  <B>\" + newName + \"</B> as needing a replacement.   Under Construction<br><br>");
+        out.println("Hilight  <B>" + newName + "</B> as needing a replacement.<br><br>");
       }
       else if (transNumber == NO_REPLACEMENT_NEEDED) {
-        out.println("NO replacement needed for <B>" + newName + "</B> Under Construction<br><br>");
+        out.println("NO replacement needed for <B>" + newName + "</B> <br><br>");
       }
       else {
         out.println("INSERT <B>" + newName + "</B> (" + newID + ")");
@@ -272,11 +277,11 @@ public class ProcessChanges extends HttpServlet {
           oldName = oldID;
         }
         else {
-          oldName = member2.getFullName2();
+          oldName = member2.getFullName_lastNameFirst();
         }
         out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replacing <B>" + oldName + "</B>");
       }
-      out.println("<br><br>");
+      out.println("<br/>");
 //on February 1, 2001 as Auxiliary Patroller
       out.println("on: " + szDays[dayOfWeek1] + " " + szMonths[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
 //at position: Auxiliary Patroller"
@@ -303,7 +308,7 @@ public class ProcessChanges extends HttpServlet {
 //        newID = submitterID;
 //        newName = szSubmitterName;
 //        secondID = member1.idNum + "";  //convert to string
-//        secondName = member1.getFullName2();
+//        secondName = member1.getFullName_lastNameFirst();
 //        //get info on traded day
 //        Integer tmp = new Integer(transaction.substring(14, 16));
 //        date2 = tmp;
@@ -338,7 +343,7 @@ public class ProcessChanges extends HttpServlet {
       }
       transNumber = REMOVE;
       newID = selectedID;
-      newName = member1.getFullName2();
+      newName = member1.getFullName_lastNameFirst();
       night1.remove(nIndex1AsNum);
       return false;
     }
@@ -373,10 +378,11 @@ public class ProcessChanges extends HttpServlet {
       }
     }
 
-    private boolean setupForNeedsReplement() {
+    private boolean setupForNeedsReplacement() {
       transNumber = NEEDS_REPLACEMENT;
       newID = selectedID;
-      newName = szSubmitterName;
+      member1 = patrolData.getMemberByID(selectedID);
+      newName = member1.getFullName();
 //        if(resort.equals("Brighton")) {
 //            String key = szdate1 + "_" + index1;
       int year = Integer.parseInt(szdate1.substring(0, 4));
@@ -392,7 +398,8 @@ public class ProcessChanges extends HttpServlet {
     private boolean setupForNoReplementNeeded() {
       transNumber = NO_REPLACEMENT_NEEDED;
       newID = selectedID;
-      newName = szSubmitterName;
+      member1 = patrolData.getMemberByID(selectedID);
+      newName = member1.getFullName();
 //        if(resort.equals("Brighton")) {
 //            String key = szdate1 + "_" + index1;
       int year = Integer.parseInt(szdate1.substring(0, 4));
@@ -428,7 +435,7 @@ public class ProcessChanges extends HttpServlet {
         return true;
       }
 
-      newName = member1.getFullName2();
+      newName = member1.getFullName_lastNameFirst();
       night1.insertAt(nIndex1AsNum, newID);
       return false;
     }
@@ -446,14 +453,13 @@ public class ProcessChanges extends HttpServlet {
     }
 
     private boolean noReplacementNeeded() {
-      //todo
       String key = szdate1 + "_" + index1AsString;
       NewIndividualAssignment newIndividualAssignment = null;
       if (monthNewIndividualAssignments != null) {
         newIndividualAssignment = monthNewIndividualAssignments.get(key);
       }
       if (newIndividualAssignment == null) {
-        System.out.println("ERROR, newIndividualAssignment not found in noReplacementNeeded");
+        System.out.println("ERROR-ProcessChanges, newIndividualAssignment not found in noReplacementNeeded");
       }
       else {
         //UPDATE
@@ -462,7 +468,7 @@ public class ProcessChanges extends HttpServlet {
 //for now, delete the entry (this is temporary)
         patrolData.deleteNewIndividualAssignment(newIndividualAssignment);
       }
-      return true;    //error occured
+      return false; //successful
     }
 
     /**
@@ -478,7 +484,7 @@ public class ProcessChanges extends HttpServlet {
       }
       if (newIndividualAssignment == null) {
         //INSERT (eventually this should go away) only used when assignments are duplicated
-        int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo HACK
+        int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo shiftType is ignored?
         System.out.println("HACK in needsReplacement, shiftType forced to DAY SHIFT");
         newIndividualAssignment = new NewIndividualAssignment(calendar1.getTime(), nPos1, nIndex1AsNum, shiftType,
             NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
@@ -490,7 +496,7 @@ public class ProcessChanges extends HttpServlet {
         newIndividualAssignment.setNeedsReplacement(true);
         patrolData.updateNewIndividualAssignment(newIndividualAssignment);
       }
-      return true;    //error occured
+      return false; //successful
     }
 //} else if (transNumber == NEEDS_REPLACEMENT) {
 //    out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
@@ -513,17 +519,17 @@ public class ProcessChanges extends HttpServlet {
      */
     public void printBody(SessionData sessionData) {
 
-      DisplayParameters();
+      DisplayTransactionInformation();
       DirectorSettings ds = patrolData.readDirectorSettings();
       boolean notifyPatrollers = ds.getNotifyChanges();
       err = true;
       if (transNumber == NO_REPLACEMENT_NEEDED) {
-        out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
+//        out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
         //todo
         err = noReplacementNeeded();
       }
       else if (transNumber == NEEDS_REPLACEMENT) {
-        out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
+//        out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
         err = needsReplacement();
       }
       else if (night1 != null) {
@@ -532,10 +538,7 @@ public class ProcessChanges extends HttpServlet {
       if (!err && night2 != null) {
         err = patrolData.writeAssignment(night2);
       }
-      if (transNumber == NEEDS_REPLACEMENT || transNumber == NO_REPLACEMENT_NEEDED) {
-        out.println("Try again in a few days...  Thanks for your patients");
-      }
-      else if (dupError) {
+      if (dupError) {
         out.println("<h2>ERROR! Submission Failed.</h2>");
         out.println("<h3>Cannot insert " + newName + ". He/She is <b>already</b> on this shift.</h3>");
       }
@@ -552,11 +555,11 @@ public class ProcessChanges extends HttpServlet {
 
 //          strChange3 +="On "+szMonths[month1-1]+"/"+date1+"/"+year1+" \n  "+
 //          szTrans[transNumber]+" " + newName;// +" at position: "+ pos1; ???? szDays[dayOfWeek1]
-        strChange3 += szTrans[transNumber] + " " + newName + " On " + szDays[dayOfWeek1] + ", " + szMonths[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
+        strChange3 += trans[transNumber] + " " + newName + " On " + szDays[dayOfWeek1] + ", " + szMonths[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
 
         if (transNumber == TRADE) {
           strChange3 += "\nOn " + szMonths[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
-              szTrans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
+              trans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
         }
         out.println("<h2>Submission Successful</h2>");
         strChange3 += "\n";
@@ -579,7 +582,11 @@ public class ProcessChanges extends HttpServlet {
 
       } // not err in writing assignment data
 //Return to Calendar
-      out.println("<A HREF=\"" + PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&ID=" + szMyID + "\">Return to Calendar</A> ");
+      out.println("<br/>&nbsp;&nbsp;&nbsp;&nbsp;");
+      String loc = PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&ID=" + szMyID;
+//      out.println("<A target='_self' HREF='" + loc + "'>Return to Calendar</A> ");
+      out.println("<INPUT TYPE=\"button\" VALUE='Return to Calendar' onClick=window.location='" + loc + "'>");
+      out.println("<br/><br/>");
     }
 
     private void sendMailNotifications(DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
@@ -658,11 +665,18 @@ public class ProcessChanges extends HttpServlet {
 //System.out.println("mail was sucessfull");  //no e-mail, JUST LOG IT
         }
         catch (MailManException ex) {
-          System.out.println("error " + ex);
-          System.out.println("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
+          System.out.println("ERROR-ProcessChanges: " + ex);
+          System.out.println("ERROR-ProcessChanges: attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
         }
       }
     } //end mailto
-  }
+
+    private void debugOut(String msg) {
+      //noinspection ConstantConditions
+      if (DEBUG) {
+        System.out.println("DEBUG-ProcessChanges: " + msg);
+      }
+    }
+  } //end LocalProcessChanges
 }
 

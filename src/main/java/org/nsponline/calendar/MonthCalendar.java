@@ -124,7 +124,7 @@ public class MonthCalendar extends HttpServlet {
       }
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles());
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
 
       outerPage.printResortHeader(out);
 

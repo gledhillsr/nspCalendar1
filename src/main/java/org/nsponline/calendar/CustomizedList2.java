@@ -103,7 +103,7 @@ public class CustomizedList2 extends HttpServlet {
         szMyID = sessionData.getLoggedInUserId();
         readData(request, szMyID, sessionData);
 
-        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
         outerPage.printResortHeader(out);
         patrollersListed = 0;
 
@@ -360,7 +360,7 @@ public class CustomizedList2 extends HttpServlet {
         out.println("<INPUT TYPE=\"button\" VALUE=\"e-mail THESE patrollers\" onClick=window.location=\"" + loc + "\">");
         out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       }
-      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font>");
+//      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font>");
 
 //DownloadThisTable
       if (isDirector) {

@@ -49,7 +49,7 @@ public class CustomizedList extends HttpServlet {
         }
       }
 
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
       printBody();
@@ -344,6 +344,7 @@ public class CustomizedList extends HttpServlet {
 
       out.println("  <p align=\"center\"><br>");
       out.println("  <input type=\"submit\" value=\"Display / Print / E-mail\" ></p>");
+      out.println("<br/><br/>");
       out.println("</form>");
     }
   }

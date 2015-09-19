@@ -21,18 +21,14 @@ import javax.mail.internet.*;
 public class MailMan {
 
   private final static boolean DEBUG = true;
-
-//  final static String _smtpHost = "zzzSmtp"; //todo see SessionData.smtpHost
-//  private final static String _pop3Host = "zzzPop";
-//  private final static String _user = "zzzUser"; //todo see SessionData.emailUser
-//  private final static String _password = "zzzPassword"; //todo see SessionData.emailPassword
+  private final static boolean DEBUG_DONT_SEND = true;
 
   private final static String POP_MAIL = "pop3";
   private final static String INBOX = "INBOX";
   private final static String SMTP_MAIL = "smtp";
 
-  private InternetAddress hostAddress;    //ie zimbra.xmission.com
-  private InternetAddress fromAddress;  //ie steve@gledhills.com
+  private InternetAddress hostAddress;
+  private InternetAddress fromAddress;
 
   private Store store;
   private Folder folder;
@@ -45,7 +41,11 @@ public class MailMan {
    * @param fromText from text
    */
   public MailMan(String host, String from, String fromText, SessionData sessionData) {
-    debugOut("MailMan(host=" + host + ", from=" + from + ", fromText='" + fromText + "')");
+    debugOut(" CONSTRUCTOR- (host=" + host + ", from=" + from + ", fromText='" + fromText + "')");
+    if (DEBUG_DONT_SEND) {
+      debugOutDontSend("NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
+      return;
+    }
     try {
       hostAddress = new InternetAddress(host);
       try {
@@ -67,7 +67,7 @@ public class MailMan {
         debugOut("  MessageCount is " + totalMessages + " for " + sessionData.getPopHost());
       }
       catch (Exception e) {
-        System.out.println("create mail exception e=" + e);
+        System.out.println("ERROR-MailMan constructor mail exception e=" + e);
       }
     }
     catch (AddressException ex) {
@@ -87,7 +87,7 @@ public class MailMan {
       }
     }
     catch (Exception e) {
-      System.out.println("create mail exception e=" + e);
+      System.out.println("ERROR-MailMan close() exception e=" + e);
     }
   }
 
@@ -102,7 +102,7 @@ public class MailMan {
       hostAddress = new InternetAddress(host);
     }
     catch (AddressException ex) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("ERROR-MailMan invalid 'host' address (" + host + ")");
     }
   }
 
@@ -127,7 +127,7 @@ public class MailMan {
       fromAddress = new InternetAddress(from);
     }
     catch (AddressException ex) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("ERROR-MailMan invalid 'from' address (" + from + ")");
     }
   }
 
@@ -169,7 +169,11 @@ public class MailMan {
    * @throws MailManException oops
    */
   public void sendMessage(String subject, String message, String[] recipients, SessionData sessionData) throws MailManException {
-    debugOut("sendMessage(subject='" + subject + "', message='" + message + "', recipients=" + recipients[0] + ")");
+    debugOut("sendMessage(subject='" + subject + "', message='\n---- message body ----\n" + message + "\n---- end body ---\nrecipients=" + recipients[0] + ")");
+    if (DEBUG_DONT_SEND) {
+      debugOutDontSend("nothing sent because of debug");
+      return;
+    }
     debugOut("  hostAddress=" + hostAddress.getAddress());
     Properties props = new Properties();
     Session session;
@@ -226,6 +230,7 @@ public class MailMan {
 
   private void debugOut(Object... msg) {
     if (DEBUG) {
+      System.out.print("DEBUG-MailMan: ");
       for (Object item : msg) {
         System.out.print(item);
       }
@@ -233,6 +238,11 @@ public class MailMan {
     }
   }
 
+  private void debugOutDontSend(String msg) {
+    if (DEBUG_DONT_SEND) {
+      System.out.println("DEBUG_DONT_SEND-Mailman: " + msg);
+    }
+  }
 //  public static void main(String[] args) throws MailManException {
 //    if (args.length < 5) {
 //      System.out.println("Invalid arguments");

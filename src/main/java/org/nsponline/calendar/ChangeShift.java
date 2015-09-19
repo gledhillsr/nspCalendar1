@@ -1,6 +1,8 @@
 package org.nsponline.calendar;
 
 
+import com.mysql.jdbc.StringUtils;
+
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -8,7 +10,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 public class ChangeShift extends HttpServlet {
-  boolean DEBUG = false;
+  boolean DEBUG = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalChangeShift(request, response);
@@ -31,9 +33,9 @@ public class ChangeShift extends HttpServlet {
     int myShiftCount;
     private String resort;
     Calendar calendar;
-    String hisName1 = "";
-    String hisName = "";
-    String hisNumber = "0";
+    String newName1 = "";
+    String newName = "";
+    String newIdNumber = "0";
     String szMyID = null;
     String myName;
     String myName1;
@@ -69,7 +71,7 @@ public class ChangeShift extends HttpServlet {
       out = response.getWriter();
 
       SessionData sessionData = new SessionData(request.getSession(), out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "ChangeShift");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -77,22 +79,23 @@ public class ChangeShift extends HttpServlet {
       szMyID = sessionData.getLoggedInUserId();
       readParameterData(request);
 
-      readData(sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      readData(sessionData, patrol);
 
       visibleRadioButtons = 0;
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
-      printMiddle(sessionData);
+      printMiddle(patrol);
       printBottom();
       outerPage.printResortFooter(out);
+      patrol.close();
     }
 
     private void readParameterData(HttpServletRequest request) {
-      hisName = "";
-      hisName1 = "";
-      hisNumber = "0";
+      newName = "";
+      newName1 = "";
+      newIdNumber = "0";
       posWasEmpty = true;
 
       String szDay = request.getParameter("dayOfWeek"); //Sunday (=0), Monday, Tuesday, etc.
@@ -169,26 +172,20 @@ public class ChangeShift extends HttpServlet {
 
     }
 
-    /**
-     * @param id of patroller where the user clicked
-     */
-    private void isThisPositionEmpty(String id, SessionData sessionData) {
+    private boolean isThisPositionEmpty(String id, PatrolData patrol) {
       String name;
       name = numToName.get(id); //format ,"Steve Gledhill"
-//        if (blink) {
-      hisName = name;
-      hisName1 = hisNumber = id;
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      newName = name;
+      newIdNumber = id;
       MemberData md = patrol.getMemberByID(id);
-//			??PatrolData??
       if (md != null) {
-        hisName1 = md.getFullName();
+        newName1 = md.getFullName();
       }
-      patrol.close();
-      if (name != null) {
-        posWasEmpty = false;    //there is a person on this date at this position
+      else {
+        newName1 = newIdNumber;  //could not find name, so use number as name
       }
-    } //end isThisPositionEmpty
+      return StringUtils.isNullOrEmpty(name);
+    }
 
 //------------------
 
@@ -259,7 +256,7 @@ public class ChangeShift extends HttpServlet {
       }
     } //addnames
 
-    private void findIfPositionWasEmpty(SessionData sessionData) {
+    private void findIfPositionWasEmpty(PatrolData patrol) {
       for (int assignmentGroup = 0; assignmentGroup < totalAssignmentGroupsForToday; ++assignmentGroup) {
         for (int offsetWithinGroup = 0; offsetWithinGroup < assignmentGroups[assignmentGroup].getCount(); ++offsetWithinGroup) {
           String id = assignmentGroups[assignmentGroup].getPosID(offsetWithinGroup);
@@ -267,8 +264,8 @@ public class ChangeShift extends HttpServlet {
             id = id.substring(1);
           }
           if ((assignmentGroup + 1) == pos && offsetWithinGroup == index) {
-            debugOut("look for patroller at assignment group" + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
-            isThisPositionEmpty(id, sessionData);
+            debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
+            posWasEmpty = isThisPositionEmpty(id, patrol);
           }
         }
       }
@@ -278,10 +275,10 @@ public class ChangeShift extends HttpServlet {
 // printMiddle (submitterID, transaction, selectedID, date1, pos1, listName)
 //------------
     @SuppressWarnings("deprecation")
-    private void printMiddle(SessionData sessionData) {
+    private void printMiddle(PatrolData patrol) {
 //        int i;
 // print small date view
-      findIfPositionWasEmpty(sessionData);
+      findIfPositionWasEmpty(patrol);
 //      out.println("</table>");
 //      out.println("<HR>");    //Horziontal Rule
 
@@ -298,11 +295,11 @@ public class ChangeShift extends HttpServlet {
 
 //start of selection table
       out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
-      debugOut("  hisName=" + hisName);
+      debugOut("  newName=" + newName);
       debugOut("  myName=" + myName);
       debugOut("  posWasEmpty=" + posWasEmpty);
       debugOut("  allowEditing=" + allowEditing);
-      boolean editingMyself = (hisName != null && hisName.equals(myName));
+      boolean editingMyself = (newName != null && newName.equals(myName));
       debugOut("  editingMyself=" + editingMyself);
       if (allowEditing && myName != null) {
 //==INSERT== only used if position is empty
@@ -322,7 +319,7 @@ public class ChangeShift extends HttpServlet {
           out.println("  <tr>");
           visibleRadioButtons++;
           out.println("    <td width=\"100%\" colspan=\"2\"><INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"ReplaceWithMyName\" CHECKED>");
-          out.println("      <b>Replace</b> &quot;" + hisName1 + "&quot; with myself (" + myName1 + ").&nbsp; No");
+          out.println("      <b>Replace</b> &quot;" + newName1 + "&quot; with myself (" + myName1 + ").&nbsp; No");
           out.println("      exchange to be done</td>");
           out.println("  </tr>");
         }
@@ -331,7 +328,7 @@ public class ChangeShift extends HttpServlet {
 //        if(allowEditing) {
 //          if (!posWasEmpty && !editingMyself && myShiftCount > 0) {
 //              out.println("  <tr>");
-//              out.println("    <td width=\"100%\" colspan=\"2\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Trade</b> days with &quot;"+hisName+"&quot; (The following days assigned to "+myName+")<br>");
+//              out.println("    <td width=\"100%\" colspan=\"2\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Trade</b> days with &quot;"+newName+"&quot; (The following days assigned to "+myName+")<br>");
 //////              SortDates();
 ////hack
 ////                for(i=0; i < myShiftCount; ++i)
@@ -351,7 +348,7 @@ public class ChangeShift extends HttpServlet {
       visibleRadioButtons++;
       out.println("    <td width=\"50%\"><INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"replaceWithSomeoneElse\" " + isChecked + ">");
       if (!posWasEmpty) {
-        out.println("      <b>Replace</b> (" + hisName1 + ") with someone else&nbsp;</td>");
+        out.println("      <b>Replace</b> (" + newName1 + ") with someone else&nbsp;</td>");
       }
       else {
         out.println("      <b>Insert</b> someone else&nbsp;</td>");
@@ -375,7 +372,7 @@ public class ChangeShift extends HttpServlet {
         out.println("    <td width=\"100%\" colspan=\"2\">");
         visibleRadioButtons++;
         out.println("<INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"removeName\" CHECKED>");
-        out.println("      <b>Remove</b> name (" + hisName1 + ")</td>");
+        out.println("      <b>Remove</b> name (" + newName1 + ")</td>");
         out.println("  </tr>");
       }
 
@@ -384,7 +381,7 @@ public class ChangeShift extends HttpServlet {
         out.println("  <tr> <td width=\"100%\" colspan=\"2\">");
         visibleRadioButtons++;
         out.println("<INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"missedShift\">");
-        out.println("      <b>Missed Shift</b> (" + hisName1 + ")");
+        out.println("      <b>Missed Shift</b> (" + newName1 + ")");
         out.println("  </td> </tr>");
       }
       boolean wasMarkedAsNeedingReplacement = false;
@@ -401,7 +398,7 @@ public class ChangeShift extends HttpServlet {
         out.println("  <tr> <td width=\"100%\" colspan=\"2\">");
         visibleRadioButtons++;
         out.println("<INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"noReplacementNeeded\">");
-        out.println("      <b>Remove highlight</b> from -Needs a Replacement-  (" + hisName1 + ") ");
+        out.println("      <b>Remove highlight</b> from -Needs a Replacement-  (" + newName1 + ") ");
         out.println("  </td> </tr>");
       }
       else if (!posWasEmpty) {
@@ -421,13 +418,13 @@ public class ChangeShift extends HttpServlet {
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + pos + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"index1\" VALUE=\"" + index + "\">");
 
-//Integer idNum = (Integer)NameToNum.get(hisName);
+//Integer idNum = (Integer)NameToNum.get(newName);
 //String selectedID = null;
 //try {
 //  selectedID = idNum.toString();
 //} catch (Exception e) { }
-//String    selectedID = Integer.toString(hisNumber);
-      out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + hisNumber + "\">");
+//String    selectedID = Integer.toString(newIdNumber);
+      out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + newIdNumber + "\">");
       String strDate = year + "-";
       if (month + 1 < 10) {
         strDate += "0";
@@ -484,13 +481,11 @@ public class ChangeShift extends HttpServlet {
 //------------------
 // readData
 //------------------
-    public void readData(SessionData sessionData) {
+    public void readData(SessionData sessionData, PatrolData patrol) {
 //        String last, first;
       String idNum;
       int y, m, d;
       DirectorSettings ds;
-
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
       MemberData member1 = patrol.getMemberByID(szMyID);
       myName = member1.getFullName();
@@ -511,7 +506,7 @@ public class ChangeShift extends HttpServlet {
           isDirector = member.isDirector();
         }
         idNum = member.getID();
-        sortedRoster[rosterSize] = member.getFullName2();
+        sortedRoster[rosterSize] = member.getFullName_lastNameFirst();
         numToName.put(idNum, sortedRoster[rosterSize]);
         rosterSize++;
       }
@@ -563,7 +558,6 @@ public class ChangeShift extends HttpServlet {
 //            }
 //        }
       } //end while Shift ski assignments
-      patrol.close();
     } //end of readdata
 
     private void debugOut(String msg) {

@@ -62,9 +62,7 @@ public class SessionData {
     }
 
     try {
-      if (DEBUG) {
-        System.out.println("reading SessionData properties file from disk.");
-      }
+      debugOut("reading SessionData properties file from disk.");
       properties.load(inStream);
     }
     catch (IOException e) {
@@ -87,19 +85,17 @@ public class SessionData {
       return;
     }
 
-    if (DEBUG_VERBOSE) {
-      //write to Tomcat logs, never to screen
-      System.out.println(DB_USER_TAG + "=" + dbUser);
-      System.out.println(DB_PASSWORD_TAG + "=" + dbPassword);
-      System.out.println(SMTP_HOST_TAG + "=" + smtpHost);
-      System.out.println(POP_HOST_TAG + "=" + popHost);
-      System.out.println(EMAIL_USER_TAG + "=" + emailUser);
-      System.out.println(EMAIL_PASSWORD_TAG + "=" + emailPassword);
-      System.out.println(BACK_DOOR_USER_TAG + "=" + backDoorUser);
-      System.out.println(BACK_DOOR_PASSWORD_TAG + "=" + backDoorPassword);
-      System.out.println(AWS_ACCESS_KEY_ID_TAG + "=" + AWSAccessKeyId.substring(0,2) + "....");
-      System.out.println(AWS_SECRET_KEY_TAG + "=" + AWSSecretKey.substring(0,2) + "....");
-    }
+    //write to Tomcat logs, never to screen
+    debugVerboseOut(DB_USER_TAG + "=" + dbUser);
+    debugVerboseOut(DB_PASSWORD_TAG + "=" + dbPassword);
+    debugVerboseOut(SMTP_HOST_TAG + "=" + smtpHost);
+    debugVerboseOut(POP_HOST_TAG + "=" + popHost);
+    debugVerboseOut(EMAIL_USER_TAG + "=" + emailUser);
+    debugVerboseOut(EMAIL_PASSWORD_TAG + "=" + emailPassword);
+    debugVerboseOut(BACK_DOOR_USER_TAG + "=" + backDoorUser);
+    debugVerboseOut(BACK_DOOR_PASSWORD_TAG + "=" + backDoorPassword);
+    debugVerboseOut(AWS_ACCESS_KEY_ID_TAG + "=" + AWSAccessKeyId.substring(0, 2) + "....");
+    debugVerboseOut(AWS_SECRET_KEY_TAG + "=" + AWSSecretKey.substring(0, 2) + "....");
   }
 
   public String getDbUser() {
@@ -145,40 +141,45 @@ public class SessionData {
   }
 
   public void setLoggedInUserId(String loggedInUserId) {
-    if (DEBUG) {
-      System.out.println("SessionData.setLoggedInUserId=" + loggedInUserId);
-    }
+    debugOut("SessionData.setLoggedInUserId=" + loggedInUserId);
     session.setAttribute(LOGGED_IN_USER_ID_TAG, loggedInUserId);
   }
 
   public String getLoggedInUserId() {
     String userId = (String) session.getAttribute(LOGGED_IN_USER_ID_TAG);
-    if (DEBUG) {
-      System.out.println("SessionData.getLoggedInUserId=" + userId);
-    }
+    debugOut("SessionData.getLoggedInUserId=" + userId);
     return userId;
   }
 
   public void setLoggedInResort(String loggedInResort) {
-    if (DEBUG) {
-      System.out.println("SessionData.setLoggedInResort=" + loggedInResort);
-    }
+    debugOut("SessionData.setLoggedInResort=" + loggedInResort);
     session.setAttribute(LOGGED_IN_RESORT_TAG, loggedInResort);
   }
 
   public String getLoggedInResort() {
     String resort = (String) session.getAttribute(LOGGED_IN_RESORT_TAG);
-    if (DEBUG) {
-      System.out.println("SessionData.getLoggedInResort=" + resort);
-    }
+    debugOut("SessionData.getLoggedInResort=" + resort);
     return resort;
   }
 
   public boolean isLoggedIntoAnotherResort(String resortParameter) {
     String resort = (String) session.getAttribute(LOGGED_IN_RESORT_TAG);
+    boolean isLoggedIn = resort != null && !resort.equals(resortParameter);
+    debugOut("isLoggedIntoAnotherResort = (" + isLoggedIn + " ), resort=(" + resort + "), resortParameter=(" + resortParameter + ")");
+    return isLoggedIn;
+  }
+
+  private void debugOut(String msg) {
     if (DEBUG) {
-      System.out.println("SessionData.isLoggedIntoAnotherResort resort=" + resort + ", resortParameter=" + resortParameter);
+      // NOSONAR
+      System.out.println("DEBUG-SessionData: " + msg);
     }
-    return resort != null && !resort.equals(resortParameter);
+  }
+
+  private void debugVerboseOut(String msg) {
+    if (DEBUG_VERBOSE) {
+      // NOSONAR
+      System.out.println("DEBUG_VERBOSE-SessionData: " + msg);
+    }
   }
 }

@@ -40,7 +40,7 @@ public class PurgeAssignments extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request.getSession(), out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "PurgeAssignments");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -54,7 +54,7 @@ public class PurgeAssignments extends HttpServlet {
       else {
         PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
-        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
         outerPage.printResortHeader(out);
 
         printTop();

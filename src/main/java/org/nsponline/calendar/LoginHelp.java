@@ -64,7 +64,7 @@ public class LoginHelp extends HttpServlet {
         return;
       }
 
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles());
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
 
       String emailme = request.getParameter("emailme");

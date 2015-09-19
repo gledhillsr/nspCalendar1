@@ -47,7 +47,7 @@ public class Directors extends HttpServlet {
       patrollerId = sessionData.getLoggedInUserId();    //editor's ID
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       int found = readData(patrollerId, sessionData); //to get director (ID from cookie)
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
 
         printTop();

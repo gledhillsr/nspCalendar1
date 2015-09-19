@@ -1,5 +1,7 @@
 package org.nsponline.calendar;
 
+import com.mysql.jdbc.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
@@ -13,7 +15,7 @@ import java.net.URLEncoder;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
   @SuppressWarnings("FieldCanBeLocal")
   private String resortParameter;
 
@@ -24,17 +26,21 @@ public class ValidateCredentials {
     this.resortParameter = request.getParameter("resort");
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
-    debugOut("ValidateCredentialsExist: parameters  ID=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
-    debugOut("ValidateCredentialsExist: sessionData ID=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
+    debugOut("parameters  ID=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
+    debugOut("sessionData ID=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
+    if (Utils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData)) {
+      sessionData.setLoggedInUserId(idParameter);
+      sessionData.setLoggedInResort(resortParameter);
+    }
 
     hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resortParameter) || Utils.isEmpty(sessionData.getLoggedInUserId());
     if (hasInvalidCredentials) {
       try {
         sessionData.setLoggedInResort(null);
         sessionData.setLoggedInUserId(null);
-        debugOut("ValidateCredentialsExist: RESETTING logged in resort/userId to null");
+        debugOut("RESETTING logged in resort/userId to null");
         String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resortParameter + "&NSPgoto=" + parent;
-        debugOut("ValidateCredentialsExist is calling sendRedirect(" + newLoc + ")");
+        debugOut("calling sendRedirect(" + newLoc + ")");
         if (Utils.isNotEmpty(parent)) {
 //does not work!    response.sendRedirect(URLEncoder.encode(newLoc));
           response.sendRedirect(newLoc);
@@ -45,8 +51,21 @@ public class ValidateCredentials {
       }
     }
     else {
-      debugOut("ValidateCredentialsExist was OK.  id=" + idLoggedIn + ", parent=" + parent + ", resort=" + resortParameter);
+      debugOut("OK.  id=" + idLoggedIn + ", parent=" + parent + ", resort=" + resortParameter);
     }
+  }
+
+  private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData) {
+    if (StringUtils.isNullOrEmpty(resortParameter) ||
+        StringUtils.isNullOrEmpty(idParameter) ||
+        !PatrolData.validResort(resortParameter)) {
+      return false;
+    }
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData); //when reading members, read full data
+    boolean validId = patrol.getMemberByID(idParameter) != null;
+    patrol.close();
+    debugOut("cheated login, validId (" + idParameter + ") = " + validId);
+    return validId;
   }
 
   private void errorOut(String msg) {

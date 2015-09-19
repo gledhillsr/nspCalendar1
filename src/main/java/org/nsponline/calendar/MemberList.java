@@ -52,7 +52,7 @@ public class MemberList extends HttpServlet {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       readData(sessionData, patrollerId);
 
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "");
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
       int count = printBody(sessionData);
