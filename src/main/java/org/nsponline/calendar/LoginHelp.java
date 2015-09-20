@@ -49,7 +49,7 @@ public class LoginHelp extends HttpServlet {
       debugOut("LoginHelp parameters: ID(" + id + "), resort(" + resort + "), parent(" + szParent + ")");
 
       SessionData sessionData = new SessionData(request.getSession(), out);
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
       if (isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
         sessionData.setLoggedInUserId(id);
@@ -61,10 +61,11 @@ public class LoginHelp extends HttpServlet {
         String newLoc = PatrolData.SERVLET_URL + szParent + "?resort=" + resort + "&ID=" + id;
         debugOut("LoginHelp (valid login) sendRedirect to (& return): " + newLoc);
         response.sendRedirect(newLoc);
+        patrolData.close();
         return;
       }
 
-      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
+      OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
 
       String emailme = request.getParameter("emailme");
@@ -73,7 +74,7 @@ public class LoginHelp extends HttpServlet {
         String ID2 = request.getParameter("ID2");
         String email = request.getParameter("email");
         if (ID2 != null || email != null) {
-          int ret = sendPassword(out, ID2, email, resort, sessionData);
+          int ret = sendPassword(out, ID2, email, resort, sessionData, patrolData);
           if (ret == 0) {
             out.println("Note: an email of the ID and password was just sent.<br>");
           }
@@ -91,46 +92,46 @@ public class LoginHelp extends HttpServlet {
 
       printBody(out, resort, szParent);
       outerPage.printResortFooter(out);
+      patrolData.close();
     }
 
     private String getJavaScriptAndStyles() {
       return "";
     }
 
-    private boolean mailto(MailMan mail, MemberData mbr, String subject, String message, SessionData sessionData) {
+    private boolean mailto(MailMan mail, MemberData mbr, String subject, String message) {
       if (mbr == null) {
         return false;
       }
       String recipient = mbr.getEmail();
       if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
         System.out.print("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
-        try {
-          mail.sendMessage(subject, message, recipient, sessionData);
-          System.out.println("  mail was sucessfull");    //no e-mail, JUST LOG IT
+//        try {
+          mail.sendMessage(subject, message, recipient);
+//          System.out.println("  mail was sucessfull");    //no e-mail, JUST LOG IT
           return true;
-        }
-        catch (MailManException ex) {
-          System.out.println("  error " + ex);
-          System.out.println("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
-        }
+//        }
+//        catch (MailManException ex) {
+//          System.out.println("  error " + ex);
+//          System.out.println("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
+//        }
       }
       return false;
     } //end mailto
 
 
     @SuppressWarnings("UnusedParameters")
-    public int sendPassword(PrintWriter out, String ID, String email, String resort, SessionData sessionData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+    public int sendPassword(PrintWriter out, String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
       MemberData member = null;
       if (ID != null && !ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && ID.length() > 4) {
         member = patrol.getMemberByID(ID); //ID from cookie
         if (member != null) {
-          email = member.getEmail();
-//out.println("FOUND email=(" + email + ")<BR>");
+          emailAddress = member.getEmail();
+//out.println("FOUND emailAddress=(" + emailAddress + ")<BR>");
         }
       }
-      else if (email.trim().length() > 4) {
-        member = patrol.getMemberByEmail(email); //ID from cookie
+      else if (emailAddress.trim().length() > 4) {
+        member = patrol.getMemberByEmail(emailAddress); //ID from cookie
         if (member != null) {
           ID = member.getID();
 //out.println("FOUND ID=(" + ID + ")<BR>");
@@ -143,14 +144,12 @@ public class LoginHelp extends HttpServlet {
             "Your patrol ID is: " + ID + "\n" +
             "Your password is: " + password + "\n\n" +
             "If you continue to have problems, please contact your director.\n\nThanks.";
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        String from = email;
-        MailMan mail = new MailMan(sessionData.getSmtpHost(), from, fullName, sessionData);
-        if (mailto(mail, member, "Here is your password you requested", message, sessionData)) {
+        MailMan mail = new MailMan(sessionData.getSmtpHost(), emailAddress, fullName, sessionData);
+        if (mailto(mail, member, "Here is your password you requested", message)) {
           return 0; //mail was sent
         }
         else {
-          return -1; //invalid email
+          return -1; //invalid emailAddress
         }
       }
       return 1; //member not found

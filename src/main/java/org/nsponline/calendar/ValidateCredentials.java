@@ -15,7 +15,7 @@ import java.net.URLEncoder;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
   @SuppressWarnings("FieldCanBeLocal")
   private String resortParameter;
 

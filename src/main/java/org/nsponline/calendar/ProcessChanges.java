@@ -617,21 +617,21 @@ public class ProcessChanges extends HttpServlet {
 //    System.out.println("----------------");
             while ((mbr = patrolData.nextMember("")) != null) {
               if (mbr.isDirector() && mbr.getDirector().equalsIgnoreCase("yesEmail")) {
-                mailto(mail, mbr, strChange3, true, sessionData);
+                mailto(mail, mbr, strChange3, true);
               }
 
             } //end while
             //send e-mail to 1st patroller
             if (notifyPatrollers) {
               if (!sentToFirst && member1 != null) {
-                mailto(mail, member1, strChange3, false, sessionData);
+                mailto(mail, member1, strChange3, false);
               }
               if (!sentToSecond && member2 != null) {
-                mailto(mail, member2, strChange3, false, sessionData);
+                mailto(mail, member2, strChange3, false);
               }
             }
 // System.out.println(strChange3); //LOG message
-            mail.close();
+//todo srg            mail.close();
           }
     }
 
@@ -641,7 +641,7 @@ public class ProcessChanges extends HttpServlet {
      * @param strChange3 zz
      * @param director   not used
      */
-    private void mailto(MailMan mail, MemberData mbr, String strChange3, boolean director, SessionData sessionData) {
+    private void mailto(MailMan mail, MemberData mbr, String strChange3, boolean director) {
       //noinspection StatementWithEmptyBody
       if (director) {
         //todo send director notifications here???
@@ -653,7 +653,7 @@ public class ProcessChanges extends HttpServlet {
       }
       String recipient = mbr.getEmail();
       if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
-        try {
+//        try {
           if (member1 != null && member1.getID().equals(mbr.getID())) {
             sentToFirst = true;
           }
@@ -661,13 +661,13 @@ public class ProcessChanges extends HttpServlet {
             sentToSecond = true;
           }
 //System.out.println("sending to: "+recipient);   //no e-mail, JUST LOG IT
-          mail.sendMessage("Patrol Roster Changed (" + resort + ")", strChange3, recipient, sessionData);
+          mail.sendMessage("Patrol Roster Changed (" + resort + ")", strChange3, recipient);
 //System.out.println("mail was sucessfull");  //no e-mail, JUST LOG IT
-        }
-        catch (MailManException ex) {
-          System.out.println("ERROR-ProcessChanges: " + ex);
-          System.out.println("ERROR-ProcessChanges: attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
-        }
+//        }
+//        catch (MailManException ex) {
+//          System.out.println("ERROR-ProcessChanges: " + ex);
+//          System.out.println("ERROR-ProcessChanges: attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
+//        }
       }
     } //end mailto
 

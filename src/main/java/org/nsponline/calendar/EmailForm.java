@@ -289,7 +289,7 @@ public class EmailForm extends HttpServlet {
           }
           else {
 //          mailTo2(fromEmailAddress, member, subject, newMessage);
-            mailto(mailMan, member, subject, newMessage, sessionData);
+            mailto(mailMan, member, subject, newMessage);
           }
         }
       }
@@ -376,27 +376,27 @@ public class EmailForm extends HttpServlet {
       return (emailAddress != null && emailAddress.length() > 3 && emailAddress.indexOf('@') > 0);
     }
 
-    private void mailto(MailMan mail, MemberData mbr, String subject, String message, SessionData sessionData) {
+    private void mailto(MailMan mail, MemberData mbr, String subject, String message) {
       String recipient = mbr.getEmail();
       if (isValidAddress(recipient)) {
         debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
-        try {
-          mail.sendMessage(subject, message, recipient, sessionData);
-//                PatrolData.logger(resort, "  mail was sucessfull");    //no e-mail, JUST LOG IT
-        }
-        catch (MailManException ex) {
-          System.out.println("  error " + ex);
-          System.out.println("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
-        }
+//        try {
+          mail.sendMessage(subject, message, recipient);
+////                PatrolData.logger(resort, "  mail was sucessfull");    //no e-mail, JUST LOG IT
+//        }
+//        catch (MailManException ex) {
+//          System.out.println("  error " + ex);
+//          System.out.println("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
+//        }
       }
     } //end mailto
 
     private void printTop(PrintWriter out, String Submit) {
       if (Submit != null) {
-        out.println("<H2>Sending Emails, this may take a while (this is currently broken!!!).</H2>");
+        out.println("<H2>Emails sent.</H2>");
       }
       else {
-        out.println("<H2>Prepare Emails (is currently broken).</H2>");
+        out.println("<H2>Prepare Emails (new setup, please let me know if there are bugs).</H2>");
       }
     }
 
