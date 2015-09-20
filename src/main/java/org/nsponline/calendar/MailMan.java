@@ -43,7 +43,8 @@ public class MailMan {
       debugOutDontSend("NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
       return;
     }
-    this.fromAddress = fromAddress;
+//    this.fromAddress = fromAddress;
+    this.fromAddress = "steve@gledhills.com";   //todo I want to get this fixed!!!!
     this.fromText = fromText;
     // Instantiate an Amazon SES client, which will make the service call. The service call requires your AWS credentials.
     // Because we're not providing an argument when instantiating the client, the SDK will attempt to find your AWS credentials
