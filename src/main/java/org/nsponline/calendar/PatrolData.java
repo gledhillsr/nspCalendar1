@@ -35,7 +35,7 @@ public class PatrolData {
     resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
     resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
-    resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", "http://detroitmountain.com/", "/images/DetroitMountaim.png", 73, 121));
+    resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", "http://detroitmountain.com/", "/images/DetroitMountain.png", 73, 121));
     resortMap.put("GrandTarghee",   new ResortData("GrandTarghee", "Grand Targhee", "http://www.GrandTarghee.com", "/images/GrandTarghee.jpg", IMG_HEIGHT, 80));
     resortMap.put("HermonMountain", new ResortData("HermonMountain", "Hermon Mountain", "http://www.skihermonmountain.com", "/images/HermonMountain.jpg", IMG_HEIGHT, 80));
     resortMap.put("Hesperus",       new ResortData("Hesperus", "Hesperus", "http://www.ski-hesperus.com/", "/images/Hesperus.jpg", 84, 192));
