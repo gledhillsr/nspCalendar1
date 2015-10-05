@@ -148,6 +148,6 @@ public class Shifts {
   public String toString() {
 //        int start = startTime.get(Calendar.HOUR)*startTime.get(Calendar.MINUTE);
 //        int end = endTime.get(Calendar.HOUR)*endTime.get(Calendar.MINUTE);
-    return eventName + " starts: " + startTime + " ends: " + endTime + " count=" + count + " type=" + Assignments.szShiftTypes[type];
+    return eventName + " starts: " + startTime + " ends: " + endTime + " count=" + count + " type=" + Assignments.getShiftName(type);
   }
 }

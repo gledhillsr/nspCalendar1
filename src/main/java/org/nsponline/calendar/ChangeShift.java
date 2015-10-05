@@ -467,7 +467,7 @@ public class ChangeShift extends HttpServlet {
      * assignments[pos++] = data;
      * }
      * int assignmentCount = 0;
-     * for(i=0; i < Assignments.MAX; ++i) {
+     * for(i=0; i < Assignments.MAX_ASSIGNMENT_SIZE; ++i) {
      * if(assignments[i] != null )
      * ++assignmentCount;
      * else

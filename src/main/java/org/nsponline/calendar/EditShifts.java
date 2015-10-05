@@ -199,9 +199,9 @@ public class EditShifts extends HttpServlet {
         String tType = request.getParameter("shift_" + i);
         int tTyp = Assignments.DAY_TYPE;
         System.out.println("shift type read was (" + tType + ")");
-        for (int j = 0; j < Assignments.MAX_SHIFT_TYPES && tType != null; ++j) {
-          if (tType.equals(Assignments.szShiftTypes[j])) {
-            tTyp = j;
+        for (int shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES && tType != null; ++shiftType) {
+          if (tType.equals(Assignments.getShiftName(shiftType))) {
+            tTyp = shiftType;
           }
         }
 
@@ -318,7 +318,7 @@ public class EditShifts extends HttpServlet {
       //disable "New" button, if at Maximum count
       String newOK = "";
 //12/1/08 this was wrong, the shifts.size() is the total size in the database, not the count of shifts within this shift
-//		if(shifts.size() >= Shifts.MAX)
+//		if(shifts.size() >= Shifts.MAX_ASSIGNMENT_SIZE)
 //			newOK = " disabled";
       out.println("                        <td width=\"90\"><input type=\"submit\" value=\"New\" " + newOK + " name=\"addShift\"></td>");
       out.println("                        <td width=\"170\">&nbsp;</td>");

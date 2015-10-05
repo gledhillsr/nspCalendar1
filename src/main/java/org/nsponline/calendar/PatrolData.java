@@ -34,6 +34,7 @@ public class PatrolData {
     resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
     resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
     resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
+    resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
     resortMap.put("GrandTarghee",   new ResortData("GrandTarghee", "Grand Targhee", "http://www.GrandTarghee.com", "/images/GrandTarghee.jpg", IMG_HEIGHT, 80));
     resortMap.put("HermonMountain", new ResortData("HermonMountain", "Hermon Mountain", "http://www.skihermonmountain.com", "/images/HermonMountain.jpg", IMG_HEIGHT, 80));
     resortMap.put("IFNordic",       new ResortData("IFNordic", "IF Nordic", "", "/images/IFNordic.gif", IMG_HEIGHT, 80));
@@ -56,7 +57,7 @@ public class PatrolData {
     resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", "http://www.soldierhollow.com", "/images/SoldierHollow.jpg", IMG_HEIGHT, 60));
     resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
     resortMap.put("ThreeRivers",    new ResortData("ThreeRivers", "Three Rivers Park", "http://www.threeriverspark.com", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
-    resortMap.put("UOP",            new ResortData("UOP", "The Utah Olympic Park", "http://www.imd.org/uop.html", "/images/uop.jpg", IMG_HEIGHT, 80));
+//    resortMap.put("uop",            new ResortData("uop", "The Utah Olympic Park", "http://www.imd.org/uop.html", "/images/uop.jpg", IMG_HEIGHT, 80));
     resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
@@ -179,7 +180,7 @@ public class PatrolData {
 
   public void resetAssignments() {
     try {
-      assignmentsStatement = connection.prepareStatement("SELECT * FROM assignments ORDER BY \"" + Assignments.tag[0] + "\"");   //sort by default key
+      assignmentsStatement = connection.prepareStatement(Assignments.getSelectAllAssignmentsByDateSQLString());
       assignmentResults = assignmentsStatement.executeQuery();
     }
     catch (Exception e) {
@@ -696,7 +697,7 @@ public class PatrolData {
 //--------------------
   static private void countDropDown(PrintWriter out, String szName, int value) {
     out.println("<select size=\"1\" name=\"" + szName + "\">");
-    for (int i = Math.min(1, value); i <= Assignments.MAX; ++i) {
+    for (int i = Math.min(1, value); i <= Assignments.MAX_ASSIGNMENT_SIZE; ++i) {
       if (i == value) {
         out.println("<option selected>" + i + "</option>");
       }
@@ -733,9 +734,9 @@ public class PatrolData {
         out.println("<td>&nbsp;");
         out.println("<select size=1 name='shift_" + validShifts + "'>");
 //System.out.println("in AddShiftsToTable, data.getType()="+data.getType());
-        for (int j = 0; j < Assignments.MAX_SHIFT_TYPES; ++j) {
-          String sel = (data.getType() == j) ? "selected" : "";
-          out.println("<option " + sel + ">" + Assignments.szShiftTypes[j] + "</option>");
+        for (int shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES; ++shiftType) {
+          String sel = (data.getType() == shiftType) ? "selected" : "";
+          out.println("<option " + sel + ">" + Assignments.getShiftName(shiftType) + "</option>");
         }
         out.println("</select>");
         out.println("</td>");
@@ -773,9 +774,9 @@ public class PatrolData {
       out.println("<td>&nbsp;&nbsp; ");
       out.println("<select size=1 name='shift_" + validShifts + "'>");
 //System.out.println("in AddAssignmentsToTable, data.getType()="+data.getType());
-      for (int j = 0; j < Assignments.MAX_SHIFT_TYPES; ++j) {
-        String sel = (data.getType() == j) ? "selected" : "";
-        out.println("<option " + sel + ">" + Assignments.szShiftTypes[j] + "</option>");
+      for (int shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES; ++shiftType) {
+        String sel = (data.getType() == shiftType) ? "selected" : "";
+        out.println("<option " + sel + ">" + Assignments.getShiftName(shiftType) + "</option>");
       }
       out.println("</select>");
       out.println("</td>");

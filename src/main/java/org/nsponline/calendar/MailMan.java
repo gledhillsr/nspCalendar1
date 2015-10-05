@@ -6,6 +6,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.*;
+import com.mysql.jdbc.StringUtils;
 
 
 /**
@@ -16,28 +17,20 @@ public class MailMan {
 
   private final static boolean DEBUG = true;
   private final static boolean DEBUG_DONT_SEND = false;
-//  private final static String POP_MAIL = "pop3";
-//  private final static String INBOX = "INBOX";
-//  private final static String SMTP_MAIL = "smtp";
+
   AmazonSimpleEmailServiceClient sesClient;
   private final String fromAddress;
+  @SuppressWarnings("FieldCanBeLocal")
   private final String fromText;
-//  private final SessionData sessionData;
-//  private InternetAddress hostAddress;
-//  private InternetAddress fromAddress;
-//
-//  private Store store;
-//  private Folder folder;
 
   /**
    * MailMan constructor.
    *
    * @param host        The smtp host address.
-   * @param fromAddress The return address.
-   * @param fromText    fromAddress text
+   * @param fromAddress The return address. ie: steve@gledhills.com
+   * @param fromText    fromAddress text    ie: Steve Gledhill
    */
   public MailMan(String host, String fromAddress, String fromText, SessionData sessionData) {
-//    this.sessionData = sessionData;
     debugOut(" CONSTRUCTOR- (host=" + host + ", fromAddress=" + fromAddress + ", fromText='" + fromText + "')");
     if (DEBUG_DONT_SEND) {
       debugOutDontSend("NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
@@ -51,8 +44,14 @@ public class MailMan {
     // using the default credential provider chain. The first place the chain looks for the credentials is in environment variables
     // AWS_ACCESS_KEY_ID and AWS_SECRET_KEY.
     // For more information, see http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/credentials.html
-    BasicAWSCredentials awsCredentials = new BasicAWSCredentials(sessionData.getAWSAccessKeyId(), sessionData.getAWSSecretKey());
-    sesClient = new AmazonSimpleEmailServiceClient(awsCredentials);
+    if (!StringUtils.isNullOrEmpty(sessionData.getAWSAccessKeyId())) {
+      BasicAWSCredentials awsCredentials = new BasicAWSCredentials(sessionData.getAWSAccessKeyId(), sessionData.getAWSSecretKey());
+      sesClient = new AmazonSimpleEmailServiceClient(awsCredentials);
+    }
+    else {
+      //if no access key was found, then use credentials from server.  Usually an instance profile
+      sesClient = new AmazonSimpleEmailServiceClient();
+    }
 
     // Choose the AWS region of the Amazon SES endpoint you want to connect to. Note that your sandbox
     // status, sending limits, and Amazon SES identity-related settings are specific to a given AWS
@@ -66,20 +65,6 @@ public class MailMan {
 //      try {
 //        fromAddress = new InternetAddress(fromAddress, fromText);
 //        debugOut("  new fromAddress=" + fromAddress);
-//
-//        Session session = Session.getDefaultInstance(System.getProperties(), null);
-//        session.setDebug(false);
-//        store = session.getStore(POP_MAIL);
-////        debugOut("  getStore=" + store);
-//        store.connect(sessionData.getPopHost(), -1, sessionData.getEmailUser(), sessionData.getEmailPassword());
-//        debugOut("  store.connect(pop3Host=" + sessionData.getPopHost() + ", user=" + sessionData.getEmailUser());
-//        folder = store.getDefaultFolder();
-////        debugOut("  folder=" + folder);
-//        folder = folder.getFolder(INBOX);
-////        debugOut("  folder=" + folder);
-//        folder.open(Folder.READ_WRITE);
-//        int totalMessages = folder.getMessageCount();
-//        debugOut("  MessageCount is " + totalMessages + " for " + sessionData.getPopHost());
 //      }
 //      catch (Exception e) {
 //        System.out.println("ERROR-MailMan constructor mail exception e=" + e);
@@ -90,47 +75,6 @@ public class MailMan {
 //    }
   }
 
-//  public void close() {
-//    try {
-//      if (folder != null) {
-////        debugOut("folder.close");
-//        folder.close(true);
-//      }
-//      if (store != null) {
-////        debugOut("store.close");
-//        store.close();
-//      }
-//    }
-//    catch (Exception e) {
-//      System.out.println("ERROR-MailMan close() exception e=" + e);
-//    }
-//  }
-//
-//  /**
-//   * Sets the smtp host address.
-//   *
-//   * @param host The smtp host address.
-//   */
-//  @SuppressWarnings("UnusedDeclaration")
-//  public void setHostAddress(String host) {
-//    try {
-//      hostAddress = new InternetAddress(host);
-//    }
-//    catch (AddressException ex) {
-//      throw new IllegalArgumentException("ERROR-MailMan invalid 'host' address (" + host + ")");
-//    }
-//  }
-//
-//  /**
-//   * Gets the smtp host address.
-//   *
-//   * @return The smtp host address.
-//   */
-//  @SuppressWarnings("UnusedDeclaration")
-//  public String getHostAddress() {
-//    return hostAddress.getAddress();
-//  }
-//
 //  /**
 //   * Sets the return address.
 //   *

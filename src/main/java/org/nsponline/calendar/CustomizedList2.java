@@ -704,7 +704,7 @@ public class CustomizedList2 extends HttpServlet {
         date = new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay());
         currMillis = date.getTimeInMillis();
         if (startMillis <= currMillis && currMillis <= endMillis) {
-          for (i = 0; i < Assignments.MAX; ++i) {
+          for (i = 0; i < Assignments.MAX_ASSIGNMENT_SIZE; ++i) {
             //              member = patrol.getMemberByID(ns.getPosID(i));
             member = hash.get(ns.getPosID(i));
             if (member != null && member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {

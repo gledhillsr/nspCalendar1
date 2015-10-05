@@ -8,29 +8,32 @@ import java.text.SimpleDateFormat;
  * @author Steve Gledhill
  */
 public class Assignments {
-  final static int MAX = 10;          //max number of assignments
-  final static String tag[] = {"Date", "StartTime", "EndTime", "EventName", "ShiftType",
-      "Count", "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"}; //string on form
-  // the Date string is in this format "2001-11-03_1"  where _1 is the FIRST record
-  final static int DATE_INDEX = 0;
-  final static int START_INDEX = 1;
-  final static int END_INDEX = 2;
-  final static int EVENT_INDEX = 3;
-  final static int TYPE_INDEX = 4;
-  final static int COUNT_INDEX = 5;
-  final static int P0_INDEX = 6;
-
-  final static String szShiftTypes[] = {"Day Shift", "Swing Shift", "Night Shift", "Training Shift"};
+  private final static boolean DEBUG = false;
+  //public fields
+  final static int MAX_ASSIGNMENT_SIZE = 10;          //max number of assignments
   final static int DAY_TYPE = 0;
   final static int SWING_TYPE = 1;
   final static int NIGHT_TYPE = 2;
   final static int TRAINING_TYPE = 3;
   final static int MAX_SHIFT_TYPES = 4;
+
+  //private fields
+  final private static String szShiftTypes[] = {"Day Shift", "Swing Shift", "Night Shift", "Training Shift"};
+  final private static String tag[] = {"Date", "StartTime", "EndTime", "EventName", "ShiftType",
+      "Count", "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"}; //string on form
+  //NOTE: the Date string is in this format "2001-11-03_1"  where _1 is the FIRST record
+  final private static int DATE_INDEX = 0;
+  final private static int START_INDEX = 1;
+  final private static int END_INDEX = 2;
+  final private static int EVENT_INDEX = 3;
+  final private static int TYPE_INDEX = 4;
+  final private static int COUNT_INDEX = 5;
+  final private static int P0_INDEX = 6;
   // Format the current time.
 //E=day of Week (ie. Tuesday), y=year, M=month, d=day, H=hour (24 hour clock), m=minute, s=second
-  final static SimpleDateFormat expandedDateTimeFormatter = new SimpleDateFormat("EEEE, MMMM d yyyy");
-  final static SimpleDateFormat DateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-  final static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("MM'/'dd'/'yyyy");
+  final private static SimpleDateFormat expandedDateTimeFormatter = new SimpleDateFormat("EEEE, MMMM d yyyy");
+  final private static SimpleDateFormat DateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+//  final static SimpleDateFormat normalDateFormatter = new SimpleDateFormat("MM'/'dd'/'yyyy");
 
   // ALL the following global data MUST be initialized in the constructor
   private String szDate;
@@ -59,15 +62,22 @@ public class Assignments {
     int i;
     exceptionError = false;
     existed = false;    //not real data
-    patrollerID = new String[MAX];  //allocate ID array
+    patrollerID = new String[MAX_ASSIGNMENT_SIZE];  //allocate ID array
     count = 0;
     type = DAY_TYPE;
     szDate = szStartTime = szEndTime = szEventName = null;
-    for (i = 0; i < MAX; ++i) {
+    for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       patrollerID[i] = "0";   //no patroller assigned
     }
   }
 
+  private static String getDateSqlTag() {  //used for ORDER BY
+    return tag[0];
+  }
+
+  public static String getShiftName(int index) {
+    return szShiftTypes[index];
+  }
 
   private String readString(ResultSet assignmentResults, String tag) {
     String str = null;
@@ -75,7 +85,7 @@ public class Assignments {
       str = assignmentResults.getString(tag);
     }
     catch (Exception e) {
-      System.out.println("exception in readString e=" + e);
+      LOG("exception in readString e=" + e);
       exceptionError = true;
     } //end try
 
@@ -88,7 +98,7 @@ public class Assignments {
     szStartTime = readString(assignmentResults, tag[START_INDEX]);
     szEndTime = readString(assignmentResults, tag[END_INDEX]);
     szEventName = readString(assignmentResults, tag[EVENT_INDEX]);
-//System.out.println("szEventName=("+szEventName+")");
+    debugOut("szEventName=(" + szEventName + ")");
     if (szEventName == null || szEventName.equals("null")) {
       szEventName = " ";
     }
@@ -96,11 +106,11 @@ public class Assignments {
     type = Integer.parseInt(str);
     str = readString(assignmentResults, tag[COUNT_INDEX]);
     count = Integer.parseInt(str);
-    for (int i = 0; i < MAX; ++i) {
+    for (int i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       patrollerID[i] = readString(assignmentResults, ("P" + i));
     }
     existed = true;
-//  System.out.println("Assignment.read="+this);
+    debugOut("Assignment.read=" + this);
     return !exceptionError;
   }
 
@@ -160,15 +170,15 @@ public class Assignments {
 
   public static int getTypeID(String szType) {
     if (szType == null) {
-      System.out.println("** Assignments.getDate error, type was null");
+      LOG("** Assignments.getDate error, type was null");
       return DAY_TYPE;
     }
-    for (int i = 0; i < MAX_SHIFT_TYPES; ++i) {
-      if (szType.equals(szShiftTypes[i])) {
-        return i;
+    for (int shiftType = 0; shiftType < MAX_SHIFT_TYPES; ++shiftType) {
+      if (szType.equals(szShiftTypes[shiftType])) {
+        return shiftType;
       }
     }
-    System.out.println("** Assignments.getDate error, invalid string");
+    LOG("** Assignments.getDate error, invalid string");
     return DAY_TYPE;
   }
 
@@ -177,13 +187,13 @@ public class Assignments {
   }
 
   public int getUseCount() {
-//System.out.println("Assignments.getUseCount() for "+szDate+", fullCount="+count);
+    debugOut("Assignments.getUseCount() for " + szDate + ", fullCount=" + count);
     int cnt = 0;
     int i;
     for (i = 0; i < count; ++i) {
       if (patrollerID[i] != null && !patrollerID[i].equals("0") && !patrollerID[i].equals("")) {
         ++cnt;
-//System.out.println("Found "+cnt+") patroller=("+patrollerID[i]+")");
+        debugOut("Found " + cnt + ") patroller=(" + patrollerID[i] + ")");
       }
     }
     return cnt;
@@ -203,7 +213,7 @@ public class Assignments {
 
   public void setEventName(String str) {
     szEventName = str;
-//    System.out.println("1 szEventName=("+szEventName+")");
+    debugOut("1 szEventName=(" + szEventName + ")");
   }
 
   public void setType(int cnt) {
@@ -245,27 +255,26 @@ public class Assignments {
   public boolean isTrainingShift() {
     return (type == TRAINING_TYPE);
   }
-/*************************************************************************/
-/* getPosIndex - given an ID, which position(index) is that patroller    */
-/*  ASSUMES you cannot assign a patroller to two positions on same day   */
 
   /*************************************************************************/
-  public int getPosIndex(String ID) {
+  /* getPosIndex - given an ID, which position(index) is that patroller    */
+  /*  ASSUMES you cannot assign a patroller to two positions on same day   */
+  /*************************************************************************/
+  public int getPosIndex(String id) {
     int i;
-    for (i = 0; i < MAX; ++i) {
-      if (ID.equals(patrollerID[i])) {
+    for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
+      if (id.equals(patrollerID[i])) {
         return i;
       }
     }
     return -1;  //not found
   }
 
-/*******************************************************/
-/* getPosID - return the patroller ID at position nPos */
-
+  /*******************************************************/
+  /* getPosID - return the patroller ID at position nPos */
   /*******************************************************/
   public String getPosID(int nPos) {
-    if (nPos >= 0 && nPos < MAX) {       //validate pos
+    if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {       //validate pos
       if (!patrollerID[nPos].equals("")) {
         return patrollerID[nPos];   //return ID
       }
@@ -273,33 +282,21 @@ public class Assignments {
     return "0";                 //invalid pos
   }
 
-/*****************************************************/
-/* remove - invalidate patroller ID at position nPos */
-
-  /*****************************************************/
   public void remove(int nPos) {
-    if (nPos >= 0 && nPos < MAX) {     //validate pos
-//System.out.println("Assignment: remove(nPos="+nPos+", ID was "+patrollerID[nPos]+")");
+    if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {     //validate pos
+      debugOut("Assignment: remove(nPos=" + nPos + ", ID was " + patrollerID[nPos] + ")");
       patrollerID[nPos] = "0";    //no patroller assigned
     }
   }
 
-/***************************************************/
-/* insertAt - insert patroller ID at position nPos */
-
-  /***************************************************/
   public void insertAt(int nPos, String ID) {
-//System.out.println("Assignment: insertAt(nPos="+nPos+", ID="+ID+")");
-    if (nPos >= 0 && nPos < MAX) {
+    debugOut("Assignment: insertAt(nPos=" + nPos + ", ID=" + ID + ")");
+    if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {
       patrollerID[nPos] = ID;
     }
-//System.out.println(toString());
+    debugOut(toString());
   }
 
-/************************/
-/* getUpdateQueryString */
-
-  /************************/
   public String getUpdateQueryString() {
     int i;
     if (szEventName.indexOf('"') != -1) {
@@ -315,22 +312,18 @@ public class Assignments {
     String qryString = "UPDATE assignments SET StartTime =\"" + szStartTime + "\", EndTime =\"" + szEndTime +
         "\", EventName=\"" + szEventName + "\", ShiftType=" + type + ", Count=" + count;
     // +
-    for (i = 0; i < MAX; ++i) {
+    for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       if (i >= count) {
-//System.out.println("setting position "+i+" to 0");
+        debugOut("setting position " + i + " to 0");
         insertAt(i, "0");
       }
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-
-// moved to callers System.out.println(qryString);
+    debugOut(qryString);
     return qryString;
   }
-  /************************/
-    /* getInsertQueryString */
 
-  /************************/
   public String getInsertQueryString() {
     int i;
     if (szEventName.indexOf('"') != -1) {
@@ -345,30 +338,42 @@ public class Assignments {
 
     String qryString = "INSERT INTO assignments Values(\'" + szDate + "', \"" +
         szStartTime + "\", \"" + szEndTime + "\", \"" + szEventName + "\", \"" + type + "\", " + count;
-    for (i = 0; i < MAX; ++i) {
+    for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       qryString += ", " + getPosID(i);
     }
     qryString += ")";
 
-    System.out.println(qryString);
+    LOG(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString() {
-    int i;
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-//System.out.println(qryString);
+    debugOut(qryString);
     return qryString;
+  }
+
+  public static String getSelectAllAssignmentsByDateSQLString() {
+    return "SELECT * FROM assignments ORDER BY \"" + getDateSqlTag() + "\"";
   }
 
   public String toString() {
     String ret = "Date=" + szDate + " StartTime=" + szStartTime + " EndTime=" + szEndTime +
         " EventName=" + szEventName + " ShiftType=" + type + " Count=" + count;
-    for (int i = 0; i < MAX; ++i) {
+    for (int i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       ret += " " + patrollerID[i];
     }
     ret += " existed=" + existed;
     return ret;
+  }
 
+  private void debugOut(String msg) {
+    if (DEBUG) {
+      System.out.println("Debug-DayShifts: " + msg);
+    }
+  }
+
+  private static void LOG(String msg) {
+    System.out.println(msg);
   }
 }

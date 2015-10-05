@@ -464,7 +464,7 @@ public class DayShifts extends HttpServlet {
       NumToName = new Hashtable<String, String>();
       missedShift = false;
 //    maxPos = 0;
-//    assignments = new Assignments[Assignments.MAX];
+//    assignments = new Assignments[Assignments.MAX_ASSIGNMENT_SIZE];
       assignments = new Vector<Assignments>();
       deleteShift = false;
       shiftToDelete = 0;
@@ -617,7 +617,7 @@ public class DayShifts extends HttpServlet {
           break;
         }
         int tType = Assignments.getTypeID(tShift);
-        debugOut(i + ") " + tStart + ", " + tEnd + ", cnt=" + tCount + ", " + Assignments.szShiftTypes[tType]);
+        debugOut(i + ") " + tStart + ", " + tEnd + ", cnt=" + tCount + ", " + Assignments.getShiftName(tType));
         todaysData.add(new Shifts(szNameComment, tStart, tEnd, tCnt, tType));
       } //end shifts from arguments
 

@@ -72,7 +72,7 @@ public class ListAssignments extends HttpServlet {
     private void printMiddle(PrintWriter out, String resort, String szMyID, SessionData sessionData) {
       String myName;
       int myID;
-      int i;
+      int shiftType;
       int[] shiftCounts = new int[Assignments.MAX_SHIFT_TYPES];
       if (szMyID.equalsIgnoreCase(sessionData.getBackDoorUser())) {
         //backdoor login, don't display anything
@@ -106,8 +106,8 @@ public class ListAssignments extends HttpServlet {
       out.println("<div align=\"left\">");
       out.println("  <table border=\"1\" width=\"550\" bgcolor=\"#FFFFFF\" cellpadding=\"0\" cellspacing=\"0\">");
 //loop through all assignments
-      for (i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
-        shiftCounts[i] = 0;
+      for (shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES; ++shiftType) {
+        shiftCounts[shiftType] = 0;
       }
       int totalShifts = 0;
       while ((ns = patrol.readNextAssignment()) != null) {
@@ -117,15 +117,15 @@ public class ListAssignments extends HttpServlet {
         int pat0;
         //loop through all patrollers on this assignment
 //        boolean isWeekendDay = false;
-        for (i = 0; i < Assignments.MAX; ++i) {
-          if (ns.getPosID(i) == null || ns.getPosID(i).equals("")) {
+        for (shiftType = 0; shiftType < Assignments.MAX_ASSIGNMENT_SIZE; ++shiftType) {
+          if (ns.getPosID(shiftType) == null || ns.getPosID(shiftType).equals("")) {
             continue;
           }
           try {
-            pat0 = Integer.parseInt(ns.getPosID(i));
+            pat0 = Integer.parseInt(ns.getPosID(shiftType));
           }
           catch (Exception e) {
-            System.out.println("error id (" + ns.getPosID(i) + ")");
+            System.out.println("error id (" + ns.getPosID(shiftType) + ")");
             continue;
           }
           if (Math.abs(pat0) == myID) {  //check if 'myID'
@@ -145,9 +145,9 @@ public class ListAssignments extends HttpServlet {
       out.println("</div>");
 //only display sub totals if non zero
       out.println("<br><b>Totals</b>");
-      for (i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
-        if (shiftCounts[i] > 0) {
-          out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + Assignments.szShiftTypes[i] + " = <b>" + shiftCounts[i] + "</b>");
+      for (shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES; ++shiftType) {
+        if (shiftCounts[shiftType] > 0) {
+          out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + Assignments.getShiftName(shiftType) + " = <b>" + shiftCounts[shiftType] + "</b>");
         }
       }
       out.println("<br><b>Total shifts</b>:&nbsp;&nbsp;&nbsp;<b>" + totalShifts + "</b>"); //brighton
@@ -165,7 +165,7 @@ public class ListAssignments extends HttpServlet {
       }
       out.println("&nbsp;" + fullString + "</td><td>&nbsp;");
       if (shiftType >= 0 && shiftType <= Assignments.MAX_SHIFT_TYPES) {
-        out.println(Assignments.szShiftTypes[shiftType]);
+        out.println(Assignments.getShiftName(shiftType));
       }
 
       out.println("</td></tr>");

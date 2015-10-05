@@ -247,17 +247,18 @@ public class EmailForm extends HttpServlet {
 //new message footer
       newMessage += "\n\n" +
           "----------------------------------------------\n" +
-          "This message sent by: " + fromMember.getFullName() + "\n" +
-          "from " + fullPatrolName + "'s online scheduling web site.\n" +
-          "----------------------------------------------\n";
-
+          "This message sent by: " + fromMember.getFullName() + " at ( " + fromMember.getEmail() + " )\n" +
+          "from " + fullPatrolName + "'s online scheduling web site.\n\n";
       if (!hasValidReturnEmailAddress) {
-        newMessage += "\n\n\n--------------------------------------------------------\n" +
-            "Please Don't respond to this email.  SEND any responses\n" +
-            "to: " + fromMember.getFullName() + ", who had an invalid email address in the system.\n\n" +
-            "This was sent from the Ski Patrol Web Site Auto Mailer.\n" +
-            "--------------------------------------------------------\n";
+        newMessage += "Please Don't respond to this email.  SEND any responses\n" +
+            "to: " + fromMember.getFullName() + ", who had an invalid email address in the system.\n\n";
       }
+      else {
+        newMessage += "Please Don't respond to this email.  SEND any responses\n" +
+            "to: " + fromMember.getEmail() + " .  I am working on restoring our original functionality where the return address could be specified.\n\n";
+      }
+      newMessage += "This was sent from the Ski Patrol Web Site Auto Mailer.\n" +
+          "--------------------------------------------------------\n";
 
       return newMessage;
     }
@@ -381,7 +382,7 @@ public class EmailForm extends HttpServlet {
       if (isValidAddress(recipient)) {
         debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
 //        try {
-          mail.sendMessage(subject, message, recipient);
+        mail.sendMessage(subject, message, recipient);
 ////                PatrolData.logger(resort, "  mail was sucessfull");    //no e-mail, JUST LOG IT
 //        }
 //        catch (MailManException ex) {
@@ -667,7 +668,7 @@ public class EmailForm extends HttpServlet {
 //if(debug) System.out.print("start="+startMillis+"end="+endMillis+" curr="+currMillis+" "+ns.getYear()+" "+ns.getMonth()+" "+ns.getDay());
         if (startMillis <= currMillis && currMillis <= endMillis) {
           //loop thru individual assignments on this day
-          for (i = 0; i < Assignments.MAX; ++i) {
+          for (i = 0; i < Assignments.MAX_ASSIGNMENT_SIZE; ++i) {
             //              member = patrol.getMemberByID(ns.getPosID(i));
             member = mapId2MemberData.get(ns.getPosID(i));
 //if(debug) System.out.print(ns.getPosID(i) + " ");

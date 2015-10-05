@@ -40,6 +40,12 @@ public class MemberLogin extends HttpServlet {
         debugOut("ERROR, szParent was not specified");
         szParent = "MonthCalendar";
       }
+      if (Utils.isEmpty(resort) || !PatrolData.validResort(resort)) {
+        out.println("ERROR, unknown resort (" + resort + "), go back to www.nsponline.org, and click on your resort<br/>");
+        out.println("If you see this problem again, please email me at steve@gledhills.com with a quick " +
+            "description of what you did to see this error. and I will fix it ASAP!!!");
+        return;
+      }
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
@@ -118,6 +124,7 @@ public class MemberLogin extends HttpServlet {
       out.println("   </tr>");
       out.println("</table>");
     }
+
     private void debugOut(String str) {
       if (DEBUG) {
         System.out.println("DEBUG-MemberLogin(" + resort + "): " + str);
