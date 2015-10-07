@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 public class ProcessChanges extends HttpServlet {
 
@@ -127,7 +128,7 @@ public class ProcessChanges extends HttpServlet {
 
       // create a GregorianCalendar with the Pacific Daylight time zone
       // and the current date and time
-      calendar1 = new GregorianCalendar(PatrolData.MDT);
+      calendar1 = new GregorianCalendar(TimeZone.getDefault());
       currTime = new java.util.Date();
 
       submitterID = request.getParameter("submitterID");  //required
@@ -546,10 +547,6 @@ public class ProcessChanges extends HttpServlet {
         out.println("<h2>ERROR! Submission failed</h2>");
       }
       else {
-
-        // create a GregorianCalendar with the Pacific Daylight time zone
-        // and the current date and time
-//            Calendar today = new GregorianCalendar(PatrolData.MDT);
 
         strChange3 = "Schedule Changed:\n\n";
 

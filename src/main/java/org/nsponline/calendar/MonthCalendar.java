@@ -7,10 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
  * @author Steve Gledhill
@@ -141,7 +138,7 @@ public class MonthCalendar extends HttpServlet {
     private void getDateInfo() {
       // create a GregorianCalendar with the Mountain Daylight time zone
       // and the current date and time
-      calendar = new GregorianCalendar(PatrolData.MDT);
+      calendar = new GregorianCalendar(TimeZone.getDefault());
       trialTime = new java.util.Date();
       calendar.setTime(trialTime);
       realCurrDate = calendar.get(Calendar.DATE);
@@ -509,7 +506,7 @@ public class MonthCalendar extends HttpServlet {
       int daysInMonth = iDaysInMonth[month];
       if (month == 1) {
         //is this Februrary a leap year?
-        GregorianCalendar cal = new GregorianCalendar(PatrolData.MDT);
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getDefault());
         if (cal.isLeapYear(currYear)) {
           ++daysInMonth;
         }

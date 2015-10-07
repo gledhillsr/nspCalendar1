@@ -17,15 +17,15 @@ public class PatrolData {
   final static String newShiftStyle = "--New Shift Style--";
 
   // create a Mountain Standard Time time zone
-  final static String[] ids = TimeZone.getAvailableIDs(-7 * 60 * 60 * 1000);
-  final static SimpleTimeZone MDT = new SimpleTimeZone(-7 * 60 * 60 * 1000, ids[0]);
+//  final static String[] ids = TimeZone.getAvailableIDs(-7 * 60 * 60 * 1000);
+//  final static SimpleTimeZone MDT = new SimpleTimeZone(-7 * 60 * 60 * 1000, ids[0]);
   final static String NEW_SHIFT_STYLE = "--New Shift Style--";
 
   // set up rules for daylight savings time
-  static {
-    MDT.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
-    MDT.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
-  }
+//  static {
+//    MDT.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+//    MDT.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
+//  }
 
   static public HashMap<String, ResortData> resortMap = new HashMap<String, ResortData>();
   static private final int IMG_HEIGHT = 80;
@@ -149,7 +149,7 @@ public class PatrolData {
   public static String getCurrentDateTimeString() {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     // java.util.Date currentTime = new java.util.Date(year,month,date);
-    Calendar cal = new GregorianCalendar(PatrolData.MDT);
+    Calendar cal = new GregorianCalendar(TimeZone.getDefault());
     return formatter.format(cal.getTime());
   }
 
@@ -346,7 +346,7 @@ public class PatrolData {
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       int row = sAssign.executeUpdate();
-      ns.existed = false;
+      ns.setExists(false);
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
@@ -605,8 +605,7 @@ public class PatrolData {
   }
 
 //---------------------------------------------------------------------
-
-  //     writeAssignment - WRITE all night ski assignments for a specified date
+//  writeAssignment - WRITE all night ski assignments for a specified date
 //---------------------------------------------------------------------
   public boolean writeAssignment(Assignments ns) { //was writeNightSki
     String qryString;
@@ -630,26 +629,25 @@ public class PatrolData {
     return false;
   }
 //---------------------------------------------------------------------
-
-  //     decrementAssignment -
+//     decrementAssignment -  change 2015-10-06_2 to 2015-10-06_1  (delete _2 and write _1)
+//                                   2015-10-06_0  is ignored
 //---------------------------------------------------------------------
   public void decrementAssignment(Assignments ns) {
     logger("decrement Assignment:" + ns);
-//    int i = Integer.parseInt(ns.getDatePos()); //1 based
     int i = ns.getDatePos(); //1 based
 
-    if (i <= 1)    //#'s are 1 based, can't decrement pos 1
+    if (i < 1)    //#'s are 0 based, can't decrement pos 0 //todo srg, 10/6/15 was <=, changed to <
     {
       return;
     }
     deleteAssignment(ns);
-    String qry2String = Shifts.createShiftName(ns.getDateOnly(), i - 1);
 
+    String qry2String = Shifts.createShiftName(ns.getDateOnly(), i - 1);
     ns.setDate(qry2String);
     writeAssignment(ns);
   }
 
-  //---------------------------------------------------------------------
+//---------------------------------------------------------------------
 //     deleteShift - DELETE Shift assignment for a specified date and index
 //---------------------------------------------------------------------
   public void deleteAssignment(Assignments ns) {
@@ -666,10 +664,9 @@ public class PatrolData {
   }
 
 //--------------------
-
-  // AddShiftsToDropDown
+// AddShiftsToDropDown
 //--------------------
-  static public void AddShiftsToDropDown(PrintWriter out, Vector shifts, String selectedShift) {
+  static public void AddShiftsToDropDown(PrintWriter out, ArrayList shifts, String selectedShift) {
     String lastName = "";
     String parsedName;
     String selected = "";
@@ -678,8 +675,8 @@ public class PatrolData {
       selected = " selected";
     }
     out.println("                    <option" + selected + ">" + NEW_SHIFT_STYLE + "</option>");
-    for (int i = 0; i < shifts.size(); ++i) {
-      Shifts data = (Shifts) shifts.get(i);
+    for (Object shift : shifts) {
+      Shifts data = (Shifts) shift;
       parsedName = data.parsedEventName();
       if (parsedName.equals(selectedShift)) {
         selected = " selected";
@@ -694,8 +691,7 @@ public class PatrolData {
     }
   }
 //--------------------
-
-  // countDropDown
+// countDropDown
 //--------------------
   static private void countDropDown(PrintWriter out, String szName, int value) {
     out.println("<select size=\"1\" name=\"" + szName + "\">");
@@ -710,13 +706,12 @@ public class PatrolData {
     out.println("                  </select>");
   }
 //--------------------
-
-  // AddShiftsToTable
+// AddShiftsToTable
 //--------------------
-  static public void AddShiftsToTable(PrintWriter out, Vector shifts, String selectedShift) {
+  static public void AddShiftsToTable(PrintWriter out, ArrayList shifts, String selectedShift) {
     int validShifts = 0;
-    for (int i = 0; i < shifts.size(); ++i) {
-      Shifts data = (Shifts) shifts.get(i);
+    for (Object shift : shifts) {
+      Shifts data = (Shifts) shift;
       String parsedName = data.parsedEventName();
       if (parsedName.equals(selectedShift)) {
 //name is if the format of startTime_0, endTime_0, count_0, startTime_1, endTime_1, count_1, etc

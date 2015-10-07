@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Vector;
 
 
@@ -21,7 +22,7 @@ public class EditShifts extends HttpServlet {
 
   private class LocalEditShifts {
     String szMyID;
-    Vector<Shifts> shifts;
+    ArrayList<Shifts> shifts;
     PrintWriter out;
     //parameter data
     String selectedShift;
@@ -178,7 +179,7 @@ public class EditShifts extends HttpServlet {
       int cnt = 0;
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       // read Shift ski assignments for the specific day
-      shifts = new Vector<Shifts>();
+      shifts = new ArrayList<Shifts>();
       patrol.resetShifts();
       if (displayParameters) {
         System.out.println("READING (" + shiftCount + ")shifts passed as arguments");
@@ -217,7 +218,7 @@ public class EditShifts extends HttpServlet {
           }
           patrol.writeShift(todaysData[cnt]);
         }
-        todaysData[cnt].existed = true;
+        todaysData[cnt].setExists(true);
 
         ++cnt;
       }

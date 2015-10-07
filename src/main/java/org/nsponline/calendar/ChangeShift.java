@@ -119,7 +119,7 @@ public class ChangeShift extends HttpServlet {
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        calendar = new GregorianCalendar(PatrolData.MDT);
+        calendar = new GregorianCalendar(TimeZone.getDefault());
         //noinspection MagicConstant
         calendar.set(year, month, date);
       }
@@ -513,7 +513,7 @@ public class ChangeShift extends HttpServlet {
 
       // create a GregorianCalendar with the Pacific Daylight time zone
       // and the current date and time
-      calendar1 = new GregorianCalendar(PatrolData.MDT);
+      calendar1 = new GregorianCalendar(TimeZone.getDefault());
       currTime = new java.util.Date();
 
       calendar1.setTime(currTime);

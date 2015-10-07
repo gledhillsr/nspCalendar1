@@ -7,10 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 
 /**
@@ -48,19 +45,16 @@ public class DayShifts extends HttpServlet {
     int year;
     String szDate;
     String szYear;
-    Vector<Shifts> todaysData;
+    ArrayList<Shifts> todaysData;
     private String resort;
-    //    int maxPos;
     Hashtable<String, String> NumToName = new Hashtable<String, String>();
-    //    Assignments[] assignments;
-    Vector<Assignments> assignments;
     boolean missedShift;
     boolean doAssignments;
     PrintWriter out;
     String selectedShift;
     String dropdownShift;
     String dropdownShift2;
-    Vector<Shifts> shifts;
+    ArrayList<Shifts> shiftsTemplates;
     boolean newShift, deleteShift;
     int shiftCount, shiftToDelete;
     boolean saveShiftBtn;
@@ -97,20 +91,22 @@ public class DayShifts extends HttpServlet {
       else {
         isDirector = editorsMemberData != null && editorsMemberData.isDirector();
       }
-
-      readParameters(request, patrol);
-      processData(request, patrol);
+      Vector<Assignments> assignments = new Vector<Assignments>();
+      readParameters(request, patrol, assignments);
+      processChangeRequest(request, patrol, assignments);
 
 
       if (saveShiftBtn || saveAssignmentBtn || deleteAllShiftsBtn) {
+        //final change request.  Go back to calendar
         patrol.close();
         response.sendRedirect(PatrolData.SERVLET_URL + "MonthCalendar?month=" + month + "&year=" + year + "&resort=" + resort + "&ID=" + IDOfEditor);
         return;
       }
+
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
-      printBody();
+      printBody(assignments);
       printBottom();
       patrol.close();
       outerPage.printResortFooter(out);
@@ -183,219 +179,244 @@ public class DayShifts extends HttpServlet {
       // Format the current time.
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
       // java.util.Date currentTime = new java.util.Date(year,month,date);
-      Calendar cal = new GregorianCalendar(PatrolData.MDT);
+      Calendar cal = new GregorianCalendar(TimeZone.getDefault());
+      debugOut("GetTodaysAssignmentString, date=" + date);
       cal.set(year, month, date);
       //System.out.println(",,year="+year+" cal="+cal);
       String szAssignmentDate = formatter.format(cal.getTime());
+      debugOut("GetTodaysAssignmentString, cal.getTime()=" + cal.getTime());
+      debugOut("GetTodaysAssignmentString, szAssignmentDate=" + szAssignmentDate);
       //String szAssignmentDate = "2001-12-05";
       szAssignmentDate = Assignments.createAssignmentName(szAssignmentDate, pos); //assignmentSize is 1 based
       //  2001-12-05_2 example
+      debugOut("GetTodaysAssignmentString, szAssignmentDate=" + szAssignmentDate);
       return szAssignmentDate;
     }
 
-    private void processData(HttpServletRequest request, PatrolData patrol) {
-      Assignments data;
+    private void processChangeRequest(HttpServletRequest request, PatrolData patrol, Vector<Assignments> assignments) {
       Shifts sData;
-      int i;
 //write out changes
       patrol.resetAssignments();
       int assignmentSize = assignments.size();
       if (saveAssignmentBtn) {
-//-----Save Mass Assignments Changes ----------------------------------------
-        String param, name;
-        int j;
-        insureAssignmentExists(patrol);
-        assignmentSize = assignments.size(); //may have changed above
-        debugOut("===assignmentSize = (" + assignmentSize + ")");
-        //get shift=i,pos=j, and name=name
-//zzzz
-        for (i = 0; i < assignmentSize; ++i) {         //loop for each shift
-          name = null;
-          data = assignments.elementAt(i); //0 based
-          data.setExisted(true);
-          for (j = 0; data != null; ++j) {   //loop for each possible assignment within shift
-            param = "name" + PatrolData.IndexToString(i) + "_" + PatrolData.IndexToString(j);
-            name = request.getParameter(param);
-            debugOut("****param=" + param + ", name=(" + name + ")***");
-            if (name == null) {
-              break;      //this is what really breaks us out of the loop
-            }
-            MemberData member = null;
-            if (name.length() > 2) { //just a space in the name field
-              member = patrol.getMemberByName2(name);
-              debugOut("param=" + param + ", name=(" + name);
-              if (member == null) {
-                debugOut(") no member exists");
-              }
-              else {
-                debugOut(") id=" + member.getID());
-              }
-            }
-
-            if (member != null && member.getID() != null) {
-              data.insertAt(j, member.getID());
-            }
-            else {
-              data.insertAt(j, "0");  //remove any existing member
-            }
-          }
-          patrol.writeAssignment(data);
-
-          if (name == null && j == 0) {
-            break;
-          }
-        }
+        doSaveAssignments(request, patrol, assignments);
       }
       else if (deleteAllShiftsBtn) {
-//--------DELETE ALL SHIFTS -------------------------------------
-        debugOut("***deleting all shifts.  assignmentSize=" + assignmentSize);
-        for (int j = assignmentSize - 1; j >= 0; --j) {    //loop from end of list
-          data = assignments.elementAt(j); //0 based
-          patrol.deleteAssignment(data);
-          assignments.remove(j);                  //remove last item
-        }
-//          response.sendRedirect(PatrolData.SERVLET_URL+"MonthCalendar?month="+month+"&year="+year+"&resort="+resort+"&ID="+IDOfEditor);
-        //noinspection UnnecessaryReturnStatement
-        return;
+        doDeleteAllShifts(patrol, assignmentSize, assignments);
       }
       else if (dropdownShift2 != null && !dropdownShift2.equals("") && !dropdownShift2.equals("--New Shift Style--")) {
-//----------the drop down was selected----------
-//A SHIFT FROM THE DROP-DOWN WAS SELECTED
-//don't do a save, just load the new shift
-        debugOut("***************************");
-        debugOut("deleteALL button, assignments.size()=" + assignments.size());
-        debugOut("***************************");
-        assignments = new Vector<Assignments>(); //forget all existing assignments
-        szOriginalName = selectedShift;
-        for (i = 0; i < 7; ++i) {
-          if (selectedShift.equals(szDays[i])) {
-            szOriginalName = " ";
-            break;
-          }
-        }
+        doInsertNewShiftFromDropDown(assignments);
       }
       else if (deleteShift) {
-//DELETE
-        debugOut("deleteShift:  assignmentSize=" + assignmentSize + " shiftToDelete=" + shiftToDelete);
-        insureAssignmentExists(patrol);
-        assignmentSize = assignments.size(); //may have changed above
-        debugOut("*****assignmentSize=" + assignmentSize);
-//if( assignmentSize > 1)
-// saveShiftInfo(patrol, assignmentSize,shiftCount-1); //deletes two shifts...
-        //noinspection StatementWithEmptyBody
-        if (assignmentSize > 0) {
-          //tweak assignments to remove shiftToDelete, and modify all following records
-          if (shiftToDelete >= assignmentSize) {
-            debugOut("ERROR, shiftToDelete" + shiftToDelete + ") was >= assignmentSize(" + assignmentSize + ")");
-          }
-          else {
-            //delete starting record, and modify the rest from assignments
-            data = assignments.elementAt(shiftToDelete); //get Assignment to delete
-            patrol.deleteAssignment(data);
-            assignments.remove(shiftToDelete);
-            --assignmentSize;
-            for (int j = shiftToDelete; j < assignmentSize; ++j) {
-              data = assignments.elementAt(j);
-              patrol.decrementAssignment(data);
-            }
-            if (assignmentSize == 0) {
-              //nothing left, add a place holder
-              sData = new Shifts(szNameComment, "", "<empty>", 0, Assignments.DAY_TYPE);
-              //real assignments existed, so add one more
-              //make date field yyy-mm-dd_#
-              String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);
-              Assignments assignment = new Assignments(szAssignmentDate, sData);
-              assignments.add(assignment);
-              assignment.setEventName(szNameComment);
-              patrol.writeAssignment(assignment);
-            }
-          }
-        }
-        else {
-          //to get here, the user clicked on delete on a virtual assignment (not yet real)
-        }
+        doDelete1ShiftAssignment(patrol, assignmentSize, assignments);
       }
       else if (newShift) {
-//ADD
-        insureAssignmentExists(patrol);
-        assignmentSize = assignments.size(); //may have changed above
-        saveShiftInfo(patrol, assignmentSize, shiftCount); //????
-        debugOut("--add shift--");
-        sData = new Shifts(szNameComment, "start time", "end time", 1, Assignments.DAY_TYPE);
-        //real assignments existed, so add one more
-        //make date field yyy-mm-dd_#
-        String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);
-        Assignments assignment = new Assignments(szAssignmentDate, sData);
-        assignments.add(assignment);
-
-        String name;
-        if (szNameComment != null && szNameComment.length() > 1) {
-          name = szNameComment;   //typed in name
-        }
-        else {
-          name = "";  //name from dropdown
-        }
-//System.out.println("new event name ="+name);
-        assignment.setEventName(name);
-
-        patrol.writeAssignment(assignment);
-//    } else if(saveShiftBtn && shiftCount == 0 && assignmentSize==0) { //can this happen
+        add1NewShift(patrol, assignments);
       }
-      else if (saveShiftBtn && shiftCount == 0) {
-//SAVE comment only (make bogus record - 0 the patrollers
-//
-//I don't think this could can ever get hit, because the last delete creates a shift with 0 records
-//
-        if (szNameComment.trim().length() == 0) {
-          debugOut("NOTHING to do");
-        }
-        else {
-          debugOut("Adding a Comment ONLY assignment (" + szNameComment + ")");
-          sData = new Shifts(szNameComment, " ", " ", 0, Assignments.DAY_TYPE);    //shift with 0 patrollers
-          String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);  //2002-12-31_1
-          Assignments assignment = new Assignments(szAssignmentDate, sData);
-          assignment.setEventName(szNameComment);
-          assignments.add(assignment);
-          patrol.writeAssignment(assignment);
-        }
-      }
-      else //noinspection StatementWithEmptyBody
-        if (saveShiftBtn && shiftCount > 0) {
-//SAVE
+      else if (saveShiftBtn) {
+        if (shiftCount > 0) {
           //data was modified
-          debugOut("---- DayShifts-Data was modified, selectedShift=" + selectedShift + ", shiftCount=" + shiftCount + ", szNameComment=(" + szNameComment + ")");
-          saveShiftInfo(patrol, assignmentSize, shiftCount);
+          saveShiftInfo(patrol, assignmentSize, shiftCount, assignments);
           szOriginalName = szNameComment;
         }
         else {
-//        System.out.println("Initial state, assignmentSize="+assignmentSize);
+          if (szNameComment.trim().length() == 0) {
+            debugOut("saveShiftBtn with no nameComment.  NOTHING to do");
+          }
+          else {
+            debugOut("Adding a Comment ONLY assignment (" + szNameComment + ")");
+            sData = new Shifts(szNameComment, " ", " ", 0, Assignments.DAY_TYPE);    //shift with 0 patrollers
+            String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);  //2002-12-31_1
+            Assignments assignment = new Assignments(szAssignmentDate, sData);
+            assignment.setEventName(szNameComment);
+            debugOut("assignments.add(" + assignment + ")");
+            assignments.add(assignment);
+            patrol.writeAssignment(assignment);
+          }
         }
-    } //end processData
+      }
+      //note, nothing to process on 1st pass
+    } //end processChangeRequest
 
-    private void saveShiftInfo(PatrolData patrol, int assignmentSize, int shiftCount) {
-      int i;
-      Assignments assignment;
-      for (i = 0; i < shiftCount; ++i) {//loop thru shifts on command line
-        Shifts sh = todaysData.elementAt(i); //args read in
-        String szAssignmentDate;
-        if (i < assignmentSize) { //size in database is size of args read in
-          assignment = assignments.elementAt(i);
-          assignment.setStartTime(sh.getStartString());
-          assignment.setEndTime(sh.getEndString());
-          assignment.setEventName(szNameComment);
-          assignment.setType(sh.getType());
-          assignment.setCount(sh.getCount());
+    private void add1NewShift(PatrolData patrol, Vector<Assignments> assignments) {
+      int assignmentSize;
+      Shifts sData;//ADD
+      insureAssignmentExists(patrol, assignments);
+      assignmentSize = assignments.size(); //may have changed above
+      saveShiftInfo(patrol, assignmentSize, shiftCount, assignments); //????
+      debugOut("--add shift--");
+      sData = new Shifts(szNameComment, "start time", "end time", 1, Assignments.DAY_TYPE);
+      //real assignments existed, so add one more
+      //make date field yyy-mm-dd_#
+      String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);
+      Assignments assignment = new Assignments(szAssignmentDate, sData);
+      debugOut("adding assignment: " + assignment.toString());
+      assignments.add(assignment);
+
+      String name;
+      if (szNameComment != null && szNameComment.length() > 1) {
+        name = szNameComment;   //typed in name
+      }
+      else {
+        name = "";  //name from dropdown
+      }
+//System.out.println("new event name ="+name);
+      assignment.setEventName(name);
+
+      patrol.writeAssignment(assignment);
+    }
+
+    private void doDelete1ShiftAssignment(PatrolData patrol, int assignmentSize, Vector<Assignments> assignments) {
+      Assignments data;
+      Shifts sData;//DELETE
+      debugOut("deleteShift:  assignmentSize=" + assignmentSize + " shiftToDelete=" + shiftToDelete);
+      insureAssignmentExists(patrol, assignments);
+      assignmentSize = assignments.size(); //may have changed above
+      debugOut("*****assignmentSize=" + assignmentSize);
+//if( assignmentSize > 1)
+// saveShiftInfo(patrol, assignmentSize,shiftCount-1); //deletes two shifts...
+      //noinspection StatementWithEmptyBody
+      if (assignmentSize > 0) {
+        //tweak assignments to remove shiftToDelete, and modify all following records
+        if (shiftToDelete >= assignmentSize) {
+          debugOut("ERROR, shiftToDelete" + shiftToDelete + ") was >= assignmentSize(" + assignmentSize + ")");
         }
         else {
-          szAssignmentDate = GetTodaysAssignmentString(i + 1);
-          assignment = new Assignments(szAssignmentDate, sh);
-          assignment.setEventName(szNameComment);
+          //delete starting record, and modify the rest from assignments
+          data = assignments.elementAt(shiftToDelete); //get Assignment to delete
+          patrol.deleteAssignment(data);
+          debugOut("assignments.remove(" + shiftToDelete + ")");
+          assignments.remove(shiftToDelete);
+          patrol.deleteAssignment(data); //todo srg, added 10/6/15
+          --assignmentSize;
+          for (int j = shiftToDelete; j < assignmentSize; ++j) {
+            data = assignments.elementAt(j);
+            patrol.decrementAssignment(data);
+          }
+          if (assignmentSize == 0) {
+            //nothing left, add a place holder
+            sData = new Shifts(szNameComment, "", "<empty>", 0, Assignments.DAY_TYPE);
+            //real assignments existed, so add one more
+            //make date field yyy-mm-dd_#
+            String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);
+            Assignments assignment = new Assignments(szAssignmentDate, sData);
+            debugOut("assignments.add placeholder(" + assignment + ")");
+            assignments.add(assignment);
+            assignment.setEventName(szNameComment);
+            patrol.writeAssignment(assignment);
+          }
         }
+      }
+      else {
+        //to get here, the user clicked on delete on a virtual assignment (not yet real)
+      }
+    }
+
+    private void doInsertNewShiftFromDropDown(Vector<Assignments> assignments) {
+      int i;//----------the drop down was selected----------
+//A SHIFT FROM THE DROP-DOWN WAS SELECTED
+//don't do a save, just load the new shift
+      debugOut("***************************");
+      debugOut("insert new shift with new shift: (" + dropdownShift2 + "), assignments.size()=" + assignments.size());
+      debugOut("***************************");
+      assignments.clear(); //forget all existing assignments
+      debugOut("assignments.clear()");
+      szOriginalName = selectedShift;
+      for (i = 0; i < 7; ++i) {
+        if (selectedShift.equals(szDays[i])) {
+          szOriginalName = " ";
+          break;
+        }
+      }
+    }
+
+    private void doDeleteAllShifts(PatrolData patrol, int assignmentSize, Vector<Assignments> assignments) {
+      Assignments data;//--------DELETE ALL SHIFTS -------------------------------------
+      debugOut("***************************");
+      debugOut("*** deleting all shifts.  assignmentSize=" + assignmentSize);
+      debugOut("***************************");
+      for (int j = assignmentSize - 1; j >= 0; --j) {    //loop from end of list
+        data = assignments.elementAt(j); //0 based
+        patrol.deleteAssignment(data);
+        debugOut("assignments.remove(" + j + ")");
+        assignments.remove(j);                  //remove last item
+      }
+//          response.sendRedirect(PatrolData.SERVLET_URL+"MonthCalendar?month="+month+"&year="+year+"&resort="+resort+"&ID="+IDOfEditor);
+    }
+
+    private void doSaveAssignments(HttpServletRequest request, PatrolData patrol, Vector<Assignments> assignments) {
+      int assignmentSize;
+      int i;
+      Assignments data;//-----Save Mass Assignments Changes ----------------------------------------
+      String param, name;
+      int j;
+      insureAssignmentExists(patrol, assignments);
+      assignmentSize = assignments.size(); //may have changed above
+      debugOut("===assignmentSize = (" + assignmentSize + ")");
+      //get shift=i,pos=j, and name=name
+//zzzz
+      for (i = 0; i < assignmentSize; ++i) {         //loop for each shift
+        name = null;
+        data = assignments.elementAt(i); //0 based
+        data.setExisted(true);
+        for (j = 0; data != null; ++j) {   //loop for each possible assignment within shift
+          param = "name" + PatrolData.IndexToString(i) + "_" + PatrolData.IndexToString(j);
+          name = request.getParameter(param);
+          debugOut("****param=" + param + ", name=(" + name + ")***");
+          if (name == null) {
+            break;      //this is what really breaks us out of the loop
+          }
+          MemberData member = null;
+          if (name.length() > 2) { //just a space in the name field
+            member = patrol.getMemberByName2(name);
+            debugOut("param=" + param + ", name=(" + name);
+            if (member == null) {
+              debugOut(") no member exists");
+            }
+            else {
+              debugOut(") id=" + member.getID());
+            }
+          }
+
+          if (member != null && member.getID() != null) {
+            data.insertAt(j, member.getID());
+          }
+          else {
+            data.insertAt(j, "0");  //remove any existing member
+          }
+        }
+        patrol.writeAssignment(data);
+
+        if (name == null && j == 0) {
+          break;
+        }
+      }
+    }
+
+    private void saveShiftInfo(PatrolData patrol, int assignmentSize, int shiftCount, Vector<Assignments> assignments) {
+      debugOut("---- DayShifts.saveShiftInfo(assignmentSize=" + assignmentSize + ", shiftCount=" + shiftCount + ")-Data was modified, selectedShift=" + selectedShift + ", szNameComment=(" + szNameComment + ")");
+      int shiftIndex;
+      String szAssignmentDate;
+      Assignments assignment;
+      for (shiftIndex = 0; shiftIndex < shiftCount; ++shiftIndex) {//loop thru shifts on command line
+        Shifts sh = todaysData.get(shiftIndex); //args read in
+        szAssignmentDate = GetTodaysAssignmentString(shiftIndex);
+        debugOut("---- DayShifts.saveShiftInfo() newDateIndex="+ szAssignmentDate + ", old shift=" + sh.toString());
+//        if (shiftIndex < assignmentSize) { //size in database is size of args read in
+//          szAssignmentDate = GetTodaysAssignmentString(shiftIndex);
+//        }
+//        else {
+//          szAssignmentDate = GetTodaysAssignmentString(shiftIndex + 1);
+//        }
+        assignment = new Assignments(szAssignmentDate, sh);
+        assignment.setEventName(szNameComment);
+        patrol.deleteAssignment(assignment);  //todo srg, added 10/6/15
+        assignment.setExisted(false);         //todo srg, added 10/6/15
         patrol.writeAssignment(assignment);
       }
     }
 
-    private void insureAssignmentExists(PatrolData patrol) {
+    private void insureAssignmentExists(PatrolData patrol, Vector<Assignments> assignments) {
       int assignmentSize = assignments.size();
       debugOut("****in insureAssignmentExists, initial assignmentSize = (" + assignmentSize + ")");
       if (assignmentSize > 0) {
@@ -421,12 +442,13 @@ public class DayShifts extends HttpServlet {
       }
 //System.out.println("---selectedShift = ("+selectedShift+")");
 
-      for (int i = 0; i < shifts.size(); ++i) {
-        Shifts sData = shifts.elementAt(i);
+      for (int i = 0; i < shiftsTemplates.size(); ++i) {
+        Shifts sData = shiftsTemplates.get(i);
         if (selectedShift.equals(sData.parsedEventName())) {
           String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);
           Assignments assignment = new Assignments(szAssignmentDate, sData);
           assignment.setEventName(name);
+          debugOut("assignments.add(" + assignment + ")");
           assignments.add(assignment);
           patrol.writeAssignment(assignment);
         }
@@ -434,7 +456,7 @@ public class DayShifts extends HttpServlet {
 //System.out.println("****in insureAssignmentExists, final assignmentSize = ("+assignmentSize+")");
     }
 
-    private void readParameters(HttpServletRequest request, PatrolData patrol) {
+    private void readParameters(HttpServletRequest request, PatrolData patrol, Vector<Assignments> assignments) {
       int i;
 //this is a little complicated, but there are 5 states we can enter into
 // all entries must have dayOfWeek, date, month, year or ELSE!
@@ -450,7 +472,7 @@ public class DayShifts extends HttpServlet {
 //-- GLOBAL variables--
 // todaysData = assignment/shift data passes in
 // shifts     = shift data from the database
-// assignments= assignment data for TODAY frad from the database
+// assignments= assignment data for TODAY from from the database
 // numToName  = quick hash table for converting id numbers to names
 // missedShift
 // isDirector
@@ -464,14 +486,11 @@ public class DayShifts extends HttpServlet {
       NumToName = new Hashtable<String, String>();
       missedShift = false;
 //    maxPos = 0;
-//    assignments = new Assignments[Assignments.MAX_ASSIGNMENT_SIZE];
-      assignments = new Vector<Assignments>();
       deleteShift = false;
       shiftToDelete = 0;
       szOriginalName = "";
       //read required parameters
       String szDay = request.getParameter("dayOfWeek");
-      debugOut("szDay=" + szDay);
       dayOfWeek = Integer.parseInt(szDay);            //0 based, 0 = Sunday
       szDate = request.getParameter("date");
       date = Integer.parseInt(szDate);
@@ -481,27 +500,23 @@ public class DayShifts extends HttpServlet {
 //    String foo = request.getParameter("name0_0");
 //System.out.println("*********** name0_0="+foo);
       year = Integer.parseInt(szYear);
-      debugOut("dayOfWeek=" + dayOfWeek + " szDate=" + szDate + " month=" + month + " szYear=" + szYear + " year=" + year);
+      debugOut("dayOfWeek=" + dayOfWeek + " date=" + date + " month=" + month + " szYear=" + szYear + " year=" + year);
 
       szNameComment = request.getParameter("newName");
 //System.out.println("szname=(" + szNameComment + ")");	//hack
       if (szNameComment != null && szNameComment.length() == 0) {
         szNameComment = " ";
       }
-      debugOut("szNameComment=(" + szNameComment + ")");
 
 //was the "New" shift button pressed
       String temp = request.getParameter("newShift");
       newShift = (temp != null);
-      debugOut("newShift=" + newShift);
 
 //was "Delete All Shifts" button pushed
       deleteAllShiftsBtn = request.getParameter("deleteAllShiftsBtn") != null;
-      debugOut("deleteAllShiftsBtn=" + deleteAllShiftsBtn);
 
 //was "Save Shift" button pushed
       saveShiftBtn = request.getParameter("saveShiftBtn") != null;
-      debugOut("saveShiftBtn=" + saveShiftBtn);
 
 //get the count of how many shifts existed
       temp = request.getParameter("shiftCount");
@@ -511,19 +526,17 @@ public class DayShifts extends HttpServlet {
       else {
         shiftCount = Integer.parseInt(temp);
       }
-      debugOut("shiftCount=" + shiftCount);
 
 //was "Save Assignment" button pushed
       saveAssignmentBtn = request.getParameter("saveAssignmentBtn") != null;
-      debugOut("saveAssignmentBtn=" + saveAssignmentBtn);
+      debugOut("saveShiftBtn=" + saveShiftBtn + ", newShift=" + newShift + ", deleteAllShiftsBtn=" + deleteAllShiftsBtn + ", saveAssignmentBtn=" + saveAssignmentBtn);
 //was the dropdown selected
 //    Shifts[] todaysData = new Shifts[shiftCount];
       selectedShift = request.getParameter("selectedShift");
       dropdownShift = request.getParameter("dropdownShift");
       dropdownShift2 = request.getParameter("dropdownShift2");
-//System.out.println("selectedShift = ("+selectedShift+")");
-//System.out.println("dropdownShift = ("+dropdownShift+")");
-//System.out.println("dropdownShift2 = ("+dropdownShift2+")");
+      debugOut("selectedShift = ("+selectedShift+"), dropdownShift = ("+ dropdownShift
+          + "), dropdownShift2 = ("+dropdownShift2+")");
       if (dropdownShift2 != null && dropdownShift2.length() > 1) {
         selectedShift = dropdownShift = dropdownShift2;
       }
@@ -534,7 +547,7 @@ public class DayShifts extends HttpServlet {
       if (selectedShift == null) {
         selectedShift = "";
       }
-      debugOut("selectedShift=(" + selectedShift + ")");
+      debugOut("selectedShift=(" + selectedShift + "), szNameComment=(" + szNameComment + "), shiftCount=" + shiftCount);
 
       String idNum;
       int y, m, d;
@@ -542,7 +555,7 @@ public class DayShifts extends HttpServlet {
       patrol.resetAssignments();
       patrol.resetRoster();
       MemberData member;
-      shifts = new Vector<Shifts>();
+      shiftsTemplates = new ArrayList<Shifts>();
 
 //
 // read in all patrol members
@@ -570,7 +583,6 @@ public class DayShifts extends HttpServlet {
         m = data.getMonth() - 1; //make it 0 based
         d = data.getDay();
         if (year == y && month == m && date == d) {
-          debugOut("actual assignment data=" + data.toString());
           if (isFirst) {
             isFirst = false;
             if (deleteAllShiftsBtn) {
@@ -579,14 +591,14 @@ public class DayShifts extends HttpServlet {
             else {
               szOriginalName = data.getEventName();
             }
-            debugOut("blah blah -displayParameters- szOriginalName=(" + szOriginalName + ")");
+            debugOut("szOriginalName=(" + szOriginalName + ")");
           }
 //            assignments[maxPos++] = data;
+          debugOut("readNextAssignment (add) assignment: " + data.toString());
           assignments.add(data);
         }
       } //end while Shift ski assignments
 
-      //noinspection PointlessBooleanExpression
       if (assignments.size() == 0) {
         debugOut("No assignments read in from disk");
       }
@@ -594,7 +606,7 @@ public class DayShifts extends HttpServlet {
 //read shift data passed as parameters (shiftCount is count passed in)
 //for every shiftCount there should be a startTime_?, endTime_?, count_?
 //and there MAY be a delete_?
-      todaysData = new Vector<Shifts>();
+      todaysData = new ArrayList<Shifts>();
       for (i = 0; i < shiftCount; ++i) {
         temp = request.getParameter("delete_" + i);
         if (temp != null) {
@@ -607,17 +619,17 @@ public class DayShifts extends HttpServlet {
         String tEnd = request.getParameter("endTime_" + i);
         String tCount = request.getParameter("count_" + i);
         if (tCount == null) {
-          System.out.println("error, reading past assignment data");
+          System.out.println("ERROR, reading past assignment data");
           break;
         }
         int tCnt = Integer.parseInt(tCount);
         String tShift = request.getParameter("shift_" + i);
         if (tShift == null) {
-          System.out.println("error, reading past assignment data");
+          System.out.println("ERROR, reading past assignment data");
           break;
         }
         int tType = Assignments.getTypeID(tShift);
-        debugOut(i + ") " + tStart + ", " + tEnd + ", cnt=" + tCount + ", " + Assignments.getShiftName(tType));
+        debugOut("shift(" + i + ") " + tStart + ", " + tEnd + ", cnt=" + tCount + ", " + Assignments.getShiftName(tType));
         todaysData.add(new Shifts(szNameComment, tStart, tEnd, tCnt, tType));
       } //end shifts from arguments
 
@@ -627,7 +639,7 @@ public class DayShifts extends HttpServlet {
       patrol.resetShifts();
       Shifts sData;
       while ((sData = patrol.readNextShift()) != null) {
-        shifts.add(sData);
+        shiftsTemplates.add(sData);
       } //end while Shifts
     } //end ReadParameters
 
@@ -655,7 +667,7 @@ public class DayShifts extends HttpServlet {
       out.println("</body>");
     }
 
-    private void printBody() {
+    private void printBody(Vector<Assignments> assignments) {
 //print date at top
       out.println("<h1><font color=\"#FF0000\">" + szDays[dayOfWeek] + " " + szMonths[month] + " " + szDate + ", " + szYear + "</font></h1>");
 
@@ -665,7 +677,7 @@ public class DayShifts extends HttpServlet {
         }
 
         int defaultShiftSize = 0;
-        for (Object shift : shifts) {
+        for (Object shift : shiftsTemplates) {
           Shifts shiftData = (Shifts) shift;
           String parsedName = shiftData.parsedEventName();
           if (parsedName.equals(selectedShift)) {
@@ -674,7 +686,7 @@ public class DayShifts extends HttpServlet {
         }
         if (doAssignments) {
           //do group assignment
-          showEditAssignments(Math.max(defaultShiftSize, assignments.size()));
+          showEditAssignments(Math.max(defaultShiftSize, assignments.size()), assignments);
         }
         else {
           if ((assignments.size() > 0 || defaultShiftSize > 0) && dropdownShift == null) {
@@ -689,15 +701,15 @@ public class DayShifts extends HttpServlet {
             out.println("<INPUT TYPE=SUBMIT NAME=doAssignments VALUE=\"Group Assignment of Patrollers to Shifts\">");
             out.println("&nbsp;&nbsp;&nbsp;(Fast if assigning a large number of patrollers at one time)</form>");
           }
-          showEditShift();
+          showEditShift(assignments);
         }
       }
       else {
-        showShiftDetails();
+        showShiftDetails(assignments);
       }
     } //end printBody
 
-    private void showShiftDetails() {
+    private void showShiftDetails(Vector<Assignments> assignments) {
 //print table of values
       out.println("<div align=\"center\">");
       out.println("  <center>");
@@ -736,7 +748,7 @@ public class DayShifts extends HttpServlet {
       out.println("</form>");
     } //end ShowShiftDetails
 
-    private void showEditShift() {
+    private void showEditShift(Vector<Assignments> assignments) {
 // Change Today's Shift
 //System.out.println("starting in showEditShift, selectedShift="+selectedShift);
       out.println("<hr>");
@@ -756,7 +768,7 @@ public class DayShifts extends HttpServlet {
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"month\" VALUE=\"" + month + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"year\" VALUE=\"" + szYear + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
-      out.println("          <h2 align=\"center\">Change Today's Shift</h2>");
+      out.println("          <h2 align=\"center\">Change Today's Shift (is mostly BROKEN, check back in a few days or email steve@gledhills.com)</h2>");
       out.println("          <div align=\"center\">");
       out.println("            <table border=\"3\" cellpadding=\"0\" cellspacing=\"0\" width=\"700\" height=\"192\">");
 
@@ -766,7 +778,7 @@ public class DayShifts extends HttpServlet {
       out.println("                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       out.println("                  Use Predefined Shift format: <select onChange=\"reloadPage(this)\" size=\"1\" name=\"selectedShift\">");
 //popdown of predefined shifts
-      PatrolData.AddShiftsToDropDown(out, shifts, selectedShift);
+      PatrolData.AddShiftsToDropDown(out, shiftsTemplates, selectedShift);
       out.println("                  </select>");
 
       out.println("                  <br>");
@@ -796,7 +808,7 @@ public class DayShifts extends HttpServlet {
         if (selectedShift.equals("")) {
           selectedShift = szDays[dayOfWeek];
         }
-        PatrolData.AddShiftsToTable(out, shifts, selectedShift);
+        PatrolData.AddShiftsToTable(out, shiftsTemplates, selectedShift);
       }
 
 //New Button (new shift)
@@ -805,7 +817,7 @@ public class DayShifts extends HttpServlet {
       if (assignments.size() >= Shifts.MAX) {
         newOK = " disabled";
       }
-      debugOut("shifts.size() = " + shifts.size());
+      debugOut("shifts.size() = " + shiftsTemplates.size());
       debugOut("assignments.size() = " + assignments.size());
       out.println("                        <td width=\"90\"><input type=\"submit\" value=\"New\" " + newOK + " name=\"newShift\"></td>");
       out.println("                        <td width=\"113\">&nbsp;</td>");
@@ -837,7 +849,7 @@ public class DayShifts extends HttpServlet {
 //System.out.println("endif in showEditShift, selectedShift="+selectedShift);
     }
 
-    private void showEditAssignments(int count) {
+    private void showEditAssignments(int count, Vector<Assignments> assignments) {
       if (assignments.size() == 1) {
         Assignments data = assignments.elementAt(0);
         if (data.getCount() == 0) {
@@ -853,7 +865,7 @@ public class DayShifts extends HttpServlet {
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"saveAssignmentBtn\" VALUE=\"yes\">");
       out.println("  <tr>");
       out.println("    <td width=\"100%\" bgcolor=\"#C0C0C0\">");
-      out.println("      <h2 align=\"center\">Change Today's Assignments</h2>");
+      out.println("      <h2 align=\"center\">Change Today's Assignments (is mostly BROKEN! check back in a few days, or email steve@gledhills.com)</h2>");
       out.println("    </td>");
       out.println("  </tr>");
       out.println("  <tr>");
@@ -871,7 +883,7 @@ public class DayShifts extends HttpServlet {
       out.println("            <table border=\"1\" width=\"100%\" cellspacing=\"1\" bordercolorlight=\"#FFFFFF\">");
 //build list of assignments
       if (assignments.size() > 0) {
-        AddAllAssignments();
+        AddAllAssignments(assignments);
       }
       else {
         AddBlankAssignments();
@@ -903,8 +915,8 @@ public class DayShifts extends HttpServlet {
       String fieldName;
 //System.out.println("AddBlankAssignments: shift count = "+shifts.size());
       int idx = 0;
-      for (i = 0; i < shifts.size(); ++i) {
-        Shifts shiftData = shifts.get(i);
+      for (i = 0; i < shiftsTemplates.size(); ++i) {
+        Shifts shiftData = shiftsTemplates.get(i);
         String parsedName = shiftData.parsedEventName();
         if (parsedName.equals(selectedShift)) {
           for (j = 0; j < shiftData.getCount(); ++j) {
@@ -918,7 +930,7 @@ public class DayShifts extends HttpServlet {
       }
     }
 
-    private void AddAllAssignments() {
+    private void AddAllAssignments(Vector<Assignments> assignments) {
 //System.out.println("AddAllAssignments: shift count = "+shifts.size());
 //System.out.println("AddAllAssignments: assignments count = "+assignments.size());
       for (int i = 0; i < assignments.size(); ++i) {
