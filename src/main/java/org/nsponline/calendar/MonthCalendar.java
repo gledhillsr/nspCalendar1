@@ -218,12 +218,12 @@ public class MonthCalendar extends HttpServlet {
         wkEndWidth = 14;
       }
       WeeklyShifts = new Shifts[8][Shifts.MAX]; //all daily shifts
-      patrol.resetShifts();
+      patrol.resetShiftDefinitions();
       Shifts shift;
       pos = 0;
       day = -1;
       int newDay;
-      while ((shift = patrol.readNextShift()) != null) {
+      while ((shift = patrol.readNextShiftDefinition()) != null) {
         String name = shift.parsedEventName();
         if (name.equals("Sunday")) {
           newDay = Calendar.SUNDAY;

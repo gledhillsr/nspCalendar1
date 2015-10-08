@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Vector;
 
 
 public class EditShifts extends HttpServlet {
@@ -180,7 +179,7 @@ public class EditShifts extends HttpServlet {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       // read Shift ski assignments for the specific day
       shifts = new ArrayList<Shifts>();
-      patrol.resetShifts();
+      patrol.resetShiftDefinitions();
       if (displayParameters) {
         System.out.println("READING (" + shiftCount + ")shifts passed as arguments");
       }
@@ -227,14 +226,14 @@ public class EditShifts extends HttpServlet {
       }
 
       // read Shift ski assignments for the specific day
-      patrol.resetShifts();
+      patrol.resetShiftDefinitions();
 //    String lastPos = " ";
       Shifts data;
       //just get the shift count
       int selectedSize = 0;
 
       boolean foundDeleteShift = false;
-      while ((data = patrol.readNextShift()) != null) {
+      while ((data = patrol.readNextShiftDefinition()) != null) {
         if (displayParameters) {
           System.out.println("read shift:" + data);
         }

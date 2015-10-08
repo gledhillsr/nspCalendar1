@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 /**
  * @author Steve Gledhill
  */
+@SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance"})
 public class PatrolData {
   final static boolean DEBUG = false;
 
@@ -82,7 +83,7 @@ public class PatrolData {
 
 /* ----- uncomment the following to run local ------ */
 
-  final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+//  final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   static final boolean FETCH_MIN_DATA = false;
   static final boolean FETCH_ALL_DATA = true;
 /* -----end local declaration-----s */
@@ -118,8 +119,7 @@ public class PatrolData {
 
     try {
 ////------- the following line works for an applet, but not for a servlet -----
-      Driver drv;
-      drv = (Driver) Class.forName(JDBC_DRIVER).newInstance();
+      Class.forName(JDBC_DRIVER).newInstance();
     }
     catch (Exception e) {
       System.out.println("Cannot load the driver, reason:" + e.toString());
@@ -190,21 +190,21 @@ public class PatrolData {
     } //end try
   }
 
-  public void resetAssignmentsForDateSortedByStartTime(String yyyy_mm_ddValue) {
-    //yyyy_mm_ddValue must have the form 2010-03-01
-    try {
-      assignmentsStatement = connection.prepareStatement(
-          "SELECT * FROM `assignments` WHERE `date` LIKE '" + yyyy_mm_ddValue + "_%' ORDER BY `StartTime`");
-      assignmentResults = assignmentsStatement.executeQuery();
-    }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Error selecting sorted assignments by date table query:" + e.getMessage());
-    } //end try
-  }
-//---------------
+//  public void resetAssignmentsForDateSortedByStartTime(String yyyy_mm_ddValue) {
+//    //yyyy_mm_ddValue must have the form 2010-03-01
+//    try {
+//      assignmentsStatement = connection.prepareStatement(
+//          "SELECT * FROM `assignments` WHERE `date` LIKE '" + yyyy_mm_ddValue + "_%' ORDER BY `StartTime`");
+//      assignmentResults = assignmentsStatement.executeQuery();
+//    }
+//    catch (Exception e) {
+//      System.out.println("(" + localResort + ") Error selecting sorted assignments by date table query:" + e.getMessage());
+//    } //end try
+//  }
 
+  //---------------
   // readNextAssignment
-//---------------
+  //---------------
   public Assignments readNextAssignment() {
     Assignments ns = null;
     try {
@@ -249,10 +249,9 @@ public class PatrolData {
   }
 
 //---------------
-
-  // resetShifts
+// resetShiftDefinitions 'shiftdefinitions'
 //---------------
-  public void resetShifts() {
+  public void resetShiftDefinitions() {
     try {
       shiftStatement = connection.prepareStatement("SELECT * FROM shiftdefinitions ORDER BY \"" + Shifts.tags[0] + "\""); //sort by default key
       shiftResults = shiftStatement.executeQuery();
@@ -278,14 +277,12 @@ public class PatrolData {
   }
 
   public DirectorSettings readDirectorSettings() {
-    ResultSet directorResults;
-
-//System.out.println("HACK: directorResults.calling reset");
-    directorResults = DirectorSettings.reset(connection);
+    ResultSet directorResults = DirectorSettings.reset(connection);
     DirectorSettings ds = null;
 //System.out.println("HACK: directorResults starting try");
     try {
 //System.out.println("ERROR: directorResults inside try");
+      //noinspection ConstantConditions
       if (directorResults.next()) {
         ds = new DirectorSettings(localResort);
         ds.read(directorResults);
@@ -306,7 +303,7 @@ public class PatrolData {
     return ds;
   }
 
-  public Shifts readNextShift() {
+  public Shifts readNextShiftDefinition() {
     Shifts ns = null;
     try {
       if (shiftResults.next()) {
@@ -334,8 +331,7 @@ public class PatrolData {
       return;
     }
     deleteShift(ns);
-    String qry2String = Assignments.createAssignmentName(ns.parsedEventName(), i - 1);
-    ns.eventName = qry2String;
+    ns.eventName = Assignments.createAssignmentName(ns.parsedEventName(), i - 1);
     writeShift(ns);
   }
 
@@ -345,7 +341,7 @@ public class PatrolData {
     logger(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
-      int row = sAssign.executeUpdate();
+      sAssign.executeUpdate();
       ns.setExists(false);
     }
     catch (Exception e) {
@@ -365,7 +361,7 @@ public class PatrolData {
     logger(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
-      int row = sAssign.executeUpdate();
+      sAssign.executeUpdate();
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Cannot load the driver, reason:" + e.toString());
@@ -406,7 +402,7 @@ public class PatrolData {
   } //end nextMember
 
   public MemberData getMemberByID(String szMemberID) {
-    MemberData member = null;
+    MemberData member;
 //  String str="SELECT * FROM roster WHERE \"IDNumber\" = '"+szMemberID+"'";
     String str = "SELECT * FROM roster WHERE IDNumber =" + szMemberID;
 //          String str="SELECT * FROM roster";
@@ -441,16 +437,16 @@ public class PatrolData {
       } //end while
     }
     catch (Exception e) {
-      member = null;
       System.out.println("(" + localResort + ") Error in getMemberByID(" + szMemberID + "): " + e.getMessage());
       System.out.println("(" + localResort + ") ERROR in PatrolData:getMemberByID(" + szMemberID + ") maybe a close was already done?");
+      //noinspection AccessStaticViaInstance
       Thread.currentThread().dumpStack();
     } //end try
-    return member;
+    return null; //failed
   } //end getMemberByID
 
   public MemberData getMemberByEmail(String szEmail) {
-    MemberData member = null;
+    MemberData member;
     String str = "SELECT * FROM roster WHERE email =\"" + szEmail + "\"";
 //System.out.println(str);
     try {
@@ -468,49 +464,48 @@ public class PatrolData {
       } //end while
     }
     catch (Exception e) {
-      member = null;
       System.out.println("(" + localResort + ") Error in getMemberByEmail(" + szEmail + "): " + e.getMessage());
     } //end try
-    return member;
+    return null;  //failure
   } //end getMemberByID
 
-  public MemberData getMemberByName(String szFullName) {
-    MemberData member = null;
-    String str = "SELECT * FROM roster";
-    try {
-      PreparedStatement rosterStatement = connection.prepareStatement(str);
-      rosterResults = rosterStatement.executeQuery();
-      while (rosterResults.next()) {
-        int id = rosterResults.getInt("IDNumber");
-        String str1 = rosterResults.getString("FirstName").trim() + " " +
-            rosterResults.getString("LastName").trim();
-        if (str1.equals(szFullName)) {
-          member = new MemberData();  //"&nbsp;" is the default
-          if (fetchFullData) {
-            member.readFullFromRoster(rosterResults, "");
-          }
-          else {
-            member.readPartialFromRoster(rosterResults, "");
-          }
-          return member;
-        }
-      } //end while
-    }
-    catch (Exception e) {
-      member = null;
-      System.out.println("(" + localResort + ") Error reading table in getMemberByName(" + szFullName + "):" + e.getMessage());
-      System.out.println("(" + localResort + ") ERROR in PatrolData:getMemberByName(" + szFullName + ") maybe a close was already done?");
-      Thread.currentThread().dumpStack();
-    } //end try
-    return member;
-  } //end getMemberByName
-
+//  public MemberData getMemberByName(String szFullName) {
+//    MemberData member = null;
+//    String str = "SELECT * FROM roster";
+//    try {
+//      PreparedStatement rosterStatement = connection.prepareStatement(str);
+//      rosterResults = rosterStatement.executeQuery();
+//      while (rosterResults.next()) {
+//        int id = rosterResults.getInt("IDNumber");
+//        String str1 = rosterResults.getString("FirstName").trim() + " " +
+//            rosterResults.getString("LastName").trim();
+//        if (str1.equals(szFullName)) {
+//          member = new MemberData();  //"&nbsp;" is the default
+//          if (fetchFullData) {
+//            member.readFullFromRoster(rosterResults, "");
+//          }
+//          else {
+//            member.readPartialFromRoster(rosterResults, "");
+//          }
+//          return member;
+//        }
+//      } //end while
+//    }
+//    catch (Exception e) {
+//      member = null;
+//      System.out.println("(" + localResort + ") Error reading table in getMemberByName(" + szFullName + "):" + e.getMessage());
+//      System.out.println("(" + localResort + ") ERROR in PatrolData:getMemberByName(" + szFullName + ") maybe a close was already done?");
+//      Thread.currentThread().dumpStack();
+//    } //end try
+//    return member;
+//  } //end getMemberByName
+//
   public MemberData getMemberByName2(String szFullName) {
     return getMemberByLastNameFirstName(szFullName);
   } //end getMemberByName
 
   public MemberData getMemberByLastNameFirstName(String szFullName) {
-    MemberData member = null;
+    MemberData member;
     String str = "SELECT * FROM roster";
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
@@ -533,13 +528,12 @@ public class PatrolData {
       } //end while
     }
     catch (Exception e) {
-      member = null;
       System.out.println("(" + localResort + ") Error reading table in getMemberByName(" + szFullName + "):" + e.getMessage());
       System.out.println("(" + localResort + ") ERROR in PatrolData:getMemberByName(" + szFullName + ") maybe a close was already done?");
       Thread.currentThread().dumpStack();
     } //end try
 //System.out.println("getMemberByLastNameFirstName: returning" + member);
-    return member;
+    return null;  //failure
   } //end getMemberByName
 
   public static int StringToIndex(String temp) {
@@ -586,23 +580,23 @@ public class PatrolData {
   //---------------------------------------------------------------------
   //  setValidDate - convert yyyy/mm/dd to string format in database
 //---------------------------------------------------------------------
-  String setValidDate(int currYear, int currMonth, int currDay) {
-    String lastValidDate = currYear + "-";
-    if (currMonth + 1 < 10) {
-      lastValidDate += "0";
-    }
-    lastValidDate += (currMonth + 1) + "-";
-    if (currDay < 10) {
-      lastValidDate += "0";
-    }
-    lastValidDate += currDay;
-    return lastValidDate;
-  }
+//  String setValidDate(int currYear, int currMonth, int currDay) {
+//    String lastValidDate = currYear + "-";
+//    if (currMonth + 1 < 10) {
+//      lastValidDate += "0";
+//    }
+//    lastValidDate += (currMonth + 1) + "-";
+//    if (currDay < 10) {
+//      lastValidDate += "0";
+//    }
+//    lastValidDate += currDay;
+//    return lastValidDate;
+//  }
 
-  public Assignments readAssignment(int year, int month, int date) { //was readNightSki
-    String szDate = setValidDate(year, month - 1, date); //month should be 0 based
-    return readAssignment(szDate);
-  }
+//  public Assignments readAssignment(int year, int month, int date) { //was readNightSki
+//    String szDate = setValidDate(year, month - 1, date); //month should be 0 based
+//    return readAssignment(szDate);
+//  }
 
 //---------------------------------------------------------------------
 //  writeAssignment - WRITE all night ski assignments for a specified date
@@ -619,7 +613,7 @@ public class PatrolData {
     logger(" writeAssignment: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
-      int row = sAssign.executeUpdate();
+      sAssign.executeUpdate();
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Cannot load the driver, reason:" + e.toString());
@@ -747,11 +741,11 @@ public class PatrolData {
 //--------------------
 // AddAssignmentsToTable
 //--------------------
-  static public void AddAssignmentsToTable(PrintWriter out, Vector assignments) {
+  static public void AddAssignmentsToTable(PrintWriter out, ArrayList parameterAssignments) {
     int validShifts = 0;
-    for (int i = 0; i < assignments.size(); ++i) {
-      Assignments data = (Assignments) assignments.elementAt(i);
-      String parsedName = data.getEventName();
+    for (Object parameterAssignment : parameterAssignments) {
+      Assignments data = (Assignments) parameterAssignment;
+//      String parsedName = data.getEventName();
       int useCount = data.getUseCount();    //get # of patrollers actually assigned to this shift (warn if deleteing!)
 //            if(parsedName.equals(selectedShift)) {
 //name is if the format of startTime_0, endTime_0, count_0, startTime_1, endTime_1, count_1, etc
@@ -821,7 +815,7 @@ public class PatrolData {
       logger("insert newIndividualAssignment- qryString=" + qryString);
       try {
         PreparedStatement sAssign = connection.prepareStatement(qryString);
-        int row = sAssign.executeUpdate();
+        sAssign.executeUpdate();
       }
       catch (Exception e) {
         System.out.println("Cannot insert newIndividualAssignment, reason:" + e.toString());
@@ -841,7 +835,7 @@ public class PatrolData {
       logger("update newIndividualAssignment- qryString=" + qryString);
       try {
         PreparedStatement sAssign = connection.prepareStatement(qryString);
-        int row = sAssign.executeUpdate();
+        sAssign.executeUpdate();
       }
       catch (Exception e) {
         System.out.println("(" + localResort + ") Cannot update newIndividualAssignment, reason:" + e.toString());
@@ -893,7 +887,7 @@ public class PatrolData {
     String qryString = newIndividualAssignment.getDeleteSQLString();
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
-      int row = sAssign.executeUpdate();
+      sAssign.executeUpdate();  //can throw exception
       newIndividualAssignment.setExisted(false);
     }
     catch (Exception e) {

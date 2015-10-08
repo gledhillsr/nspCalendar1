@@ -161,11 +161,11 @@ public class Assignments {
   }
 
   public String getDateOnly() {
-    return szDate.substring(0, 10);
+    return szDate.substring(0, 10);   //YYYY-MM-DD
   }
 
   public String getDate() {
-    return szDate;
+    return szDate;                    //YYYY-MM-DD_n
   }
 
   public static int getTypeID(String szType) {

@@ -181,11 +181,11 @@ public class ProcessChanges extends HttpServlet {
       night1 = patrolData.readAssignment(szdate1);
       if (night1 == null) {
         //read and insert assignments from shift table
-        patrolData.resetShifts();
+        patrolData.resetShiftDefinitions();
         Shifts shift;
         int cnt = 1;
         String today = szdate1.substring(0, szdate1.indexOf("_") + 1);
-        while ((shift = patrolData.readNextShift()) != null) {
+        while ((shift = patrolData.readNextShiftDefinition()) != null) {
           if (shift.parsedEventName().equals(szDays[dayOfWeek1])) {
             Assignments assign = new Assignments((today + cnt), shift);
             patrolData.writeAssignment(assign);
