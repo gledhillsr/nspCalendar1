@@ -92,9 +92,7 @@ public class MonthCalendar extends HttpServlet {
       SessionData sessionData = new SessionData(request.getSession(), out);
       new ValidateCredentials(sessionData, request, response, null);  //do not redirect
       patrollerId = sessionData.getLoggedInUserId();
-      if (DEBUG) {
-        System.out.println("********\nMonthCalendar loggedInID=" + patrollerId + "\n**********");
-      }
+      debugOut("********\nMonthCalendar loggedInID=" + patrollerId + "\n**********");
       if (Utils.isNotEmpty(patrollerId)) {
         patrollerIdTag = "&ID=" + patrollerId;
         notLoggedIn = false;
@@ -171,7 +169,6 @@ public class MonthCalendar extends HttpServlet {
 
     @SuppressWarnings("ConstantConditions")
     private void readData(PrintWriter out, String resort, SessionData sessionData) {
-      int day, pos;
       MemberData member;
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       directorSettings = patrol.readDirectorSettings();
@@ -186,7 +183,6 @@ public class MonthCalendar extends HttpServlet {
       }
       monthNewIndividualAssignments = patrol.readNewIndividualAssignments(currYear, currMonth + 1, 0); //entire month
 
-      patrol.resetAssignments();
       maxAssignmentCnt = 0;
 
       populateMonthDataArray(patrol);
@@ -217,51 +213,27 @@ public class MonthCalendar extends HttpServlet {
         dayWidth = 14;
         wkEndWidth = 14;
       }
-      WeeklyShifts = new Shifts[8][Shifts.MAX]; //all daily shifts
-      patrol.resetShiftDefinitions();
-      Shifts shift;
-      pos = 0;
-      day = -1;
-      int newDay;
-      while ((shift = patrol.readNextShiftDefinition()) != null) {
+      WeeklyShifts = new Shifts[8][Shifts.MAX]; //all daily shifts 1-7, 0 is not used in Calendar.Sunday
+//      patrol.resetShiftDefinitions();
+      int lastDayOfWeekIndex = -1;
+      int pos = 0;
+      for (Shifts shift : patrol.readShiftDefinitions()) {
         String name = shift.parsedEventName();
-        if (name.equals("Sunday")) {
-          newDay = Calendar.SUNDAY;
-        }
-        else if (name.equals("Monday")) {
-          newDay = Calendar.MONDAY;
-        }
-        else if (name.equals("Tuesday")) {
-          newDay = Calendar.TUESDAY;
-        }
-        else if (name.equals("Wednesday")) {
-          newDay = Calendar.WEDNESDAY;
-        }
-        else if (name.equals("Thursday")) {
-          newDay = Calendar.THURSDAY;
-        }
-        else if (name.equals("Friday")) {
-          newDay = Calendar.FRIDAY;
-        }
-        else if (name.equals("Saturday")) {
-          newDay = Calendar.SATURDAY;
-        }
-        else {
-          newDay = -1;
-        }
+        int currDayOfWeekIndex = getDayOfWeekIndexOrNegativeOne(name);
 
-        if (newDay == day) {
+        if (currDayOfWeekIndex == lastDayOfWeekIndex) {
           ++pos;
         }
         else {
           pos = 0;
         }
-        day = newDay;
+        lastDayOfWeekIndex = currDayOfWeekIndex;
 
-        if (day >= 0) {
-          WeeklyShifts[day][pos] = shift;
+        if (lastDayOfWeekIndex >= 0) {
+          WeeklyShifts[lastDayOfWeekIndex][pos] = shift;
         }
       }
+
       seasonStartDay = directorSettings.getStartDay();
       seasonStartMonth = directorSettings.getStartMonth();
       seasonEndDay = directorSettings.getEndDay();
@@ -270,20 +242,54 @@ public class MonthCalendar extends HttpServlet {
       patrol.close();
     } //end of readdata
 
+    private int getDayOfWeekIndexOrNegativeOne(String name) {
+      int newDay;
+      if ("Sunday".equals(name)) {
+        newDay = Calendar.SUNDAY;
+      }
+      else if ("Monday".equals(name)) {
+        newDay = Calendar.MONDAY;
+      }
+      else if ("Tuesday".equals(name)) {
+        newDay = Calendar.TUESDAY;
+      }
+      else if ("Wednesday".equals(name)) {
+        newDay = Calendar.WEDNESDAY;
+      }
+      else if ("Thursday".equals(name)) {
+        newDay = Calendar.THURSDAY;
+      }
+      else if ("Friday".equals(name)) {
+        newDay = Calendar.FRIDAY;
+      }
+      else if ("Saturday".equals(name)) {
+        newDay = Calendar.SATURDAY;
+      }
+      else {
+        newDay = -1;
+      }
+      return newDay;
+    }
+
     private void populateMonthDataArray(PatrolData patrol) {
       int oldYear, oldMonth, oldDay;
       oldYear = oldMonth = oldDay = 0;
       int pos = 0;
-      Assignments assignments;
+//      Assignments assignments;
       int year;
       int month;
       int day;
       int curPos = 0;
 
-      while ((assignments = patrol.readNextAssignment()) != null) {
+      ArrayList<Assignments> monthOfAssignments = patrol.readSortedAssignments(currYear, currMonth + 1);
+
+//      patrol.resetAssignments();
+//      while ((assignments = patrol.readNextAssignment()) != null) {
+      for (Assignments assignments : monthOfAssignments) {
         year = assignments.getYear();
         month = assignments.getMonth();
         day = assignments.getDay();
+//        pos = assignments.getDatePos();
         if (year == oldYear && month == oldMonth && day == oldDay) {
           ++pos;
         }
@@ -295,6 +301,7 @@ public class MonthCalendar extends HttpServlet {
         //is the the month we are printing ?
         if (year == currYear && month == (currMonth + 1)) {
           monthData[day][pos] = assignments;
+          debugOut("monthData[" + day + "][" + pos + "] = " + assignments.toString());
           if (curPos > maxAssignmentCnt) {
             maxAssignmentCnt = curPos;
           }

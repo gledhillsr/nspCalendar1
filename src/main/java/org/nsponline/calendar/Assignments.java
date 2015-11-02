@@ -376,4 +376,22 @@ public class Assignments {
   private static void LOG(String msg) {
     System.out.println(msg);
   }
+
+  public boolean includesPatroller(String patrollerId) {
+    if (patrollerId == null) {
+      return false;
+    }
+    for (int i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
+      if (patrollerId.equals(patrollerID[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public void copyAssignedPatrollers(Assignments prevAssignment) {
+    for (int i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
+      patrollerID[i] = (prevAssignment.getPosID(i));
+    }
+  }
 }

@@ -655,13 +655,13 @@ public class EmailForm extends HttpServlet {
 //else PatrolData.logger(resort, "NOT ok to display "+member);
       }
 
-      patrol.resetAssignments();
 //        SimpleDateFormat normalDateFormatter = new SimpleDateFormat ("MM'/'dd'/'yyyy");
 //        GregorianCalendar date = ;
       long startMillis = (new GregorianCalendar(StartYear, StartMonth, StartDay)).getTimeInMillis();
       long endMillis = (new GregorianCalendar(EndYear, EndMonth, EndDay)).getTimeInMillis();
       long currMillis;
 
+      patrol.resetAssignments();
       //loop through all assignments
       while ((ns = patrol.readNextAssignment()) != null) {
         currMillis = (new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay())).getTimeInMillis();

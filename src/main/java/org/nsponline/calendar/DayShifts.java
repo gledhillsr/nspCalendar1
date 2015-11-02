@@ -11,6 +11,7 @@ import java.util.*;
 
 
 /**
+ * note date in form YYYY-MM-DD-p   p (position is 1 based)
  * @author Steve Gledhill
  */
 @SuppressWarnings("ConstantConditions")
@@ -19,10 +20,7 @@ public class DayShifts extends HttpServlet {
   final static String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
   final static String szMonths[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
-  //-----
-  private final static boolean DEBUG = true;
-//  private final static boolean displayParameters = true;
-  //-----
+  private final static boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalDayShifts(request, response);
@@ -40,7 +38,7 @@ public class DayShifts extends HttpServlet {
     //ALL the following data MUST be initialized in the constructor
     boolean isDirector;
     int dayOfWeek;
-    int date;        //1 based
+    int date;        //YYYY-MM-DD_p   where p is 1 based
     int month;      //
     int year;
     String szDate;
@@ -197,33 +195,34 @@ public class DayShifts extends HttpServlet {
     private void processChangeRequest(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<Shifts> parameterShifts) {
 //write out changes
       patrol.resetAssignments();
-      int assignmentSize = assignmentsFromDisk.size();
+//      int assignmentSize = assignmentsFromDisk.size();
       if (saveAssignmentBtn) {
         doSaveAssignments(request, patrol, assignmentsFromDisk);
       }
       else if (deleteAllShiftsBtn) {
-        doDeleteAllShifts(patrol, assignmentSize, assignmentsFromDisk);
+        doDeleteAllShifts(patrol, assignmentsFromDisk);
       }
       else if (dropdownShift2 != null && !dropdownShift2.equals("") && !dropdownShift2.equals("--New Shift Style--")) {
         doInsertNewShiftFromDropDown(assignmentsFromDisk);
       }
       else if (deleteShift) {
-        doDelete1ShiftAssignment(patrol, assignmentSize, assignmentsFromDisk);
+        doDelete1ShiftAssignment(patrol, assignmentsFromDisk);
       }
       else if (newShift) {
         doAdd1NewShift(patrol, assignmentsFromDisk, parameterShifts);
       }
-      else if (saveShiftBtn) {  //pressed button at bottom on "Change Today's Shift" page, labeled "Save Shift Assignments"
-        doSaveShiftAssignments(patrol, assignmentsFromDisk, parameterShifts, assignmentSize);
+      else if (saveShiftBtn) {  //pressed button at bottom on "Change Today's Shift" page, labeled "Save Shift Changes"
+        doSaveShiftAssignments(patrol, assignmentsFromDisk, parameterShifts);
       }
       //note, nothing to process on 1st pass
     } //end processChangeRequest
 
-    private void doSaveShiftAssignments(PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<Shifts> parameterShifts, int assignmentSize) {
+    private void doSaveShiftAssignments(PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<Shifts> parameterShifts) {
       Shifts sData;
+      int assignmentSize = assignmentsFromDisk.size();
       if (parameterShifts.size() > 0) {
         //data was modified
-        saveShiftInfo(patrol, assignmentSize, assignmentsFromDisk, parameterShifts);
+        saveShiftInfo(patrol, assignmentsFromDisk, parameterShifts);
         szOriginalName = szNameComment;
       }
       else {
@@ -233,7 +232,7 @@ public class DayShifts extends HttpServlet {
         else {
           debugOut("Adding a Comment ONLY assignment (" + szNameComment + ")");
           sData = new Shifts(szNameComment, " ", " ", 0, Assignments.DAY_TYPE);    //shift with 0 patrollers
-          String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);  //2002-12-31_1
+          String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);  //2002-12-31_1  index is 1 based
           Assignments assignment = new Assignments(szAssignmentDate, sData);
           assignment.setEventName(szNameComment);
           debugOut("assignmentsFromDisk.add(" + assignment + ")");
@@ -244,16 +243,14 @@ public class DayShifts extends HttpServlet {
     }
 
     private void doAdd1NewShift(PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<Shifts> parameterShifts) {
-      int assignmentSize;
-      Shifts sData;//ADD
       insureAssignmentExists(patrol, assignmentsFromDisk);
-      assignmentSize = assignmentsFromDisk.size(); //may have changed above
-      saveShiftInfo(patrol, assignmentSize, assignmentsFromDisk, parameterShifts); //????
+      int assignmentSize = assignmentsFromDisk.size(); //may have changed above
+      saveShiftInfo(patrol, assignmentsFromDisk, parameterShifts); //????
       debugOut("--add shift--");
-      sData = new Shifts(szNameComment, "start time", "end time", 1, Assignments.DAY_TYPE);
+      Shifts sData = new Shifts(szNameComment, "start time", "end time", 1, Assignments.DAY_TYPE);
       //real assignmentsFromDisk existed, so add one more
       //make date field yyy-mm-dd_#
-      String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);
+      String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1); //YYYY-MM-DD_p  where p is 1 based
       Assignments assignment = new Assignments(szAssignmentDate, sData);
       debugOut("adding assignment: " + assignment.toString());
       assignmentsFromDisk.add(assignment);
@@ -269,13 +266,13 @@ public class DayShifts extends HttpServlet {
       patrol.writeAssignment(assignment);
     }
 
-    private void doDelete1ShiftAssignment(PatrolData patrol, int assignmentSize, ArrayList<Assignments> assignmentsFromDisk) {
+    private void doDelete1ShiftAssignment(PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk) {
       Assignments data;
       Shifts sData;//DELETE
-      debugOut("deleteShift:  assignmentSize(current assignmentsFromDisk on disk)=" + assignmentSize + " shiftToDelete=" + shiftToDelete);
-      //note: assignmentSize is 0 if editing from template
       insureAssignmentExists(patrol, assignmentsFromDisk);
-      assignmentSize = assignmentsFromDisk.size(); //may have changed above
+      int assignmentSize = assignmentsFromDisk.size(); //assignmentsFromDisk may have changed above
+      debugOut("--deleteShift:  assignmentSize(current assignmentsFromDisk on disk)=" + assignmentSize + " shiftToDelete=" + shiftToDelete);
+      //note: assignmentSize is 0 if editing from template
       debugOut("*****assignmentSize=" + assignmentSize);
 //if( assignmentSize > 1)
 // saveShiftInfo(patrol, assignmentSize,shiftCount-1); //deletes two shifts...
@@ -291,7 +288,7 @@ public class DayShifts extends HttpServlet {
           patrol.deleteAssignment(data);
           debugOut("assignmentsFromDisk.remove(" + shiftToDelete + ")");
           assignmentsFromDisk.remove(shiftToDelete);
-          patrol.deleteAssignment(data); //todo srg, added 10/6/15
+          patrol.deleteAssignment(data);
           --assignmentSize;
           for (int j = shiftToDelete; j < assignmentSize; ++j) {
             data = assignmentsFromDisk.get(j);
@@ -302,7 +299,7 @@ public class DayShifts extends HttpServlet {
             sData = new Shifts(szNameComment, "", "<empty>", 0, Assignments.DAY_TYPE);
             //real assignmentsFromDisk existed, so add one more
             //make date field yyy-mm-dd_#
-            String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);
+            String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);   //YYYY-MM-DD_p  where p is 1 based
             Assignments assignment = new Assignments(szAssignmentDate, sData);
             debugOut("assignmentsFromDisk.add placeholder(" + assignment + ")");
             assignmentsFromDisk.add(assignment);
@@ -334,10 +331,11 @@ public class DayShifts extends HttpServlet {
       }
     }
 
-    private void doDeleteAllShifts(PatrolData patrol, int assignmentSize, ArrayList<Assignments> assignmentsFromDisk) {
+    private void doDeleteAllShifts(PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk) {
       Assignments data;//--------DELETE ALL SHIFTS -------------------------------------
+      int assignmentSize = assignmentsFromDisk.size();
       debugOut("***************************");
-      debugOut("*** deleting all shifts.  assignmentSize=" + assignmentSize);
+      debugOut("*** deleting all shifts.  assignmentSize (from disk)=" + assignmentSize);
       debugOut("***************************");
       for (int assignmentIndex = assignmentSize - 1; assignmentIndex >= 0; --assignmentIndex) {    //loop from end of list
         data = assignmentsFromDisk.get(assignmentIndex); //0 based
@@ -349,13 +347,12 @@ public class DayShifts extends HttpServlet {
     }
 
     private void doSaveAssignments(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> paramaterAssignments) {
-      int assignmentSize;
       int i;
       Assignments data;//-----Save Mass Assignments Changes ----------------------------------------
       String param, name;
       int j;
       insureAssignmentExists(patrol, paramaterAssignments);
-      assignmentSize = paramaterAssignments.size(); //may have changed above
+      int assignmentSize = paramaterAssignments.size(); //may have changed above
       debugOut("===assignmentSize = (" + assignmentSize + ")");
       //get shift=i,pos=j, and name=name
 //zzzz
@@ -397,16 +394,17 @@ public class DayShifts extends HttpServlet {
       }
     }
 
-    private void saveShiftInfo(PatrolData patrol, int assignmentSize,
+    private void saveShiftInfo(PatrolData patrol,
                                @SuppressWarnings("UnusedParameters") ArrayList<Assignments> assignmentsFromDisk, //includes scheduled patrollers
                                ArrayList<Shifts> parameterShifts) {  //does not include scheduled patrollers
-      debugOut("---- DayShifts.saveShiftInfo(assignmentSize=" + assignmentSize + ", shiftCount=" + parameterShifts.size() + ")-Data was modified, selectedShift=" + selectedShift + ", szNameComment=(" + szNameComment + ")");
+      int assignmentSize = assignmentsFromDisk.size();
+      debugOut("---- DayShifts.saveShiftInfo(assignmentSize(fromDisk)=" + assignmentSize + ", shiftCount(fromArgs)=" + parameterShifts.size() + ")-Data was modified, selectedShift=" + selectedShift + ", szNameComment=(" + szNameComment + ")");
       int shiftIndex;
       String szAssignmentDate;
       Assignments assignment;
       for (shiftIndex = 0; shiftIndex < parameterShifts.size(); ++shiftIndex) {//loop thru shifts on command line
         Shifts sh = parameterShifts.get(shiftIndex); //args read in
-        szAssignmentDate = GetTodaysAssignmentString(shiftIndex);
+        szAssignmentDate = GetTodaysAssignmentString(shiftIndex + 1);  //pos is 1 based
         debugOut("  DayShifts.saveShiftInfo() newDateIndex="+ szAssignmentDate + ", old shift=" + sh.toString());
 //        if (shiftIndex < assignmentSize) { //size in database is size of args read in
 //          szAssignmentDate = GetTodaysAssignmentString(shiftIndex);
@@ -416,11 +414,14 @@ public class DayShifts extends HttpServlet {
 //        }
         assignment = new Assignments(szAssignmentDate, sh);
         assignment.setEventName(szNameComment);
-        //todo this is BAD, If i increase the size, I loose all scheduled patrollers
 //        Assignments old = patrol.readAssignment(assignment.getDate());
 //        debugOut("ZZZZZZZ HACK TO REMOVE, old=" + ((old == null) ? "null" : old.toString()));
-        patrol.deleteAssignment(assignment);  //todo srg, added 10/6/15 not good, it kills existing assigned patrollers
-        assignment.setExisted(false);         //todo srg, added 10/6/15
+        Assignments prevAssignment = patrol.readAssignment(assignment.getDate());
+        patrol.deleteAssignment(assignment);
+        assignment.setExisted(false);
+        if (prevAssignment != null) {
+          assignment.copyAssignedPatrollers(prevAssignment);
+        }
         patrol.writeAssignment(assignment);
       }
     }
@@ -431,12 +432,6 @@ public class DayShifts extends HttpServlet {
       if (assignmentSize > 0) {
         return; //nothing to do.  It ALREADY exists
       }
-//..        sData = new Shifts(szNameComment,"start time","end time",1);
-//System.out.println("...selectedShift = ("+selectedShift+")");
-//System.out.println("...dropdownShift = ("+dropdownShift+")");
-//System.out.println("...dropdownShift2 = ("+dropdownShift2+")");
-//System.out.println("...shifts.size() = ("+shifts.size()+")");
-//todo srg no, would lose any other changes      assignmentsFromDisk = new ArrayList<Assignments>(); //forget all existing assignmentsFromDisk
       //copy shifts to today's database
       String name;
       if (szNameComment != null && szNameComment.length() > 1) {
@@ -445,7 +440,6 @@ public class DayShifts extends HttpServlet {
       else {
         name = "";  //name from dropdown
       }
-//System.out.println("*****name="+name);
       if (selectedShift == null || selectedShift.length() <= 1) {
         selectedShift = szDays[dayOfWeek];
       }
@@ -453,7 +447,7 @@ public class DayShifts extends HttpServlet {
 
       for (Shifts sData: shiftsTemplates) {
         if (selectedShift.equals(sData.parsedEventName())) {
-          String szAssignmentDate = GetTodaysAssignmentString(assignmentSize++);
+          String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);   //1 based, so increment first
           Assignments assignment = new Assignments(szAssignmentDate, sData);
           assignment.setEventName(name);
           debugOut("assignmentsFromDisk.add(" + assignment + ")");
@@ -578,12 +572,9 @@ public class DayShifts extends HttpServlet {
 //
 // read Shift ski assignmentsFromDisk for the specific date
 //
-      patrol.resetAssignments();
-      Assignments data;
-//    assignmentCount = 0;
+      ArrayList<Assignments> monthOfAssignments = patrol.readSortedAssignments(year, month + 1);
       boolean isFirst = true;
-      while ((data = patrol.readNextAssignment()) != null) {
-//System.out.println("Assignment from disk="+data);
+        for (Assignments data : monthOfAssignments) {
         y = data.getYear();
         m = data.getMonth() - 1; //make it 0 based
         d = data.getDay();
@@ -611,7 +602,6 @@ public class DayShifts extends HttpServlet {
 //read shift data passed as parameters (shiftCount is count passed in)
 //for every shiftCount there should be a startTime_?, endTime_?, count_?
 //and there MAY be a delete_?
-//todo srg      parameterShifts = new ArrayList<Shifts>();
       for (i = 0; i < shiftCount; ++i) {
         temp = request.getParameter("delete_" + i);
         if (temp != null) {
@@ -642,9 +632,9 @@ public class DayShifts extends HttpServlet {
       debugOut("deleteShift=" + deleteShift + ", shiftToDelete=" + shiftToDelete);
 
 //build list of PREDEFINED SHIFTS for the drop down selection
-      patrol.resetShiftDefinitions();   //'shiftdefinitions'
-      Shifts sData;
-      while ((sData = patrol.readNextShiftDefinition()) != null) {
+//      patrol.resetShiftDefinitions();   //'shiftdefinitions'
+//      Shifts sData;
+      for (Shifts sData : patrol.readShiftDefinitions()) {
         shiftsTemplates.add(sData);
       } //end while Shifts
     } //end ReadParameters
@@ -773,7 +763,7 @@ public class DayShifts extends HttpServlet {
       out.println("<INPUT TYPE='HIDDEN' NAME='month' VALUE='" + month + "'>");
       out.println("<INPUT TYPE='HIDDEN' NAME='year' VALUE='" + szYear + "'>");
       out.println("<INPUT TYPE='HIDDEN' NAME='resort' VALUE='" + resort + "'>");
-      out.println("          <h2 align='center'>Change Today's Shift</br>(report any bugs to steve@gledhills.com)</h2>");
+      out.println("          <h2 align='center'>Change Today's Shift</h2><h4>Please report any bugs to steve@gledhills.com</h4>");
       out.println("          <div align='center'>");
       out.println("            <table border='3' cellpadding='0' cellspacing='0' width='700' height='192'>");
 

@@ -226,18 +226,18 @@ public class EditShifts extends HttpServlet {
       }
 
       // read Shift ski assignments for the specific day
-      patrol.resetShiftDefinitions();
+//      patrol.resetShiftDefinitions();
 //    String lastPos = " ";
-      Shifts data;
+//      Shifts data;
       //just get the shift count
       int selectedSize = 0;
 
       boolean foundDeleteShift = false;
-      while ((data = patrol.readNextShiftDefinition()) != null) {
+      for (Shifts shiftDefinition : patrol.readShiftDefinitions()) {
         if (displayParameters) {
-          System.out.println("read shift:" + data);
+          System.out.println("read shift:" + shiftDefinition);
         }
-        String parsedName = data.parsedEventName();
+        String parsedName = shiftDefinition.parsedEventName();
         if (parsedName.equals(selectedShift)) {
           //check for delete button
           if (displayParameters) {
@@ -245,24 +245,24 @@ public class EditShifts extends HttpServlet {
           }
           if ((deleteShift && shiftToDelete == selectedSize) || DeleteTemplateBtn) {
             deleteShift = false;    //don't delete any more (used for single delete's only)
-            patrol.deleteShift(data);
+            patrol.deleteShift(shiftDefinition);
             foundDeleteShift = true;
             continue;               //don't add this shift to the 'shifts' array
           }
           else if (foundDeleteShift) {
             //example, if the 2nd of 5 shifts was deleted, then 3,4,& 5th need to be renumbered down to the 2,3, & 4th
-            patrol.decrementShift(data);
+            patrol.decrementShift(shiftDefinition);
           }
-          else if (!newShift && shiftCount > 0 && !data.equals(todaysData[selectedSize])) {
+          else if (!newShift && shiftCount > 0 && !shiftDefinition.equals(todaysData[selectedSize])) {
             if (displayParameters) {
               System.out.println("UPDATE this shift: " + selectedSize);
             }
-            data = todaysData[selectedSize];
-            patrol.writeShift(data);
+            shiftDefinition = todaysData[selectedSize];
+            patrol.writeShift(shiftDefinition);
           }
           ++selectedSize;
         }
-        shifts.add(data);
+        shifts.add(shiftDefinition);
       } //end while Shifts
 
 //--------------
@@ -275,9 +275,9 @@ public class EditShifts extends HttpServlet {
         String start = "8:30";
         String end = "14:00";
         cnt = 1;
-        data = new Shifts(Shifts.createShiftName(selectedShift, selectedSize), start, end, cnt, Assignments.DAY_TYPE);
-        shifts.add(data);   //add to my local array
-        patrol.writeShift(data);    //write to database
+        Shifts shiftDefinition = new Shifts(Shifts.createShiftName(selectedShift, selectedSize), start, end, cnt, Assignments.DAY_TYPE);
+        shifts.add(shiftDefinition);   //add to my local array
+        patrol.writeShift(shiftDefinition);    //write to database
       }
       patrol.close();
     }

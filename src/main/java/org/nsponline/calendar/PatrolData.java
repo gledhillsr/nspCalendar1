@@ -37,9 +37,11 @@ public class PatrolData {
     resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
     resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", "http://detroitmountain.com/", "/images/DetroitMountain.png", 73, 121));
+    resortMap.put("ElmCreek",       new ResortData("ElmCreek", "Elm Creek Park", "https://www.threeriversparks.org/parks/elm-creek-park.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
     resortMap.put("GrandTarghee",   new ResortData("GrandTarghee", "Grand Targhee", "http://www.GrandTarghee.com", "/images/GrandTarghee.jpg", IMG_HEIGHT, 80));
     resortMap.put("HermonMountain", new ResortData("HermonMountain", "Hermon Mountain", "http://www.skihermonmountain.com", "/images/HermonMountain.jpg", IMG_HEIGHT, 80));
     resortMap.put("Hesperus",       new ResortData("Hesperus", "Hesperus", "http://www.ski-hesperus.com/", "/images/Hesperus.jpg", 84, 192));
+    resortMap.put("HylandHills",    new ResortData("HylandHills", "Hyland Hills Park", " https://threeriversparks.org/parks/hyland-lake-park/hyland-hills-ski-area.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
     resortMap.put("IFNordic",       new ResortData("IFNordic", "IF Nordic", "", "/images/IFNordic.gif", IMG_HEIGHT, 80));
     resortMap.put("JacksonHole",    new ResortData("JacksonHole", "Jackson Hole Fire/EMS", "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
     resortMap.put("JacksonSpecialEvents", new ResortData("JacksonSpecialEvents", "Jackson Hole Fire/EMS Special Events", "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
@@ -182,7 +184,9 @@ public class PatrolData {
 
   public void resetAssignments() {
     try {
-      assignmentsStatement = connection.prepareStatement(Assignments.getSelectAllAssignmentsByDateSQLString());
+      String selectAllAssignmentsByDateSQLString = Assignments.getSelectAllAssignmentsByDateSQLString();
+      logger("select=" + selectAllAssignmentsByDateSQLString);
+      assignmentsStatement = connection.prepareStatement(selectAllAssignmentsByDateSQLString);
       assignmentResults = assignmentsStatement.executeQuery();
     }
     catch (Exception e) {
@@ -205,12 +209,25 @@ public class PatrolData {
   //---------------
   // readNextAssignment
   //---------------
-  public Assignments readNextAssignment() {
+  public Assignments readNextAssignment() { //todo srg fix all callers to this.  it is returning things out of order
+//    logger("\n**********\nfix all callers of this API (except PurgeAssignments, ?)");
+//    Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
+//    Thread currentThread = Thread.currentThread();
+//    if (threadMap.get(currentThread) != null) {
+//      logger("[1]" + threadMap.get(currentThread)[1].toString());
+//      logger("[2]" + threadMap.get(currentThread)[2].toString());
+//      logger("[3]" + threadMap.get(currentThread)[3].toString());
+//      logger("[4]" + threadMap.get(currentThread)[4].toString());
+//      logger("[5]" + threadMap.get(currentThread)[5].toString());
+//      logger("[6]" + threadMap.get(currentThread)[6].toString());
+//    }
+//    logger("*******");
     Assignments ns = null;
     try {
       if (assignmentResults.next()) {
         ns = new Assignments();
         ns.read(assignmentResults);
+        logger("fix. readNextAssignment-" + ns.toString());
       }
     }
     catch (Exception e) {
@@ -220,10 +237,9 @@ public class PatrolData {
     return ns;
   }
 
-//---------------
-
+  //---------------
   // resetRoster
-//---------------
+  //---------------
   public void resetRoster() {
     try {
       PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY LastName, FirstName");
@@ -234,10 +250,9 @@ public class PatrolData {
     } //end try
   }
 
-//---------------
-
+  //---------------
   // resetRoster
-//---------------
+  //---------------
   public void resetRoster(String sort) {
     try {
       PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY " + sort);
@@ -248,9 +263,9 @@ public class PatrolData {
     } //end try
   }
 
-//---------------
-// resetShiftDefinitions 'shiftdefinitions'
-//---------------
+  //---------------
+  // resetShiftDefinitions 'shiftdefinitions'
+  //---------------
   public void resetShiftDefinitions() {
     try {
       shiftStatement = connection.prepareStatement("SELECT * FROM shiftdefinitions ORDER BY \"" + Shifts.tags[0] + "\""); //sort by default key
@@ -268,10 +283,9 @@ public class PatrolData {
 //      directorResults = DirectorSettings.reset(connection);
 //  }
 
-//---------------------------------------------------------------------
-
+  //---------------------------------------------------------------------
   //     writeDirectorSettings - WRITE director settings
-//---------------------------------------------------------------------
+  //---------------------------------------------------------------------
   public boolean writeDirectorSettings(DirectorSettings ds) {
     return ds.write(connection);
   }
@@ -304,11 +318,13 @@ public class PatrolData {
   }
 
   public Shifts readNextShiftDefinition() {
+    logger("HACK fix all calls to readNextShiftDefinition");
     Shifts ns = null;
     try {
       if (shiftResults.next()) {
         ns = new Shifts();
         ns.read(shiftResults);
+        logger("  HACK , shiftDef: " + ns.toString());
       }
     }
     catch (Exception e) {
@@ -316,6 +332,26 @@ public class PatrolData {
       return null;
     }
     return ns;
+  }
+  public ArrayList<Shifts> readShiftDefinitions() {
+    ArrayList<Shifts> shiftDefinitions = new ArrayList<Shifts>();
+    try {
+      String qryString = "SELECT * FROM `shiftdefinitions` ORDER BY `shiftdefinitions`.`EventName` ASC";
+//      logger("readShiftDefinitions: " + qryString);
+      PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
+      ResultSet assignmentResults = assignmentsStatement.executeQuery();
+
+      while (assignmentResults.next()) {
+        Shifts ns = new Shifts();
+        ns.read(assignmentResults);
+//        logger(".. NextShifts-" + ns.toString());
+        shiftDefinitions.add(ns);
+      }
+    }
+    catch (Exception e) {
+      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+    } //end try
+    return shiftDefinitions;
   }
 
   public void decrementShift(Shifts ns) {
@@ -565,16 +601,23 @@ public class PatrolData {
   public Assignments readAssignment(String myDate) { //formmat yyyy-mm-dd_p
     Assignments ns;
     try {
-      assignmentsStatement = connection.prepareStatement("SELECT * FROM assignments WHERE Date=\'" + myDate + "\'");
-      assignmentResults = assignmentsStatement.executeQuery();
-      ns = readNextAssignment();
+      String queryString = "SELECT * FROM assignments WHERE Date=\'" + myDate + "\'";
+      PreparedStatement assignmentsStatementLocal = connection.prepareStatement(queryString);
+      ResultSet assignmentResultsLocal = assignmentsStatementLocal.executeQuery();
+
+        if (assignmentResultsLocal.next()) {
+          ns = new Assignments();
+          ns.read(assignmentResultsLocal);
+          logger("readAssignment(" + queryString + ")= " + ns.toString());
+          return ns;
+        }
     }
     catch (Exception e) {
       System.out.println("Cannot load the driver, reason:" + e.toString());
       System.out.println("Most likely the Java class path is incorrect.");
       return null;
     }
-    return ns;
+    return null;
   }
 
   //---------------------------------------------------------------------
@@ -893,5 +936,82 @@ public class PatrolData {
     catch (Exception e) {
       System.out.println("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
     }
+  }
+
+  public ArrayList<Assignments> readAllSortedAssignments(String patrollerId) {
+//    String dateMask = String.format("%4d-%02d-", year, month) + "%";
+    String dateMask = "20%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
+//    logger("readSortedAssignments(" + dateMask + ")");
+    ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
+    try {
+//      zzz
+      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
+      logger("readAllSortedAssignments: " + qryString);
+      PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
+      ResultSet assignmentResults = assignmentsStatement.executeQuery();
+      int cnt = 1;
+      while (assignmentResults.next()) {
+        Assignments ns = new Assignments();
+        ns.read(assignmentResults);
+        if (ns.includesPatroller(patrollerId)) {
+          logger("(" + (cnt++) + ") NextAssignment-" + ns.toString());
+          monthAssignments.add(ns);
+        }
+      }
+    }
+    catch (Exception e) {
+      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+    } //end try
+    return monthAssignments;
+  }
+
+  public ArrayList<Assignments> readSortedAssignments(int year, int month) {
+    String dateMask = String.format("%4d-%02d-", year, month) + "%";
+    logger("readSortedAssignments(" + dateMask + ")");
+    ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
+    try {
+//      zzz
+//      String dateMask = "2015-10-%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
+      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
+//      logger("readSortedAssignments: " + qryString);
+      PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
+      ResultSet assignmentResults = assignmentsStatement.executeQuery();
+
+      while (assignmentResults.next()) {
+        Assignments ns = new Assignments();
+        ns.read(assignmentResults);
+//        logger(".. NextAssignment-" + ns.toString());
+        monthAssignments.add(ns);
+      }
+    }
+    catch (Exception e) {
+      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+    } //end try
+    return monthAssignments;
+  }
+
+  public ArrayList<Assignments> readSortedAssignments(int year, int month, int day) {
+    String dateMask = String.format("%4d-%02d-%02d_", year, month, day) + "%";
+    logger("readSortedAssignments(" + dateMask + ")");
+    ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
+    try {
+//      zzz
+//      String dateMask = "2015-10-%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
+      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
+      logger("select=" + qryString);
+      PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
+      ResultSet assignmentResults = assignmentsStatement.executeQuery();
+
+      while (assignmentResults.next()) {
+        Assignments ns = new Assignments();
+        ns.read(assignmentResults);
+//        logger(".. NextAssignment-" + ns.toString());
+        monthAssignments.add(ns);
+      }
+    }
+    catch (Exception e) {
+      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+    } //end try
+    return monthAssignments;
   }
 }

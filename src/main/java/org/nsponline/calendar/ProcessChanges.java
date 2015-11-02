@@ -33,7 +33,7 @@ public class ProcessChanges extends HttpServlet {
   private class LocalProcessChanges {
 
     private PrintWriter out;
-    private int date1, month1, year1, dayOfWeek1;
+    private int date1, month1, year1, dayOfWeek0based;
 
     @SuppressWarnings("unused")
     private int date2, month2, year2, dayOfWeek2; //date2 etc all have to do with "trade" which is currently disabled
@@ -72,7 +72,7 @@ public class ProcessChanges extends HttpServlet {
     private MemberData submitter;
     private MemberData member1;
     private MemberData member2;     //replaced member
-    private Calendar calendar1;
+    private Calendar calendarToday;
 
     private boolean dupError;
     private int nPos1;
@@ -128,24 +128,24 @@ public class ProcessChanges extends HttpServlet {
 
       // create a GregorianCalendar with the Pacific Daylight time zone
       // and the current date and time
-      calendar1 = new GregorianCalendar(TimeZone.getDefault());
+      calendarToday = new GregorianCalendar(TimeZone.getDefault());
       currTime = new java.util.Date();
 
       submitterID = request.getParameter("submitterID");  //required
       transaction = request.getParameter("transaction");  //required
       selectedID = request.getParameter("selectedID");    //required
       szdate1 = request.getParameter("date1");            //required
-      pos1 = request.getParameter("pos1");                //required
-      index1AsString = request.getParameter("index1");            //required
+      pos1 = request.getParameter("pos1");                //required 1-based
+      index1AsString = request.getParameter("index1");    //required 0-based
       listName = request.getParameter("listName");        //name 'selected' by radio button (can be null if 'remove' existing name)
 
-      debugOut("submitterID=" + submitterID);
-      debugOut("transaction=" + transaction);
-      debugOut("selectedID=" + selectedID);
-      debugOut("szdate1=" + szdate1);
-      debugOut("pos1=" + pos1);
-      debugOut("index1=" + index1AsString);
-      debugOut("listName=" + listName);
+      debugOut("readParameters: submitterID=" + submitterID
+          + ", transaction=" + transaction
+          + ", selectedID=" + selectedID
+          + ", szdate1=" + szdate1
+          + ", pos1=" + pos1
+          + ", index1=" + index1AsString
+          + ", listName=" + listName);
 
       member1 = null;
       member2 = null;
@@ -175,18 +175,18 @@ public class ProcessChanges extends HttpServlet {
       year1 = tmp;
 
       //noinspection MagicConstant
-      calendar1.set(year1, month1 - 1, date1);
-      dayOfWeek1 = calendar1.get(Calendar.DAY_OF_WEEK) - 1;
+      calendarToday.set(year1, month1 - 1, date1);
+      dayOfWeek0based = calendarToday.get(Calendar.DAY_OF_WEEK) - 1;  //calendarToday.get(..) returns a 1 based DOW index Sunday=1
 //read assignments
-      night1 = patrolData.readAssignment(szdate1);
+      night1 = patrolData.readAssignment(szdate1); //
       if (night1 == null) {
         //read and insert assignments from shift table
-        patrolData.resetShiftDefinitions();
-        Shifts shift;
+//        patrolData.resetShiftDefinitions();
+//        Shifts shift;
         int cnt = 1;
         String today = szdate1.substring(0, szdate1.indexOf("_") + 1);
-        while ((shift = patrolData.readNextShiftDefinition()) != null) {
-          if (shift.parsedEventName().equals(szDays[dayOfWeek1])) {
+        for (Shifts shift : patrolData.readShiftDefinitions()) {
+          if (shift.parsedEventName().equals(szDays[dayOfWeek0based])) {
             Assignments assign = new Assignments((today + cnt), shift);
             patrolData.writeAssignment(assign);
             if (cnt == nPos1) {
@@ -195,7 +195,6 @@ public class ProcessChanges extends HttpServlet {
             }
             ++cnt;
           }
-
         }
       }
     }
@@ -284,7 +283,7 @@ public class ProcessChanges extends HttpServlet {
       }
       out.println("<br/>");
 //on February 1, 2001 as Auxiliary Patroller
-      out.println("on: " + szDays[dayOfWeek1] + " " + szMonths[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
+      out.println("on: " + szDays[dayOfWeek0based] + " " + szMonths[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
 //at position: Auxiliary Patroller"
       out.println("at shift: " + szPos + "<br>");
 
@@ -318,8 +317,8 @@ public class ProcessChanges extends HttpServlet {
 //        tmp = new Integer(transaction.substring(6, 10));
 //        year2 = tmp;
 //        String nsDate = transaction.substring(6, 16);
-//        calendar1.set(year2, month2 - 1, date2);
-//        dayOfWeek2 = calendar1.get(Calendar.DAY_OF_WEEK) - 1;
+//        calendarToday.set(year2, month2 - 1, date2);
+//        dayOfWeek2 = calendarToday.get(Calendar.DAY_OF_WEEK) - 1;
 //        night2 = pData.readAssignment(nsDate);
 //        if (night2 == null) {
 //            out.println("<h1>Error: Assignment data for " + nsDate + " not found!</h1><br>");
@@ -487,7 +486,7 @@ public class ProcessChanges extends HttpServlet {
         //INSERT (eventually this should go away) only used when assignments are duplicated
         int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo shiftType is ignored?
         System.out.println("HACK in needsReplacement, shiftType forced to DAY SHIFT");
-        newIndividualAssignment = new NewIndividualAssignment(calendar1.getTime(), nPos1, nIndex1AsNum, shiftType,
+        newIndividualAssignment = new NewIndividualAssignment(calendarToday.getTime(), nPos1, nIndex1AsNum, shiftType,
             NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
 
         patrolData.insertNewIndividualAssignment(newIndividualAssignment);
@@ -551,8 +550,8 @@ public class ProcessChanges extends HttpServlet {
         strChange3 = "Schedule Changed:\n\n";
 
 //          strChange3 +="On "+szMonths[month1-1]+"/"+date1+"/"+year1+" \n  "+
-//          szTrans[transNumber]+" " + newName;// +" at position: "+ pos1; ???? szDays[dayOfWeek1]
-        strChange3 += trans[transNumber] + " " + newName + " On " + szDays[dayOfWeek1] + ", " + szMonths[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
+//          szTrans[transNumber]+" " + newName;// +" at position: "+ pos1; ???? szDays[dayOfWeek0based]
+        strChange3 += trans[transNumber] + " " + newName + " On " + szDays[dayOfWeek0based] + ", " + szMonths[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
 
         if (transNumber == TRADE) {
           strChange3 += "\nOn " + szMonths[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +

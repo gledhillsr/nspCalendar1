@@ -10,7 +10,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 public class ChangeShift extends HttpServlet {
-  boolean DEBUG = true;
+  boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new LocalChangeShift(request, response);
@@ -24,7 +24,7 @@ public class ChangeShift extends HttpServlet {
     //------------
     // static data
 //------------
-    Calendar calendar1 = null;
+    Calendar calendarToday = null;
     String[] sortedRoster;
     Hashtable<String, String> numToName = new Hashtable<String, String>();
     int rosterSize;
@@ -32,7 +32,7 @@ public class ChangeShift extends HttpServlet {
 
     int myShiftCount;
     private String resort;
-    Calendar calendar;
+//    Calendar calendar;
     String newName1 = "";
     String newName = "";
     String newIdNumber = "0";
@@ -51,8 +51,8 @@ public class ChangeShift extends HttpServlet {
     int todayDate;      //1 based
     int todayMonth;     //0 based
     int todayYear;      //duh
-    String szYear;
-    String szDate;
+//    String szYear;
+//    String szDate;
     Assignments[] assignmentGroups;
     boolean allowEditing;
     boolean isDirector;
@@ -77,6 +77,7 @@ public class ChangeShift extends HttpServlet {
       }
       resort = sessionData.getLoggedInResort();
       szMyID = sessionData.getLoggedInUserId();
+      debugOut(" STARTING: userID=" + szMyID);
       readParameterData(request);
 
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
@@ -98,33 +99,28 @@ public class ChangeShift extends HttpServlet {
       newIdNumber = "0";
       posWasEmpty = true;
 
-      String szDay = request.getParameter("dayOfWeek"); //Sunday (=0), Monday, Tuesday, etc.
-      szDate = request.getParameter("date");
+      String szDayOfWeek = request.getParameter("dayOfWeek"); //Sunday (=0), Monday, Tuesday, etc.
+      String szDate = request.getParameter("date");
       String szMonth = request.getParameter("month"); //0 based
-      szYear = request.getParameter("year");
+      String szYear = request.getParameter("year");
       String szPos = request.getParameter("pos");
       String szIndex = request.getParameter("index");
-      debugOut("in ChangeShifts...(debug is on)");
-      debugOut("  szDay=" + szDay);
-      debugOut("  szDate=" + szDate);
-      debugOut("  szMonth=" + szMonth);
-      debugOut("  szYear=" + szYear);
-      debugOut("  szPos=" + szPos);
-      debugOut("  szIndex=" + szIndex);
 
       try {
-        dayOfWeek = Integer.parseInt(szDay);// throws NumberFormatException
+        dayOfWeek = Integer.parseInt(szDayOfWeek);// throws NumberFormatException
         date = Integer.parseInt(szDate);
         month = Integer.parseInt(szMonth);
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        calendar = new GregorianCalendar(TimeZone.getDefault());
-        //noinspection MagicConstant
-        calendar.set(year, month, date);
+        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + date + ",  pos=" + pos + ", index=" + index);
+//        calendar = new GregorianCalendar(TimeZone.getDefault());
+//        //noinspection MagicConstant
+//        calendar.set(year, month, date);   //remember, month is 0-based
+//        debugOut("  calendar (Date)=" + calendar.toString());
       }
       catch (NumberFormatException ex) {
-        dayOfWeek = 7;
+        this.dayOfWeek = 7;
         date = 1;
         month = 1;
         year = 1;
@@ -162,7 +158,7 @@ public class ChangeShift extends HttpServlet {
       out.println("<A NAME=\"TOP\"></A>");
       out.println("<table border=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><tr><td>");
       out.println("<font size=\"6\" COLOR=\"000000\" face=\"arial,helvetica\"><b>" + szDays[dayOfWeek] + "</b></font><BR>");
-      out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + szMonths[month] + " " + szDate + ", " + szYear + "</B>");
+      out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + szMonths[month] + " " + date + ", " + year + "</B>");
       out.println("</font></TD>");
       out.println("<td VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" NOWRAP><FONT SIZE=\"2\" FACE=\"Arial, Helvetica\">");
       out.println("<a target='_self' href=\"MonthCalendar?resort=" + resort + "&month=" + month + "&year=" + year + "\"><IMG SRC=\"images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to Volunteer Roster\" ALIGN=\"BOTTOM\" width=\"32\" height=\"32\"></a>");
@@ -217,7 +213,7 @@ public class ChangeShift extends HttpServlet {
  int month2 = tmp.intValue();
  tmp = new Integer(strDate.substring(0,4));
  int year2 =  tmp.intValue();
- calendar1.set(year2,month2-1,day2);
+ calendarToday.set(year2,month2-1,day2);
  boolean ok = todayYear <= year2;
  if( ok ) {
  //trade must be same year or next year
@@ -237,7 +233,7 @@ public class ChangeShift extends HttpServlet {
 */
 //extraDate = myShiftAssignments[idx].getStartString() + " " + myShiftAssignments[idx].getEndString();
 //strDate = "2001-01-01";
-//      int dayOfWeek2 = calendar1.get(Calendar.DAY_OF_WEEK)-1;
+//      int dayOfWeek2 = calendarToday.get(Calendar.DAY_OF_WEEK)-1;
 //      extraDate = szDays[dayOfWeek2] +"  " + szMonths[month2-1] + " " + day2 + ", " + year2;
 //        visibleRadioButtons++;
 //        out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"trade_"+strDate+"\">");
@@ -272,9 +268,8 @@ public class ChangeShift extends HttpServlet {
     }
 
     //------------
-// printMiddle (submitterID, transaction, selectedID, date1, pos1, listName)
-//------------
-    @SuppressWarnings("deprecation")
+    // printMiddle (submitterID, transaction, selectedID, date1, pos1, listName)
+    // ------------
     private void printMiddle(PatrolData patrol) {
 //        int i;
 // print small date view
@@ -295,12 +290,13 @@ public class ChangeShift extends HttpServlet {
 
 //start of selection table
       out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
-      debugOut("  newName=" + newName);
-      debugOut("  myName=" + myName);
-      debugOut("  posWasEmpty=" + posWasEmpty);
-      debugOut("  allowEditing=" + allowEditing);
       boolean editingMyself = (newName != null && newName.equals(myName));
-      debugOut("  editingMyself=" + editingMyself);
+      debugOut("CALLING ProcessChanges with: szMyID=" + szMyID
+          + ", newName=" + newName
+          + ", myName=" + myName
+          + ", posWasEmpty=" + posWasEmpty
+          + ", allowEditing=" + allowEditing
+          + ",  editingMyself=" + editingMyself);
       if (allowEditing && myName != null) {
 //==INSERT== only used if position is empty
 //            if(editingMyself) {
@@ -417,14 +413,8 @@ public class ChangeShift extends HttpServlet {
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"submitterID\" VALUE=\"" + szMyID + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + pos + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"index1\" VALUE=\"" + index + "\">");
-
-//Integer idNum = (Integer)NameToNum.get(newName);
-//String selectedID = null;
-//try {
-//  selectedID = idNum.toString();
-//} catch (Exception e) { }
-//String    selectedID = Integer.toString(newIdNumber);
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + newIdNumber + "\">");
+debugOut("printBottom, submitterID=");
       String strDate = year + "-";
       if (month + 1 < 10) {
         strDate += "0";
@@ -436,7 +426,7 @@ public class ChangeShift extends HttpServlet {
       strDate += date;
       strDate += "_" + PatrolData.IndexToString(pos);   //in the data base, pos is 1 based
 
-      out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">");
+      out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">"); //todo srg , pos is off by +1
 
       out.println("<p align=\"center\">");
       out.println("<INPUT TYPE=SUBMIT VALUE=\"Submit\">");
@@ -513,13 +503,13 @@ public class ChangeShift extends HttpServlet {
 
       // create a GregorianCalendar with the Pacific Daylight time zone
       // and the current date and time
-      calendar1 = new GregorianCalendar(TimeZone.getDefault());
+      calendarToday = new GregorianCalendar(TimeZone.getDefault());
       currTime = new java.util.Date();
 
-      calendar1.setTime(currTime);
-      todayYear = calendar1.get(Calendar.YEAR);
-      todayMonth = calendar1.get(Calendar.MONTH) + 1;  //MONTH is 1 based
-      todayDate = calendar1.get(Calendar.DATE);
+      calendarToday.setTime(currTime);
+      todayYear = calendarToday.get(Calendar.YEAR);
+      todayMonth = calendarToday.get(Calendar.MONTH) + 1;  //MONTH is 1 based
+      todayDate = calendarToday.get(Calendar.DATE);
 //        if(resort.equals("Brighton")) {
       //todo working on this..  read all new assignments for this date, and put into hashmap
       monthNewIndividualAssignments = patrol.readNewIndividualAssignments(year, month + 1, date); //entire day
@@ -530,33 +520,21 @@ public class ChangeShift extends HttpServlet {
 //------------------------------------------------
 //    myShiftAssignments = new Shifts[300]; //assume never more than 300 per season
       //save all of MY assignments
-      patrol.resetAssignments();
+//todo       patrol.resetAssignments();
       totalAssignmentGroupsForToday = 0;
 //        String lastPos = " ";
       assignmentGroups = new Assignments[50];
-      Assignments data;
+//      Assignments data;
       myShiftCount = 0;
 //    assignmentCount = 0;
-      while ((data = patrol.readNextAssignment()) != null) {
-        y = data.getYear();
-        m = data.getMonth() - 1; //make it 0 based
-        d = data.getDay();
-        if (year == y && month == m && date == d) {
-          assignmentGroups[totalAssignmentGroupsForToday++] = data;
-        }
-        //now loop through all assignments for that shift
-        // to get all of my shifts on any date except today
-//        for(int j = 0; j < data.getCount(); ++j) {
-//            if(year == y && month == m && date == d)
-//                continue;   //don't add today
-////            assignmentCount++;
-//            //keep track of ALL of my assignments (for replace)
-//            if(szMyID.equals(data.getPosID(j))) {
-//                String theDate="(date goes here)";
-//                String theTime=(data.getStartingTimeString() + " - " + data.getEndingTimeString());
-//                myShiftAssignments[myShiftCount++] = new Shifts(" ",theDate,theTime, j);
-//            }
-//        }
+      for (Assignments shiftAssignments : patrol.readSortedAssignments(year, month + 1, date)) {
+//        y = data.getYear();
+//        m = data.getMonth() - 1; //make it 0 based
+//        d = data.getDay();
+//        if (year == y && month == m && date == d) {
+        debugOut("readData-asignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
+        assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
+///        }
       } //end while Shift ski assignments
     } //end of readdata
 

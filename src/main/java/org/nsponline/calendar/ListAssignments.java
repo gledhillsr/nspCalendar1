@@ -85,9 +85,7 @@ public class ListAssignments extends HttpServlet {
       myID = Integer.parseInt(szMyID);
       myName = member.getFullName();
 
-      patrol.resetAssignments();
       patrol.resetRoster();
-      Assignments ns;
       if (resort.equals("Brighton")) {
         Calendar calendar = new GregorianCalendar();
 
@@ -110,7 +108,9 @@ public class ListAssignments extends HttpServlet {
         shiftCounts[shiftType] = 0;
       }
       int totalShifts = 0;
-      while ((ns = patrol.readNextAssignment()) != null) {
+ //     patrol.resetAssignments();
+ //     Assignments ns;
+      for (Assignments ns : patrol.readAllSortedAssignments(szMyID)) {
         String szDate = ns.getExpandedDateAndTimeString();
         String szStartTime = ns.getStartingTimeString();
         String szEndTime = ns.getEndingTimeString();
