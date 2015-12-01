@@ -22,6 +22,7 @@ public class LoginHelp extends HttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG = true;
+  private static boolean DEBUG_SENSITIVE = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     new InternalLoginHelp(request, response);
@@ -191,28 +192,25 @@ public class LoginHelp extends HttpServlet {
           String originalPassword = rs.getString("password");
           String lastName = rs.getString("LastName");
           String firstName = rs.getString("FirstName");
+          originalPassword = originalPassword.trim();
+          lastName = lastName.trim();
+          pass = pass.trim();
 
-          boolean hasPassword = (originalPassword != null && originalPassword.length() > 0);
+          boolean hasPassword = (originalPassword.length() > 0);
           if (hasPassword) {
             if (originalPassword.equalsIgnoreCase(pass)) {
               validLogin = true;
             }
           }
           else {
-            //if there is NO password, then test if the password equals the last name
-//          if(lastName == pass) //name was passed on the command line as a quick password
-//              validLogin = true;
             if (lastName.equalsIgnoreCase(pass)) {
               validLogin = true;
             }
           }
-//only check for last name as a login, UNTIL they get a password
+          debugSensitiveOut("ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "] validLogin=" + validLogin);
 
           if (validLogin) {
-            java.util.Date trialTime = new java.util.Date();
-            //Login: Sun Jul 26 23:31:26 UTC 2015, Steve Gledhill, 192443 (Brighton)
-            System.out.println("Login: " + trialTime + ", " + firstName + " " + lastName + ", " + ID + " (" + resort + ")");
-
+            System.out.println("Login: " + new java.util.Date() + ", " + firstName + " " + lastName + ", " + ID + " (" + resort + ")");
           }
         } //end if
 
@@ -316,6 +314,11 @@ public class LoginHelp extends HttpServlet {
     private void debugOut(String str) {
       if (DEBUG) {
         System.out.println("DEBUG-LoginHelp(" + resort + "): " + str);
+      }
+    }
+    private void debugSensitiveOut(String str) {
+      if (DEBUG_SENSITIVE) {
+        System.out.println("DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);
       }
     }
   }

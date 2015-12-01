@@ -559,8 +559,11 @@ public class ProcessChanges extends HttpServlet {
         }
         out.println("<h2>Submission Successful</h2>");
         strChange3 += "\n";
-        out.println("Submission done by: " + szSubmitterName + " (" + submitterID + ")<br>");
-        strChange3 += "Submission done by: " + szSubmitterName + " (" + submitterID + ")\n";
+        //todo Nov 5, change (id) to (from email) for my convenience
+        out.println("Submission done by: " + szSubmitterName + " (" + sessionData.getEmailUser() + ")<br>");
+        strChange3 += "Submission done by: " + szSubmitterName + " (" + sessionData.getEmailUser() + ")\n";
+//        out.println("Submission done by: " + szSubmitterName + " (" + submitterID + ")<br>");
+//        strChange3 += "Submission done by: " + szSubmitterName + " (" + submitterID + ")\n";
         out.println("Submission time: " + currTime + "<br><br>");
         strChange3 += "Submission time: " + currTime;
         out.println("<br>At Ski Resort: " + resort + "<br>");
