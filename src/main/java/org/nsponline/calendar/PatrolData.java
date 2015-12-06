@@ -148,13 +148,6 @@ public class PatrolData {
     } //end try
   } //end PatrolData constructor
 
-  public static String getCurrentDateTimeString() {
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    // java.util.Date currentTime = new java.util.Date(year,month,date);
-    Calendar cal = new GregorianCalendar(TimeZone.getDefault());
-    return formatter.format(cal.getTime());
-  }
-
   //--------------
 // getConnection - to JDBC connector
 // -------------
@@ -227,7 +220,7 @@ public class PatrolData {
       if (assignmentResults.next()) {
         ns = new Assignments();
         ns.read(assignmentResults);
-        logger("fix. readNextAssignment-" + ns.toString());
+//todo        logger("fix. readNextAssignment-" + ns.toString());
       }
     }
     catch (Exception e) {
@@ -410,7 +403,7 @@ public class PatrolData {
   public void close() {
     try {
       if (DEBUG) {
-        System.out.println("-- close connection (" + localResort + "): " + getCurrentDateTimeString());
+        System.out.println("-- close connection (" + localResort + "): " + Utils.getCurrentDateTimeString());
       }
       connection.close(); //let it close in finalizer ??
     }
@@ -922,7 +915,7 @@ public class PatrolData {
   }
 
   public static void logger(String myResort, String message) {
-    System.out.println("(" + myResort + ": " + getCurrentDateTimeString() + ") " + message);
+    System.out.println("(" + myResort + ": " + Utils.getCurrentDateTimeString() + ") " + message);
   }
 
   public void deleteNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {

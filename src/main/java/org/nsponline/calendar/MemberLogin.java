@@ -15,10 +15,12 @@ public class MemberLogin extends HttpServlet {
   private static final boolean DEBUG = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new MemberLoginInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new MemberLoginInternal(request, response);
   }
 

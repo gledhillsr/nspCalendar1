@@ -13,10 +13,12 @@ public class CustomizedList extends HttpServlet {
 
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new InternalCustomizedList(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new InternalCustomizedList(request, response);
   }
 

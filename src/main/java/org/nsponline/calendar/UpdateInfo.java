@@ -21,10 +21,12 @@ public class UpdateInfo extends HttpServlet {
   };
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new InternalUpdateInfo(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new InternalUpdateInfo(request, response);
   }
 
@@ -48,7 +50,6 @@ public class UpdateInfo extends HttpServlet {
 
     private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       SessionData sessionData = new SessionData(request.getSession(), out);
-      debugOut("Entering UpdateInfo");
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList");
       if (credentials.hasInvalidCredentials()) {
         return;
@@ -381,7 +382,7 @@ public class UpdateInfo extends HttpServlet {
         }
 
         c.close();
-        System.out.println("UpdateInfo closed static connection for " + resort + " at " + PatrolData.getCurrentDateTimeString());
+        System.out.println("UpdateInfo closed static connection for " + resort + " at " + Utils.getCurrentDateTimeString());
 //      if (finalDelete) {
 //			out.println("Deleted...<br>");
 //        String nextPage = PatrolData.SERVLET_URL + "Directors?resort=" + resort + "&ID+" + IDOfEditor;

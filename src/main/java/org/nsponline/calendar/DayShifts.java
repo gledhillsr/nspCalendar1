@@ -23,10 +23,12 @@ public class DayShifts extends HttpServlet {
   private final static boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalDayShifts(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalDayShifts(request, response);
   }
 
@@ -69,7 +71,6 @@ public class DayShifts extends HttpServlet {
       MemberData editorsMemberData;
       response.setContentType("text/html");
       out = response.getWriter();
-      debugOut("------- Entering DayShifts --------");
       SessionData sessionData = new SessionData(request.getSession(), out);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
       if (credentials.hasInvalidCredentials()) {

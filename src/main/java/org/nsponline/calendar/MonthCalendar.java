@@ -24,10 +24,12 @@ public class MonthCalendar extends HttpServlet {
   private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new MonthCalendarInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new MonthCalendarInternal(request, response);
   }
 

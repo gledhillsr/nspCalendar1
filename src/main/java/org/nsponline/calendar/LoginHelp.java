@@ -21,14 +21,16 @@ import java.sql.ResultSet;
 public class LoginHelp extends HttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG = true;
+  private static boolean DEBUG = false;
   private static boolean DEBUG_SENSITIVE = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new InternalLoginHelp(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new InternalLoginHelp(request, response);
   }
 
@@ -47,7 +49,6 @@ public class LoginHelp extends HttpServlet {
       szParent = request.getParameter("NSPgoto");
       response.setContentType("text/html");
       out = response.getWriter();
-      debugOut("LoginHelp parameters: ID(" + id + "), resort(" + resort + "), parent(" + szParent + ")");
 
       SessionData sessionData = new SessionData(request.getSession(), out);
       PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data

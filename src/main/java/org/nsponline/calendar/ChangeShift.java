@@ -13,10 +13,12 @@ public class ChangeShift extends HttpServlet {
   boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalChangeShift(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalChangeShift(request, response);
   }
 

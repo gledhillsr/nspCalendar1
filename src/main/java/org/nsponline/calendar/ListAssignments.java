@@ -19,10 +19,12 @@ public class ListAssignments extends HttpServlet {
   private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalListAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalListAssignments(request, response);
   }
 
@@ -38,7 +40,6 @@ public class ListAssignments extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request.getSession(), out);
-      debugOut("inside ListAssignments");
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "ListAssignments");
       if (credentials.hasInvalidCredentials()) {
         return;

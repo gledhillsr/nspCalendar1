@@ -23,10 +23,12 @@ public class ProcessChanges extends HttpServlet {
   private static boolean PAUSE_ON_THIS_SCREEN = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalProcessChanges(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalProcessChanges(request, response);
   }
 
@@ -160,7 +162,7 @@ public class ProcessChanges extends HttpServlet {
       System.out.println("submitter: " + submitter.getFullName() + " (" + resort + ") trans=" + transaction +
           " date1=" + szdate1 + " selectedID=" + selectedID +
           " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old name(" + listName +
-          ") recorded at time " + PatrolData.getCurrentDateTimeString());
+          ") recorded at time " + Utils.getCurrentDateTimeString());
       szSubmitterName = submitter.getFullName();
 
       nPos1 = Integer.parseInt(pos1);

@@ -12,10 +12,12 @@ import java.util.ArrayList;
 public class EditShifts extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalEditShifts(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalEditShifts(request, response);
   }
 

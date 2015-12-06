@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 
 /**
  * @author Steve Gledhill
@@ -16,6 +17,7 @@ public class MemberList extends HttpServlet {
   private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalMemberList(request, response);
   }
 
@@ -131,6 +133,7 @@ public class MemberList extends HttpServlet {
       patrol.close(); //must close connection!
       return count;
     }
+
     private void debugOut(String str) {
       if (DEBUG) {
         System.out.println("DEBUG-SubList(" + resort + "): " + str);

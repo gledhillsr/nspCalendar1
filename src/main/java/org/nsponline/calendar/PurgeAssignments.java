@@ -14,10 +14,12 @@ import java.util.Calendar;
 public class PurgeAssignments extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalPurgeAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalPurgeAssignments(request, response);
   }
 

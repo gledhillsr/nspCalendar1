@@ -12,10 +12,12 @@ import java.util.*;
 public class CustomizedList2 extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalCustomizedList2(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
     new LocalCustomizedList2(request, response);
   }
 
@@ -92,30 +94,30 @@ public class CustomizedList2 extends HttpServlet {
 
     private LocalCustomizedList2(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       response.setContentType("text/html");
-        out = response.getWriter();
-        SessionData sessionData = new SessionData(request.getSession(), out);
-        directorSettings = null;
-        ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2");
-        if (credentials.hasInvalidCredentials()) {
-          return;
-        }
-        resort = sessionData.getLoggedInResort();
-        szMyID = sessionData.getLoggedInUserId();
-        readData(request, szMyID, sessionData);
+      out = response.getWriter();
+      SessionData sessionData = new SessionData(request.getSession(), out);
+      directorSettings = null;
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2");
+      if (credentials.hasInvalidCredentials()) {
+        return;
+      }
+      resort = sessionData.getLoggedInResort();
+      szMyID = sessionData.getLoggedInUserId();
+      readData(request, szMyID, sessionData);
 
-        OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
-        outerPage.printResortHeader(out);
-        patrollersListed = 0;
+      OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
+      outerPage.printResortHeader(out);
+      patrollersListed = 0;
 
-        printTop();
-        if (PatrolData.validResort(resort)) {
-          printBody();
-        }
-        else {
-          out.println("Invalid host resort.");
-        }
-        printBottom();
-        outerPage.printResortFooter(out);
+      printTop();
+      if (PatrolData.validResort(resort)) {
+        printBody();
+      }
+      else {
+        out.println("Invalid host resort.");
+      }
+      printBottom();
+      outerPage.printResortFooter(out);
     }
 
     private void dumpParameters() {
