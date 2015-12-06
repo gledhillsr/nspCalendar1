@@ -315,7 +315,7 @@ public class MonthCalendar extends HttpServlet {
 
     public String getJavaScriptAndStyles() {
       return "<style type='text/css'>\n" +
-          ".calendar td    {font-size:" + textFontSize + "px; font-family:arial,helvetica; padding:1px}\n" +
+          ".calendar td    {font-size:" + textFontSize + "pt; font-family:arial,helvetica; padding:1px}\n" +
           ".calendar a    {target:_self}\n" +
           "</style>";
     }
@@ -430,7 +430,7 @@ public class MonthCalendar extends HttpServlet {
 //style='font-size: 10pt; face='Verdana, Arial, Helvetica'
       //make default font small for calendar shifts
       out.println("<style type='text/css'>\n");
-      out.println("  .calendar td    {font-size:10; face:Verdana,Arial,Helvetica; padding:1px}\n");
+      out.println("  .calendar td    {font-size:10pt; face:Verdana,Arial,Helvetica; padding:1px}\n");
 //      out.println("  a    {target:_self}\n"); //todo srg WIP
       out.println("</style>\n");
 

@@ -382,10 +382,10 @@ public class CustomizedList2 extends HttpServlet {
 
       out.println("<style type=\"text/css\">");
       out.println("<!-- ");
-      out.println("body  {font-size:10; color: #000000; background-color: #ffffff}");
+      out.println("body  {font-size:10pt; color: #000000; background-color: #ffffff}");
       out.println(".list table {border-width:1px; border-color:#000000; border-style:solid; border-collapse:collapse; border-spacing:0}");
-      out.println(".list th    {font-size:" + textFontSize + "; font-weight: bold; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:2px}");
-      out.println(".list td    {font-size:" + textFontSize + "; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:1px}");
+      out.println(".list th    {font-size:" + textFontSize + "pt; font-weight: bold; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:2px}");
+      out.println(".list td    {font-size:" + textFontSize + "pt; color: #000000; background-color: #ffffff; border-width:1px; border-color:#000000; border-style:solid; padding:1px}");
       out.println("//-->");
       out.println("</style>");
 
