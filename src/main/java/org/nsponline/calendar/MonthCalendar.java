@@ -315,7 +315,7 @@ public class MonthCalendar extends HttpServlet {
 
     public String getJavaScriptAndStyles() {
       return "<style type='text/css'>\n" +
-          ".calendar td    {font-size:" + textFontSize + "; font-face:arial,helvetica; padding:1px}\n" +
+          ".calendar td    {font-size:" + textFontSize + "px; font-family:arial,helvetica; padding:1px}\n" +
           ".calendar a    {target:_self}\n" +
           "</style>";
     }
@@ -427,10 +427,10 @@ public class MonthCalendar extends HttpServlet {
       out.println("");
       out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'><TR><TD><img src='/images/ncclear.gif' width='3' height='3'></TD></TR></table>");
       out.println("");
-
+//style='font-size: 10pt; face='Verdana, Arial, Helvetica'
       //make default font small for calendar shifts
       out.println("<style type='text/css'>\n");
-      out.println("  .calendar td    {font-size:10; font-face:arial,helvetica; padding:1px}\n");
+      out.println("  .calendar td    {font-size:10; face:Verdana,Arial,Helvetica; padding:1px}\n");
 //      out.println("  a    {target:_self}\n"); //todo srg WIP
       out.println("</style>\n");
 
@@ -635,14 +635,14 @@ public class MonthCalendar extends HttpServlet {
 //special flag, we are closed this day (patroller[0] ID = 1)
         out.println(htmDisplayData);
         out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;CLOSED</font>");
-        if (eventName != null) {
+        if (eventName != null && !eventName.trim().isEmpty()) {
           out.println("<BR><font size='2'>" + eventName + "</font>");
         }
 
       }
       else {
 //Normal day
-        if (eventName != null) {
+        if (eventName != null && !eventName.trim().isEmpty()) {
           out.println(htmDisplayData);
           out.println("<BR><font size='2'>" + eventName + "</font>");
 //                out.println(eventName);
