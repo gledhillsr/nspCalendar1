@@ -23,12 +23,12 @@ public class ProcessChanges extends HttpServlet {
   private static boolean PAUSE_ON_THIS_SCREEN = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalProcessChanges(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalProcessChanges(request, response);
   }
 
@@ -103,7 +103,7 @@ public class ProcessChanges extends HttpServlet {
     };
 
     private LocalProcessChanges(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      SessionData sessionData = new SessionData(request, out);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar"); //this class has no display
       if (credentials.hasInvalidCredentials()) {
         return;
@@ -141,7 +141,7 @@ public class ProcessChanges extends HttpServlet {
       index1AsString = request.getParameter("index1");    //required 0-based
       listName = request.getParameter("listName");        //name 'selected' by radio button (can be null if 'remove' existing name)
 
-      debugOut("readParameters: submitterID=" + submitterID
+      debugOut(request, "readParameters: submitterID=" + submitterID
           + ", transaction=" + transaction
           + ", selectedID=" + selectedID
           + ", szdate1=" + szdate1
@@ -159,10 +159,10 @@ public class ProcessChanges extends HttpServlet {
         out.println("<h1>Error: member " + submitterID + " not found!</h1><br>");
         return;
       }
-      System.out.println("submitter: " + submitter.getFullName() + " (" + resort + ") trans=" + transaction +
+      Utils.printToLogFile(request, "submitter: " + submitter.getFullName() + " (" + resort + ") trans=" + transaction +
           " date1=" + szdate1 + " selectedID=" + selectedID +
           " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old name(" + listName +
-          ") recorded at time " + Utils.getCurrentDateTimeString());
+          ") recorded at time ");
       szSubmitterName = submitter.getFullName();
 
       nPos1 = Integer.parseInt(pos1);
@@ -618,17 +618,17 @@ public class ProcessChanges extends HttpServlet {
 //    System.out.println("----------------");
             while ((mbr = patrolData.nextMember("")) != null) {
               if (mbr.isDirector() && mbr.getDirector().equalsIgnoreCase("yesEmail")) {
-                mailto(mail, mbr, strChange3, true);
+                mailto(sessionData, mail, mbr, strChange3, true);
               }
 
             } //end while
             //send e-mail to 1st patroller
             if (notifyPatrollers) {
               if (!sentToFirst && member1 != null) {
-                mailto(mail, member1, strChange3, false);
+                mailto(sessionData, mail, member1, strChange3, false);
               }
               if (!sentToSecond && member2 != null) {
-                mailto(mail, member2, strChange3, false);
+                mailto(sessionData, mail, member2, strChange3, false);
               }
             }
 // System.out.println(strChange3); //LOG message
@@ -642,7 +642,7 @@ public class ProcessChanges extends HttpServlet {
      * @param strChange3 zz
      * @param director   not used
      */
-    private void mailto(MailMan mail, MemberData mbr, String strChange3, boolean director) {
+    private void mailto(SessionData sessionData, MailMan mail, MemberData mbr, String strChange3, boolean director) {
       //noinspection StatementWithEmptyBody
       if (director) {
         //todo send director notifications here???
@@ -662,7 +662,7 @@ public class ProcessChanges extends HttpServlet {
             sentToSecond = true;
           }
 //System.out.println("sending to: "+recipient);   //no e-mail, JUST LOG IT
-          mail.sendMessage("Patrol Roster Changed (" + resort + ")", strChange3, recipient);
+          mail.sendMessage(sessionData, "Patrol Roster Changed (" + resort + ")", strChange3, recipient);
 //System.out.println("mail was sucessfull");  //no e-mail, JUST LOG IT
 //        }
 //        catch (MailManException ex) {
@@ -672,10 +672,10 @@ public class ProcessChanges extends HttpServlet {
       }
     } //end mailto
 
-    private void debugOut(String msg) {
+    private void debugOut(HttpServletRequest request, String msg) {
       //noinspection ConstantConditions
       if (DEBUG) {
-        System.out.println("DEBUG-ProcessChanges: " + msg);
+        Utils.printToLogFile(request, "DEBUG-ProcessChanges: " + msg);
       }
     }
   } //end LocalProcessChanges

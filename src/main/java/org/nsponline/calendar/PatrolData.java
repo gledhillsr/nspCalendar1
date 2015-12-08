@@ -1,5 +1,6 @@
 package org.nsponline.calendar;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -21,7 +22,6 @@ public class PatrolData {
 //  final static String[] ids = TimeZone.getAvailableIDs(-7 * 60 * 60 * 1000);
 //  final static SimpleTimeZone MDT = new SimpleTimeZone(-7 * 60 * 60 * 1000, ids[0]);
   final static String NEW_SHIFT_STYLE = "--New Shift Style--";
-
   // set up rules for daylight savings time
 //  static {
 //    MDT.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
@@ -178,7 +178,7 @@ public class PatrolData {
   public void resetAssignments() {
     try {
       String selectAllAssignmentsByDateSQLString = Assignments.getSelectAllAssignmentsByDateSQLString();
-      logger("select=" + selectAllAssignmentsByDateSQLString);
+      logger("resetAssignments: " + selectAllAssignmentsByDateSQLString);
       assignmentsStatement = connection.prepareStatement(selectAllAssignmentsByDateSQLString);
       assignmentResults = assignmentsStatement.executeQuery();
     }
@@ -310,22 +310,22 @@ public class PatrolData {
     return ds;
   }
 
-  public Shifts readNextShiftDefinition() {
-    logger("HACK fix all calls to readNextShiftDefinition");
-    Shifts ns = null;
-    try {
-      if (shiftResults.next()) {
-        ns = new Shifts();
-        ns.read(shiftResults);
-        logger("  HACK , shiftDef: " + ns.toString());
-      }
-    }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot read Shift, reason:" + e.toString());
-      return null;
-    }
-    return ns;
-  }
+//  public Shifts readNextShiftDefinition() {
+//    logger("HACK fix all calls to readNextShiftDefinition");
+//    Shifts ns = null;
+//    try {
+//      if (shiftResults.next()) {
+//        ns = new Shifts();
+//        ns.read(shiftResults);
+//        logger("  HACK , shiftDef: " + ns.toString());
+//      }
+//    }
+//    catch (Exception e) {
+//      System.out.println("(" + localResort + ") Cannot read Shift, reason:" + e.toString());
+//      return null;
+//    }
+//    return ns;
+//  }
   public ArrayList<Shifts> readShiftDefinitions() {
     ArrayList<Shifts> shiftDefinitions = new ArrayList<Shifts>();
     try {
@@ -367,7 +367,7 @@ public class PatrolData {
   public void deleteShift(Shifts ns) {
 //System.out.println("delete shift:"+ns);
     String qryString = ns.getDeleteSQLString();
-    logger(qryString);
+    logger("deleteShift: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -387,7 +387,7 @@ public class PatrolData {
     else {
       qryString = ns.getInsertQueryString();
     }
-    logger(qryString);
+    logger("writeShift: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -646,7 +646,7 @@ public class PatrolData {
     else {
       qryString = ns.getInsertQueryString();
     }
-    logger(" writeAssignment: " + qryString);
+    logger("writeAssignment: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -681,7 +681,7 @@ public class PatrolData {
 //     deleteShift - DELETE Shift assignment for a specified date and index
 //---------------------------------------------------------------------
   public void deleteAssignment(Assignments ns) {
-    logger(" delete Assignment:" + ns);
+    logger("delete Assignment:" + ns);
     String qryString = ns.getDeleteSQLString();
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
@@ -848,7 +848,7 @@ public class PatrolData {
     try {
 //todo remove me      System.out.println("ERROR: PatrolData Under Construction need to insert " + newIndividualAssignment);
       String qryString = newIndividualAssignment.getInsertSQLString();
-      logger("insert newIndividualAssignment- qryString=" + qryString);
+      logger("insertNewIndividualAssignment" + qryString);
       try {
         PreparedStatement sAssign = connection.prepareStatement(qryString);
         sAssign.executeUpdate();
@@ -868,7 +868,7 @@ public class PatrolData {
     try {
       System.out.println("ERROR: PatrolData Under Construction need to update " + newIndividualAssignment);
       String qryString = newIndividualAssignment.getUpdateSQLString();
-      logger("update newIndividualAssignment- qryString=" + qryString);
+      logger("updateNewIndividualAssignment: " + qryString);
       try {
         PreparedStatement sAssign = connection.prepareStatement(qryString);
         sAssign.executeUpdate();
@@ -891,7 +891,7 @@ public class PatrolData {
     //SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE "2009-02-07%"
     try {
       String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE \'" + key + "\'";
-      logger(queryString);
+      logger("readNewIndividualAssignments: " + queryString);
       assignmentsStatement = connection.prepareStatement(queryString);
       assignmentResults = assignmentsStatement.executeQuery();
       while (assignmentResults.next()) {
@@ -911,11 +911,16 @@ public class PatrolData {
   }
 
   private void logger(String message) {
-    logger(localResort, message);
+    if (sessionData != null && sessionData.getRequest() != null) {
+      Utils.printToLogFile(sessionData.getRequest(), message);
+    }
+    else {
+      logger(localResort, message);
+    }
   }
-
+//SessionData sessionData
   public static void logger(String myResort, String message) {
-    System.out.println("(" + myResort + ": " + Utils.getCurrentDateTimeString() + ") " + message);
+    Utils.printToLogFile(null, "(" + myResort + ") " + message);
   }
 
   public void deleteNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
@@ -947,7 +952,7 @@ public class PatrolData {
         Assignments ns = new Assignments();
         ns.read(assignmentResults);
         if (ns.includesPatroller(patrollerId)) {
-          logger("(" + (cnt++) + ") NextAssignment-" + ns.toString());
+//          logger("(" + (cnt++) + ") NextAssignment-" + ns.toString());
           monthAssignments.add(ns);
         }
       }
@@ -960,13 +965,13 @@ public class PatrolData {
 
   public ArrayList<Assignments> readSortedAssignments(int year, int month) {
     String dateMask = String.format("%4d-%02d-", year, month) + "%";
-    logger("readSortedAssignments(" + dateMask + ")");
+//    logger("  readSortedAssignments(" + dateMask + ")");
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
 //      zzz
 //      String dateMask = "2015-10-%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
-//      logger("readSortedAssignments: " + qryString);
+      logger("readSortedAssignments: " + qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
@@ -985,13 +990,13 @@ public class PatrolData {
 
   public ArrayList<Assignments> readSortedAssignments(int year, int month, int day) {
     String dateMask = String.format("%4d-%02d-%02d_", year, month, day) + "%";
-    logger("readSortedAssignments(" + dateMask + ")");
+//    logger("  readSortedAssignments(" + dateMask + ")");
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
 //      zzz
 //      String dateMask = "2015-10-%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
-      logger("select=" + qryString);
+      logger("readSortedAssignments:" + qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 

@@ -12,12 +12,12 @@ import java.util.*;
 public class CustomizedList2 extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalCustomizedList2(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalCustomizedList2(request, response);
   }
 
@@ -91,11 +91,12 @@ public class CustomizedList2 extends HttpServlet {
     String sort1;
     String sort2;
     String sort3;
+    SessionData sessionData;
 
     private LocalCustomizedList2(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      sessionData = new SessionData(request, out);
       directorSettings = null;
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2");
       if (credentials.hasInvalidCredentials()) {
@@ -760,7 +761,7 @@ public class CustomizedList2 extends HttpServlet {
 
     private void debugOut(String msg) {
       if (debug) {
-        System.out.println("DEBUG-CustomizedList2(" + resort + "): " + msg);
+        Utils.printToLogFile(sessionData.getRequest() ,"DEBUG-CustomizedList2(" + resort + "): " + msg);
       }
     }
   }

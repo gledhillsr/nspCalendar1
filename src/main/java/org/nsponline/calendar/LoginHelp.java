@@ -22,21 +22,23 @@ public class LoginHelp extends HttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG = false;
+  @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG_SENSITIVE = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InternalLoginHelp(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InternalLoginHelp(request, response);
   }
 
   class InternalLoginHelp {
 
     String resort;
+    SessionData sessionData;
 
     InternalLoginHelp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
@@ -50,7 +52,7 @@ public class LoginHelp extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
 
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      sessionData = new SessionData(request, out);
       PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
       if (isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
@@ -101,7 +103,7 @@ public class LoginHelp extends HttpServlet {
       return "";
     }
 
-    private boolean mailto(MailMan mail, MemberData mbr, String subject, String message) {
+    private boolean mailto(SessionData sessionData, MailMan mail, MemberData mbr, String subject, String message) {
       if (mbr == null) {
         return false;
       }
@@ -109,7 +111,7 @@ public class LoginHelp extends HttpServlet {
       if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
         System.out.print("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
 //        try {
-          mail.sendMessage(subject, message, recipient);
+          mail.sendMessage(sessionData, subject, message, recipient);
 //          System.out.println("  mail was sucessfull");    //no e-mail, JUST LOG IT
           return true;
 //        }
@@ -147,7 +149,7 @@ public class LoginHelp extends HttpServlet {
             "Your password is: " + password + "\n\n" +
             "If you continue to have problems, please contact your director.\n\nThanks.";
         MailMan mail = new MailMan(sessionData.getSmtpHost(), emailAddress, fullName, sessionData);
-        if (mailto(mail, member, "Here is your password you requested", message)) {
+        if (mailto(sessionData, mail, member, "Here is your password you requested", message)) {
           return 0; //mail was sent
         }
         else {
@@ -180,6 +182,7 @@ public class LoginHelp extends HttpServlet {
       try {
         // Change MyDSN, myUsername and myPassword to your specific DSN
         Connection c = PatrolData.getConnection(resort, sessionData);
+        @SuppressWarnings("SqlNoDataSourceInspection")
         String szQuery = "SELECT * FROM roster WHERE IDNumber = \"" + ID + "\"";
         PreparedStatement sRost = c.prepareStatement(szQuery);
         if (sRost == null) {
@@ -211,7 +214,7 @@ public class LoginHelp extends HttpServlet {
           debugSensitiveOut("ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "] validLogin=" + validLogin);
 
           if (validLogin) {
-            System.out.println("Login: " + new java.util.Date() + ", " + firstName + " " + lastName + ", " + ID + " (" + resort + ")");
+            Utils.printToLogFile(sessionData.getRequest(), "Login: " + new java.util.Date() + ", " + firstName + " " + lastName + ", " + ID + " (" + resort + ")");
           }
         } //end if
 
@@ -219,7 +222,7 @@ public class LoginHelp extends HttpServlet {
       }
       catch (Exception e) {
         out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-        System.out.println("LoginHelp. Error connecting or reading table:" + e.getMessage());
+        Utils.printToLogFile(sessionData.getRequest(), "LoginHelp. Error connecting or reading table:" + e.getMessage());
       } //end try
 
       return validLogin;
@@ -314,12 +317,12 @@ public class LoginHelp extends HttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        System.out.println("DEBUG-LoginHelp(" + resort + "): " + str);
+        Utils.printToLogFile(sessionData.getRequest(), "DEBUG-LoginHelp(" + resort + "): " + str);
       }
     }
     private void debugSensitiveOut(String str) {
       if (DEBUG_SENSITIVE) {
-        System.out.println("DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);
+        Utils.printToLogFile(sessionData.getRequest(), "DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);
       }
     }
   }

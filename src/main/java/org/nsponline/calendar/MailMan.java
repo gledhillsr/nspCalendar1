@@ -31,9 +31,9 @@ public class MailMan {
    * @param fromText    fromAddress text    ie: Steve Gledhill
    */
   public MailMan(String host, String fromAddress, String fromText, SessionData sessionData) {
-    debugOut(" CONSTRUCTOR- (host=" + host + ", fromAddress=" + fromAddress + ", fromText='" + fromText + "')");
+    debugOut(sessionData, " CONSTRUCTOR- (host=" + host + ", fromAddress=" + fromAddress + ", fromText='" + fromText + "')");
     if (DEBUG_DONT_SEND) {
-      debugOutDontSend("NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
+      debugOutDontSend(sessionData, "NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
       return;
     }
 //    this.fromAddress = fromAddress;
@@ -109,10 +109,10 @@ public class MailMan {
    * @param message   The message body.
    * @param recipient The recipient.
    */
-  public void sendMessage(String subject, String message, String recipient) {
+  public void sendMessage(SessionData sessionData, String subject, String message, String recipient) {
     String[] recipients = new String[1];
     recipients[0] = recipient;
-    sendMessage(subject, message, recipients);
+    sendMessage(sessionData, subject, message, recipients);
   }
 
   /**
@@ -125,10 +125,10 @@ public class MailMan {
    * @param recipients  An array of strings representing all of the
    *                    recipients.
    */
-  public void sendMessage(String subject, String messageBody, String[] recipients) {
-    debugOut("sendMessage(subject='" + subject + "', message='\n---- message body ----\n" + messageBody + "\n---- end body ---\nrecipients=" + recipients[0] + ")");
+  public void sendMessage(SessionData sessionData, String subject, String messageBody, String[] recipients) {
+    debugOut(sessionData, "sendMessage(subject='" + subject + "', message='\n---- message body ----\n" + messageBody + "\n---- end body ---\nrecipients=" + recipients[0] + ")");
     if (DEBUG_DONT_SEND) {
-      debugOutDontSend("nothing sent because of debug");
+      debugOutDontSend(sessionData, "nothing sent because of debug");
       return;
     }
 
@@ -187,19 +187,19 @@ public class MailMan {
 //    }
   }
 
-  private void debugOut(Object... msg) {
+  private void debugOut(SessionData sessionData, Object... msg) {
     if (DEBUG) {
-      System.out.print("DEBUG-MailMan: ");
+      Utils.printToLogFile(sessionData.getRequest(), "DEBUG-MailMan: ");
       for (Object item : msg) {
-        System.out.print(item);
+        System.out.print(item); //keep this here
       }
-      System.out.println();
+      System.out.println(); //keep this here
     }
   }
 
-  private void debugOutDontSend(String msg) {
+  private void debugOutDontSend(SessionData sessionData, String msg) {
     if (DEBUG_DONT_SEND) {
-      System.out.println("DEBUG_DONT_SEND-Mailman: " + msg);
+      Utils.printToLogFile(sessionData.getRequest(), "DEBUG_DONT_SEND-Mailman: " + msg);
     }
   }
 

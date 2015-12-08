@@ -3,22 +3,24 @@ package org.nsponline.calendar;
 
 import com.mysql.jdbc.StringUtils;
 
-import java.io.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
-import java.lang.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
 
 public class ChangeShift extends HttpServlet {
   boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalChangeShift(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalChangeShift(request, response);
   }
 
@@ -72,15 +74,15 @@ public class ChangeShift extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
 
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      SessionData sessionData = new SessionData(request, out);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
       if (credentials.hasInvalidCredentials()) {
         return;
       }
       resort = sessionData.getLoggedInResort();
       szMyID = sessionData.getLoggedInUserId();
-      debugOut(" STARTING: userID=" + szMyID);
-      readParameterData(request);
+//      debugOut(sessionData, " STARTING: userID=" + szMyID);
+      readParameterData(sessionData, request);
 
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       readData(sessionData, patrol);
@@ -89,13 +91,13 @@ public class ChangeShift extends HttpServlet {
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
-      printMiddle(patrol);
-      printBottom();
+      printMiddle(sessionData, patrol);
+      printBottom(sessionData);
       outerPage.printResortFooter(out);
       patrol.close();
     }
 
-    private void readParameterData(HttpServletRequest request) {
+    private void readParameterData(SessionData sessionData, HttpServletRequest request) {
       newName = "";
       newName1 = "";
       newIdNumber = "0";
@@ -115,7 +117,7 @@ public class ChangeShift extends HttpServlet {
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + date + ",  pos=" + pos + ", index=" + index);
+        debugOut(sessionData, "dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + date + ",  pos=" + pos + ", index=" + index);
 //        calendar = new GregorianCalendar(TimeZone.getDefault());
 //        //noinspection MagicConstant
 //        calendar.set(year, month, date);   //remember, month is 0-based
@@ -127,7 +129,7 @@ public class ChangeShift extends HttpServlet {
         month = 1;
         year = 1;
         pos = 1;
-        debugOut("ERROR, numeric processing exception, using default values");
+        debugOut(sessionData, "ERROR, numeric processing exception, using default values");
       }   //err
     } //end readParameterDate
 
@@ -254,7 +256,7 @@ public class ChangeShift extends HttpServlet {
       }
     } //addnames
 
-    private void findIfPositionWasEmpty(PatrolData patrol) {
+    private void findIfPositionWasEmpty(SessionData sessionData, PatrolData patrol) {
       for (int assignmentGroup = 0; assignmentGroup < totalAssignmentGroupsForToday; ++assignmentGroup) {
         for (int offsetWithinGroup = 0; offsetWithinGroup < assignmentGroups[assignmentGroup].getCount(); ++offsetWithinGroup) {
           String id = assignmentGroups[assignmentGroup].getPosID(offsetWithinGroup);
@@ -262,7 +264,7 @@ public class ChangeShift extends HttpServlet {
             id = id.substring(1);
           }
           if ((assignmentGroup + 1) == pos && offsetWithinGroup == index) {
-            debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
+            debugOut(sessionData, "look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
             posWasEmpty = isThisPositionEmpty(id, patrol);
           }
         }
@@ -272,10 +274,10 @@ public class ChangeShift extends HttpServlet {
     //------------
     // printMiddle (submitterID, transaction, selectedID, date1, pos1, listName)
     // ------------
-    private void printMiddle(PatrolData patrol) {
+    private void printMiddle(SessionData sessionData, PatrolData patrol) {
 //        int i;
 // print small date view
-      findIfPositionWasEmpty(patrol);
+      findIfPositionWasEmpty(sessionData, patrol);
 //      out.println("</table>");
 //      out.println("<HR>");    //Horziontal Rule
 
@@ -293,7 +295,7 @@ public class ChangeShift extends HttpServlet {
 //start of selection table
       out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
       boolean editingMyself = (newName != null && newName.equals(myName));
-      debugOut("CALLING ProcessChanges with: szMyID=" + szMyID
+      debugOut(sessionData, "CALLING ProcessChanges with: szMyID=" + szMyID
           + ", newName=" + newName
           + ", myName=" + myName
           + ", posWasEmpty=" + posWasEmpty
@@ -409,14 +411,14 @@ public class ChangeShift extends HttpServlet {
 //    }
     }
 
-    private void printBottom() {
+    private void printBottom(SessionData sessionData) {
       out.println("</table>");
 //??
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"submitterID\" VALUE=\"" + szMyID + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + pos + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"index1\" VALUE=\"" + index + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + newIdNumber + "\">");
-debugOut("printBottom, submitterID=");
+debugOut(sessionData, "printBottom, submitterID=");
       String strDate = year + "-";
       if (month + 1 < 10) {
         strDate += "0";
@@ -476,7 +478,7 @@ debugOut("printBottom, submitterID=");
     public void readData(SessionData sessionData, PatrolData patrol) {
 //        String last, first;
       String idNum;
-      int y, m, d;
+//      int y, m, d;
       DirectorSettings ds;
 
       MemberData member1 = patrol.getMemberByID(szMyID);
@@ -534,15 +536,15 @@ debugOut("printBottom, submitterID=");
 //        m = data.getMonth() - 1; //make it 0 based
 //        d = data.getDay();
 //        if (year == y && month == m && date == d) {
-        debugOut("readData-asignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
+        debugOut(sessionData, "readData-asignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
         assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
 ///        }
       } //end while Shift ski assignments
     } //end of readdata
 
-    private void debugOut(String msg) {
+    private void debugOut(SessionData sessionData, String msg) {
       if (DEBUG) {
-        System.out.println("DEBUG-ChangeShift(" + resort + "): " + msg);
+        Utils.printToLogFile(sessionData.getRequest() ,"DEBUG-ChangeShift(" + resort + "): " + msg);
       }
     }
   }

@@ -203,13 +203,13 @@ public class Assignments {
     szDate = newDate;
   }
 
-  public void setStartTime(String str) {
-    szStartTime = str;
-  }
-
-  public void setEndTime(String str) {
-    szEndTime = str;
-  }
+//  public void setStartTime(String str) {
+//    szStartTime = str;
+//  }
+//
+//  public void setEndTime(String str) {
+//    szEndTime = str;
+//  }
 
   public void setEventName(String str) {
     szEventName = str;
@@ -369,12 +369,12 @@ public class Assignments {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      System.out.println("Debug-DayShifts: " + msg);
+      Utils.printToLogFile(null, "Debug-Assignments: " + msg);
     }
   }
 
   private static void LOG(String msg) {
-    System.out.println(msg);
+    Utils.printToLogFile(null, msg);
   }
 
   public boolean includesPatroller(String patrollerId) {

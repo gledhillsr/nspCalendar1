@@ -24,12 +24,12 @@ public class MonthCalendar extends HttpServlet {
   private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new MonthCalendarInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new MonthCalendarInternal(request, response);
   }
 
@@ -63,14 +63,14 @@ public class MonthCalendar extends HttpServlet {
     private int textLen;
     private int dayWidth;   //normal is 14 and 14 (100/7 = 14) ps need to FIX is other spots also
     private int wkEndWidth; //big weekend is 11 and 22 (100/9)
-    private String szMonth;
-    private String szYear;
     private boolean notLoggedIn;
     private String patrollerIdTag;
     private String resort;
+    private SessionData sessionData;
 
     MonthCalendarInternal(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
+      String szMonth;
+      String szYear;
       PrintWriter out;
 
       response.setContentType("text/html");
@@ -91,10 +91,10 @@ public class MonthCalendar extends HttpServlet {
         textLen = 0;  //undefined
       }
 
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      sessionData = new SessionData(request, out);
+      new ValidateCredentials(sessionData, request, response, null);  //do not redirect
       new ValidateCredentials(sessionData, request, response, null);  //do not redirect
       patrollerId = sessionData.getLoggedInUserId();
-      debugOut("********\nMonthCalendar loggedInID=" + patrollerId + "\n**********");
       if (Utils.isNotEmpty(patrollerId)) {
         patrollerIdTag = "&ID=" + patrollerId;
         notLoggedIn = false;
@@ -105,20 +105,34 @@ public class MonthCalendar extends HttpServlet {
       }
 
       resort = request.getParameter("resort");
-      if (DEBUG) {
-        System.out.println("Starting MonthCalendar. notLoggedIn=" + notLoggedIn);
-        System.out.println("--resort=(" + resort + ")");
-        System.out.println("--patrollerId=(" + patrollerId + ")");
-        System.out.println("--patrollerIdTag=(" + patrollerIdTag + ")");
-      }
       isDirector = false;
       directorSettings = null;
       szMonth = request.getParameter("month");
       szYear = request.getParameter("year");
-      if (szMonth != null && szYear != null) {
+
+      calendar = new GregorianCalendar(TimeZone.getDefault());
+//todo the next 2 line are scary.  Why are they here.  I remember something where the current day was weird back east
+      trialTime = new java.util.Date();
+      calendar.setTime(trialTime);
+
+      realCurrDate = calendar.get(Calendar.DATE);
+      realCurrMonth = calendar.get(Calendar.MONTH);
+      realCurrYear = calendar.get(Calendar.YEAR);
+
+      if (!isDateInvalidOrMissing(szMonth, szYear)) {
         currMonth = new Integer(szMonth);
         currYear = new Integer(szYear);
       }
+      else {
+        if (szYear != null && szMonth != null) {
+//          out.println("invalid calendar date specified, starting calendar at: " + szMonths[realCurrMonth] + " " + realCurrYear);
+          debugOut("invalid calendar date, starting calendar at: (0 based month) " + realCurrMonth + "/1/" + realCurrYear);
+        }
+        currMonth = realCurrMonth ;
+        currYear = realCurrYear;
+      }
+      calendar.set(currYear, currMonth, 1);
+
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
@@ -126,7 +140,7 @@ public class MonthCalendar extends HttpServlet {
       outerPage.printResortHeader(out);
 
       monthData = new Assignments[32][Shifts.MAX + 5]; //all shifts for all days in 1 month
-      getDateInfo(); //reset calendar to 1st of month
+      getPrevNextDateInfo(); //reset calendar to 1st of month
       readData(out, resort, sessionData);
 
       printTopOfPage(out, resort);
@@ -135,21 +149,32 @@ public class MonthCalendar extends HttpServlet {
       outerPage.printResortFooter(out);
     }
 
-    private void getDateInfo() {
+    private boolean isDateInvalidOrMissing(String szMonth, String szYear) {
+      if (szMonth == null || szYear == null) {
+        return true;
+      }
+      int paramMonth = new Integer(szMonth);
+      int paramYear = new Integer(szYear);
+
+      if (paramMonth < 0 || paramMonth > 12) {
+        return true;
+      }
+      //noinspection RedundantIfStatement
+      if (paramYear < (realCurrYear - 2) || paramYear > (realCurrYear + 1)) {
+        return true;
+      }
+      return false;
+    }
+
+    private void getPrevNextDateInfo() {
       // create a GregorianCalendar with the Mountain Daylight time zone
       // and the current date and time
-      calendar = new GregorianCalendar(TimeZone.getDefault());
-      trialTime = new java.util.Date();
-      calendar.setTime(trialTime);
-      realCurrDate = calendar.get(Calendar.DATE);
-      realCurrMonth = calendar.get(Calendar.MONTH);
-      realCurrYear = calendar.get(Calendar.YEAR);
-      if (currYear == 0) { //values NOT passed in
-        currMonth = realCurrMonth;
-        currYear = realCurrYear;
-      }
+
+//      if (currYear == 0) { //values NOT passed in
+//        currMonth = realCurrMonth;
+//        currYear = realCurrYear;
+//      }
       //noinspection MagicConstant
-      calendar.set(currYear, currMonth, 1);
       if (currMonth == 0) { //beginning of year?
         prevMonth = 11;
         prevYear = currYear - 1;
@@ -179,9 +204,6 @@ public class MonthCalendar extends HttpServlet {
         if (member.getID().equals(patrollerId) || sessionData.getBackDoorUser().equals(patrollerId)) {
           isDirector = member.isDirector();
         }
-      }
-      if (DEBUG) {
-        System.out.println("MounthCalendar isDirector=" + isDirector);
       }
       monthNewIndividualAssignments = patrol.readNewIndividualAssignments(currYear, currMonth + 1, 0); //entire month
 
@@ -464,10 +486,7 @@ public class MonthCalendar extends HttpServlet {
 //
 //      out.println("&nbsp;&nbsp;");
 
-      String go = "MonthCalendar?resort=" + resort + patrollerIdTag;    //hack
-      if (szMonth != null) {
-        go += "&month=" + szMonth + "&year=" + szYear;
-      }
+      String go = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + currMonth + "&year=" + currYear;
 
 //      out.println("Font Size:<SELECT NAME='FontSize' SIZE=1  onChange='resizeMe(\"" + go + "\")' >");
 //      out.println("<OPTION " + ((textFontSize == 12) ? "SELECTED" : "") + ">12");
@@ -477,18 +496,14 @@ public class MonthCalendar extends HttpServlet {
 //      out.println("<OPTION " + ((textFontSize == 8) ? "SELECTED" : "") + ">8");
 //      out.println("</SELECT>");
 
-      if (denseFormat) {
-        go = "MonthCalendar?resort=" + resort + patrollerIdTag;
-        if (szMonth != null) {
-          go += "&month=" + szMonth + "&year=" + szYear;
-        }
+//      if (denseFormat) {
 //removed Set 13, 2015
 //        out.println("&nbsp;&nbsp;Name Len:<SELECT NAME='textLen' SIZE=1  onChange='resizeMe('" + go + "')' >");
 //        out.println("<OPTION " + ((maxNameLen == 15) ? "SELECTED" : "") + ">Condensed");
 //        out.println("<OPTION " + ((maxNameLen == 20) ? "SELECTED" : "") + ">Medium");
 //        out.println("<OPTION " + ((maxNameLen == 30) ? "SELECTED" : "") + ">Full");
 //        out.println("</SELECT>");
-      }
+//      }
 //removed Set 13, 2015
 //      out.println("&nbsp;&nbsp;");
 //      out.println("<a href='javascript:printHelp()'>Help</a>");
@@ -520,7 +535,6 @@ public class MonthCalendar extends HttpServlet {
           ++daysInMonth;
         }
       }
-//System.out.println("month="+month+" daysInMonth="+daysInMonth+" currYear="+currYear);
       while (currDay <= daysInMonth) {
         //start of week
         out.println("<TR>");
@@ -723,7 +737,6 @@ public class MonthCalendar extends HttpServlet {
       String szRowStart;
       String szRowEnd;
       if (denseFormat && (dayOfWeek == 1 || dayOfWeek == 7)) {
-//System.out.println("dayOfWeek="+dayOfWeek+" pos="+posIndex+" don't start new row for "+szName);
         if (((posIndex % 2) == 0)) {
           //left side
           szRowStart = "<TR><TD>";
@@ -802,7 +815,7 @@ public class MonthCalendar extends HttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        System.out.println("DEBUG-MonthCalendar(" + resort + "): " + str);
+        Utils.printToLogFile(sessionData.getRequest(), "DEBUG-MonthCalendar(" + resort + "): " + str);
       }
     }
   }

@@ -13,12 +13,12 @@ public class CustomizedList extends HttpServlet {
 
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InternalCustomizedList(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InternalCustomizedList(request, response);
   }
 
@@ -34,7 +34,7 @@ public class CustomizedList extends HttpServlet {
       resort = request.getParameter("resort");
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      SessionData sessionData = new SessionData(request, out);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList");
       if (credentials.hasInvalidCredentials()) {
         return;

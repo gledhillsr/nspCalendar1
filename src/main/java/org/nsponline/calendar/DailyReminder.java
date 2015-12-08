@@ -28,7 +28,7 @@ public class DailyReminder {
     int daysAhead = ds.getReminderDays();
 
     GregorianCalendar assignmentDate = getRemingerDateToSend(daysAhead);
-    checkAndSend(assignmentDate, mail, resort, patrol);
+    checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
 //NOTE: important for this logic.
 //      This program is only run Monday through Friday (morning).  Not on Saturday or Sunday
 //       (since many people don't read email consistently on the weekend)
@@ -36,10 +36,10 @@ public class DailyReminder {
     if (assignmentDate.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
       //Sunday
       assignmentDate = getRemingerDateToSend(daysAhead + 1);
-      checkAndSend(assignmentDate, mail, resort, patrol);
+      checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
       //Monday
       assignmentDate = getRemingerDateToSend(daysAhead + 2);
-      checkAndSend(assignmentDate, mail, resort, patrol);
+      checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
     }
     System.out.println("finished processing ALL reminders");
     patrol.close();
@@ -69,7 +69,7 @@ public class DailyReminder {
     return testDate;
   }
 
-  private void checkAndSend(GregorianCalendar date, MailMan mail, String resort, PatrolData patrol) {
+  private void checkAndSend(SessionData sessionData, GregorianCalendar date, MailMan mail, String resort, PatrolData patrol) {
     Set<String> emailTo;
     String formattedDateString = getAssignmentDateString(date);
     int dayOfWeek = date.get(Calendar.DAY_OF_WEEK);
@@ -89,7 +89,7 @@ public class DailyReminder {
           assignment.getEndingTimeString() + ".\n\nThanks, your help is greatly appreciated.\n\n";
       message += "Please do NOT reply to this automated reminder. \nUnless, you are NOT a member of the National Ski Patrol, and received this email accidently.";
       emailTo = getMemberEmailsWhoHaveAssignment(assignment, patrol);
-      sendEmail(emailTo, mail, message);
+      sendEmail(sessionData, emailTo, mail, message);
     } //end loop for assignments
   }
 
@@ -112,11 +112,11 @@ public class DailyReminder {
     return emailTo;
   }
 
-  private void sendEmail(Set<String> emailTo, MailMan mail, String message) {
+  private void sendEmail(SessionData sessionData, Set<String> emailTo, MailMan mail, String message) {
     try {
       System.out.println("Message:\n" + message);    //no e-mail, JUST LOG IT
       for (String emailAddress : emailTo) {
-        mail.sendMessage("Ski Patrol Shift Reminder", message, emailAddress);
+        mail.sendMessage(sessionData, "Ski Patrol Shift Reminder", message, emailAddress);
         //todo some day, just pass the entire set, the API's allow this
         System.out.println("mail sent to: " + emailAddress);    //no e-mail, JUST LOG IT
       }

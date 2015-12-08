@@ -15,17 +15,18 @@ public class MemberLogin extends HttpServlet {
   private static final boolean DEBUG = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new MemberLoginInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new MemberLoginInternal(request, response);
   }
 
   private final class MemberLoginInternal {
     private String resort;
+    SessionData sessionData;
 
     public MemberLoginInternal(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       PrintWriter out;
@@ -34,7 +35,7 @@ public class MemberLogin extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
 
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      sessionData = new SessionData(request, out);
       resort = request.getParameter("resort");
       szParent = request.getParameter("NSPgoto");
       debugOut("resort=" + resort + ", szParent=" + szParent);
@@ -129,7 +130,7 @@ public class MemberLogin extends HttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        System.out.println("DEBUG-MemberLogin(" + resort + "): " + str);
+        Utils.printToLogFile(sessionData.getRequest(), "DEBUG-MemberLogin(" + resort + "): " + str);
       }
     }
   }

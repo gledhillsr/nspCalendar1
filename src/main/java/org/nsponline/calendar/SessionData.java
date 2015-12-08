@@ -1,5 +1,6 @@
 package org.nsponline.calendar;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -41,9 +42,12 @@ public class SessionData {
   private String AWSAccessKeyId;
   private String AWSSecretKey;
   private HttpSession session;
+  private HttpServletRequest request;
 
-  public SessionData(HttpSession session, PrintWriter out) {
-    this.session = session;
+
+  public SessionData(HttpServletRequest request, PrintWriter out) {
+    this.request = request;
+    this.session = request.getSession();
     readCredentials(new Properties(), out);
   }
 
@@ -181,5 +185,9 @@ public class SessionData {
       // NOSONAR
       System.out.println("DEBUG_VERBOSE-SessionData: " + msg);
     }
+  }
+
+  public HttpServletRequest getRequest() {
+    return request;
   }
 }

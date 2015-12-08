@@ -38,7 +38,7 @@ public class Directors extends HttpServlet {
     LocalDirectors(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      SessionData sessionData = new SessionData(request, out);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "Directors");
       if (credentials.hasInvalidCredentials()) {
         return;

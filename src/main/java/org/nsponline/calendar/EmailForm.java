@@ -17,10 +17,12 @@ import java.util.Vector;
 public class EmailForm extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalEmailForm(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new LocalEmailForm(request, response);
   }
 
@@ -84,9 +86,7 @@ public class EmailForm extends HttpServlet {
 
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request.getSession(), out);
-
-      debugOut("Entering EmailForm...");
+      SessionData sessionData = new SessionData(request, out);
 
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
       if (credentials.hasInvalidCredentials()) {
@@ -109,7 +109,6 @@ public class EmailForm extends HttpServlet {
       printTop(out, Submit);
       if (Submit != null) {
         debugOut("resort " + resort + ", sending emails");
-        //todo make this a thread
         SendEmails(request, szMyID, sessionData);
       }
       else {
@@ -290,7 +289,7 @@ public class EmailForm extends HttpServlet {
           }
           else {
 //          mailTo2(fromEmailAddress, member, subject, newMessage);
-            mailto(mailMan, member, subject, newMessage);
+            mailto(sessionData, mailMan, member, subject, newMessage);
           }
         }
       }
@@ -377,12 +376,12 @@ public class EmailForm extends HttpServlet {
       return (emailAddress != null && emailAddress.length() > 3 && emailAddress.indexOf('@') > 0);
     }
 
-    private void mailto(MailMan mail, MemberData mbr, String subject, String message) {
+    private void mailto(SessionData sessionData, MailMan mail, MemberData mbr, String subject, String message) {
       String recipient = mbr.getEmail();
       if (isValidAddress(recipient)) {
         debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
 //        try {
-        mail.sendMessage(subject, message, recipient);
+        mail.sendMessage(sessionData, subject, message, recipient);
 ////                PatrolData.logger(resort, "  mail was sucessfull");    //no e-mail, JUST LOG IT
 //        }
 //        catch (MailManException ex) {
@@ -562,22 +561,22 @@ public class EmailForm extends HttpServlet {
       else {
         MinDays = 0;    //no minimum
       }
-
-      debugOut("getParameter(MinDays)=" + request.getParameter("MinDays"));
-      debugOut("EveryBody=" + EveryBody);
-      debugOut("SubList=" + SubList);
-      debugOut("StartDay=" + StartDay);
-      debugOut("StartMonth=" + StartMonth);
-      debugOut("StartYear=" + StartYear);
-      debugOut("EndDay=" + EndDay);
-      debugOut("EndMonth=" + EndMonth);
-      debugOut("EndYear=" + EndYear);
-      debugOut("useMinDays=" + useMinDays);
-      debugOut("MinDays=" + MinDays);
-      debugOut("showDayCnt=" + showDayCnt);
-      debugOut("showSwingCnt=" + showSwingCnt);
-      debugOut("showTrainingCnt=" + showTrainingCnt);
-      debugOut("showNightCnt=" + showNightCnt);
+//
+//      debugOut("getParameter(MinDays)=" + request.getParameter("MinDays"));
+//      debugOut("EveryBody=" + EveryBody);
+//      debugOut("SubList=" + SubList);
+//      debugOut("StartDay=" + StartDay);
+//      debugOut("StartMonth=" + StartMonth);
+//      debugOut("StartYear=" + StartYear);
+//      debugOut("EndDay=" + EndDay);
+//      debugOut("EndMonth=" + EndMonth);
+//      debugOut("EndYear=" + EndYear);
+//      debugOut("useMinDays=" + useMinDays);
+//      debugOut("MinDays=" + MinDays);
+//      debugOut("showDayCnt=" + showDayCnt);
+//      debugOut("showSwingCnt=" + showSwingCnt);
+//      debugOut("showTrainingCnt=" + showTrainingCnt);
+//      debugOut("showNightCnt=" + showNightCnt);
 
       String[] incList = {"BAS", "INA", "SR", "SRA", "ALM", "PRO", "AUX", "TRA", "CAN", "OTH"};
       classificationsToDisplay = new Vector<String>();

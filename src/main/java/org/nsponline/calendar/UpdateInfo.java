@@ -21,12 +21,12 @@ public class UpdateInfo extends HttpServlet {
   };
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InternalUpdateInfo(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.dumpRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InternalUpdateInfo(request, response);
   }
 
@@ -49,7 +49,7 @@ public class UpdateInfo extends HttpServlet {
     private String resort;
 
     private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-      SessionData sessionData = new SessionData(request.getSession(), out);
+      SessionData sessionData = new SessionData(request, out);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList");
       if (credentials.hasInvalidCredentials()) {
         return;
