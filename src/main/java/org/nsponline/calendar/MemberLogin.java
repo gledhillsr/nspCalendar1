@@ -12,7 +12,7 @@ import java.io.PrintWriter;
  */
 public class MemberLogin extends HttpServlet {
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
@@ -130,8 +130,12 @@ public class MemberLogin extends HttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Utils.printToLogFile(sessionData.getRequest(), "DEBUG-MemberLogin(" + resort + "): " + str);
+        logger("DEBUG-MemberLogin(" + resort + "): " + str);
       }
+    }
+
+    private void logger(String str) {
+      Utils.printToLogFile(sessionData.getRequest(), str);
     }
   }
 }

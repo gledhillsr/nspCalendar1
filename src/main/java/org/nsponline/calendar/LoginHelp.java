@@ -23,7 +23,7 @@ public class LoginHelp extends HttpServlet {
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG = false;
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG_SENSITIVE = true;
+  private static boolean DEBUG_SENSITIVE = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
@@ -164,6 +164,7 @@ public class LoginHelp extends HttpServlet {
       ResultSet rs;
 //System.out.println("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
       if (ID == null || pass == null) {
+        Utils.printToLogFile(sessionData.getRequest(), "Login Failed: either ID or Password not supplied");
         return false;
       }
 
@@ -172,6 +173,7 @@ public class LoginHelp extends HttpServlet {
         Driver drv = (Driver) Class.forName(PatrolData.JDBC_DRIVER).newInstance();
       }
       catch (Exception e) {
+        Utils.printToLogFile(sessionData.getRequest(), "LoginHelp: Cannot find mysql driver, reason:" + e.toString());
         out.println("LoginHelp: Cannot find mysql driver, reason:" + e.toString());
         return false;
       }
@@ -196,6 +198,7 @@ public class LoginHelp extends HttpServlet {
           String originalPassword = rs.getString("password");
           String lastName = rs.getString("LastName");
           String firstName = rs.getString("FirstName");
+          String emailAddress = rs.getString("email");
           originalPassword = originalPassword.trim();
           lastName = lastName.trim();
           pass = pass.trim();
@@ -211,12 +214,17 @@ public class LoginHelp extends HttpServlet {
               validLogin = true;
             }
           }
-          debugSensitiveOut("ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "] validLogin=" + validLogin);
 
           if (validLogin) {
-            Utils.printToLogFile(sessionData.getRequest(), "Login: " + new java.util.Date() + ", " + firstName + " " + lastName + ", " + ID + " (" + resort + ")");
+            Utils.printToLogFile(sessionData.getRequest(), "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
           }
-        } //end if
+          else {
+            Utils.printToLogFile(sessionData.getRequest(), "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "]");
+          }
+        }
+        else {
+          Utils.printToLogFile(sessionData.getRequest(), "Login Failed: memberId not found [" + ID + "]");
+        }
 
         c.close();
       }

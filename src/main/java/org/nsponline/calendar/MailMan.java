@@ -1,6 +1,5 @@
 package org.nsponline.calendar;
 
-
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -8,6 +7,10 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.*;
 import com.mysql.jdbc.StringUtils;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Steve Gledhill
@@ -15,13 +18,21 @@ import com.mysql.jdbc.StringUtils;
 
 public class MailMan {
 
-  private final static boolean DEBUG = true;
+  private final static boolean DEBUG = false;
   private final static boolean DEBUG_DONT_SEND = false;
 
   AmazonSimpleEmailServiceClient sesClient;
   private final String fromAddress;
+  private final String replyToAddress;
   @SuppressWarnings("FieldCanBeLocal")
   private final String fromText;
+
+  private Pattern pattern;
+  private Matcher matcher;
+
+  private static final String EMAIL_PATTERN =
+      "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+          + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
   /**
    * MailMan constructor.
@@ -31,12 +42,21 @@ public class MailMan {
    * @param fromText    fromAddress text    ie: Steve Gledhill
    */
   public MailMan(String host, String fromAddress, String fromText, SessionData sessionData) {
-    debugOut(sessionData, " CONSTRUCTOR- (host=" + host + ", fromAddress=" + fromAddress + ", fromText='" + fromText + "')");
+    logger(sessionData, "MailMan(host=" + host + ", fromAddress=" + fromAddress + ", fromText='" + fromText + "')");
+    pattern = Pattern.compile(EMAIL_PATTERN);
     if (DEBUG_DONT_SEND) {
       debugOutDontSend(sessionData, "NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
       return;
     }
-//    this.fromAddress = fromAddress;
+    matcher = pattern.matcher(fromAddress);
+    if (matcher.matches()) {
+      this.replyToAddress = fromAddress;
+      System.out.println("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
+    }
+    else {
+      this.replyToAddress = null;
+      System.out.println("DEBUG - MailMan failed to set replyToAddress to: [" + fromAddress + "]");
+    }
     this.fromAddress = "steve@gledhills.com";   //todo I want to get this fixed!!!!
     this.fromText = fromText;
     // Instantiate an Amazon SES client, which will make the service call. The service call requires your AWS credentials.
@@ -60,45 +80,7 @@ public class MailMan {
     // and EU_WEST_1. For a complete list, see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html
     Region REGION = Region.getRegion(Regions.US_EAST_1);
     sesClient.setRegion(REGION);
-//    try {
-//      hostAddress = new InternetAddress(host);
-//      try {
-//        fromAddress = new InternetAddress(fromAddress, fromText);
-//        debugOut("  new fromAddress=" + fromAddress);
-//      }
-//      catch (Exception e) {
-//        System.out.println("ERROR-MailMan constructor mail exception e=" + e);
-//      }
-//    }
-//    catch (AddressException ex) {
-//      throw new IllegalArgumentException();
-//    }
   }
-
-//  /**
-//   * Sets the return address.
-//   *
-//   * @param from The return address.
-//   */
-//  @SuppressWarnings("UnusedDeclaration")
-//  public void setFromAddress(String from) {
-//    try {
-//      fromAddress = new InternetAddress(from);
-//    }
-//    catch (AddressException ex) {
-//      throw new IllegalArgumentException("ERROR-MailMan invalid 'from' address (" + from + ")");
-//    }
-//  }
-//
-//  /**
-//   * Gets the return address.
-//   *
-//   * @return The return address.
-//   */
-//  @SuppressWarnings("UnusedDeclaration")
-//  public String getFromAddress() {
-//    return fromAddress.getAddress();
-//  }
 
   /**
    * Sends a message with the given subject and message body to the given
@@ -126,75 +108,21 @@ public class MailMan {
    *                    recipients.
    */
   public void sendMessage(SessionData sessionData, String subject, String messageBody, String[] recipients) {
-    debugOut(sessionData, "sendMessage(subject='" + subject + "', message='\n---- message body ----\n" + messageBody + "\n---- end body ---\nrecipients=" + recipients[0] + ")");
+    logger(sessionData, "sendMessage(subject='" + subject + "', message='\n---- message body ----\n" + messageBody + "\n---- end body ---\nrecipients=" + recipients[0] + ")");
     if (DEBUG_DONT_SEND) {
       debugOutDontSend(sessionData, "nothing sent because of debug");
       return;
     }
 
-    sendAmazonEmail(fromAddress, recipients, subject, messageBody);
-//    debugOut("  hostAddress=" + hostAddress.getAddress());
-//    Properties props = new Properties();
-//    Session session;
-//    MimeMessage msg;
-//    InternetAddress[] rcptAddresses = new InternetAddress[recipients.length];
-//    MimeBodyPart body;
-//    Multipart mp;
-//    props.put("mail.smtp.host", hostAddress.getAddress());
-//    props.put("mail.smtp.port", "465"); //(added 10/8/2011)
-//    props.put("mail.smtp.auth", "true");//(added 10/8/2011)
-//    session = Session.getDefaultInstance(props, null);
-////    debugOut("  session: " + session);
-//    msg = new MimeMessage(session);
-//    try {
-//      msg.setFrom(fromAddress);
-//      for (int i = 0; i < rcptAddresses.length; i++) {
-//        try {
-//          rcptAddresses[i] = new InternetAddress(recipients[i]);
-//        }
-//        catch (AddressException ex) {
-//          throw new MailManException("Invalid recipient address: " + recipients[i]);
-//        }
-//      }
-//      msg.setRecipients(Message.RecipientType.TO, rcptAddresses);
-//      msg.setSubject(subject);
-//      msg.setSentDate(new Date());
-//      // create and fill the first message part
-//      body = new MimeBodyPart();
-//      body.setText(message);
-//      // create the Multipart and add its parts to it
-//      mp = new MimeMultipart();
-//      mp.addBodyPart(body);
-//      // add the Multipart to the message
-//      msg.setContent(mp);
-//      // send the message
-//      Transport transport = session.getTransport(SMTP_MAIL);
-////      debugOut("getTransport=" + transport);
-//      transport.connect(sessionData.getSmtpHost(), sessionData.getEmailUser(), sessionData.getEmailPassword());
-////      debugOut("transport.connect(" + _smtpHost + ", user=" + _user + ", pass=" + _password + ")");
-//      transport.sendMessage(msg, rcptAddresses);
-////      debugOut("transport.close()");
-//      transport.close();
-//      debugOut("  1 email sent");
-//    }
-//    catch (SendFailedException ex) {
-//      Address[] validUnsent = ex.getValidUnsentAddresses();
-//      System.out.println("ERROR, there were " + validUnsent.length + " email's not sent");
-//      throw new MailManException(ex.toString());
-//    }
-//    catch (MessagingException ex) {
-//      throw new MailManException(ex.toString());
-//    }
+    sendAmazonEmail(fromAddress, replyToAddress, recipients, subject, messageBody);
   }
 
-  private void debugOut(SessionData sessionData, Object... msg) {
-    if (DEBUG) {
-      Utils.printToLogFile(sessionData.getRequest(), "DEBUG-MailMan: ");
-      for (Object item : msg) {
-        System.out.print(item); //keep this here
-      }
-      System.out.println(); //keep this here
+  private void logger(SessionData sessionData, Object... msg) {
+    Utils.printToLogFile(sessionData.getRequest(), "MailMan: ");
+    for (Object item : msg) {
+      System.out.print(item); //keep this here
     }
+    System.out.println(); //keep this here
   }
 
   private void debugOutDontSend(SessionData sessionData, String msg) {
@@ -203,11 +131,17 @@ public class MailMan {
     }
   }
 
-  private void sendAmazonEmail(String from, String[] recipients, String subjectText, String bodyText) {
+  private void sendAmazonEmail(String from, String replyToAddress, String[] recipients, String subjectText, String bodyText) {
     try {
       // Construct an object to contain the recipient address.
       Destination destination = new Destination().withToAddresses(recipients);
-
+/*
+'From' => '"Joe" <joe@website.com>',  //verified address
+'Reply-To' => '<joe+hello@website.com>',
+'Subject' => 'subject',
+'Date' => date("r"),
+'X-Mailer' => 'SS/Application'
+ */
       // Create the subject and body of the message.
       Content subject = new Content().withData(subjectText);
       Content textBody = new Content().withData(bodyText);
@@ -218,7 +152,9 @@ public class MailMan {
 
       // Assemble the email.
       SendEmailRequest request = new SendEmailRequest().withSource(from).withDestination(destination).withMessage(message);
-
+      if (replyToAddress != null) {
+        request.setReplyToAddresses(Collections.singletonList(replyToAddress));
+      }
       System.out.println("Attempting to send an email through Amazon SES by using the AWS SDK for Java...");
 
       // Send the email.
