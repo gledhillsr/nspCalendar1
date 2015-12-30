@@ -68,9 +68,9 @@ public class PatrolData {
   }
 
 /* - - - - - uncomment the following to run from the Internet - - - - - - */
-//  final static String MYSQL_ADDRESS = "172.31.50.20";
+//  final static String MYSQL_ADDRESS = "172.31.50.20";  //private ip address.  must match /etc/my.cnf
 /* - - - - - uncomment the following to run local - - - - - -*/
-    final static String MYSQL_ADDRESS = "127.0.0.1";
+    final static String MYSQL_ADDRESS = "127.0.0.1";     //must match /etc/my.cnf
 /*- - - - - end local declarations - - - - - -*/
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****
@@ -88,7 +88,6 @@ public class PatrolData {
   //  private Connection connection;
   Connection connection;
   private ResultSet rosterResults;
-  private PreparedStatement assignmentsStatement;
   private ResultSet assignmentResults;
   private PreparedStatement shiftStatement;
   private ResultSet shiftResults;
@@ -99,7 +98,6 @@ public class PatrolData {
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData) {
     this.sessionData = sessionData;
     rosterResults = null;
-    assignmentsStatement = null;
     assignmentResults = null;
     shiftStatement = null;
     shiftResults = null;
@@ -143,18 +141,20 @@ public class PatrolData {
   }
 
   public void resetAssignments() {
+    //todo srg, get rid of this method and make assignmentResults method local
     try {
       String selectAllAssignmentsByDateSQLString = Assignments.getSelectAllAssignmentsByDateSQLString();
       logger("resetAssignments: " + selectAllAssignmentsByDateSQLString);
-      assignmentsStatement = connection.prepareStatement(selectAllAssignmentsByDateSQLString);
-      assignmentResults = assignmentsStatement.executeQuery();
+      PreparedStatement assignmentsStatement = connection.prepareStatement(selectAllAssignmentsByDateSQLString);
+      assignmentResults = assignmentsStatement.executeQuery(); //todo uses global :-(
     }
     catch (Exception e) {
       errorOut(sessionData,"(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
     } //end try
   }
 
-  public Assignments readNextAssignment() { //todo srg fix all callers to this.  it is returning things out of order
+  public Assignments readNextAssignment() {
+    //todo srg fix all callers to this.  it is returning things out of order.  use readSortedAssignments
 //    logger("\n**********\nfix all callers of this API (except PurgeAssignments, ?)");
 //    Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
 //    Thread currentThread = Thread.currentThread();
@@ -169,7 +169,7 @@ public class PatrolData {
 //    logger("*******");
     Assignments ns = null;
     try {
-      if (assignmentResults.next()) {
+      if (assignmentResults.next()) {    //todo uses global :-(
         ns = new Assignments();
         ns.read(assignmentResults);
 //todo        logger("fix. readNextAssignment-" + ns.toString());
@@ -202,7 +202,6 @@ public class PatrolData {
     } //end try
   }
 
-  //todo srg This looks wrong.  It returns nothing on a select
   public void resetShiftDefinitions() {
     try {
       shiftStatement = connection.prepareStatement("SELECT * FROM shiftdefinitions ORDER BY \"" + Shifts.tags[0] + "\""); //sort by default key
@@ -300,15 +299,16 @@ public class PatrolData {
     String qryString;
 //System.out.println("write shift:"+ns);
     if (ns.exists()) {
-      qryString = ns.getUpdateQueryString();
+      qryString = ns.getUpdateShiftDefinitionsQueryString();
     }
     else {
-      qryString = ns.getInsertQueryString();
+      qryString = ns.getInsertShiftDefinitionsQueryString();
     }
     logger("writeShift: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
+//should I set this?      ns.setExists(true);
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Cannot load the driver, reason:" + e.toString());
@@ -326,7 +326,7 @@ public class PatrolData {
       connection.close(); //let it close in finalizer ??
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error connecting or reading table on close:" + e.getMessage());
+      System.out.println("(" + localResort + ") Error closing connection:" + e.getMessage());
       Thread.currentThread().dumpStack();
     } //end try
   } // end close
@@ -528,7 +528,7 @@ public class PatrolData {
     logger("decrement Assignment:" + ns);
     int i = ns.getDatePos(); //1 based
 
-    if (i < 1)    //#'s are 0 based, can't decrement pos 0 //todo srg, 10/6/15 was <=, changed to <
+    if (i < 1)    //#'s are 0 based, can't decrement pos 0
     {
       return;
     }
@@ -755,8 +755,8 @@ public class PatrolData {
     try {
       String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE \'" + key + "\'";
       debugOut(null, "readNewIndividualAssignments: " + queryString);
-      assignmentsStatement = connection.prepareStatement(queryString);
-      assignmentResults = assignmentsStatement.executeQuery();
+      PreparedStatement assignmentsStatement = connection.prepareStatement(queryString);
+      ResultSet assignmentResults = assignmentsStatement.executeQuery();
       while (assignmentResults.next()) {
         NewIndividualAssignment newIndividualAssignment = new NewIndividualAssignment();
         newIndividualAssignment.read(assignmentResults);

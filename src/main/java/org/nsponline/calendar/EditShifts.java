@@ -181,7 +181,7 @@ public class EditShifts extends HttpServlet {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       // read Shift ski assignments for the specific day
       shifts = new ArrayList<Shifts>();
-      patrol.resetShiftDefinitions();
+      patrol.resetShiftDefinitions();  //todo 12/30/15  this does nothing or is broken
       if (displayParameters) {
         System.out.println("READING (" + shiftCount + ")shifts passed as arguments");
       }

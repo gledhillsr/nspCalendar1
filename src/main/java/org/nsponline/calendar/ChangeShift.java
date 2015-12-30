@@ -46,7 +46,7 @@ public class ChangeShift extends HttpServlet {
     boolean posWasEmpty = true;
 
     int dayOfWeek;  //0=Sunday
-    int date;       //1 based
+    int dayOfMonth;       //1 based
     int month;      //0 based
     int year;       //duh
     int pos;        //
@@ -112,12 +112,12 @@ public class ChangeShift extends HttpServlet {
 
       try {
         dayOfWeek = Integer.parseInt(szDayOfWeek);// throws NumberFormatException
-        date = Integer.parseInt(szDate);
+        dayOfMonth = Integer.parseInt(szDate);
         month = Integer.parseInt(szMonth);
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        debugOut(sessionData, "dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + date + ",  pos=" + pos + ", index=" + index);
+        debugOut(sessionData, "dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
 //        calendar = new GregorianCalendar(TimeZone.getDefault());
 //        //noinspection MagicConstant
 //        calendar.set(year, month, date);   //remember, month is 0-based
@@ -125,7 +125,7 @@ public class ChangeShift extends HttpServlet {
       }
       catch (NumberFormatException ex) {
         this.dayOfWeek = 7;
-        date = 1;
+        dayOfMonth = 1;
         month = 1;
         year = 1;
         pos = 1;
@@ -162,7 +162,7 @@ public class ChangeShift extends HttpServlet {
       out.println("<A NAME=\"TOP\"></A>");
       out.println("<table border=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><tr><td>");
       out.println("<font size=\"6\" COLOR=\"000000\" face=\"arial,helvetica\"><b>" + szDays[dayOfWeek] + "</b></font><BR>");
-      out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + szMonths[month] + " " + date + ", " + year + "</B>");
+      out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + szMonths[month] + " " + dayOfMonth + ", " + year + "</B>");
       out.println("</font></TD>");
       out.println("<td VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" NOWRAP><FONT SIZE=\"2\" FACE=\"Arial, Helvetica\">");
       out.println("<a target='_self' href=\"MonthCalendar?resort=" + resort + "&month=" + month + "&year=" + year + "\"><IMG SRC=\"images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to Volunteer Roster\" ALIGN=\"BOTTOM\" width=\"32\" height=\"32\"></a>");
@@ -274,6 +274,7 @@ public class ChangeShift extends HttpServlet {
     //------------
     // printMiddle (submitterID, transaction, selectedID, date1, pos1, listName)
     // ------------
+    @SuppressWarnings("deprecation")
     private void printMiddle(SessionData sessionData, PatrolData patrol) {
 //        int i;
 // print small date view
@@ -361,7 +362,7 @@ public class ChangeShift extends HttpServlet {
 //==REMOVE== only is position is NOT empty
 
 //get today's date in days (Julian date)
-      long calendarDay = (new java.util.Date(year - 1900, month, date)).getTime() / 1000 / 3600 / 24;    //get time in days
+      long calendarDay = (new java.util.Date(year - 1900, month, dayOfMonth)).getTime() / 1000 / 3600 / 24;    //get time in days
       java.util.Date removeDate = new java.util.Date();
       long firstRemoveDay = (new java.util.Date(removeDate.getYear(), removeDate.getMonth(), removeDate.getDate())).getTime() / 1000 / 3600 / 24;
       firstRemoveDay += removeAccess;
@@ -386,7 +387,7 @@ public class ChangeShift extends HttpServlet {
       }
       boolean wasMarkedAsNeedingReplacement = false;
       if (monthNewIndividualAssignments != null) {
-        String key = NewIndividualAssignment.buildKey(year, month + 1, date, pos, index);
+        String key = NewIndividualAssignment.buildKey(year, month + 1, dayOfMonth, pos, index);
         if (monthNewIndividualAssignments.containsKey(key)) {
           //key found
           NewIndividualAssignment newIndividualAssignment = monthNewIndividualAssignments.get(key);
@@ -424,13 +425,13 @@ debugOut(sessionData, "printBottom, submitterID=");
         strDate += "0";
       }
       strDate += (month + 1) + "-";
-      if (date < 10) {
+      if (dayOfMonth < 10) {
         strDate += "0";
       }
-      strDate += date;
+      strDate += dayOfMonth;
       strDate += "_" + PatrolData.IndexToString(pos);   //in the data base, pos is 1 based
 
-      out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">"); //todo srg , pos is off by +1
+      out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">");
 
       out.println("<p align=\"center\">");
       out.println("<INPUT TYPE=SUBMIT VALUE=\"Submit\">");
@@ -515,8 +516,8 @@ debugOut(sessionData, "printBottom, submitterID=");
       todayMonth = calendarToday.get(Calendar.MONTH) + 1;  //MONTH is 1 based
       todayDate = calendarToday.get(Calendar.DATE);
 //        if(resort.equals("Brighton")) {
-      //todo working on this..  read all new assignments for this date, and put into hashmap
-      monthNewIndividualAssignments = patrol.readNewIndividualAssignments(year, month + 1, date); //entire day
+
+      monthNewIndividualAssignments = patrol.readNewIndividualAssignments(year, month + 1, dayOfMonth); //entire day
 //        }
 
 //------------------------------------------------
@@ -524,14 +525,14 @@ debugOut(sessionData, "printBottom, submitterID=");
 //------------------------------------------------
 //    myShiftAssignments = new Shifts[300]; //assume never more than 300 per season
       //save all of MY assignments
-//todo       patrol.resetAssignments();
+
       totalAssignmentGroupsForToday = 0;
 //        String lastPos = " ";
       assignmentGroups = new Assignments[50];
 //      Assignments data;
       myShiftCount = 0;
 //    assignmentCount = 0;
-      for (Assignments shiftAssignments : patrol.readSortedAssignments(year, month + 1, date)) {
+      for (Assignments shiftAssignments : patrol.readSortedAssignments(year, month + 1, dayOfMonth)) {
 //        y = data.getYear();
 //        m = data.getMonth() - 1; //make it 0 based
 //        d = data.getDay();

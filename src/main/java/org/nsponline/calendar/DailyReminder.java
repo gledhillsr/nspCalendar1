@@ -31,7 +31,7 @@ public class DailyReminder {
 //Also, a daysAhead value of 0 is not valid
     int dayOfWeekToNotify = assignmentDate.get(Calendar.DAY_OF_WEEK);
     if (dayOfWeekToNotify == Calendar.SUNDAY || dayOfWeekToNotify == Calendar.MONDAY) {
-      debugOut("");
+      debugOut("Skip sending emails for Sunday/Monday.  They were sent with Saturdays");
     }
     else if (dayOfWeekToNotify == Calendar.SATURDAY) {
       //Sunday
@@ -71,17 +71,20 @@ public class DailyReminder {
 
   private void checkAndSend(SessionData sessionData, GregorianCalendar date, MailMan mail, String resort, PatrolData patrol) {
     Set<String> emailTo;
-    String formattedDateString = getAssignmentDateString(date);
+//    String formattedDateString = getAssignmentDateString(date);
     int dayOfWeek = date.get(Calendar.DAY_OF_WEEK);
     int month = date.get(Calendar.MONTH);
+    int year = date.get(Calendar.YEAR);
+    int dayOfMonth = date.get(Calendar.DAY_OF_MONTH);
 //System.out.println("dayOfWeek="+dayOfWeek+" ("+szDay[dayOfWeek]+")");
-    patrol.resetAssignments();
-    Assignments assignment;
-    while ((assignment = patrol.readNextAssignment()) != null) {
-      String assignDate = assignment.getDateOnly();
-      if (!formattedDateString.equals(assignDate)) {
-        continue;
-      }
+//    patrol.resetAssignments();
+//    Assignments assignment;
+    for (Assignments assignment : patrol.readSortedAssignments(year, month + 1, dayOfMonth)) {
+//    while ((assignment = patrol.readNextAssignment()) != null) {
+//      String assignDate = assignment.getDateOnly();
+//      if (!formattedDateString.equals(assignDate)) {
+//        continue;
+//      }
 
       debugOut("Assignment=" + assignment.toString());
       String message = "Reminder\n\nYou are scheduled to Ski Patrol at " + resort + ", on " + szDay[dayOfWeek] + ", " + szMonth[month] + " " + date.get(Calendar.DAY_OF_MONTH) + ", " + date.get(Calendar.YEAR) + " from " +
@@ -129,21 +132,13 @@ public class DailyReminder {
   }
 
   private void sendEmail(SessionData sessionData, Set<String> emailTo, MailMan mail, String message) {
-    try {
-//todo, this should work ?
+//todo, this should work ? (instead of for loop below)
 //      String[] addressToArray = (String[]) emailTo.toArray();
 //      mail.sendMessage(sessionData, "Ski Patrol Shift Reminder", message, addressToArray);
 
-      for (String emailAddress : emailTo) {
-        mail.sendMessage(sessionData, "Ski Patrol Shift Reminder", message, emailAddress);
-        //todo some day, just pass the entire set, the API's allow this
-        debugOut("mail sent to: " + emailAddress);    //no e-mail, JUST LOG IT
-      }
+    for (String emailAddress : emailTo) {
+      mail.sendMessage(sessionData, "Ski Patrol Shift Reminder", message, emailAddress);
     }
-    catch (Exception ex) {
-      System.out.println("error " + ex);
-      System.out.println("attempting to send mail to: " + emailTo);    //no e-mail, JUST LOG IT
-    } //end try/catch
   }
 
 

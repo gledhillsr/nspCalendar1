@@ -120,7 +120,7 @@ public class Shifts {
     return type;
   }
 
-  public String getUpdateQueryString() {
+  public String getUpdateShiftDefinitionsQueryString() {
     String qryString = "UPDATE shiftdefinitions SET " +
         " " + tags[START_TIME_INDEX] + "='" + startTime +
         "', " + tags[END_TIME_INDEX] + "='" + endTime +
@@ -131,7 +131,7 @@ public class Shifts {
     return qryString;
   }
 
-  public String getInsertQueryString() {
+  public String getInsertShiftDefinitionsQueryString() {
     String qryString = "INSERT INTO shiftdefinitions " +
         " Values('" + eventName + "','" + startTime + "','" + endTime + "','" + count + "'," + type + ")";
     System.out.println(qryString);
