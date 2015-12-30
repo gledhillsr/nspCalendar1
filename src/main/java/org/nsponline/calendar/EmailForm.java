@@ -146,9 +146,9 @@ public class EmailForm extends HttpServlet {
     }
 
     private boolean getFromEmailAddress() {
-      fromEmail = fromMember.getEmail();
+      fromEmail = fromMember.getEmailAddress();
       hasValidReturnEmailAddress = true;
-      if (fromEmail == null || fromEmail.length() <= 6 || fromEmail.indexOf('@') <= 0 || fromEmail.indexOf('.') <= 0) {
+      if (!Utils.isValidEmailAddress(fromEmail)) {
         fromEmail = fallback_from;
         hasValidReturnEmailAddress = false;
       }
@@ -209,7 +209,7 @@ public class EmailForm extends HttpServlet {
 
     private int logEveryEmailSent(int currentEmailCount, MemberData member) {
       String str = (++currentEmailCount) + ") Mailing: " + member.getFullName() +
-          " at: " + member.getEmail();
+          " at: " + member.getEmailAddress();
 //output to html page
       out.println(str + "<br>");
 //output to tomcat logs
@@ -246,7 +246,7 @@ public class EmailForm extends HttpServlet {
 //new message footer
       newMessage += "\n\n" +
           "----------------------------------------------\n" +
-          "This message sent by: " + fromMember.getFullName() + " at ( " + fromMember.getEmail() + " )\n" +
+          "This message sent by: " + fromMember.getFullName() + " at ( " + fromMember.getEmailAddress() + " )\n" +
           "from " + fullPatrolName + "'s online scheduling web site.\n\n";
       if (!hasValidReturnEmailAddress) {
         newMessage += "Please Don't respond to this email.  SEND any responses\n" +
@@ -254,7 +254,7 @@ public class EmailForm extends HttpServlet {
       }
       else {
         newMessage += "Please Don't respond to this email.  SEND any responses\n" +
-            "to: " + fromMember.getEmail() + " .  I am working on restoring our original functionality where the return address could be specified.\n\n";
+            "to: " + fromMember.getEmailAddress() + " .  I am working on restoring our original functionality where the return address could be specified.\n\n";
       }
       newMessage += "This was sent from the Ski Patrol Web Site Auto Mailer.\n" +
           "--------------------------------------------------------\n";
@@ -308,7 +308,7 @@ public class EmailForm extends HttpServlet {
 //    props.put("mail.smtp.port", "587");
 //
 ////todo move this out of the loop
-//    String recipient = member.getEmail();
+//    String recipient = member.getEmailAddress();
 //    if (!isValidAddress(recipient)) {
 //      return;
 //    }
@@ -372,13 +372,9 @@ public class EmailForm extends HttpServlet {
       return new String(foo);
     }
 
-    private boolean isValidAddress(String emailAddress) {
-      return (emailAddress != null && emailAddress.length() > 3 && emailAddress.indexOf('@') > 0);
-    }
-
     private void mailto(SessionData sessionData, MailMan mail, MemberData mbr, String subject, String message) {
-      String recipient = mbr.getEmail();
-      if (isValidAddress(recipient)) {
+      String recipient = mbr.getEmailAddress();
+      if (Utils.isValidEmailAddress(recipient)) {
         debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
 //        try {
         mail.sendMessage(sessionData, subject, message, recipient);
@@ -409,13 +405,11 @@ public class EmailForm extends HttpServlet {
       String szName = "Invalid";
       if (currentMember != null) {
         szName = currentMember.getFullName();
-        String em = currentMember.getEmail();
+        String em = currentMember.getEmailAddress();
         //check for valid email
-        if (em != null && em.length() > 6 && em.indexOf('@') > 0 && em.indexOf('.') > 0) {
+        if (Utils.isValidEmailAddress(em)) {
           szName += " &lt;" + em + "&gt;";
         }
-
-
       }
       out.println("<p>From: <input type=\"text\" name=\"from\" size=\"40\" value=\"" + szName + "\" readonly></p>");
 
@@ -729,11 +723,11 @@ public class EmailForm extends HttpServlet {
       while (memberx != null) {
         member = mapId2MemberData.get(memberx.getID());
         if (member != null) {
-          debugOut(member.getID() + ": " + member.getEmail());
+//simply building list          debugOut(member.getID() + ": " + member.getEmailAddress());
           if (member.okToDisplay(EveryBody, SubList, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, MinDays)) {
-            String em = member.getEmail();
+            String emailAddress = member.getEmailAddress();
             //check for valid email
-            if (em != null && em.length() > 6 && em.indexOf('@') > 0 && em.indexOf('.') > 0) {
+            if (Utils.isValidEmailAddress(emailAddress)) {
               emaiPatrollerList.add(member.getID());
             }
             else {

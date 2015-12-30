@@ -356,11 +356,11 @@ public class EditShifts extends HttpServlet {
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA);
     MemberData member = patrol.nextMember("&nbsp;");
     while(member != null) {
-        if(member.getEmail() != "&nbsp;")
-            member.setEmail("<a href=\"mailto:"+member.getEmail()+"\">"+member.getEmail()+"</a>");
+        if(member.getEmailAddress() != "&nbsp;")
+            member.setEmail("<a href=\"mailto:"+member.getEmailAddress()+"\">"+member.getEmailAddress()+"</a>");
 
         if(member.getSub() != null && (member.getSub().startsWith("y") || member.getSub().startsWith("Y")))
-            printRow(member.getFullName(),member.getHomePhone(),member.getWorkPhone(),member.getCellPhone(),member.getPager(),member.getEmail());
+            printRow(member.getFullName(),member.getHomePhone(),member.getWorkPhone(),member.getCellPhone(),member.getPager(),member.getEmailAddress());
         member = patrol.nextMember("&nbsp;");   // "&nbsp;" is the default string field
     }
     patrol.close(); //must close connection!

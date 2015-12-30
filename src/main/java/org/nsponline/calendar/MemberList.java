@@ -67,12 +67,12 @@ public class MemberList extends HttpServlet {
 
       MemberData member = patrol.nextMember("");
       while (member != null) {
-        String em = member.getEmail();
-        if (em != null && em.length() > MIN_VALID_EMAIL_SIZE && em.indexOf('@') > 0 && em.indexOf('.') > 0) {
+        String emailAddress = member.getEmailAddress();
+        if (Utils.isValidEmailAddress(emailAddress)) {
           if (ePatrollerList.length() > 2) {
             ePatrollerList += ",";
           }
-          ePatrollerList += member.getEmail();
+          ePatrollerList += member.getEmailAddress();
         }
         member = patrol.nextMember("");
       }
@@ -93,7 +93,7 @@ public class MemberList extends HttpServlet {
       out.println("<p><Center><h2>List of Members of " + PatrolData.getResortFullName(resort) + " Ski Patrollers</h2></Center></p>");
 
       if (isDirector || (ds != null && ds.getEmailAll())) {
-        //getEmail()
+        //getEmailAddress()
         out.println("<p><Bold>");
         String options = "&BAS=1&INA=1&SR=1&SRA=1&ALM=1&PRO=1&AUX=1&TRA=1&CAN=1&FullTime=1&PartTime=1&Inactive=1&ALL=1"; //default
         String loc = "EmailForm?resort=" + resort + "&ID=" + patrollerId + options;

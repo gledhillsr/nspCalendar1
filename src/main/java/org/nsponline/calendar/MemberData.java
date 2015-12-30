@@ -278,9 +278,9 @@ public class MemberData {
     out.println(" <td>" + getWorkPhone() + "</td>");
     out.println(" <td>" + getCellPhone() + "</td>");
     out.println(" <td>" + getPager() + "</td>");
-    String str = getEmail();
-    if (!HARD_SPACE_NBSP.equals(getEmail())) {
-      str = "<a href=\"mailto:" + getEmail() + "\">" + getEmail() + "</a>";
+    String str = getEmailAddress();
+    if (!HARD_SPACE_NBSP.equals(getEmailAddress())) {
+      str = "<a href=\"mailto:" + getEmailAddress() + "\">" + getEmailAddress() + "</a>";
     }
     out.println(" <td>" + str + "</td>");
     out.println("</tr>\n");
@@ -398,9 +398,9 @@ public class MemberData {
           str = getPager();
           break;
         case EMAIL:
-          str = getEmail();
-          if (!HARD_SPACE_NBSP.equals(getEmail())) {
-            str = "<a href=\"mailto:" + getEmail() + "\">" + getEmail() + "</a>";
+          str = getEmailAddress();
+          if (!HARD_SPACE_NBSP.equals(getEmailAddress())) {
+            str = "<a href=\"mailto:" + getEmailAddress() + "\">" + getEmailAddress() + "</a>";
           }
           break;
         case EMERGENCY:
@@ -901,7 +901,7 @@ public class MemberData {
     return memberData[PAGER];
   }
 
-  public String getEmail() {
+  public String getEmailAddress() {
     return memberData[EMAIL];
   }
 

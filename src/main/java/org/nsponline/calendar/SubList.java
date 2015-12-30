@@ -66,12 +66,12 @@ public class SubList extends HttpServlet {
       out.println("<h2>Substitute List for " + PatrolData.getResortFullName(resort) + "</h2>");
 //          if(isDirector || (ds != null && !ds.getEmailAll()))
       {
-//      //getEmail()
+//      //getEmailAddress()
         String ePatrollerList = "";
         patrol.resetRoster();
         MemberData member = patrol.nextMember("");
         while (member != null) {
-          String em = member.getEmail();
+          String em = member.getEmailAddress();
           if (member.getSub() == null || (!member.getSub().startsWith("y") && !member.getSub().startsWith("Y"))) {
             em = null;
           }
@@ -79,7 +79,7 @@ public class SubList extends HttpServlet {
             if (ePatrollerList.length() > 2) {
               ePatrollerList += ",";
             }
-            ePatrollerList += member.getEmail();
+            ePatrollerList += member.getEmailAddress();
           }
           member = patrol.nextMember("");
         }
@@ -123,12 +123,12 @@ public class SubList extends HttpServlet {
 
       while (member != null) {
 
-        if (Utils.isValidEmailAddress(member.getEmail())) {
-          member.setEmail("<a href='mailto:" + member.getEmail() + "'>" + member.getEmail() + "</a>");
+        if (Utils.isValidEmailAddress(member.getEmailAddress())) {
+          member.setEmail("<a href='mailto:" + member.getEmailAddress() + "'>" + member.getEmailAddress() + "</a>");
         }
 
         if (member.getSub() != null && (member.getSub().startsWith("y") || member.getSub().startsWith("Y"))) {
-          printRow(member.getFullName_lastNameFirst(), member.getHomePhone(), member.getWorkPhone(), member.getCellPhone(), member.getPager(), member.getEmail());
+          printRow(member.getFullName_lastNameFirst(), member.getHomePhone(), member.getWorkPhone(), member.getCellPhone(), member.getPager(), member.getEmailAddress());
         }
         member = patrol.nextMember("&nbsp;");   // "&nbsp;" is the default string field
       }

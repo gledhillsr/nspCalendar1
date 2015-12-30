@@ -13,7 +13,7 @@ import java.sql.*;
  */
 public class UpdateInfo extends HttpServlet {
 
-  final static boolean debug = false;
+  final static boolean debug = true;
 
   final static String szMonths[] = { //0 based
       "Jan", "Feb", "Mar", "Apr", "May", "June",
@@ -50,7 +50,7 @@ public class UpdateInfo extends HttpServlet {
 
     private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "UpdateInfo");
       if (credentials.hasInvalidCredentials()) {
         return;
       }

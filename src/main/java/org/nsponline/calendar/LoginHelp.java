@@ -107,7 +107,7 @@ public class LoginHelp extends HttpServlet {
       if (mbr == null) {
         return false;
       }
-      String recipient = mbr.getEmail();
+      String recipient = mbr.getEmailAddress();
       if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
         System.out.print("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
 //        try {
@@ -130,7 +130,7 @@ public class LoginHelp extends HttpServlet {
       if (ID != null && !ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && ID.length() > 4) {
         member = patrol.getMemberByID(ID); //ID from cookie
         if (member != null) {
-          emailAddress = member.getEmail();
+          emailAddress = member.getEmailAddress();
 //out.println("FOUND emailAddress=(" + emailAddress + ")<BR>");
         }
       }

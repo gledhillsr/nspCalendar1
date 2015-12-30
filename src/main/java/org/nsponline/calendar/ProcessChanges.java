@@ -652,7 +652,7 @@ public class ProcessChanges extends HttpServlet {
       if (mbr == null) {
         return;
       }
-      String recipient = mbr.getEmail();
+      String recipient = mbr.getEmailAddress();
       if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
 //        try {
           if (member1 != null && member1.getID().equals(mbr.getID())) {

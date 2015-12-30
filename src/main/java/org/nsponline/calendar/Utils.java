@@ -6,11 +6,17 @@ import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Steve Gledhill
  */
 public final class Utils {
+
+  private static final String EMAIL_PATTERN =
+      "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+          + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
   private Utils() {
     //nothing to do
@@ -24,13 +30,10 @@ public final class Utils {
     return str != null && !str.isEmpty();
   }
 
-  private static String getAsString(String str) {
-    return (str == null) ? "" : str;
-  }
-
   public static boolean isValidEmailAddress(String emailAddress) {
-    //todo someday add better email address checking
-    return isNotEmpty(emailAddress) && !"&nbsp;".equals(emailAddress);
+    Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+    Matcher matcher = pattern.matcher(emailAddress);
+    return matcher.matches();
   }
 
   public static void printRequestParameters(String className, HttpServletRequest request) {

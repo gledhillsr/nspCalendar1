@@ -7,10 +7,7 @@ import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
 import com.amazonaws.services.simpleemail.model.*;
 import com.mysql.jdbc.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Steve Gledhill
@@ -27,13 +24,6 @@ public class MailMan {
   @SuppressWarnings("FieldCanBeLocal")
   private final String fromText;
 
-  private Pattern pattern;
-  private Matcher matcher;
-
-  private static final String EMAIL_PATTERN =
-      "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-          + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-
   /**
    * MailMan constructor.
    *
@@ -43,13 +33,11 @@ public class MailMan {
    */
   public MailMan(String host, String fromAddress, String fromText, SessionData sessionData) {
     logger(sessionData, "MailMan(host=" + host + ", fromAddress=" + fromAddress + ", fromText='" + fromText + "')");
-    pattern = Pattern.compile(EMAIL_PATTERN);
     if (DEBUG_DONT_SEND) {
       debugOutDontSend(sessionData, "NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
       return;
     }
-    matcher = pattern.matcher(fromAddress);
-    if (matcher.matches()) {
+    if (Utils.isValidEmailAddress(fromAddress)) {
       this.replyToAddress = fromAddress;
       System.out.println("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
     }
@@ -57,7 +45,7 @@ public class MailMan {
       this.replyToAddress = null;
       System.out.println("DEBUG - MailMan failed to set replyToAddress to: [" + fromAddress + "]");
     }
-    this.fromAddress = "steve@gledhills.com";   //todo I want to get this fixed!!!!
+    this.fromAddress = "steve@gledhills.com";
     this.fromText = fromText;
     // Instantiate an Amazon SES client, which will make the service call. The service call requires your AWS credentials.
     // Because we're not providing an argument when instantiating the client, the SDK will attempt to find your AWS credentials

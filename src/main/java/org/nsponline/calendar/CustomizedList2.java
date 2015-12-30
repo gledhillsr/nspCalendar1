@@ -279,7 +279,7 @@ public class CustomizedList2 extends HttpServlet {
 ////int xx=0;
 //        while (member != null) {
 //            if (member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
-//                String em = member.getEmail();
+//                String em = member.getEmailAddress();
 //                //check for valid email
 //                if (em != null && em.length() > 6 && em.indexOf('@') > 0 && em.indexOf('.') > 0) {
 //                    if (ePatrollerList.length() > 2)

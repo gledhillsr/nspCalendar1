@@ -1,11 +1,11 @@
 package org.nsponline.calendar;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.*;
-import java.util.*;
-import java.lang.*;
-import java.sql.*;
-import java.text.SimpleDateFormat;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * @author Steve Gledhill
@@ -67,28 +67,22 @@ public class PatrolData {
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
 
-  /* ----- uncomment the following to run from the Internet ------ */
-//  final static String IP_ADDRESS = "166.70.236.73";
-/* ----- uncomment the following to run local ------*/
-//    final static String IP_ADDRESS = "127.0.0.1";   /* used in LoginHelp */
-/*----- end local declarations ------*/
+/* - - - - - uncomment the following to run from the Internet - - - - - - */
+//  final static String MYSQL_ADDRESS = "172.31.50.20";
+/* - - - - - uncomment the following to run local - - - - - -*/
+    final static String MYSQL_ADDRESS = "127.0.0.1";
+/*- - - - - end local declarations - - - - - -*/
 
-  // ***** start back door login stuff (works with ANY resort, and does NOT send any email confermations)*****
+  // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****
   final static String backDoorFakeFirstName = "System";
   final static String backDoorFakeLastName = "Administrator";
-  final static String backDoorEmail = "Steve@Gledhills.com";  //todo do I really need these??
+  final static String backDoorEmail = "Steve@Gledhills.com";
 
   final static int MAX_PATROLLERS = 400;
   final static String SERVLET_URL = "/calendar-1/";
 
-/*----- end local declarations ------*/
-
-/* ----- uncomment the following to run local ------ */
-
-//  final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   static final boolean FETCH_MIN_DATA = false;
   static final boolean FETCH_ALL_DATA = true;
-/* -----end local declaration-----s */
 
   //all the folowing instance variables must be initialized in the constructor
   //  private Connection connection;
@@ -104,72 +98,45 @@ public class PatrolData {
 
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData) {
     this.sessionData = sessionData;
-//todo add a user ID in constructor for debug tracking
-//System.out.println("**11** database--jdbcURL (" + jdbcURL + ") myResort="+myResort);
     rosterResults = null;
     assignmentsStatement = null;
     assignmentResults = null;
     shiftStatement = null;
     shiftResults = null;
     localResort = myResort;
-
-    // create a Mountain Standard Time time zone
     fetchFullData = readAllData;
-    // create a GregorianCalendar with the Pacific Daylight time zone
-    // and the current date and time
-//      calendar = new GregorianCalendar(MDT);
 
     try {
-////------- the following line works for an applet, but not for a servlet -----
       Class.forName(JDBC_DRIVER).newInstance();
     }
     catch (Exception e) {
-      System.out.println("Cannot load the driver, reason:" + e.toString());
-      System.out.println("Most likely the Java class path is incorrect.");
+      errorOut(sessionData, "Cannot load the driver, reason:" + e.toString());
+      errorOut(sessionData, "Most likely the Java class path is incorrect.");
+      //todo do something here. besides throw a NPE later
       return;
     }
-// Try to connect to the database
-    try {
-      // Change MyDSN, myUsername and myPassword to your specific DSN
-      connection = getConnection(localResort, sessionData);
-//..      connection =java.sql.DriverManager.getConnection(getJDBC_URL(localResort));
+    connection = getConnection(localResort, sessionData);
 
-//prepare SQL for roster
-      if (connection != null) //error was already displayed, if null
-      {
-        resetRoster();
-      }
-
-//    connection.close(); // close MUST ba called explicity
+    if (connection != null) //error was already displayed, if null
+    {
+      resetRoster();
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Error connecting or reading table on open:" + e.getMessage());
-      java.lang.Thread.currentThread().dumpStack();
-    } //end try
+    else {
+      errorOut(sessionData,"getConnection(" + localResort + ", sessionData) failed.");
+      //todo do something here. besides throw a NPE later
+    }
   } //end PatrolData constructor
 
-  //--------------
-// getConnection - to JDBC connector
-// -------------
-
   static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
-//HACK HACK  HAVE THIS RETURN THE EXCEPTION TO THE PARENT, DON'T THROW THE EXCEPTION
     Connection conn = null;
     try {
-//            logger(resort, " -- PatrolData.getConnection");
-      if (DEBUG) {
-        //write to Tomcat logs, never to screen
-        System.out.println("-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
-        System.out.println("-----" + sessionData.getDbUser() + ", " + sessionData.getDbPassword());
-
-      }
+      debugOut(sessionData, "-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
+//      debugOut(sessionData, "-----" + sessionData.getDbUser() + ", " + sessionData.getDbPassword());
       conn = java.sql.DriverManager.getConnection(getJDBC_URL(resort), sessionData.getDbUser(), sessionData.getDbPassword());
-      if (DEBUG) {
-        System.out.println("PatrolData.connection for " + resort);
-      }
+      debugOut(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
     }
     catch (Exception e) {
-      System.out.println("Error: " + e.getMessage() + " connecting to table:" + resort);
+      errorOut(sessionData,"Error: " + e.getMessage() + " connecting to table:" + resort);
       java.lang.Thread.currentThread().dumpStack();
     }
     return conn;
@@ -183,25 +150,10 @@ public class PatrolData {
       assignmentResults = assignmentsStatement.executeQuery();
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      errorOut(sessionData,"(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
     } //end try
   }
 
-//  public void resetAssignmentsForDateSortedByStartTime(String yyyy_mm_ddValue) {
-//    //yyyy_mm_ddValue must have the form 2010-03-01
-//    try {
-//      assignmentsStatement = connection.prepareStatement(
-//          "SELECT * FROM `assignments` WHERE `date` LIKE '" + yyyy_mm_ddValue + "_%' ORDER BY `StartTime`");
-//      assignmentResults = assignmentsStatement.executeQuery();
-//    }
-//    catch (Exception e) {
-//      System.out.println("(" + localResort + ") Error selecting sorted assignments by date table query:" + e.getMessage());
-//    } //end try
-//  }
-
-  //---------------
-  // readNextAssignment
-  //---------------
   public Assignments readNextAssignment() { //todo srg fix all callers to this.  it is returning things out of order
 //    logger("\n**********\nfix all callers of this API (except PurgeAssignments, ?)");
 //    Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
@@ -230,9 +182,6 @@ public class PatrolData {
     return ns;
   }
 
-  //---------------
-  // resetRoster
-  //---------------
   public void resetRoster() {
     try {
       PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY LastName, FirstName");
@@ -243,9 +192,6 @@ public class PatrolData {
     } //end try
   }
 
-  //---------------
-  // resetRoster
-  //---------------
   public void resetRoster(String sort) {
     try {
       PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY " + sort);
@@ -256,9 +202,7 @@ public class PatrolData {
     } //end try
   }
 
-  //---------------
-  // resetShiftDefinitions 'shiftdefinitions'
-  //---------------
+  //todo srg This looks wrong.  It returns nothing on a select
   public void resetShiftDefinitions() {
     try {
       shiftStatement = connection.prepareStatement("SELECT * FROM shiftdefinitions ORDER BY \"" + Shifts.tags[0] + "\""); //sort by default key
@@ -269,16 +213,6 @@ public class PatrolData {
     } //end try
   }
 
-//---------------
-// resetDirectorSettings
-//---------------
-//  public void resetDirectorSettings() {
-//      directorResults = DirectorSettings.reset(connection);
-//  }
-
-  //---------------------------------------------------------------------
-  //     writeDirectorSettings - WRITE director settings
-  //---------------------------------------------------------------------
   public boolean writeDirectorSettings(DirectorSettings ds) {
     return ds.write(connection);
   }
@@ -310,22 +244,6 @@ public class PatrolData {
     return ds;
   }
 
-//  public Shifts readNextShiftDefinition() {
-//    logger("HACK fix all calls to readNextShiftDefinition");
-//    Shifts ns = null;
-//    try {
-//      if (shiftResults.next()) {
-//        ns = new Shifts();
-//        ns.read(shiftResults);
-//        logger("  HACK , shiftDef: " + ns.toString());
-//      }
-//    }
-//    catch (Exception e) {
-//      System.out.println("(" + localResort + ") Cannot read Shift, reason:" + e.toString());
-//      return null;
-//    }
-//    return ns;
-//  }
   public ArrayList<Shifts> readShiftDefinitions() {
     ArrayList<Shifts> shiftDefinitions = new ArrayList<Shifts>();
     try {
@@ -498,37 +416,6 @@ public class PatrolData {
     return null;  //failure
   } //end getMemberByID
 
-//  public MemberData getMemberByName(String szFullName) {
-//    MemberData member = null;
-//    String str = "SELECT * FROM roster";
-//    try {
-//      PreparedStatement rosterStatement = connection.prepareStatement(str);
-//      rosterResults = rosterStatement.executeQuery();
-//      while (rosterResults.next()) {
-//        int id = rosterResults.getInt("IDNumber");
-//        String str1 = rosterResults.getString("FirstName").trim() + " " +
-//            rosterResults.getString("LastName").trim();
-//        if (str1.equals(szFullName)) {
-//          member = new MemberData();  //"&nbsp;" is the default
-//          if (fetchFullData) {
-//            member.readFullFromRoster(rosterResults, "");
-//          }
-//          else {
-//            member.readPartialFromRoster(rosterResults, "");
-//          }
-//          return member;
-//        }
-//      } //end while
-//    }
-//    catch (Exception e) {
-//      member = null;
-//      System.out.println("(" + localResort + ") Error reading table in getMemberByName(" + szFullName + "):" + e.getMessage());
-//      System.out.println("(" + localResort + ") ERROR in PatrolData:getMemberByName(" + szFullName + ") maybe a close was already done?");
-//      Thread.currentThread().dumpStack();
-//    } //end try
-//    return member;
-//  } //end getMemberByName
-//
   public MemberData getMemberByName2(String szFullName) {
     return getMemberByLastNameFirstName(szFullName);
   } //end getMemberByName
@@ -585,9 +472,6 @@ public class PatrolData {
     else {
       val = String.valueOf((char) ('A' + i - 10));
     }
-    if (DEBUG) {
-      System.out.println("  value= " + val);
-    }
     return val;
   }
 
@@ -613,30 +497,7 @@ public class PatrolData {
     return null;
   }
 
-  //---------------------------------------------------------------------
-  //  setValidDate - convert yyyy/mm/dd to string format in database
-//---------------------------------------------------------------------
-//  String setValidDate(int currYear, int currMonth, int currDay) {
-//    String lastValidDate = currYear + "-";
-//    if (currMonth + 1 < 10) {
-//      lastValidDate += "0";
-//    }
-//    lastValidDate += (currMonth + 1) + "-";
-//    if (currDay < 10) {
-//      lastValidDate += "0";
-//    }
-//    lastValidDate += currDay;
-//    return lastValidDate;
-//  }
 
-//  public Assignments readAssignment(int year, int month, int date) { //was readNightSki
-//    String szDate = setValidDate(year, month - 1, date); //month should be 0 based
-//    return readAssignment(szDate);
-//  }
-
-//---------------------------------------------------------------------
-//  writeAssignment - WRITE all night ski assignments for a specified date
-//---------------------------------------------------------------------
   public boolean writeAssignment(Assignments ns) { //was writeNightSki
     String qryString;
 //System.out.println("in writeAssignment:"+ns.toString());
@@ -658,6 +519,7 @@ public class PatrolData {
     }
     return false;
   }
+
 //---------------------------------------------------------------------
 //     decrementAssignment -  change 2015-10-06_2 to 2015-10-06_1  (delete _2 and write _1)
 //                                   2015-10-06_0  is ignored
@@ -833,8 +695,9 @@ public class PatrolData {
   }
 
   static public String getJDBC_URL(String resort) {
-//    String jdbcLoc = "jdbc:mysql://" + IP_ADDRESS + "/";
-    String jdbcLoc = "jdbc:mysql://" + "127.0.0.1" + "/";
+    String jdbcLoc = "jdbc:mysql://" + MYSQL_ADDRESS + "/";
+//    String jdbcLoc = "jdbc:mysql://" + "127.0.0.1" + "/";
+//I need this to work    String jdbcLoc = "jdbc:mysql://" + "172.31.50.20" + "/";
     if (validResort(resort)) {
       return jdbcLoc + resort;
     }
@@ -891,7 +754,7 @@ public class PatrolData {
     //SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE "2009-02-07%"
     try {
       String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE \'" + key + "\'";
-      logger("readNewIndividualAssignments: " + queryString);
+      debugOut(null, "readNewIndividualAssignments: " + queryString);
       assignmentsStatement = connection.prepareStatement(queryString);
       assignmentResults = assignmentsStatement.executeQuery();
       while (assignmentResults.next()) {
@@ -971,7 +834,7 @@ public class PatrolData {
 //      zzz
 //      String dateMask = "2015-10-%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
-      logger("readSortedAssignments: " + qryString);
+      debugOut(null, "readSortedAssignments: " + qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
@@ -1012,4 +875,15 @@ public class PatrolData {
     } //end try
     return monthAssignments;
   }
+
+  private static void debugOut(SessionData sessionData, String msg) {
+    if (DEBUG) {
+      Utils.printToLogFile(sessionData == null ? null : sessionData.getRequest() ,"DEBUG-PatrolData(" + sessionData.getLoggedInResort() + "): " + msg);
+    }
+  }
+
+  private static void errorOut(SessionData sessionData, String msg) {
+    Utils.printToLogFile(sessionData == null ? null : sessionData.getRequest() ,"ERROR-PatrolData(" + sessionData.getLoggedInResort() + "): " + msg);
+  }
+
 }
