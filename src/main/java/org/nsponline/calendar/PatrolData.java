@@ -534,8 +534,8 @@ public class PatrolData {
 //     deleteShift - DELETE Shift assignment for a specified date and index
 //---------------------------------------------------------------------
   public void deleteAssignment(Assignments ns) {
-    logger("delete Assignment:" + ns);
     String qryString = ns.getDeleteSQLString(sessionData);
+    logger("deleteAssignment" + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();

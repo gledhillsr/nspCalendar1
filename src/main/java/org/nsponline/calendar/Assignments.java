@@ -343,13 +343,13 @@ public class Assignments {
     }
     qryString += ")";
 
-    LOG(sessionData, qryString);
+    debugOut(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-    LOG(sessionData, qryString);
+    debugOut(qryString);
     return qryString;
   }
 
