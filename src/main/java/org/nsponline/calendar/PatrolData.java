@@ -1,9 +1,11 @@
 package org.nsponline.calendar;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -282,7 +284,6 @@ public class PatrolData {
   }
 
   public void deleteShift(Shifts ns) {
-//System.out.println("delete shift:"+ns);
     String qryString = ns.getDeleteSQLString();
     logger("deleteShift: " + qryString);
     try {
@@ -297,7 +298,6 @@ public class PatrolData {
 
   public boolean writeShift(Shifts ns) {
     String qryString;
-//System.out.println("write shift:"+ns);
     if (ns.exists()) {
       qryString = ns.getUpdateShiftDefinitionsQueryString();
     }
@@ -308,11 +308,10 @@ public class PatrolData {
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
-//should I set this?      ns.setExists(true);
+      ns.setExists(true);
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot load the driver, reason:" + e.toString());
-      System.out.println("Most likely the Java class path is incorrect.");
+    catch (SQLException e) {
+      errorOut(sessionData, "(" + localResort + ") failed writeShift, reason:" + e.getMessage());
       return true;
     }
     return false;
@@ -339,9 +338,9 @@ public class PatrolData {
         member.readFullFromRoster(rosterResults, defaultString);
       } //end if
     }
-    catch (Exception e) {
+    catch (SQLException e) {
       member = null;
-      System.out.println("(" + localResort + ") Error connecting or reading table on nextMember:" + e.getMessage());
+      System.out.println("(" + localResort + ") Failed nextMember, reason:" + e.getMessage());
       Thread.currentThread().dumpStack();
     } //end try
 
@@ -350,9 +349,7 @@ public class PatrolData {
 
   public MemberData getMemberByID(String szMemberID) {
     MemberData member;
-//  String str="SELECT * FROM roster WHERE \"IDNumber\" = '"+szMemberID+"'";
     String str = "SELECT * FROM roster WHERE IDNumber =" + szMemberID;
-//          String str="SELECT * FROM roster";
     if (szMemberID == null || szMemberID.length() <= 3) {
       return null;
     }
@@ -443,14 +440,12 @@ public class PatrolData {
         }
       } //end while
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Error reading table in getMemberByName(" + szFullName + "):" + e.getMessage());
-      System.out.println("(" + localResort + ") ERROR in PatrolData:getMemberByName(" + szFullName + ") maybe a close was already done?");
+    catch (SQLException e) {
+      errorOut(sessionData, "(" + localResort + ") failed getMemberByLastNameFirstName(" + szFullName + "):" + e.getMessage());
       Thread.currentThread().dumpStack();
-    } //end try
-//System.out.println("getMemberByLastNameFirstName: returning" + member);
-    return null;  //failure
-  } //end getMemberByName
+    }
+    return null;  //not found (or error)
+  }
 
   public static int StringToIndex(String temp) {
     int i;
@@ -489,18 +484,16 @@ public class PatrolData {
           return ns;
         }
     }
-    catch (Exception e) {
-      System.out.println("Cannot load the driver, reason:" + e.toString());
-      System.out.println("Most likely the Java class path is incorrect.");
+    catch (SQLException e) {
+      errorOut(sessionData, "failed readAssignment, reason:" + e.getMessage());
       return null;
     }
     return null;
   }
 
 
-  public boolean writeAssignment(Assignments ns) { //was writeNightSki
+  public boolean writeAssignment(Assignments ns) {
     String qryString;
-//System.out.println("in writeAssignment:"+ns.toString());
     if (ns.exists()) {
       qryString = ns.getUpdateQueryString();
     }
@@ -512,9 +505,8 @@ public class PatrolData {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot load the driver, reason:" + e.toString());
-      System.out.println("(" + localResort + ") Most likely the Java class path is incorrect.");
+    catch (SQLException e) {
+      errorOut(sessionData, "(" + localResort + ") failed writeAssignment, reason:" + e.getMessage());
       return true;
     }
     return false;
@@ -550,8 +542,8 @@ public class PatrolData {
       sAssign.executeUpdate();
       ns.setExisted(false);
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
+    catch (SQLException e) {
+      errorOut(sessionData, "(" + localResort + ") failed deleteAssignment, reason:" + e.getMessage());
     }
   }
 
@@ -696,52 +688,38 @@ public class PatrolData {
 
   static public String getJDBC_URL(String resort) {
     String jdbcLoc = "jdbc:mysql://" + MYSQL_ADDRESS + "/";
-//    String jdbcLoc = "jdbc:mysql://" + "127.0.0.1" + "/";
-//I need this to work    String jdbcLoc = "jdbc:mysql://" + "172.31.50.20" + "/";
     if (validResort(resort)) {
       return jdbcLoc + resort;
     }
 
-    System.out.println("****** Error, unknown resort (" + resort + ")");
+    logger(resort, "****** Error, unknown resort (" + resort + ")");
     Thread.currentThread().dumpStack();
     return "invalidResort";
   }
 
   public boolean insertNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
+    String qryString = newIndividualAssignment.getInsertSQLString();
+    logger("insertNewIndividualAssignment" + qryString);
     try {
-//todo remove me      System.out.println("ERROR: PatrolData Under Construction need to insert " + newIndividualAssignment);
-      String qryString = newIndividualAssignment.getInsertSQLString();
-      logger("insertNewIndividualAssignment" + qryString);
-      try {
-        PreparedStatement sAssign = connection.prepareStatement(qryString);
-        sAssign.executeUpdate();
-      }
-      catch (Exception e) {
-        System.out.println("Cannot insert newIndividualAssignment, reason:" + e.toString());
-      }
+      PreparedStatement sAssign = connection.prepareStatement(qryString);
+      sAssign.executeUpdate();
     }
-    catch (Exception e) {
-      System.out.println("Error inserting  NewIndividualAssignment, reason:" + e.toString());
+    catch (SQLException e) {
+      System.out.println("Cannot insert newIndividualAssignment, reason:" + e.getMessage());
       return false;
     }
     return true;
   }
 
   public boolean updateNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
+    String qryString = newIndividualAssignment.getUpdateSQLString();
+    logger("updateNewIndividualAssignment: " + qryString);
     try {
-      System.out.println("ERROR: PatrolData Under Construction need to update " + newIndividualAssignment);
-      String qryString = newIndividualAssignment.getUpdateSQLString();
-      logger("updateNewIndividualAssignment: " + qryString);
-      try {
-        PreparedStatement sAssign = connection.prepareStatement(qryString);
-        sAssign.executeUpdate();
-      }
-      catch (Exception e) {
-        System.out.println("(" + localResort + ") Cannot update newIndividualAssignment, reason:" + e.toString());
-      }
+      PreparedStatement sAssign = connection.prepareStatement(qryString);
+      sAssign.executeUpdate();
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Error updating  NewIndividualAssignment, reason:" + e.toString());
+    catch (SQLException e) {
+      errorOut(sessionData, "(" + localResort + ") Cannot update newIndividualAssignment, reason:" + e.getMessage());
       return false;
     }
     return true;
@@ -760,14 +738,12 @@ public class PatrolData {
       while (assignmentResults.next()) {
         NewIndividualAssignment newIndividualAssignment = new NewIndividualAssignment();
         newIndividualAssignment.read(assignmentResults);
-//System.out.println(newIndividualAssignment);
-//System.out.println(newIndividualAssignment.getDateShiftPos());
+        debugOut(null, newIndividualAssignment.toString());
         results.put(newIndividualAssignment.getDateShiftPos(), newIndividualAssignment);
       }
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot load the driver, reason:" + e.toString());
-      System.out.println("(" + localResort + ") Most likely the Java class path is incorrect.");
+    catch (SQLException e) {
+      errorOut(sessionData, "(" + localResort + ") readNewIndividualAssignments" + e.getMessage());
       return null;
     }
     return results;
@@ -781,7 +757,7 @@ public class PatrolData {
       logger(localResort, message);
     }
   }
-//SessionData sessionData
+
   public static void logger(String myResort, String message) {
     Utils.printToLogFile(null, "(" + myResort + ") " + message);
   }
@@ -800,17 +776,15 @@ public class PatrolData {
   }
 
   public ArrayList<Assignments> readAllSortedAssignments(String patrollerId) {
-//    String dateMask = String.format("%4d-%02d-", year, month) + "%";
     String dateMask = "20%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
 //    logger("readSortedAssignments(" + dateMask + ")");
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
-//      zzz
-      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
-      logger("readAllSortedAssignments: " + qryString);
+      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
+      logger("readAllSortedAssignments(" + patrollerId + "): " + qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
-      int cnt = 1;
+//      int cnt = 1;
       while (assignmentResults.next()) {
         Assignments ns = new Assignments();
         ns.read(assignmentResults);
@@ -831,9 +805,7 @@ public class PatrolData {
 //    logger("  readSortedAssignments(" + dateMask + ")");
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
-//      zzz
-//      String dateMask = "2015-10-%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
-      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
+      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
       debugOut(null, "readSortedAssignments: " + qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
@@ -856,9 +828,7 @@ public class PatrolData {
 //    logger("  readSortedAssignments(" + dateMask + ")");
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
-//      zzz
-//      String dateMask = "2015-10-%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
-      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";//Assignments.getSelectAllAssignmentsByDateSQLString();
+      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
       logger("readSortedAssignments:" + qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
@@ -878,12 +848,16 @@ public class PatrolData {
 
   private static void debugOut(SessionData sessionData, String msg) {
     if (DEBUG) {
-      Utils.printToLogFile(sessionData == null ? null : sessionData.getRequest() ,"DEBUG-PatrolData(" + sessionData.getLoggedInResort() + "): " + msg);
+      String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
+      HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
+      Utils.printToLogFile(request ,"DEBUG-PatrolData(" + localResort + "): " + msg);
     }
   }
 
   private static void errorOut(SessionData sessionData, String msg) {
-    Utils.printToLogFile(sessionData == null ? null : sessionData.getRequest() ,"ERROR-PatrolData(" + sessionData.getLoggedInResort() + "): " + msg);
+    String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
+    HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
+    Utils.printToLogFile(request ,"ERROR-PatrolData(" + localResort + "): " + msg);
   }
 
 }

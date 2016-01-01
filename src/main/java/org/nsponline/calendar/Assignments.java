@@ -320,7 +320,7 @@ public class Assignments {
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-    debugOut(qryString);
+    LOG(qryString);
     return qryString;
   }
 
@@ -349,7 +349,7 @@ public class Assignments {
 
   public String getDeleteSQLString() {
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-    debugOut(qryString);
+    LOG(qryString);
     return qryString;
   }
 

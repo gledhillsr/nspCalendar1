@@ -13,7 +13,7 @@ import java.sql.*;
  */
 public class UpdateInfo extends HttpServlet {
 
-  final static boolean debug = true;
+  final static boolean debug = false;
 
   final static String szMonths[] = { //0 based
       "Jan", "Feb", "Mar", "Apr", "May", "June",

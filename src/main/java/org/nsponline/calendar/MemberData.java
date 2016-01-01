@@ -545,10 +545,7 @@ public class MemberData {
     printEmergencyCallRow(out, null);
   }
 
-  /***********************************************/
-    /* readPartialFromRoster (ID, first, last ONLY)*/
-
-  /***********************************************/
+  //todo srg 1/1/2016 get rid of readPartial.
   public boolean readPartialFromRoster(ResultSet rosterResults, String defaultString) {
     exceptionError = false;
     idNum = readInt(rosterResults, dbData[ID_NUM][DB_NAME]);
@@ -559,10 +556,8 @@ public class MemberData {
     return !exceptionError;
   } //end readFromRoster
 
-  /**********************/
-    /* readFullFromRoster */
-
-  /**********************/
+  //todo srg 1/1/2016 return memberData, not worthless boolean
+  //todo make MemberData constructor
   public boolean readFullFromRoster(ResultSet rosterResults, String defaultString) {
     exceptionError = false;
     idNum = readInt(rosterResults, dbData[ID_NUM][DB_NAME]);
@@ -570,7 +565,6 @@ public class MemberData {
       memberData[i] = readString(rosterResults, dbData[i][DB_NAME], defaultString);
 //System.out.println(i+") "+memberData[i]);
     }
-
     return !exceptionError;
   }
 
