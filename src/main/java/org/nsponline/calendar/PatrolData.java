@@ -173,12 +173,11 @@ public class PatrolData {
     try {
       if (assignmentResults.next()) {    //todo uses global :-(
         ns = new Assignments();
-        ns.read(assignmentResults);
-//todo        logger("fix. readNextAssignment-" + ns.toString());
+        ns.read(sessionData, assignmentResults);
       }
     }
-    catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot read Assignment, reason:" + e.toString());
+    catch (SQLException e) {
+      logger("(" + localResort + ") Cannot read Assignment, reason:" + e.toString());
       return null;
     }
     return ns;
@@ -479,7 +478,7 @@ public class PatrolData {
 
         if (assignmentResultsLocal.next()) {
           ns = new Assignments();
-          ns.read(assignmentResultsLocal);
+          ns.read(sessionData, assignmentResultsLocal);
           logger("readAssignment(" + queryString + ")= " + ns.toString());
           return ns;
         }
@@ -495,10 +494,10 @@ public class PatrolData {
   public boolean writeAssignment(Assignments ns) {
     String qryString;
     if (ns.exists()) {
-      qryString = ns.getUpdateQueryString();
+      qryString = ns.getUpdateQueryString(sessionData);
     }
     else {
-      qryString = ns.getInsertQueryString();
+      qryString = ns.getInsertQueryString(sessionData);
     }
     logger("writeAssignment: " + qryString);
     try {
@@ -536,7 +535,7 @@ public class PatrolData {
 //---------------------------------------------------------------------
   public void deleteAssignment(Assignments ns) {
     logger("delete Assignment:" + ns);
-    String qryString = ns.getDeleteSQLString();
+    String qryString = ns.getDeleteSQLString(sessionData);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -697,8 +696,8 @@ public class PatrolData {
     return "invalidResort";
   }
 
-  public boolean insertNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
-    String qryString = newIndividualAssignment.getInsertSQLString();
+  public boolean insertNewIndividualAssignment( NewIndividualAssignment newIndividualAssignment) {
+    String qryString = newIndividualAssignment.getInsertSQLString(sessionData);
     logger("insertNewIndividualAssignment" + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
@@ -712,7 +711,7 @@ public class PatrolData {
   }
 
   public boolean updateNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
-    String qryString = newIndividualAssignment.getUpdateSQLString();
+    String qryString = newIndividualAssignment.getUpdateSQLString(sessionData);
     logger("updateNewIndividualAssignment: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
@@ -737,7 +736,7 @@ public class PatrolData {
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
       while (assignmentResults.next()) {
         NewIndividualAssignment newIndividualAssignment = new NewIndividualAssignment();
-        newIndividualAssignment.read(assignmentResults);
+        newIndividualAssignment.read(sessionData, assignmentResults);
         debugOut(null, newIndividualAssignment.toString());
         results.put(newIndividualAssignment.getDateShiftPos(), newIndividualAssignment);
       }
@@ -764,7 +763,7 @@ public class PatrolData {
 
   public void deleteNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
     System.out.println("(" + localResort + ") delete Assignment:" + newIndividualAssignment);
-    String qryString = newIndividualAssignment.getDeleteSQLString();
+    String qryString = newIndividualAssignment.getDeleteSQLString(sessionData);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();  //can throw exception
@@ -787,7 +786,7 @@ public class PatrolData {
 //      int cnt = 1;
       while (assignmentResults.next()) {
         Assignments ns = new Assignments();
-        ns.read(assignmentResults);
+        ns.read(sessionData, assignmentResults);
         if (ns.includesPatroller(patrollerId)) {
 //          logger("(" + (cnt++) + ") NextAssignment-" + ns.toString());
           monthAssignments.add(ns);
@@ -812,7 +811,7 @@ public class PatrolData {
 
       while (assignmentResults.next()) {
         Assignments ns = new Assignments();
-        ns.read(assignmentResults);
+        ns.read(sessionData, assignmentResults);
 //        logger(".. NextAssignment-" + ns.toString());
         monthAssignments.add(ns);
       }
@@ -835,7 +834,7 @@ public class PatrolData {
 
       while (assignmentResults.next()) {
         Assignments ns = new Assignments();
-        ns.read(assignmentResults);
+        ns.read(sessionData, assignmentResults);
 //        logger(".. NextAssignment-" + ns.toString());
         monthAssignments.add(ns);
       }

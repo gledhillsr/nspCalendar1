@@ -1,5 +1,6 @@
 package org.nsponline.calendar;
 
+import java.sql.SQLException;
 import java.text.*;
 import java.util.Date;
 import java.lang.*;
@@ -67,54 +68,51 @@ public class NewIndividualAssignment {
     existed = false;
   }
 
-  private String readString(ResultSet newAssignmentResults, String tag) {
+  private String readString(SessionData sessionData, ResultSet newAssignmentResults, String tag) {
     String str = null;
     try {
       str = newAssignmentResults.getString(tag);
     }
-    catch (Exception e) {
-      System.out.println("exception reading tag (" + tag + ")");
-      System.out.println("exception in readString e=" + e);
+    catch (SQLException e) {
+      Utils.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readString(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
 
     return str;
   }
 
-  private int readInt(ResultSet newAssignmentResults, String tag) {
+  private int readInt(SessionData sessionData, ResultSet newAssignmentResults, String tag) {
     try {
       return newAssignmentResults.getInt(tag);
     }
-    catch (Exception e) {
-      System.out.println("exception reading tag (" + tag + ")");
-      System.out.println("exception in readInt e=" + e);
+    catch (SQLException e) {
+      Utils.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readInt(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
     return 0;
   }
 
-  private Date readDate(ResultSet newAssignmentResults, String tag) {
+  private Date readDate(SessionData sessionData, ResultSet newAssignmentResults, String tag) {
     try {
       return newAssignmentResults.getDate(tag);
     }
-    catch (Exception e) {
-      System.out.println("exception reading tag (" + tag + ")");
-      System.out.println("exception in readDate e=" + e);
+    catch (SQLException e) {
+      Utils.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readDate(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
     return null;
   }
 
-  public boolean read(ResultSet newAssignmentResults) {
+  public boolean read(SessionData sessionData, ResultSet newAssignmentResults) {
     exceptionError = false;
 
-    dateShiftPos = readString(newAssignmentResults, tag[DATE_SHIFT_POS_INDEX]);
-    scheduleDate = readDate(newAssignmentResults, tag[SCHEDULE_DATE_INDEX]);
-    shiftType = readInt(newAssignmentResults, tag[SHIFT_TYPE_INDEX]);
-    flags = readInt(newAssignmentResults, tag[FLAGS_INDEX]);
-    patrollerId = readString(newAssignmentResults, tag[PATROLLER_ID_INDEX]);
-    lastModifiedDate = readDate(newAssignmentResults, tag[LAST_MODIFIED_DATE_INDEX]);
-    lastModifiedBy = readString(newAssignmentResults, tag[LAST_MODIFIED_BY_INDEX]);
+    dateShiftPos = readString(sessionData, newAssignmentResults, tag[DATE_SHIFT_POS_INDEX]);
+    scheduleDate = readDate(sessionData, newAssignmentResults, tag[SCHEDULE_DATE_INDEX]);
+    shiftType = readInt(sessionData, newAssignmentResults, tag[SHIFT_TYPE_INDEX]);
+    flags = readInt(sessionData, newAssignmentResults, tag[FLAGS_INDEX]);
+    patrollerId = readString(sessionData, newAssignmentResults, tag[PATROLLER_ID_INDEX]);
+    lastModifiedDate = readDate(sessionData, newAssignmentResults, tag[LAST_MODIFIED_DATE_INDEX]);
+    lastModifiedBy = readString(sessionData, newAssignmentResults, tag[LAST_MODIFIED_BY_INDEX]);
     existed = true;
     return !exceptionError;
   }
@@ -140,15 +138,11 @@ public class NewIndividualAssignment {
     }
   }
 
-  public void setExisted() {
-    existed = true;
-  }
-
   public void setExisted(boolean flag) {
     existed = flag;
   }
 
-  public String getUpdateSQLString() {
+  public String getUpdateSQLString(SessionData sessionData) {
 //UPDATE `newindividualassignment` SET `lastModifiedDate` = '2009-02-01 04:50:15' WHERE `date_shift_pos` = '2009-02-14_0_1' LIMIT 1
     lastModifiedDate = new Date();
     String szScheduleDate = DateFormatter.format(scheduleDate);
@@ -161,24 +155,24 @@ public class NewIndividualAssignment {
         tag[LAST_MODIFIED_DATE_INDEX] + " = '" + szLastModDate + "', " +
         tag[LAST_MODIFIED_BY_INDEX] + " = '" + lastModifiedBy + "'";
     qryString += " WHERE " + tag[DATE_SHIFT_POS_INDEX] + " = '" + dateShiftPos + "'";
-    PatrolData.logger("resort..", qryString);
+    Utils.printToLogFile(sessionData.getRequest(), qryString);
     return qryString;
   }
 
-  public String getInsertSQLString() {
+  public String getInsertSQLString(SessionData sessionData) {
     String szScheduleDate = DateFormatter.format(scheduleDate);
     String szLastModDate = detailedDateTimeFormatter.format(lastModifiedDate);
     String qryString = "INSERT INTO newindividualassignment Values(\'" + dateShiftPos + "', \"" +
         szScheduleDate + "\", \"" + shiftType + "\", \"" + flags + "\", \"" + patrollerId + "\", \"" +
         szLastModDate + "\", \"" + lastModifiedBy + "\")";
 
-    PatrolData.logger("resort..", qryString);
+    Utils.printToLogFile(sessionData.getRequest(), qryString);
     return qryString;
   }
 
-  public String getDeleteSQLString() {
+  public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM " + tableName + " WHERE " + tag[DATE_SHIFT_POS_INDEX] + " = '" + dateShiftPos + "'";
-    PatrolData.logger("resort..", qryString);
+    Utils.printToLogFile(sessionData.getRequest(), qryString);
     return qryString;
   }
 

@@ -79,35 +79,35 @@ public class Assignments {
     return szShiftTypes[index];
   }
 
-  private String readString(ResultSet assignmentResults, String tag) {
+  private String readString(SessionData sessionData, ResultSet assignmentResults, String tag) {
     String str = null;
     try {
       str = assignmentResults.getString(tag);
     }
     catch (Exception e) {
-      LOG("exception in readString e=" + e);
+      LOG(sessionData, "exception in readString e=" + e);
       exceptionError = true;
     } //end try
 
     return str;
   }
 
-  public boolean read(ResultSet assignmentResults) {
+  public boolean read(SessionData sessionData, ResultSet assignmentResults) {
     exceptionError = false;
-    szDate = readString(assignmentResults, tag[DATE_INDEX]);
-    szStartTime = readString(assignmentResults, tag[START_INDEX]);
-    szEndTime = readString(assignmentResults, tag[END_INDEX]);
-    szEventName = readString(assignmentResults, tag[EVENT_INDEX]);
+    szDate = readString(sessionData, assignmentResults, tag[DATE_INDEX]);
+    szStartTime = readString(sessionData, assignmentResults, tag[START_INDEX]);
+    szEndTime = readString(sessionData, assignmentResults, tag[END_INDEX]);
+    szEventName = readString(sessionData, assignmentResults, tag[EVENT_INDEX]);
     debugOut("szEventName=(" + szEventName + ")");
     if (szEventName == null || szEventName.equals("null")) {
       szEventName = " ";
     }
-    String str = readString(assignmentResults, tag[TYPE_INDEX]);
+    String str = readString(sessionData, assignmentResults, tag[TYPE_INDEX]);
     type = Integer.parseInt(str);
-    str = readString(assignmentResults, tag[COUNT_INDEX]);
+    str = readString(sessionData, assignmentResults, tag[COUNT_INDEX]);
     count = Integer.parseInt(str);
     for (int i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
-      patrollerID[i] = readString(assignmentResults, ("P" + i));
+      patrollerID[i] = readString(sessionData, assignmentResults, ("P" + i));
     }
     existed = true;
     debugOut("Assignment.read=" + this);
@@ -168,9 +168,9 @@ public class Assignments {
     return szDate;                    //YYYY-MM-DD_n
   }
 
-  public static int getTypeID(String szType) {
+  public static int getTypeID(SessionData sessionData, String szType) {
     if (szType == null) {
-      LOG("** Assignments.getDate error, type was null");
+      LOG(sessionData, "** Assignments.getDate error, type was null");
       return DAY_TYPE;
     }
     for (int shiftType = 0; shiftType < MAX_SHIFT_TYPES; ++shiftType) {
@@ -178,7 +178,7 @@ public class Assignments {
         return shiftType;
       }
     }
-    LOG("** Assignments.getDate error, invalid string");
+    LOG(sessionData, "** Assignments.getDate error, invalid string");
     return DAY_TYPE;
   }
 
@@ -297,7 +297,7 @@ public class Assignments {
     debugOut(toString());
   }
 
-  public String getUpdateQueryString() {
+  public String getUpdateQueryString(SessionData sessionData) {
     int i;
     if (szEventName.indexOf('"') != -1) {
       szEventName = szEventName.replace('"', '\'');
@@ -320,11 +320,11 @@ public class Assignments {
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-    LOG(qryString);
+    LOG(sessionData, qryString);
     return qryString;
   }
 
-  public String getInsertQueryString() {
+  public String getInsertQueryString(SessionData sessionData) {
     int i;
     if (szEventName.indexOf('"') != -1) {
       szEventName = szEventName.replace('"', '\'');
@@ -343,13 +343,13 @@ public class Assignments {
     }
     qryString += ")";
 
-    LOG(qryString);
+    LOG(sessionData, qryString);
     return qryString;
   }
 
-  public String getDeleteSQLString() {
+  public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-    LOG(qryString);
+    LOG(sessionData, qryString);
     return qryString;
   }
 
@@ -373,8 +373,8 @@ public class Assignments {
     }
   }
 
-  private static void LOG(String msg) {
-    Utils.printToLogFile(null, msg);
+  private static void LOG(SessionData sessionData, String msg) {
+    Utils.printToLogFile(sessionData.getRequest(), msg);
   }
 
   public boolean includesPatroller(String patrollerId) {

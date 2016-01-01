@@ -92,7 +92,7 @@ public class DayShifts extends HttpServlet {
       }
       ArrayList<Assignments> assignmentsFromDisk = new ArrayList<Assignments>();  //INCLUDES scheduled patrollers
       ArrayList<Shifts> parameterShifts = new ArrayList<Shifts>();  //does not include scheduled patrollers
-      readParameters(request, patrol, assignmentsFromDisk, parameterShifts);
+      readParameters(sessionData, patrol, assignmentsFromDisk, parameterShifts);
       processChangeRequest(request, patrol, assignmentsFromDisk, parameterShifts);
 
 
@@ -459,10 +459,11 @@ public class DayShifts extends HttpServlet {
 //System.out.println("****in insureAssignmentExists, final assignmentSize = ("+assignmentSize+")");
     }
 
-    private void readParameters(HttpServletRequest request, PatrolData patrol,
+    private void readParameters(SessionData sessionData, PatrolData patrol,
                                 ArrayList<Assignments> assignmentsFromDisk,
                                 ArrayList<Shifts> parameterShifts) {
       int i;
+      HttpServletRequest request = sessionData.getRequest();
 //this is a little complicated, but there are 5 states we can enter into
 // all entries must have dayOfWeek, date, month, year or ELSE!
 // 1) just entered from Calendar - no other flags set (only dayOfWeek,date,month,year)
@@ -624,7 +625,7 @@ public class DayShifts extends HttpServlet {
           Utils.printToLogFile(request, "ERROR, reading past assignment data");
           break;
         }
-        int tType = Assignments.getTypeID(tShift);
+        int tType = Assignments.getTypeID(sessionData, tShift);
         
         debugOut(request, "shift(" + i + ") '" + tStart + "', '" + tEnd + "', cnt=" + tCount + ", " + Assignments.getShiftName(tType));
         parameterShifts.add(new Shifts(szNameComment, tStart, tEnd, tCnt, tType));
