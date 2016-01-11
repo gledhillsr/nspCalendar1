@@ -43,7 +43,7 @@ public class MemberLogin extends HttpServlet {
         debugOut("ERROR, szParent was not specified");
         szParent = "MonthCalendar";
       }
-      if (Utils.isEmpty(resort) || !PatrolData.validResort(resort)) {
+      if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
         out.println("ERROR, unknown resort (" + resort + "), go back to www.nsponline.org, and click on your resort<br/>");
         out.println("If you see this problem again, please email me at steve@gledhills.com with a quick " +
             "description of what you did to see this error. and I will fix it ASAP!!!");

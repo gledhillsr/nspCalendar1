@@ -25,22 +25,6 @@ public class DailyReminder {
 
     GregorianCalendar assignmentDate = getRemingerDateToSend(daysAhead);
     checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
-//NOTE: important for this logic.
-//      This program is only run Monday through Friday (morning).  Not on Saturday or Sunday
-//       (since many people don't read email consistently on the weekend)
-//Also, a daysAhead value of 0 is not valid
-    int dayOfWeekToNotify = assignmentDate.get(Calendar.DAY_OF_WEEK);
-    if (dayOfWeekToNotify == Calendar.SUNDAY || dayOfWeekToNotify == Calendar.MONDAY) {
-      debugOut("Skip sending emails for Sunday/Monday.  They were sent with Saturdays");
-    }
-    else if (dayOfWeekToNotify == Calendar.SATURDAY) {
-      //Sunday
-      assignmentDate = getRemingerDateToSend(daysAhead + 1);
-      checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
-      //Monday
-      assignmentDate = getRemingerDateToSend(daysAhead + 2);
-      checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
-    }
     System.out.println("finished processing ALL reminders");
     patrol.close();
   }
@@ -71,7 +55,7 @@ public class DailyReminder {
 
   private void checkAndSend(SessionData sessionData, GregorianCalendar date, MailMan mail, String resort, PatrolData patrol) {
     Set<String> emailTo;
-//    String formattedDateString = getAssignmentDateString(date);
+    String formattedDateString = getAssignmentDateString(date);
     int dayOfWeek = date.get(Calendar.DAY_OF_WEEK);
     int month = date.get(Calendar.MONTH);
     int year = date.get(Calendar.YEAR);
@@ -81,10 +65,11 @@ public class DailyReminder {
 //    Assignments assignment;
     for (Assignments assignment : patrol.readSortedAssignments(year, month + 1, dayOfMonth)) {
 //    while ((assignment = patrol.readNextAssignment()) != null) {
-//      String assignDate = assignment.getDateOnly();
-//      if (!formattedDateString.equals(assignDate)) {
-//        continue;
-//      }
+      String assignDate = assignment.getDateOnly();
+      if (!formattedDateString.equals(assignDate)) {
+        debugOut("**** THIS SHOULD NEVER HAPPEN *****");
+        continue;
+      }
 
       debugOut("Assignment=" + assignment.toString());
       String message = "Reminder\n\nYou are scheduled to Ski Patrol at " + resort + ", on " + szDay[dayOfWeek] + ", " + szMonth[month] + " " + date.get(Calendar.DAY_OF_MONTH) + ", " + date.get(Calendar.YEAR) + " from " +

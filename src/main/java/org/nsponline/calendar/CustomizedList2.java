@@ -111,7 +111,7 @@ public class CustomizedList2 extends HttpServlet {
       patrollersListed = 0;
 
       printTop();
-      if (PatrolData.validResort(resort)) {
+      if (PatrolData.isValidResort(resort)) {
         printBody();
       }
       else {

@@ -65,6 +65,7 @@ public class PatrolData {
     resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
     resortMap.put("ThreeRivers",    new ResortData("ThreeRivers", "Three Rivers Park", "http://www.threeriverspark.com", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
 //    resortMap.put("uop",            new ResortData("uop", "The Utah Olympic Park", "http://www.imd.org/uop.html", "/images/uop.jpg", IMG_HEIGHT, 80));
+    resortMap.put("WelchVillage",   new ResortData("WelchVillage", "Welch Village", "http://www.welchvillage.com", "/images/WelchVillage.jpg", IMG_HEIGHT, 80));
     resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
@@ -668,7 +669,7 @@ public class PatrolData {
     out.println("<INPUT TYPE='HIDDEN\' NAME='shiftCount' VALUE='" + validShifts + "'>");
   }
 
-  static public boolean validResort(String resort) {
+  static public boolean isValidResort(String resort) {
     return resortMap.containsKey(resort);
   }
 
@@ -687,7 +688,7 @@ public class PatrolData {
 
   static public String getJDBC_URL(String resort) {
     String jdbcLoc = "jdbc:mysql://" + MYSQL_ADDRESS + "/";
-    if (validResort(resort)) {
+    if (isValidResort(resort)) {
       return jdbcLoc + resort;
     }
 

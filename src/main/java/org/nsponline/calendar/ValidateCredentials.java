@@ -4,7 +4,6 @@ import com.mysql.jdbc.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URLEncoder;
 
 /**
  * Look at QueryParameters 'ID', and 'resort'
@@ -58,7 +57,7 @@ public class ValidateCredentials {
   private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData) {
     if (StringUtils.isNullOrEmpty(resortParameter) ||
         StringUtils.isNullOrEmpty(idParameter) ||
-        !PatrolData.validResort(resortParameter)) {
+        !PatrolData.isValidResort(resortParameter)) {
       return false;
     }
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData); //when reading members, read full data

@@ -133,6 +133,11 @@ public class MonthCalendar extends HttpServlet {
       }
       calendar.set(currYear, currMonth, 1);
 
+      if (!PatrolData.isValidResort(resort)) {
+        out.println("ERROR.  Invalid resort: (" +resort + ")");
+        return;
+      }
+
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());

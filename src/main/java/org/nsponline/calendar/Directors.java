@@ -54,7 +54,7 @@ public class Directors extends HttpServlet {
         if (found != 1) {
           out.println("Error reading patroller id [" + patrollerId + "]");
         }
-        else if (PatrolData.validResort(resort)) {
+        else if (PatrolData.isValidResort(resort)) {
           printBody();
         }
         else {
