@@ -82,6 +82,10 @@
         <servlet-name>MemberListServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.MemberList</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.Logout</servlet-class>
+    </servlet>
 
 <!--    define & map URL patterns -->
     <servlet-mapping>
@@ -155,6 +159,10 @@
     <servlet-mapping>
         <servlet-name>MemberListServlet</servlet-name>
         <url-pattern>/MemberList</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/Logout</url-pattern>
     </servlet-mapping>
 
 </web-app> 

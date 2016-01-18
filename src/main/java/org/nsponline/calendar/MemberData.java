@@ -134,16 +134,6 @@ public class MemberData {
 
   static int[] columns = new int[FULL_DB_SIZE];
   static int lastColumn = 0;
-//  final static Hashtable columnInfo=new Hashtable(10);
-//  static {
-//      for(int i=0; i < DB_SIZE; ++i) {
-//          int w = 50;
-//          try {
-//              w = Integer.parseInt(dbData[i][TABLE_WIDTH]);
-//          } catch (Exception e) {}
-//          columnInfo.put(dbData[i][TABLE_NAME],new Integer(i));
-//      }
-//  }
 
   //order is the defined sequence in the database
   static int order[] = {
@@ -152,7 +142,6 @@ public class MemberData {
       HOMEPHONE, WORKPHONE, CELLPHONE, PAGER,
       EMAIL, EMERGENCY, PASSWORD, SUB, COMMITMENT, INSTRUCTOR, DIRECTOR, LAST_UPDATED, COMMENTS,
       CARRY_OVER_CREDITS, LAST_CREDIT_UPDATE, CAN_EARN_CREDITS, CREDITS_EARNED, CREDITS_USED, TEAM_LEAD, MENTORING}; //BRIGHTON ONLY
-//CARRY_OVER_CREDITS, CREDITS_EARNED, CREDITS_USED }; //BRIGHTON ONLY
 
   //instance data
   boolean exceptionError;
@@ -161,10 +150,6 @@ public class MemberData {
   public int[] AssignmentCount = new int[Assignments.MAX_SHIFT_TYPES];
   public String[] szAssignments = new String[Assignments.MAX_SHIFT_TYPES];
 
-  /***************/
-    /* constructor */
-
-  /***************/
   public MemberData() {
     idNum = 0;
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
@@ -263,13 +248,8 @@ public class MemberData {
 
   }
 
-  /*************************/
-    /* printEmergencyCallRow */
-
-  /*************************/
   public void printEmergencyCallRow(PrintWriter out, String other) {
     out.println("<tr>");
-//old        out.println(" <td>"+getFullName()+"</td>");
     out.println(" <td>" + getFullName_lastNameFirst() + "</td>");
     if (other != null) {
       out.println(" <td ALIGN=\"center\">" + other + "</td>");
@@ -304,10 +284,7 @@ public class MemberData {
     }
 
   }
-  /*****************************/
-    /* printMemberListRowHeading */
 
-  /*****************************/
   public static void printMemberListRowHeading(PrintWriter out, String resort) {
 //System.out.println("in printMemberListRowHeading, lastColumn="+lastColumn);
     for (int i = 0; i < lastColumn; ++i) {
@@ -338,10 +315,6 @@ public class MemberData {
     }
   }
 
-  /**************************/
-    /* printMemberListRowData */
-
-  /**************************/
   public void printMemberListRowData(PrintWriter out) {
     out.println("<tr>");
 //System.out.print("----------");
@@ -537,10 +510,7 @@ public class MemberData {
     }
     return str;
   }
-  /**********************/
-    /* printMemberListRow */
 
-  /**********************/
   public void printMemberListRow(PrintWriter out) {
     printEmergencyCallRow(out, null);
   }
@@ -568,10 +538,6 @@ public class MemberData {
     return !exceptionError;
   }
 
-  /***********/
-    /* readInt */
-
-  /***********/
   private int readInt(ResultSet rosterResults, String tag) {
     try {
       return rosterResults.getInt(tag);
@@ -582,10 +548,6 @@ public class MemberData {
     } //end try
   }
 
-  /**************/
-    /* readString */
-
-  /**************/
   private String readString(ResultSet rosterResults, String tag, String szDefault) {
     try {
       String str = rosterResults.getString(tag);

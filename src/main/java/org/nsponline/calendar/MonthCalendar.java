@@ -93,7 +93,6 @@ public class MonthCalendar extends HttpServlet {
 
       sessionData = new SessionData(request, out);
       new ValidateCredentials(sessionData, request, response, null);  //do not redirect
-      new ValidateCredentials(sessionData, request, response, null);  //do not redirect
       patrollerId = sessionData.getLoggedInUserId();
       if (Utils.isNotEmpty(patrollerId)) {
         patrollerIdTag = "&ID=" + patrollerId;

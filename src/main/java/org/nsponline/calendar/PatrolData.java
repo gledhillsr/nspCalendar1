@@ -52,7 +52,7 @@ public class PatrolData {
     resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
     resortMap.put("NorwayMountain", new ResortData("NorwayMountain", "Norway Mountain", "http://www.NorwayMountain.com", "/images/NorwayMountain.jpg", IMG_HEIGHT, 80));
     resortMap.put("PaidSnowCreek",  new ResortData("PaidSnowCreek", "Paid SnowCreek", "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
-    resortMap.put("ParkCity",       new ResortData("ParkCity", "Park City Mountain", "http://www.parkcitymountain.com", "/images/ParkCity.png", IMG_HEIGHT, 30));
+    resortMap.put("ParkCity",       new ResortData("ParkCity", "Park City Mountain", "http://www.parkcitymountain.com", "/images/ParkCity.png", 30, 30));
     resortMap.put("PebbleCreek",    new ResortData("PebbleCreek", "Pebble Creek", "http://www.pebblecreekskiarea.com", "/images/PebbleCreek.gif", IMG_HEIGHT, 80));
     resortMap.put("PineCreek",      new ResortData("PineCreek", "Pine Creek", "http://www.pinecreekskiresort.com", "/images/pinecreek.gif", IMG_HEIGHT, 80));
     resortMap.put("PineMountain",   new ResortData("PineMountain", "Pine Mountain", "http://www.PineMountainResort.com", "/images/PineMtnLogo.png", IMG_HEIGHT, 80));

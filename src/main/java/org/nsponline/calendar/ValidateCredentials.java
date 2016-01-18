@@ -25,8 +25,8 @@ public class ValidateCredentials {
     this.resortParameter = request.getParameter("resort");
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
-    debugOut("parameters  ID=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
-    debugOut("sessionData ID=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
+    debugOut("parameters  idParameter=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
+    debugOut("sessionData idLoggedIn=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
     if (Utils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData)) {
       sessionData.setLoggedInUserId(idParameter);
       sessionData.setLoggedInResort(resortParameter);

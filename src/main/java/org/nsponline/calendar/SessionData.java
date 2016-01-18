@@ -149,6 +149,16 @@ public class SessionData {
     session.setAttribute(LOGGED_IN_USER_ID_TAG, loggedInUserId);
   }
 
+  public void clearLoggedInUserId() {
+    debugOut("SessionData.clearLoggedInUserId()");
+    session.removeAttribute(LOGGED_IN_USER_ID_TAG);
+  }
+
+  public void clearLoggedInResort() {
+    debugOut("SessionData.clearLoggedInResort()");
+    session.removeAttribute(LOGGED_IN_RESORT_TAG);
+  }
+
   public String getLoggedInUserId() {
     String userId = (String) session.getAttribute(LOGGED_IN_USER_ID_TAG);
     debugOut("SessionData.getLoggedInUserId=" + userId);

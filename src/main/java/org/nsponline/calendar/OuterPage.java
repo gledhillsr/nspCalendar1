@@ -40,9 +40,18 @@ public class OuterPage {
         replaceAll("__RESORT_LONG", resortData.getResortFullName()).
         replaceAll("__USER_ID_TAG", userIdTag).
         replaceAll("__RESORT_URL", resortData.getResortURL()).
-        replaceAll("__RESORT_IMG_HEIGHT",  "" + resortData.getImageHeight()).
+        replaceAll("__RESORT_IMG_HEIGHT", "" + resortData.getImageHeight()).
         replaceAll("__RESORT_IMAGE", resortData.getResortImage()).
         replaceAll("__JAVA_SCRIPT", javaScript);
+    if (!StringUtils.isNullOrEmpty(loggedInUserId)) {
+      String buttonClass = "Brighton".equals(resortData.getResortShortName()) ? "class='button'" : "";
+      String logout = "<a " + buttonClass + " href='/calendar-1/Logout?resort=" + resortData.getResortShortName() + "' "
+          + "target='_self'>Logout</a>";
+      str1 = str1.replace("__LOGOUT", logout);
+    }
+    else {
+      str1 = str1.replace("__LOGOUT", "");
+    }
     debugOut("processed header=" + str1);
     out.println(str1);
   }
@@ -67,7 +76,7 @@ public class OuterPage {
     byte[] buffer = new byte[MAX_BUFFER];
     try {
       FileInputStream inputStream = new FileInputStream(fileName);
-      while(inputStream.read(buffer) != -1) {
+      while (inputStream.read(buffer) != -1) {
         result.append(new String(buffer));
       }
 

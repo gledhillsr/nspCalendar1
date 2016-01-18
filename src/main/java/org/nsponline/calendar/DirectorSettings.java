@@ -65,11 +65,7 @@ public class DirectorSettings {
     resort = myResort;
   }
 
-  //-----------------------------------------------------
-// read
-//-----------------------------------------------------
   public boolean read(ResultSet resultSet) {
-//        int Start,End;
     try {
       szPatrolName = resultSet.getString(PATROL_NAME_FIELD);
       szEmailReminder = resultSet.getString(EMAIL_REMINDER_FIELD);
@@ -86,7 +82,6 @@ public class DirectorSettings {
       szEndBlackout = resultSet.getString(END_BLACKOUT_FIELD);
 //ignore skihistory update, voucher history update, and signinLogin
       nRemoveAccess = resultSet.getInt(REMOVE_ACCESS_FIELD);
-//System.out.println("Reading DirectorSettings: "+toString());
     }
     catch (Exception e) {
       System.out.println("exception in Shifts:read e=" + e);
@@ -186,9 +181,7 @@ public class DirectorSettings {
     return szDate;
   }
 
-  //-----------------------------------------------------
-// Getter methods
-//-----------------------------------------------------
+
   public boolean getSendReminder() {
     return szEmailReminder.equals("1");
   }
