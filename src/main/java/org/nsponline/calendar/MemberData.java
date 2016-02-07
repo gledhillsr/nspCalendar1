@@ -171,10 +171,6 @@ public class MemberData {
     memberData[COMMENTS] = "";
   }
 
-  /***************/
-    /* constructor */
-
-  /***************/
   public MemberData(HttpServletRequest request) {
 
 //System.out.println("Constructor-MemberData(request)");
@@ -266,13 +262,7 @@ public class MemberData {
     out.println("</tr>\n");
   }
 
-  /*************/
-    /* addColumn */
-
-  /*************/
   public static void addColumn(int index) {
-//System.out.println("in addColumn, index="+index);
-
     if (index == -1) {
       lastColumn = 0;
     }

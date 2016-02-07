@@ -328,6 +328,8 @@ public class LoginHelp extends HttpServlet {
         Utils.printToLogFile(sessionData.getRequest(), "DEBUG-LoginHelp(" + resort + "): " + str);
       }
     }
+
+    @SuppressWarnings("unused")
     private void debugSensitiveOut(String str) {
       if (DEBUG_SENSITIVE) {
         Utils.printToLogFile(sessionData.getRequest(), "DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);

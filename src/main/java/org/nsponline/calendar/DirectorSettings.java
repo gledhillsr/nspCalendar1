@@ -93,7 +93,7 @@ public class DirectorSettings {
 
   private int getYear(String szDate) {
     int year = 0;   //error
-    if (szDate.length() >= 8) { //dd-mm
+    if (szDate.length() >= 8) { //dd-mm-yy
       try {
         year = Integer.parseInt(szDate.substring(6, 8));
         year += 2000;
@@ -424,7 +424,7 @@ public class DirectorSettings {
     return null;
   }
 
-  //-----------------------------------------------------
+//-----------------------------------------------------
 // toString
 //-----------------------------------------------------
   public String toString() {
@@ -440,4 +440,4 @@ public class DirectorSettings {
         " " + END_DATE_FIELD + "=" + szEndDate +
         " " + REMOVE_ACCESS_FIELD + "=" + nRemoveAccess;
   }
-} //end MemberData class
+} 
