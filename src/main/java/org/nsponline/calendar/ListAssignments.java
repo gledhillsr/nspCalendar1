@@ -1,5 +1,12 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.Roster;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -82,7 +89,7 @@ public class ListAssignments extends HttpServlet {
       }
 
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-      MemberData member = patrol.getMemberByID(szMyID);
+      Roster member = patrol.getMemberByID(szMyID);
       myID = Integer.parseInt(szMyID);
       myName = member.getFullName();
 

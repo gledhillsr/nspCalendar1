@@ -4,14 +4,19 @@ package org.nsponline.calendar;
  * @author Steve Gledhill
  */
 
+import org.nsponline.calendar.misc.MailMan;
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.DirectorSettings;
+import org.nsponline.calendar.store.Roster;
+
 import java.io.PrintWriter;
 import java.util.*;
 
 public class DailyReminder {
   final private static boolean DEBUG = true;
-
-  private final String szDay[] = {"Error", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-  private final String szMonth[] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 
   public DailyReminder(String resort, SessionData sessionData, MailMan mail) {
     debugOut("*** Processing email reminders for resort: " + resort);
@@ -56,7 +61,7 @@ public class DailyReminder {
   private void checkAndSend(SessionData sessionData, GregorianCalendar date, MailMan mail, String resort, PatrolData patrol) {
     Set<String> emailTo;
     String formattedDateString = getAssignmentDateString(date);
-    int dayOfWeek = date.get(Calendar.DAY_OF_WEEK);
+    int dayOfWeek = date.get(Calendar.DAY_OF_WEEK) - 1;  //String stored 0 based, this API is 1 based
     int month = date.get(Calendar.MONTH);
     int year = date.get(Calendar.YEAR);
     int dayOfMonth = date.get(Calendar.DAY_OF_MONTH);
@@ -72,7 +77,7 @@ public class DailyReminder {
       }
 
       debugOut("Assignment=" + assignment.toString());
-      String message = "Reminder\n\nYou are scheduled to Ski Patrol at " + resort + ", on " + szDay[dayOfWeek] + ", " + szMonth[month] + " " + date.get(Calendar.DAY_OF_MONTH) + ", " + date.get(Calendar.YEAR) + " from " +
+      String message = "Reminder\n\nYou are scheduled to Ski Patrol at " + resort + ", on " + Utils.szDays[dayOfWeek] + ", " + Utils.szMonthsFull[month] + " " + date.get(Calendar.DAY_OF_MONTH) + ", " + date.get(Calendar.YEAR) + " from " +
           assignment.getStartingTimeString() + " to " +
           assignment.getEndingTimeString() + ".\n\nThanks, your help is greatly appreciated.\n\n";
       message += "Please do NOT reply to this automated reminder. \nUnless, you are NOT a member of the National Ski Patrol, and received this email accidentally.";
@@ -94,7 +99,7 @@ public class DailyReminder {
         continue;
       }
       System.out.print(id + " ");
-      MemberData member = patrol.getMemberByID(id);
+      Roster member = patrol.getMemberByID(id);
       if (member != null) {
         String emailAddress = member.getEmailAddress();
         //check for valid email

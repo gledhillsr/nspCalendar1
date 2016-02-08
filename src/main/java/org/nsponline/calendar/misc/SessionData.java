@@ -1,4 +1,4 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.misc;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

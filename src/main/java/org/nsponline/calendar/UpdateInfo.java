@@ -1,5 +1,11 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Roster;
+
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;
@@ -37,9 +43,9 @@ public class UpdateInfo extends HttpServlet {
     String IDOfEditor, IDToEdit = null, NameToEdit, Purpose;
     boolean editorIsDirector;
     PatrolData patrol;
-    MemberData user;
-    MemberData editor;
-    MemberData oldMemberData;
+    Roster user;
+    Roster editor;
+    Roster oldMemberData;
     boolean isNewPatroller;
     boolean deletePatroller;
     boolean finalDelete;
@@ -259,7 +265,7 @@ public class UpdateInfo extends HttpServlet {
         Connection c = PatrolData.getConnection(resort, sessionData);
         PreparedStatement sRost;
 
-        MemberData md;
+        Roster md;
         if (deletePatroller || finalDelete) {
 //          md = patrol.getMemberByID(IDToEdit);
           md = user;
@@ -269,8 +275,8 @@ public class UpdateInfo extends HttpServlet {
 
         }
         else {
-          IDToEdit = request.getParameter(MemberData.dbData[MemberData.ID_NUM][MemberData.SERVLET_NAME]);
-          md = new MemberData(request); //read from command line
+          IDToEdit = request.getParameter(Roster.dbData[Roster.ID_NUM][Roster.SERVLET_NAME]);
+          md = new Roster(request); //read from command line
 //          md.setID(IDToEdit);
         }
         if (debug) {
@@ -296,7 +302,7 @@ public class UpdateInfo extends HttpServlet {
         out.println("host resort: " + PatrolData.getResortFullName(resort) + "<br>");
 
         int first = 0; // was DB_START;
-        int last = MemberData.DB_SIZE; //director is last column
+        int last = Roster.DB_SIZE; //director is last column
 
         if (!resort.equalsIgnoreCase("Brighton")) {
           last -= 3;
@@ -327,7 +333,7 @@ public class UpdateInfo extends HttpServlet {
           //check for duplicate ID
 //asdfasdfasd7
           patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-          MemberData mem = patrol.getMemberByID(md.getID()); //zz
+          Roster mem = patrol.getMemberByID(md.getID()); //zz
           patrol.close(); //must close connection!
           if (mem != null) {
             out.println("<h3>ERROR, id '" + md.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
@@ -346,7 +352,7 @@ public class UpdateInfo extends HttpServlet {
           }
           //test if any ID change was made
           patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-          MemberData mem = patrol.getMemberByID(md.getID()); //zz
+          Roster mem = patrol.getMemberByID(md.getID()); //zz
           patrol.close(); //must close connection!
           if (mem != null) {
             out.println("<h3>ERROR, id '" + md.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
@@ -391,7 +397,7 @@ public class UpdateInfo extends HttpServlet {
 //      }
         if (editorIsDirector) {
           first = 0;
-          last = MemberData.DB_SIZE;      //show director field for director
+          last = Roster.DB_SIZE;      //show director field for director
           if (!resort.equalsIgnoreCase("Brighton")) {
             last -= 5; //skip display of all "Credit" stuff, except for brighton resort
           }
@@ -406,12 +412,12 @@ public class UpdateInfo extends HttpServlet {
         String szTmp;
         for (i = first; i < last; ++i) {
           if (!resort.equalsIgnoreCase("Brighton")) {
-            if (i == MemberData.TEAM_LEAD || i == MemberData.MENTORING) {
+            if (i == Roster.TEAM_LEAD || i == Roster.MENTORING) {
               continue;   //only display if brighton
             }
           }
           //only display Team Lead trained to Directors
-          if (i == MemberData.TEAM_LEAD && !editorIsDirector) {
+          if (i == Roster.TEAM_LEAD && !editorIsDirector) {
             continue;
           }
 //          localData[i] = request.getParameter(MemberData.dbData[i][MemberData.SERVLET_NAME]);
@@ -420,22 +426,22 @@ public class UpdateInfo extends HttpServlet {
             szTmp = " ";
           }
 
-          if (i == MemberData.CARRY_OVER_CREDITS) { //old field
+          if (i == Roster.CARRY_OVER_CREDITS) { //old field
             continue;
           }
-          if (i == MemberData.CREDITS_USED) { //old field
+          if (i == Roster.CREDITS_USED) { //old field
             continue;
           }
 
 
-          if (deletePatroller && i == MemberData.CARRY_OVER_CREDITS) { //already good, except on delete
-            szTmp = MemberData.creditsToVouchers(szTmp);
+          if (deletePatroller && i == Roster.CARRY_OVER_CREDITS) { //already good, except on delete
+            szTmp = Roster.creditsToVouchers(szTmp);
           }
 
           out.println("<tr>");
-          out.println("<td width=\"230\" valign=\"middle\"><font size=3>" + MemberData.dbData[i][MemberData.DLG_NAME] + "</font></td>");
+          out.println("<td width=\"230\" valign=\"middle\"><font size=3>" + Roster.dbData[i][Roster.DLG_NAME] + "</font></td>");
           out.println("<td width=\"350\" valign=\"left\"><font size=3>");
-          if (i == MemberData.LAST_CREDIT_UPDATE) {
+          if (i == Roster.LAST_CREDIT_UPDATE) {
 //              out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherDay\"   VALUE=\""+day+"\">");
 //              out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherMonth\" VALUE=\""+month+"\">");
 //              out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherYear\"  VALUE=\""+year+"\">");
@@ -451,10 +457,10 @@ public class UpdateInfo extends HttpServlet {
             }
             out.println(date);
           }
-          else if (i == MemberData.COMMITMENT) {
-            out.println(MemberData.getCommitmentString(szTmp));
+          else if (i == Roster.COMMITMENT) {
+            out.println(Roster.getCommitmentString(szTmp));
           }
-          else if (i == MemberData.TEAM_LEAD || i == MemberData.MENTORING || i == MemberData.CAN_EARN_CREDITS) {
+          else if (i == Roster.TEAM_LEAD || i == Roster.MENTORING || i == Roster.CAN_EARN_CREDITS) {
 //System.out.println(i+") = ("+szTmp+")");
             if (szTmp.equals("1")) {
               out.println("Yes");
@@ -463,10 +469,10 @@ public class UpdateInfo extends HttpServlet {
               out.println("No");
             }
           }
-          else if (i == MemberData.INSTRUCTOR) {
-            out.println(MemberData.getInstructorString(szTmp));
+          else if (i == Roster.INSTRUCTOR) {
+            out.println(Roster.getInstructorString(szTmp));
           }
-          else if (i == MemberData.COMMENTS && !editorIsDirector) {
+          else if (i == Roster.COMMENTS && !editorIsDirector) {
             //ONLY display this field is the editor is a director
           }
           else {
@@ -528,7 +534,7 @@ public class UpdateInfo extends HttpServlet {
         //valid #
         String fullName;
         if (isNewPatroller) {
-          user = new MemberData();
+          user = new Roster();
           fullName = "NEW PATROLLER";
           IDToEdit = "";
         }
@@ -559,7 +565,7 @@ public class UpdateInfo extends HttpServlet {
         out.println("<table border=\"0\" width=\"900\" cellspacing=\"0\" cellpadding=\"0\">");
 
         int first = 0;
-        int last = MemberData.DB_SIZE;      //show director field for director
+        int last = Roster.DB_SIZE;      //show director field for director
 //            if(!editorIsDirector))
 //                last -= 1;
         for (i = first; i < last; ++i) {
@@ -615,21 +621,21 @@ public class UpdateInfo extends HttpServlet {
       //fields ONLY visible to directors
       if (!editorIsDirector) {
         switch (index) {
-          case MemberData.COMMENTS:
-          case MemberData.TEAM_LEAD:
+          case Roster.COMMENTS:
+          case Roster.TEAM_LEAD:
             return false;
         }
       }
       //fields only visible is using locker room scheduling software
       if (!resort.equalsIgnoreCase("Brighton")) {
         switch (index) {
-          case MemberData.TEAM_LEAD:
-          case MemberData.MENTORING:
-          case MemberData.CAN_EARN_CREDITS:
-          case MemberData.LAST_CREDIT_UPDATE:
-          case MemberData.CARRY_OVER_CREDITS:
-          case MemberData.CREDITS_EARNED:
-          case MemberData.CREDITS_USED:
+          case Roster.TEAM_LEAD:
+          case Roster.MENTORING:
+          case Roster.CAN_EARN_CREDITS:
+          case Roster.LAST_CREDIT_UPDATE:
+          case Roster.CARRY_OVER_CREDITS:
+          case Roster.CREDITS_EARNED:
+          case Roster.CREDITS_USED:
             return false;
         }
       }
@@ -638,16 +644,16 @@ public class UpdateInfo extends HttpServlet {
 
     public void showField(int index, String szDefault, boolean editorIsDirector) {
 
-      if (index == MemberData.CARRY_OVER_CREDITS) { //old field
+      if (index == Roster.CARRY_OVER_CREDITS) { //old field
         return;
       }
-      if (index == MemberData.CREDITS_USED) { //old field
+      if (index == Roster.CREDITS_USED) { //old field
         return;
       }
 
 
-      String label = MemberData.dbData[index][MemberData.DLG_NAME];
-      String szField = MemberData.dbData[index][MemberData.SERVLET_NAME];
+      String label = Roster.dbData[index][Roster.DLG_NAME];
+      String szField = Roster.dbData[index][Roster.SERVLET_NAME];
       if (!isValidField(index, editorIsDirector)) {
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
 //System.out.println(index+") field "+szField+"=("+szDefault+") is hidden, for resort "+resort);
@@ -655,27 +661,27 @@ public class UpdateInfo extends HttpServlet {
       }
       int len = 30;
 //System.out.println(index+") " + label + ", " + szField);
-      if (index == MemberData.CAN_EARN_CREDITS) {
+      if (index == Roster.CAN_EARN_CREDITS) {
         out.println("<tr>");
         out.println("<td bgcolor=#e1e1e1 valign=center align=right><font size=3><b>Please Note:&nbsp;</b></font></td>");
         out.println("<td bgcolor=#e1e1e1 valign=center align=left><font size=3>&nbsp;&nbsp;2 credits equals 1 day pass voucher</font></td>");
         out.println("</tr>");
       }
       out.println("<tr>");
-      if (index == MemberData.COMMENTS && !editorIsDirector) {
+      if (index == Roster.COMMENTS && !editorIsDirector) {
         //display NOTHING if the editor is not a director
         label = "&nbsp;";
       }
       out.println("<td width=\"210\" valign=\"middle\"><font size=3>" + label + "</font></td>");
 
-      int width = (index == MemberData.INSTRUCTOR) ? 650 : 600;
+      int width = (index == Roster.INSTRUCTOR) ? 650 : 600;
       out.println("<td width=\"" + width + "\" valign=\"left\"><font size=3>");
 //  static final int CLASSIFICATION=1;
-      if (index == MemberData.ID_NUM) {
+      if (index == Roster.ID_NUM) {
         len = 6;
       }
 
-      if (index == MemberData.COMMITMENT) {
+      if (index == Roster.COMMITMENT) {
         if (editorIsDirector) {
           out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
           out.println("<OPTION " + (szDefault.equals("2") ? "SELECTED " : "") + " VALUE=\"2\">Full Time");
@@ -696,7 +702,7 @@ public class UpdateInfo extends HttpServlet {
           }
         }
       }
-      else if (index == MemberData.INSTRUCTOR) {
+      else if (index == Roster.INSTRUCTOR) {
         //convert string to number
         int idx = 0;
 //      String typeFlag = editorIsDirector ? " type=\"checkbox\" " : " type=\"hidden\" ";
@@ -736,14 +742,14 @@ public class UpdateInfo extends HttpServlet {
           out.println("&nbsp;&nbsp;&nbsp;&nbsp;(Can only be changed by a director)");
         }
       }
-      else if (index == MemberData.TEAM_LEAD) {
+      else if (index == Roster.TEAM_LEAD) {
 // must be a director to get this far
         out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
         out.println("<OPTION " + (szDefault.equals("1") ? "SELECTED " : "") + " VALUE=\"1\">Yes");
         out.println("<OPTION " + (!szDefault.equals("1") ? "SELECTED " : "") + " VALUE=\"0\">No");
         out.println("</SELECT>");
       }
-      else if (index == MemberData.MENTORING) {
+      else if (index == Roster.MENTORING) {
 //must be Brighton to get this far
         if (editorIsDirector) {
           out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
@@ -761,7 +767,7 @@ public class UpdateInfo extends HttpServlet {
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
         }
       }
-      else if (index == MemberData.DIRECTOR) {
+      else if (index == Roster.DIRECTOR) {
         if (editorIsDirector) {
           out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
           boolean isYes = szDefault.equals("yes");
@@ -776,7 +782,7 @@ public class UpdateInfo extends HttpServlet {
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"no\">");
         }
       }
-      else if (index == MemberData.CLASSIFICATION) {
+      else if (index == Roster.CLASSIFICATION) {
         if (editorIsDirector) {
           out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
           out.println("<OPTION " + (szDefault.equals("ALM") ? "SELECTED " : "") + " VALUE=\"ALM\">Alumni");
@@ -800,13 +806,13 @@ public class UpdateInfo extends HttpServlet {
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
         }
       }
-      else if (index == MemberData.SUB) {
+      else if (index == Roster.SUB) {
         out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
         out.println("<OPTION " + (szDefault.equals("yes") ? "SELECTED " : "") + " VALUE=\"yes\">Yes");
         out.println("<OPTION " + (!szDefault.equals("yes") ? "SELECTED " : "") + " VALUE=\"\">No");
         out.println("</SELECT>");
       }
-      else if (index == MemberData.EMERGENCY) {
+      else if (index == Roster.EMERGENCY) {
         out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
         out.println("<OPTION " + (szDefault.trim().equals("") ? "SELECTED " : "") + " VALUE=\"\">No");
         out.println("<OPTION " + (szDefault.equals("day") ? "SELECTED " : "") + " VALUE=\"day\">Day Only");
@@ -814,12 +820,12 @@ public class UpdateInfo extends HttpServlet {
         out.println("<OPTION " + (szDefault.equals("both") ? "SELECTED " : "") + " VALUE=\"both\">Both (Days & Nights)");
         out.println("</SELECT>");
       }
-      else if (index == MemberData.LAST_UPDATED) {
+      else if (index == Roster.LAST_UPDATED) {
 //              out.println("<input type=text size=12 name="+szField+" value=\""+szDefault+"\" readonly>");
         out.println(szDefault);
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
       }
-      else if (index == MemberData.ID_NUM) {
+      else if (index == Roster.ID_NUM) {
         if (isNewPatroller || setNewID) {
 //enable edit
           out.println("<input type=text size=7 maxlength=7 name=" + szField + " value=\"" + szDefault + "\">");
@@ -831,7 +837,7 @@ public class UpdateInfo extends HttpServlet {
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"IDToEdit\" VALUE=\"" + IDToEdit + "\">");
         }
       }
-      else if (index == MemberData.LAST_CREDIT_UPDATE) {
+      else if (index == Roster.LAST_CREDIT_UPDATE) {
 // must be Brighton to get this far
         int year = 2008, month = 0, day = 1; //bogus day
         String date = szMonths[month] + "-" + day + "-" + year;
@@ -879,7 +885,7 @@ public class UpdateInfo extends HttpServlet {
           out.println("  </select>");
         }
       }
-      else if (index == MemberData.CAN_EARN_CREDITS) {
+      else if (index == Roster.CAN_EARN_CREDITS) {
 // must be Brighton to get this far
         if (editorIsDirector) {
           out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
@@ -898,9 +904,9 @@ public class UpdateInfo extends HttpServlet {
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
         }
       }
-      else if (index >= MemberData.CARRY_OVER_CREDITS && index <= MemberData.CREDITS_USED) {
+      else if (index >= Roster.CARRY_OVER_CREDITS && index <= Roster.CREDITS_USED) {
 // must be Brighton to get this far
-        szDefault = MemberData.creditsToVouchers(szDefault);
+        szDefault = Roster.creditsToVouchers(szDefault);
 //      String disabled = " readonly ";
         if (editorIsDirector) {
 //                disabled = "";
@@ -918,9 +924,9 @@ public class UpdateInfo extends HttpServlet {
           // DO NOTHING
         }
       }
-      else if (index == MemberData.COMMENTS) {
+      else if (index == Roster.COMMENTS) {
         //display NOTHING if the editor is not a director
-        if (editorIsDirector && index == MemberData.COMMENTS) {
+        if (editorIsDirector && index == Roster.COMMENTS) {
           out.println("<textarea cols=70 rows=4 name=" + szField + ">" + szDefault + "</textarea>");
         }
       }

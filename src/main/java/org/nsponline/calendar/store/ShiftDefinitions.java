@@ -1,4 +1,6 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.store;
+
+import org.nsponline.calendar.misc.PatrolData;
 
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
@@ -7,14 +9,14 @@ import java.text.SimpleDateFormat;
  * @author Steve Gledhill
  */
 @SuppressWarnings("unused")
-public class Shifts {
+public class ShiftDefinitions {
 
   //static data
   //format EventName Saturday_0, Saturday_1, World Cup_0 etc
   //format StartTime 08:00 (text format)
   //format EndTime 08:00 (text format)
   //format Count (int)
-  final static String tags[] = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
+  public final static String tags[] = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
   final static int EVENT_NAME_INDEX = 0;
   final static int START_TIME_INDEX = 1;
   final static int END_TIME_INDEX = 2;
@@ -22,10 +24,10 @@ public class Shifts {
   final static int TYPE_INDEX = 4;
 
   final static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
-  final static int MAX = 35;  //maximum # of different shifts on any single day
+  public final static int MAX = 35;  //maximum # of different shifts on any single day
 
   //instance data
-  String eventName;
+  private String eventName;
   private String startTime;
   private String endTime;
   private int count;
@@ -33,7 +35,7 @@ public class Shifts {
 
   private boolean existed;   //todo srg dangerous, use getter instead
 
-  public Shifts() {
+  public ShiftDefinitions() {
     eventName = null;
     startTime = null;
     endTime = null;
@@ -42,7 +44,7 @@ public class Shifts {
     existed = false;
   }
 
-  public Shifts(String name, String start, String end, int cnt, int typ) {
+  public ShiftDefinitions(String name, String start, String end, int cnt, int typ) {
     eventName = name;
     startTime = start;
     endTime = end;
@@ -54,7 +56,7 @@ public class Shifts {
     existed = false;
   }
 
-  public boolean equals(Shifts other) {
+  public boolean equals(ShiftDefinitions other) {
     return other.eventName.equals(eventName) &&
         other.startTime.equals(startTime) &&
         other.endTime.equals(endTime) &&
@@ -102,6 +104,10 @@ public class Shifts {
 
   public String getEventName() {
     return eventName;
+  }
+
+  public void setEventName(String eventName) {
+    this.eventName = eventName;
   }
 
   public String getStartString() {

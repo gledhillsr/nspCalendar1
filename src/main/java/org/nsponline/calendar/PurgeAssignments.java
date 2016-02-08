@@ -1,5 +1,12 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.DirectorSettings;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,11 +39,6 @@ public class PurgeAssignments extends HttpServlet {
     int startMonth;
     int startYear;
     private String resort;
-
-    String szMonths[] = {"Error",
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    };
 
     private LocalPurgeAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       response.setContentType("text/html");
@@ -160,7 +162,7 @@ public class PurgeAssignments extends HttpServlet {
       }
       out.println("  </select>&nbsp;&nbsp;<select size=\"1\" name=\"startMonth\">");
       for (int i = 1; i <= 12; ++i) {
-        out.println("&nbsp;&nbsp;<option value=\"" + i + "\" " + ((i == startMonth) ? "selected" : "") + ">" + szMonths[i] + "</option>");
+        out.println("&nbsp;&nbsp;<option value=\"" + i + "\" " + ((i == startMonth) ? "selected" : "") + ">" + Utils.szMonthsFull[i - 1] + "</option>");
       }
       out.println("  </select>&nbsp;&nbsp;<select size=\"1\" name=\"startYear\">");
       for (int i = 0; i < 4; ++i) {

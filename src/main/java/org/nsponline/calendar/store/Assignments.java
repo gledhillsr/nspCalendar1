@@ -1,4 +1,8 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.store;
+
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
 
 import java.sql.ResultSet;
 import java.text.ParsePosition;
@@ -10,12 +14,12 @@ import java.text.SimpleDateFormat;
 public class Assignments {
   private final static boolean DEBUG = false;
   //public fields
-  final static int MAX_ASSIGNMENT_SIZE = 10;          //max number of assignments
-  final static int DAY_TYPE = 0;
-  final static int SWING_TYPE = 1;
-  final static int NIGHT_TYPE = 2;
-  final static int TRAINING_TYPE = 3;
-  final static int MAX_SHIFT_TYPES = 4;
+  public final static int MAX_ASSIGNMENT_SIZE = 10;          //max number of assignments
+  public final static int DAY_TYPE = 0;
+  public final static int SWING_TYPE = 1;
+  public final static int NIGHT_TYPE = 2;
+  public final static int TRAINING_TYPE = 3;
+  public final static int MAX_SHIFT_TYPES = 4;
 
   //private fields
   final private static String szShiftTypes[] = {"Day Shift", "Swing Shift", "Night Shift", "Training Shift"};
@@ -48,7 +52,7 @@ public class Assignments {
     initData();
   }
 
-  public Assignments(String myDate, Shifts shift) {
+  public Assignments(String myDate, ShiftDefinitions shift) {
     initData();
     szEventName = " ";   //shift.getEventName();
     szDate = myDate;        //date of this shift

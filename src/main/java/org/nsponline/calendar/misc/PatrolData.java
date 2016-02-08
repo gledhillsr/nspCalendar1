@@ -1,4 +1,6 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.misc;
+
+import org.nsponline.calendar.store.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
@@ -17,13 +19,13 @@ public class PatrolData {
   final static boolean DEBUG = false;
 
   //  final static String JDBC_DRIVER = "org.gjt.mm.mysql.Driver"; //todo change July 32 2015
-  final static String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-  final static String newShiftStyle = "--New Shift Style--";
+  public final static String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+  public final static String newShiftStyle = "--New Shift Style--";
 
   // create a Mountain Standard Time time zone
 //  final static String[] ids = TimeZone.getAvailableIDs(-7 * 60 * 60 * 1000);
 //  final static SimpleTimeZone MDT = new SimpleTimeZone(-7 * 60 * 60 * 1000, ids[0]);
-  final static String NEW_SHIFT_STYLE = "--New Shift Style--";
+  public final static String NEW_SHIFT_STYLE = "--New Shift Style--";
   // set up rules for daylight savings time
 //  static {
 //    MDT.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
@@ -82,11 +84,11 @@ public class PatrolData {
   final static String backDoorFakeLastName = "Administrator";
   final static String backDoorEmail = "Steve@Gledhills.com";
 
-  final static int MAX_PATROLLERS = 400;
-  final static String SERVLET_URL = "/calendar-1/";
+  public final static int MAX_PATROLLERS = 400; //todo hack fix me
+  public final static String SERVLET_URL = "/calendar-1/";
 
-  static final boolean FETCH_MIN_DATA = false;
-  static final boolean FETCH_ALL_DATA = true;
+  public final static boolean FETCH_MIN_DATA = false;
+  public final static boolean FETCH_ALL_DATA = true;
 
   //all the folowing instance variables must be initialized in the constructor
   //  private Connection connection;
@@ -129,7 +131,7 @@ public class PatrolData {
     }
   } //end PatrolData constructor
 
-  static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
+  public static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
     Connection conn = null;
     try {
       debugOut(sessionData, "-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
@@ -207,7 +209,7 @@ public class PatrolData {
 
   public void resetShiftDefinitions() {
     try {
-      shiftStatement = connection.prepareStatement("SELECT * FROM shiftdefinitions ORDER BY \"" + Shifts.tags[0] + "\""); //sort by default key
+      shiftStatement = connection.prepareStatement("SELECT * FROM shiftdefinitions ORDER BY \"" + ShiftDefinitions.tags[0] + "\""); //sort by default key
       shiftResults = shiftStatement.executeQuery();
     }
     catch (Exception e) {
@@ -246,8 +248,8 @@ public class PatrolData {
     return ds;
   }
 
-  public ArrayList<Shifts> readShiftDefinitions() {
-    ArrayList<Shifts> shiftDefinitions = new ArrayList<Shifts>();
+  public ArrayList<ShiftDefinitions> readShiftDefinitions() {
+    ArrayList<ShiftDefinitions> shiftDefinitions = new ArrayList<ShiftDefinitions>();
     try {
       String qryString = "SELECT * FROM `shiftdefinitions` ORDER BY `shiftdefinitions`.`EventName` ASC";
 //      logger("readShiftDefinitions: " + qryString);
@@ -255,7 +257,7 @@ public class PatrolData {
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
       while (assignmentResults.next()) {
-        Shifts ns = new Shifts();
+        ShiftDefinitions ns = new ShiftDefinitions();
         ns.read(assignmentResults);
 //        logger(".. NextShifts-" + ns.toString());
         shiftDefinitions.add(ns);
@@ -267,7 +269,7 @@ public class PatrolData {
     return shiftDefinitions;
   }
 
-  public void decrementShift(Shifts ns) {
+  public void decrementShift(ShiftDefinitions ns) {
     if (DEBUG) {
       System.out.println("decrement shift:" + ns);
     }
@@ -280,11 +282,11 @@ public class PatrolData {
       return;
     }
     deleteShift(ns);
-    ns.eventName = Assignments.createAssignmentName(ns.parsedEventName(), i - 1);
+    ns.setEventName(Assignments.createAssignmentName(ns.parsedEventName(), i - 1));
     writeShift(ns);
   }
 
-  public void deleteShift(Shifts ns) {
+  public void deleteShift(ShiftDefinitions ns) {
     String qryString = ns.getDeleteSQLString();
     logger("deleteShift: " + qryString);
     try {
@@ -297,7 +299,7 @@ public class PatrolData {
     }
   }
 
-  public boolean writeShift(Shifts ns) {
+  public boolean writeShift(ShiftDefinitions ns) {
     String qryString;
     if (ns.exists()) {
       qryString = ns.getUpdateShiftDefinitionsQueryString();
@@ -331,11 +333,11 @@ public class PatrolData {
     } //end try
   } // end close
 
-  public MemberData nextMember(String defaultString) {
-    MemberData member = null;
+  public Roster nextMember(String defaultString) {
+    Roster member = null;
     try {
       if (rosterResults.next()) {
-        member = new MemberData();  //"&nbsp;" is the default
+        member = new Roster();  //"&nbsp;" is the default
         member.readFullFromRoster(rosterResults, defaultString);
       } //end if
     }
@@ -348,14 +350,14 @@ public class PatrolData {
     return member;
   } //end nextMember
 
-  public MemberData getMemberByID(String szMemberID) {
-    MemberData member;
+  public Roster getMemberByID(String szMemberID) {
+    Roster member;
     String str = "SELECT * FROM roster WHERE IDNumber =" + szMemberID;
     if (szMemberID == null || szMemberID.length() <= 3) {
       return null;
     }
     else if (szMemberID.equals(sessionData.getBackDoorUser())) {
-      member = new MemberData();  //"&nbsp;" is the default
+      member = new Roster();  //"&nbsp;" is the default
       member.setLast(backDoorFakeLastName);
       member.setFirst(backDoorFakeFirstName);
       member.setEmail(backDoorEmail);
@@ -370,7 +372,7 @@ public class PatrolData {
         int id = rosterResults.getInt("IDNumber");
         String str1 = id + "";
         if (str1.equals(szMemberID)) {
-          member = new MemberData();  //"&nbsp;" is the default
+          member = new Roster();  //"&nbsp;" is the default
           if (fetchFullData) {
             member.readFullFromRoster(rosterResults, "");
           }
@@ -390,15 +392,15 @@ public class PatrolData {
     return null; //failed
   } //end getMemberByID
 
-  public MemberData getMemberByEmail(String szEmail) {
-    MemberData member;
+  public Roster getMemberByEmail(String szEmail) {
+    Roster member;
     String str = "SELECT * FROM roster WHERE email =\"" + szEmail + "\"";
 //System.out.println(str);
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
       rosterResults = rosterStatement.executeQuery();
       if (rosterResults.next()) {
-        member = new MemberData();  //"&nbsp;" is the default
+        member = new Roster();  //"&nbsp;" is the default
         if (fetchFullData) {
           member.readFullFromRoster(rosterResults, "");
         }
@@ -414,12 +416,12 @@ public class PatrolData {
     return null;  //failure
   } //end getMemberByID
 
-  public MemberData getMemberByName2(String szFullName) {
+  public Roster getMemberByName2(String szFullName) {
     return getMemberByLastNameFirstName(szFullName);
   } //end getMemberByName
 
-  public MemberData getMemberByLastNameFirstName(String szFullName) {
-    MemberData member;
+  public Roster getMemberByLastNameFirstName(String szFullName) {
+    Roster member;
     String str = "SELECT * FROM roster";
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
@@ -430,7 +432,7 @@ public class PatrolData {
             rosterResults.getString("FirstName").trim();
 //System.out.println("getMemberByLastNameFirstName: (" + szFullName + ") (" + str1 + ") cmp=" + str1.equals(szFullName));
         if (str1.equals(szFullName)) {
-          member = new MemberData();  //"&nbsp;" is the default
+          member = new Roster();  //"&nbsp;" is the default
           if (fetchFullData) {
             member.readFullFromRoster(rosterResults, "");
           }
@@ -527,7 +529,7 @@ public class PatrolData {
     }
     deleteAssignment(ns);
 
-    String qry2String = Shifts.createShiftName(ns.getDateOnly(), i - 1);
+    String qry2String = ShiftDefinitions.createShiftName(ns.getDateOnly(), i - 1);
     ns.setDate(qry2String);
     writeAssignment(ns);
   }
@@ -561,7 +563,7 @@ public class PatrolData {
     }
     out.println("                    <option" + selected + ">" + NEW_SHIFT_STYLE + "</option>");
     for (Object shift : shifts) {
-      Shifts data = (Shifts) shift;
+      ShiftDefinitions data = (ShiftDefinitions) shift;
       parsedName = data.parsedEventName();
       if (parsedName.equals(selectedShift)) {
         selected = " selected";
@@ -596,7 +598,7 @@ public class PatrolData {
   static public void AddShiftsToTable(PrintWriter out, ArrayList shifts, String selectedShift) {
     int validShifts = 0;
     for (Object shift : shifts) {
-      Shifts data = (Shifts) shift;
+      ShiftDefinitions data = (ShiftDefinitions) shift;
       String parsedName = data.parsedEventName();
       if (parsedName.equals(selectedShift)) {
 //name is if the format of startTime_0, endTime_0, count_0, startTime_1, endTime_1, count_1, etc

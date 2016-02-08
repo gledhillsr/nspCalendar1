@@ -1,5 +1,12 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.DirectorSettings;
+import org.nsponline.calendar.store.Roster;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +72,7 @@ public class MemberList extends HttpServlet {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
       ds = patrol.readDirectorSettings();
 
-      MemberData member = patrol.nextMember("");
+      Roster member = patrol.nextMember("");
       while (member != null) {
         String emailAddress = member.getEmailAddress();
         if (Utils.isValidEmailAddress(emailAddress)) {
@@ -77,7 +84,7 @@ public class MemberList extends HttpServlet {
         member = patrol.nextMember("");
       }
 
-      MemberData editor = patrol.getMemberByID(iDOfEditor); //ID from cookie
+      Roster editor = patrol.getMemberByID(iDOfEditor); //ID from cookie
       patrol.close(); //must close connection!
       isDirector = editor != null && editor.isDirector();
     }
@@ -120,7 +127,7 @@ public class MemberList extends HttpServlet {
 
     private int printBody(SessionData sessionData) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-      MemberData member = patrol.nextMember("&nbsp;");
+      Roster member = patrol.nextMember("&nbsp;");
       int count = 0;
       while (member != null) {
         if (!member.getCommitment().equals("0")) {  //only display if NOT "Inactive"

@@ -1,4 +1,4 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.store;
 
 import java.lang.*;
 import java.sql.*;
@@ -13,35 +13,35 @@ public class DirectorSettings {
    * CAUTION: THESE FIELDS MUST EXACTLY MATCH THE SQL DATABASE
    *****/
   final static String PATROL_NAME_FIELD = "PatrolName";
-  final static String EMAIL_REMINDER_FIELD = "emailReminder";
-  final static String REMINDER_DAYS_FIELD = "reminderDays";
-  final static String NOTIFY_CHANGES_FIELD = "emailOnChanges";
-  final static String USE_TEAMS_FIELD = "useTeams";
-  final static String DIRECTORS_CHANGE_FIELD = "directorsOnlyChange";
-  final static String EMAIL_ALL_FIELD = "emailAll";
-  final static String NAME_FORMAT_FIELD = "nameFormat";
-  final static String START_DATE_FIELD = "startDate";
-  final static String END_DATE_FIELD = "endDate";
-  final static String USE_BLACKOUT_FIELD = "useBlackOut";
-  final static String START_BLACKOUT_FIELD = "startBlackOut";
-  final static String END_BLACKOUT_FIELD = "endBlackOut";
-  final static String REMOVE_ACCESS_FIELD = "removeAccess";
+  public final static String EMAIL_REMINDER_FIELD = "emailReminder";
+  public final static String REMINDER_DAYS_FIELD = "reminderDays";
+  public final static String NOTIFY_CHANGES_FIELD = "emailOnChanges";
+  public final static String USE_TEAMS_FIELD = "useTeams";
+  public final static String DIRECTORS_CHANGE_FIELD = "directorsOnlyChange";
+  public final static String EMAIL_ALL_FIELD = "emailAll";
+  public final static String NAME_FORMAT_FIELD = "nameFormat";
+  public final static String START_DATE_FIELD = "startDate";
+  public final static String END_DATE_FIELD = "endDate";
+  public final static String USE_BLACKOUT_FIELD = "useBlackOut";
+  public final static String START_BLACKOUT_FIELD = "startBlackOut";
+  public final static String END_BLACKOUT_FIELD = "endBlackOut";
+  public final static String REMOVE_ACCESS_FIELD = "removeAccess";
 
   //instance data
   private String szPatrolName;            //0
   private String szEmailReminder;         //1
-  private int nReminderDays;           //2
+  private int nReminderDays;              //2
   private String szNotifyChanges;         //3
   private String szUseTeams;              //4
   private String szDirectorsOnlyChange;   //5
   private String szEMailAll;              //6
-  private int nNameFormat;             //7
+  private int nNameFormat;                //7
   private String szStartDate;             //8
   private String szEndDate;               //9
   private int nUseBlackout;               //10
   private String szStartBlackout;         //11
   private String szEndBlackout;           //12
-  private int nRemoveAccess;           //13
+  private int nRemoveAccess;              //13
   private String resort;                  //variable
 
   //-----------------------------------------------------
@@ -440,4 +440,4 @@ public class DirectorSettings {
         " " + END_DATE_FIELD + "=" + szEndDate +
         " " + REMOVE_ACCESS_FIELD + "=" + nRemoveAccess;
   }
-} 
+}

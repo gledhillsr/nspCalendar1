@@ -1,6 +1,10 @@
 package org.nsponline.calendar;
 
 
+import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.Roster;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -47,8 +51,8 @@ public class EmailForm extends HttpServlet {
     PatrolData patrol = null;
     //  int totalCount = 0;
 //  int textFontSize = 14;
-    Hashtable<String, MemberData> mapId2MemberData;
-    Vector<MemberData> members;
+    Hashtable<String, Roster> mapId2MemberData;
+    Vector<Roster> members;
     String szMyID = null;
     PrintWriter out;
     String resort;
@@ -73,7 +77,7 @@ public class EmailForm extends HttpServlet {
     private String subject;
     private String message;
     private String fromEmail;
-    private MemberData fromMember;
+    private Roster fromMember;
     boolean hasValidReturnEmailAddress;
     String smtp;
     String fromEmailAddress;
@@ -207,7 +211,7 @@ public class EmailForm extends HttpServlet {
       PatrolData.logger(resort, "Message=" + message + "<br>" + "time=" + calendar.getTime().toString() + "<br>");
     }
 
-    private int logEveryEmailSent(int currentEmailCount, MemberData member) {
+    private int logEveryEmailSent(int currentEmailCount, Roster member) {
       String str = (++currentEmailCount) + ") Mailing: " + member.getFullName() +
           " at: " + member.getEmailAddress();
 //output to html page
@@ -223,7 +227,7 @@ public class EmailForm extends HttpServlet {
      * @param member memberData
      * @return message string to email with footers
      */
-    private String getUniqueMessage(MemberData member) {
+    private String getUniqueMessage(Roster member) {
       String newMessage;
 
       if (messageIsUnique) {
@@ -280,7 +284,7 @@ public class EmailForm extends HttpServlet {
       int currentEmailCount = 0;
       if (true || messageIsUnique) {
         for (String memberId : memberIds) {
-          MemberData member = patrol.getMemberByID(memberId);
+          Roster member = patrol.getMemberByID(memberId);
           currentEmailCount = logEveryEmailSent(currentEmailCount, member);
           newMessage = getUniqueMessage(member);
           if (DEBUG_NO_SEND) {
@@ -372,7 +376,7 @@ public class EmailForm extends HttpServlet {
       return new String(foo);
     }
 
-    private void mailto(SessionData sessionData, MailMan mail, MemberData mbr, String subject, String message) {
+    private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message) {
       String recipient = mbr.getEmailAddress();
       if (Utils.isValidEmailAddress(recipient)) {
         debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
@@ -401,7 +405,7 @@ public class EmailForm extends HttpServlet {
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">");
 //      out.println("<form action=\""+PatrolData.SERVLET_URL+"UpdateInfo\" method=POST id=form02 name=form02>");
-      MemberData currentMember = patrol.getMemberByID(szMyID);
+      Roster currentMember = patrol.getMemberByID(szMyID);
       String szName = "Invalid";
       if (currentMember != null) {
         szName = currentMember.getFullName();
@@ -422,7 +426,7 @@ public class EmailForm extends HttpServlet {
       out.println("Send Emails to selected (hilighted) patrollers.<br>");
       out.println("Use <b>&lt;CTRL&gt; Click</b>, to UNSELECT specific members.<br>");
       out.println("   <select multiple size=\"6\" name=\"Patrollers\" readonly>");
-      MemberData member;
+      Roster member;
 
       for (i = 0; i < max; ++i) {
         String id = emaiPatrollerList.elementAt(i);
@@ -631,11 +635,11 @@ public class EmailForm extends HttpServlet {
       Assignments ns;
       int i;
       patrol.resetRoster();
-      MemberData member;
+      Roster member;
 
 //        maxShiftCount = 0;
-      members = new Vector<MemberData>(PatrolData.MAX_PATROLLERS);
-      mapId2MemberData = new Hashtable<String, MemberData>();
+      members = new Vector<Roster>(PatrolData.MAX_PATROLLERS);
+      mapId2MemberData = new Hashtable<String, Roster>();
       debugOut("====== entering readAssignments ===========");
       while ((member = patrol.nextMember("&nbsp;")) != null) {
 //System.out.print(member);
@@ -714,11 +718,11 @@ public class EmailForm extends HttpServlet {
       patrol.resetRoster();
       emaiPatrollerList = new Vector<String>();
       invalidEmailPatrollerList = new Vector<String>();
-      MemberData memberx = patrol.nextMember("&nbsp;");
+      Roster memberx = patrol.nextMember("&nbsp;");
 //	int siz = members.size();
 //	int i = 0;
 //int xx=0;
-      MemberData member;
+      Roster member;
 
       while (memberx != null) {
         member = mapId2MemberData.get(memberx.getID());
@@ -739,7 +743,7 @@ public class EmailForm extends HttpServlet {
         memberx = patrol.nextMember("");
       }
 //System.out.println("length of email string = "+ePatrollerList.length());
-      MemberData editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
+      Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
 //      patrol.close(); //must close connection!
       isDirector = editor != null && editor.isDirector();
     }

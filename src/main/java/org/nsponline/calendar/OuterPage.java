@@ -1,6 +1,7 @@
 package org.nsponline.calendar;
 
 import com.mysql.jdbc.StringUtils;
+import org.nsponline.calendar.misc.ResortData;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

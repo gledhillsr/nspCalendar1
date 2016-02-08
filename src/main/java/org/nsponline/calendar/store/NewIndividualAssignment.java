@@ -1,4 +1,8 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.store;
+
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
 
 import java.sql.SQLException;
 import java.text.*;
@@ -23,7 +27,7 @@ public class NewIndividualAssignment {
   final static int LAST_MODIFIED_DATE_INDEX = 5;
   final static int LAST_MODIFIED_BY_INDEX = 6;
 
-  final static int DAY_TYPE = 0;
+  public final static int DAY_TYPE = 0;
   final static SimpleDateFormat detailedDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   final static SimpleDateFormat DateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 

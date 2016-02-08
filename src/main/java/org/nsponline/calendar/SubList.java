@@ -1,5 +1,11 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Roster;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +53,7 @@ public class SubList extends HttpServlet {
       isDirector = false;
       patrol = null;
       patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-      MemberData editor = patrol.getMemberByID(IDOfEditor);
+      Roster editor = patrol.getMemberByID(IDOfEditor);
       if (editor != null) {
         isDirector = editor.isDirector();
       }
@@ -69,7 +75,7 @@ public class SubList extends HttpServlet {
 //      //getEmailAddress()
         String ePatrollerList = "";
         patrol.resetRoster();
-        MemberData member = patrol.nextMember("");
+        Roster member = patrol.nextMember("");
         while (member != null) {
           String em = member.getEmailAddress();
           if (member.getSub() == null || (!member.getSub().startsWith("y") && !member.getSub().startsWith("Y"))) {
@@ -119,7 +125,7 @@ public class SubList extends HttpServlet {
 
     public void printBody() {
       patrol.resetRoster();
-      MemberData member = patrol.nextMember("&nbsp;");
+      Roster member = patrol.nextMember("&nbsp;");
 
       while (member != null) {
 

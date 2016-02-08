@@ -1,5 +1,10 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Roster;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -69,7 +74,7 @@ public class Directors extends HttpServlet {
       sortedRoster = new String[400];
 
       rosterSize = 0;
-      MemberData member;
+      Roster member;
       while ((member = patrol.nextMember("")) != null) {
         sortedRoster[rosterSize++] = member.getLast() + ", " + member.getFirst();
       }

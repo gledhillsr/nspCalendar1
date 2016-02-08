@@ -1,5 +1,12 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.ShiftDefinitions;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +30,7 @@ public class EditShifts extends HttpServlet {
 
   private class LocalEditShifts {
     String szMyID;
-    ArrayList<Shifts> shifts;
+    ArrayList<ShiftDefinitions> shifts;
     PrintWriter out;
     //parameter data
     String selectedShift;
@@ -176,11 +183,11 @@ public class EditShifts extends HttpServlet {
 
       deleteShift = false;
       shiftToDelete = 0;
-      Shifts[] todaysData = new Shifts[shiftCount];
+      ShiftDefinitions[] todaysData = new ShiftDefinitions[shiftCount];
       int cnt = 0;
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       // read Shift ski assignments for the specific day
-      shifts = new ArrayList<Shifts>();
+      shifts = new ArrayList<ShiftDefinitions>();
       patrol.resetShiftDefinitions();  //todo 12/30/15  this does nothing or is broken
       if (displayParameters) {
         System.out.println("READING (" + shiftCount + ")shifts passed as arguments");
@@ -208,11 +215,11 @@ public class EditShifts extends HttpServlet {
         }
 
         String tEvent;
-        tEvent = Shifts.createShiftName(eventName, i);
+        tEvent = ShiftDefinitions.createShiftName(eventName, i);
         if (displayParameters) {
           System.out.println(tEvent + " " + tStart + ", " + tEnd + ", " + tCount + ", " + tTyp);
         }
-        todaysData[cnt] = new Shifts(tEvent, tStart, tEnd, tCnt, tTyp);
+        todaysData[cnt] = new ShiftDefinitions(tEvent, tStart, tEnd, tCnt, tTyp);
         if (newShift) {
           if (displayParameters) {
             System.out.println("INSERT this shift: " + todaysData[cnt]);
@@ -235,7 +242,7 @@ public class EditShifts extends HttpServlet {
       int selectedSize = 0;
 
       boolean foundDeleteShift = false;
-      for (Shifts shiftDefinition : patrol.readShiftDefinitions()) {
+      for (ShiftDefinitions shiftDefinition : patrol.readShiftDefinitions()) {
         if (displayParameters) {
           System.out.println("read shift:" + shiftDefinition);
         }
@@ -277,7 +284,7 @@ public class EditShifts extends HttpServlet {
         String start = "8:30";
         String end = "14:00";
         cnt = 1;
-        Shifts shiftDefinition = new Shifts(Shifts.createShiftName(selectedShift, selectedSize), start, end, cnt, Assignments.DAY_TYPE);
+        ShiftDefinitions shiftDefinition = new ShiftDefinitions(ShiftDefinitions.createShiftName(selectedShift, selectedSize), start, end, cnt, Assignments.DAY_TYPE);
         shifts.add(shiftDefinition);   //add to my local array
         patrol.writeShift(shiftDefinition);    //write to database
       }

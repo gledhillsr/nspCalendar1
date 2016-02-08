@@ -2,6 +2,14 @@ package org.nsponline.calendar;
 
 
 import com.mysql.jdbc.StringUtils;
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.DirectorSettings;
+import org.nsponline.calendar.store.Roster;
+import org.nsponline.calendar.store.NewIndividualAssignment;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -62,11 +70,6 @@ public class ChangeShift extends HttpServlet {
     boolean isDirector;
     int removeAccess;
     int visibleRadioButtons = 0;
-    String szMonths[] = {
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    };
-    String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "error"};
     java.util.Date currTime;
     PrintWriter out;
 
@@ -161,8 +164,8 @@ public class ChangeShift extends HttpServlet {
       out.println("</SCRIPT>");
       out.println("<A NAME=\"TOP\"></A>");
       out.println("<table border=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><tr><td>");
-      out.println("<font size=\"6\" COLOR=\"000000\" face=\"arial,helvetica\"><b>" + szDays[dayOfWeek] + "</b></font><BR>");
-      out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + szMonths[month] + " " + dayOfMonth + ", " + year + "</B>");
+      out.println("<font size=\"6\" COLOR=\"000000\" face=\"arial,helvetica\"><b>" + Utils.szDays[dayOfWeek] + "</b></font><BR>");
+      out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + Utils.szMonthsFull[month] + " " + dayOfMonth + ", " + year + "</B>");
       out.println("</font></TD>");
       out.println("<td VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" NOWRAP><FONT SIZE=\"2\" FACE=\"Arial, Helvetica\">");
       out.println("<a target='_self' href=\"MonthCalendar?resort=" + resort + "&month=" + month + "&year=" + year + "\"><IMG SRC=\"images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to Volunteer Roster\" ALIGN=\"BOTTOM\" width=\"32\" height=\"32\"></a>");
@@ -177,7 +180,7 @@ public class ChangeShift extends HttpServlet {
       name = numToName.get(id); //format ,"Steve Gledhill"
       newName = name;
       newIdNumber = id;
-      MemberData md = patrol.getMemberByID(id);
+      Roster md = patrol.getMemberByID(id);
       if (md != null) {
         newName1 = md.getFullName();
       }
@@ -482,7 +485,7 @@ debugOut(sessionData, "printBottom, submitterID=");
 //      int y, m, d;
       DirectorSettings ds;
 
-      MemberData member1 = patrol.getMemberByID(szMyID);
+      Roster member1 = patrol.getMemberByID(szMyID);
       myName = member1.getFullName();
       myName1 = member1.getFullName();
 
@@ -493,7 +496,7 @@ debugOut(sessionData, "printBottom, submitterID=");
       patrol.resetRoster();
       sortedRoster = new String[300];
       rosterSize = 0;
-      MemberData member;
+      Roster member;
       isDirector = szMyID.equalsIgnoreCase(sessionData.getBackDoorUser());
 
       while ((member = patrol.nextMember("")) != null) {

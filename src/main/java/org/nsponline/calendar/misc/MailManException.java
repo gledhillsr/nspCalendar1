@@ -1,4 +1,4 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.misc;
 
 /**
  * Title:        MailMan

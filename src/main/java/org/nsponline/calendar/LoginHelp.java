@@ -1,5 +1,11 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.MailMan;
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.store.Roster;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -103,7 +109,7 @@ public class LoginHelp extends HttpServlet {
       return "";
     }
 
-    private boolean mailto(SessionData sessionData, MailMan mail, MemberData mbr, String subject, String message) {
+    private boolean mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message) {
       if (mbr == null) {
         return false;
       }
@@ -126,7 +132,7 @@ public class LoginHelp extends HttpServlet {
 
     @SuppressWarnings("UnusedParameters")
     public int sendPassword(PrintWriter out, String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
-      MemberData member = null;
+      Roster member = null;
       if (ID != null && !ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && ID.length() > 4) {
         member = patrol.getMemberByID(ID); //ID from cookie
         if (member != null) {

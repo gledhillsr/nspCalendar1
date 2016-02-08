@@ -1,4 +1,4 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.misc;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -17,6 +17,13 @@ public final class Utils {
   private static final String EMAIL_PATTERN =
       "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
           + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+  public static String szMonthsFull[] = {
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+  };
+  public static String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "error"};
+
 
   private Utils() {
     //nothing to do
@@ -53,7 +60,7 @@ public final class Utils {
         uriRequestMsg += (" " + paramName + ":");
         String[] paramValues = request.getParameterValues(paramName);
         for (String paramValue : paramValues) {
-          uriRequestMsg += (paramValue + " ");
+          uriRequestMsg += "Password".equals(paramName) ? "ZZZZ" : (paramValue + " ");
         }
       }
 //      System.out.print(" --Headers:");

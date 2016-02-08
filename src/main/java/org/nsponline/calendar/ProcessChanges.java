@@ -4,6 +4,9 @@ package org.nsponline.calendar;
  * @author Steve Gledhill
  */
 
+import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.store.*;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -65,15 +68,9 @@ public class ProcessChanges extends HttpServlet {
 
     @SuppressWarnings("unused")
     private String secondName;  //secondName etc all have to do with "trade" which is currently disabled
-    private String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-//    private String szTrans[] = {"err", "Insert", "Insert", "remove", "trade days", "Missed Shift"};
-    private String szMonths[] = {
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    };
-    private MemberData submitter;
-    private MemberData member1;
-    private MemberData member2;     //replaced member
+    private Roster submitter;
+    private Roster member1;
+    private Roster member2;     //replaced member
     private Calendar calendarToday;
 
     private boolean dupError;
@@ -187,8 +184,8 @@ public class ProcessChanges extends HttpServlet {
 //        Shifts shift;
         int cnt = 1;
         String today = szdate1.substring(0, szdate1.indexOf("_") + 1);
-        for (Shifts shift : patrolData.readShiftDefinitions()) {
-          if (shift.parsedEventName().equals(szDays[dayOfWeek0based])) {
+        for (ShiftDefinitions shift : patrolData.readShiftDefinitions()) {
+          if (shift.parsedEventName().equals(Utils.szDays[dayOfWeek0based])) {
             Assignments assign = new Assignments((today + cnt), shift);
             patrolData.writeAssignment(assign);
             if (cnt == nPos1) {
@@ -285,13 +282,13 @@ public class ProcessChanges extends HttpServlet {
       }
       out.println("<br/>");
 //on February 1, 2001 as Auxiliary Patroller
-      out.println("on: " + szDays[dayOfWeek0based] + " " + szMonths[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
+      out.println("on: " + Utils.szDays[dayOfWeek0based] + " " + Utils.szMonthsFull[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
 //at position: Auxiliary Patroller"
       out.println("at shift: " + szPos + "<br>");
 
       if (transNumber == TRADE && szPos2 != null) {
         out.println("<br><br>INSERT <B>" + secondName + "</B> (" + secondID + ")<br><br>");
-        out.println("on: " + szDays[dayOfWeek2] + " " + szMonths[month2 - 1] + " " + date2 + ", " + year2 + "<br>");
+        out.println("on: " + Utils.szDays[dayOfWeek2] + " " + Utils.szMonthsFull[month2 - 1] + " " + date2 + ", " + year2 + "<br>");
         out.println("at shift: " + szPos2 + "<br>");
 //          out.println("at shift: "+szPos[nPos2]+"<br>");
       }
@@ -357,7 +354,7 @@ public class ProcessChanges extends HttpServlet {
         return true;
       }
       transNumber = REPLACE;
-      newID = member1.idNum + "";
+      newID = member1.getID() + "";
       newName = listName;
       if (night1.getPosIndex(newID) != -1) {
         dupError = true;
@@ -553,10 +550,10 @@ public class ProcessChanges extends HttpServlet {
 
 //          strChange3 +="On "+szMonths[month1-1]+"/"+date1+"/"+year1+" \n  "+
 //          szTrans[transNumber]+" " + newName;// +" at position: "+ pos1; ???? szDays[dayOfWeek0based]
-        strChange3 += trans[transNumber] + " " + newName + " On " + szDays[dayOfWeek0based] + ", " + szMonths[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
+        strChange3 += trans[transNumber] + " " + newName + " On " + Utils.szDays[dayOfWeek0based] + ", " + Utils.szMonthsFull[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
 
         if (transNumber == TRADE) {
-          strChange3 += "\nOn " + szMonths[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
+          strChange3 += "\nOn " + Utils.szMonthsFull[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
               trans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
         }
         out.println("<h2>Submission Successful</h2>");
@@ -611,7 +608,7 @@ public class ProcessChanges extends HttpServlet {
 //                  System.out.println("=== via director ===");
             MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
             patrolData.resetRoster();
-            MemberData mbr;
+            Roster mbr;
             sentToFirst = false;
             sentToSecond = false;
             //email all directors in the yesEmail list
@@ -642,7 +639,7 @@ public class ProcessChanges extends HttpServlet {
      * @param strChange3 zz
      * @param director   not used
      */
-    private void mailto(SessionData sessionData, MailMan mail, MemberData mbr, String strChange3, boolean director) {
+    private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String strChange3, boolean director) {
       //noinspection StatementWithEmptyBody
       if (director) {
         //todo send director notifications here???

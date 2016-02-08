@@ -1,6 +1,12 @@
 package org.nsponline.calendar;
 
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.*;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +24,6 @@ public class MonthCalendar extends HttpServlet {
 
   private final static boolean DEBUG = false;
 
-  private final static String szMonths[] = {
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"};
   private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -38,7 +41,7 @@ public class MonthCalendar extends HttpServlet {
     private java.util.Date trialTime;
     private Assignments monthData[][];
     private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
-    private Shifts WeeklyShifts[][];
+    private ShiftDefinitions WeeklyShifts[][];
     private int currYear = 0;   //not initialized
     private int currMonth = 0; //0 based month
     private int realCurrMonth = 0;
@@ -81,7 +84,7 @@ public class MonthCalendar extends HttpServlet {
       realCurrMonth = 0;
       realCurrYear = 0;
       realCurrDate = 0;
-      names = new Hashtable<Integer, String>(MemberData.MAX_MEMBERS);
+      names = new Hashtable<Integer, String>(Roster.MAX_MEMBERS);
 
       //has the user set an "override" for the length of each text row
       if (Utils.isNotEmpty(request.getParameter("textLen"))) {
@@ -143,7 +146,7 @@ public class MonthCalendar extends HttpServlet {
 
       outerPage.printResortHeader(out);
 
-      monthData = new Assignments[32][Shifts.MAX + 5]; //all shifts for all days in 1 month
+      monthData = new Assignments[32][ShiftDefinitions.MAX + 5]; //all shifts for all days in 1 month
       getPrevNextDateInfo(); //reset calendar to 1st of month
       readData(out, resort, sessionData);
 
@@ -200,11 +203,11 @@ public class MonthCalendar extends HttpServlet {
 
     @SuppressWarnings("ConstantConditions")
     private void readData(PrintWriter out, String resort, SessionData sessionData) {
-      MemberData member;
+      Roster member;
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
       directorSettings = patrol.readDirectorSettings();
       while ((member = patrol.nextMember("")) != null) {
-        names.put(member.idNum, member.getFullName() + ", " + member.getHomePhone());
+        names.put(member.getIdNum(), member.getFullName() + ", " + member.getHomePhone());
         if (member.getID().equals(patrollerId) || sessionData.getBackDoorUser().equals(patrollerId)) {
           isDirector = member.isDirector();
         }
@@ -241,11 +244,11 @@ public class MonthCalendar extends HttpServlet {
         dayWidth = 14;
         wkEndWidth = 14;
       }
-      WeeklyShifts = new Shifts[8][Shifts.MAX]; //all daily shifts 1-7, 0 is not used in Calendar.Sunday
+      WeeklyShifts = new ShiftDefinitions[8][ShiftDefinitions.MAX]; //all daily shifts 1-7, 0 is not used in Calendar.Sunday
 //      patrol.resetShiftDefinitions();
       int lastDayOfWeekIndex = -1;
       int pos = 0;
-      for (Shifts shift : patrol.readShiftDefinitions()) {
+      for (ShiftDefinitions shift : patrol.readShiftDefinitions()) {
         String name = shift.parsedEventName();
         int currDayOfWeekIndex = getDayOfWeekIndexOrNegativeOne(name);
 
@@ -416,7 +419,7 @@ public class MonthCalendar extends HttpServlet {
       out.println("<FORM target='_self' name='myForm'>");
       out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'>");
       out.println("<TR><TD ALIGN='LEFT' VALIGN='Bottom'><BR>");
-      out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + szMonths[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
+      out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + Utils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
       out.println("<font size=3>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       if (notLoggedIn) {
@@ -445,7 +448,7 @@ public class MonthCalendar extends HttpServlet {
       if (notLoggedIn) {
         szCurrHTML += "&noLogin=1";
       }
-      out.println("<a href='" + szCurrHTML + "' Target='_self'><IMG SRC='/images/ncgohome.gif' BORDER='0' ALT='Return to " + szMonths[realCurrMonth] + " " + realCurrYear + "' ALIGN='MIDDLE' width='32' height='32'></a>");
+      out.println("<a href='" + szCurrHTML + "' Target='_self'><IMG SRC='/images/ncgohome.gif' BORDER='0' ALT='Return to " + Utils.szMonthsFull[realCurrMonth] + " " + realCurrYear + "' ALIGN='MIDDLE' width='32' height='32'></a>");
       out.println("</FONT></TD></TR>");
       out.println("<TR><TD VALIGN='Bottom' ALIGN='RIGHT' height='21'>");
       out.println("");
@@ -572,7 +575,7 @@ public class MonthCalendar extends HttpServlet {
       int posIndex;
       dayOfWeek++; //convert to 1 based
       String eventName = null;
-      for (posIndex = 0; posIndex < Shifts.MAX; ++posIndex) {
+      for (posIndex = 0; posIndex < ShiftDefinitions.MAX; ++posIndex) {
         if (data[day][posIndex] == null) {
           break;
         }
@@ -634,8 +637,8 @@ public class MonthCalendar extends HttpServlet {
           else {
             out.println("<TABLE WIDTH='100%' Border='0' CELLPADDING='0' CellSpacing='0'>");
             int count = 0;
-            for (int i = 0; i < Shifts.MAX; ++i) {
-              Shifts shift = WeeklyShifts[dayOfWeek][i];
+            for (int i = 0; i < ShiftDefinitions.MAX; ++i) {
+              ShiftDefinitions shift = WeeklyShifts[dayOfWeek][i];
               if (shift == null) {
                 break;
               }

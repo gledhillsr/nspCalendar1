@@ -1,5 +1,11 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Roster;
+
 import java.io.*;
 import java.util.*;
 import javax.servlet.*;
@@ -44,7 +50,7 @@ public class CustomizedList extends HttpServlet {
       IDOfPatroller = sessionData.getLoggedInUserId();
       PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData); //when reading members, read full data
       if (IDOfPatroller != null) {
-        MemberData patroller = patrol.getMemberByID(IDOfPatroller); //ID from cookie
+        Roster patroller = patrol.getMemberByID(IDOfPatroller); //ID from cookie
         isDirector = patroller.isDirector();
         if (IDOfPatroller.equals(sessionData.getBackDoorUser())) {
           isDirector = true;

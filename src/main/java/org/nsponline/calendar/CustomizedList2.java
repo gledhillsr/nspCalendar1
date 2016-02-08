@@ -1,5 +1,13 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.DirectorSettings;
+import org.nsponline.calendar.store.Roster;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -39,8 +47,8 @@ public class CustomizedList2 extends HttpServlet {
     //  int memberIndex = 0;
     int patrollersListed = 0;
     int textFontSize = 14;
-    Hashtable<String, MemberData> hash;
-    Vector<MemberData> members;
+    Hashtable<String, Roster> hash;
+    Vector<Roster> members;
     int maxShiftCount;
     int StartDay;
     int StartMonth;
@@ -289,7 +297,7 @@ public class CustomizedList2 extends HttpServlet {
 //            }
 //            member = patrol.nextMember("");
 //        }
-      MemberData editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
+      Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
 //      patrol.close(); //must close connection!
       isDirector = editor != null && editor.isDirector();
     }
@@ -408,115 +416,115 @@ public class CustomizedList2 extends HttpServlet {
       out.println("<table class='list' style=\"font-size: 10pt; face=\'Verdana, Arial, Helvetica\' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
       out.println(" <tr>");
 
-      MemberData.addColumn(-1);
-      MemberData.addColumn(firstNameFirst ? MemberData.FIRST : MemberData.LAST);
+      Roster.addColumn(-1);
+      Roster.addColumn(firstNameFirst ? Roster.FIRST : Roster.LAST);
       if (showBlank) {
-        MemberData.addColumn(MemberData.BLANK);
+        Roster.addColumn(Roster.BLANK);
       }
       if (showBlankWide) {
-        MemberData.addColumn(MemberData.BLANK_WIDE);
+        Roster.addColumn(Roster.BLANK_WIDE);
       }
       if (showClass) {
-        MemberData.addColumn(MemberData.CLASSIFICATION);
+        Roster.addColumn(Roster.CLASSIFICATION);
       }
       if (showID) {
-        MemberData.addColumn(MemberData.ID_NUM);
+        Roster.addColumn(Roster.ID_NUM);
       }
       if (showSpouse) {
-        MemberData.addColumn(MemberData.SPOUSE);
+        Roster.addColumn(Roster.SPOUSE);
       }
       if (showAddr) {
-        MemberData.addColumn(MemberData.ADDRESS);
+        Roster.addColumn(Roster.ADDRESS);
       }
       if (showCity) {
-        MemberData.addColumn(MemberData.CITY);
+        Roster.addColumn(Roster.CITY);
       }
       if (showState) {
-        MemberData.addColumn(MemberData.STATE);
+        Roster.addColumn(Roster.STATE);
       }
       if (showZip) {
-        MemberData.addColumn(MemberData.ZIPCODE);
+        Roster.addColumn(Roster.ZIPCODE);
       }
       if (showHome) {
-        MemberData.addColumn(MemberData.HOMEPHONE);
+        Roster.addColumn(Roster.HOMEPHONE);
       }
       if (showWork) {
-        MemberData.addColumn(MemberData.WORKPHONE);
+        Roster.addColumn(Roster.WORKPHONE);
       }
       if (showCell) {
-        MemberData.addColumn(MemberData.CELLPHONE);
+        Roster.addColumn(Roster.CELLPHONE);
       }
       if (showPager) {
-        MemberData.addColumn(MemberData.PAGER);
+        Roster.addColumn(Roster.PAGER);
       }
       if (showEmail) {
-        MemberData.addColumn(MemberData.EMAIL);
+        Roster.addColumn(Roster.EMAIL);
       }
       if (showEmergency) {
-        MemberData.addColumn(MemberData.EMERGENCY);
+        Roster.addColumn(Roster.EMERGENCY);
       }
       if (showSubsitute) {
-        MemberData.addColumn(MemberData.SUB);
+        Roster.addColumn(Roster.SUB);
       }
       if (showCommit) {
-        MemberData.addColumn(MemberData.COMMITMENT);
+        Roster.addColumn(Roster.COMMITMENT);
       }
       if (showInstructor) {
-        MemberData.addColumn(MemberData.INSTRUCTOR);
+        Roster.addColumn(Roster.INSTRUCTOR);
       }
       if (showDirector) {
-        MemberData.addColumn(MemberData.DIRECTOR);
+        Roster.addColumn(Roster.DIRECTOR);
       }
       if (showLastUpdated) {
-        MemberData.addColumn(MemberData.LAST_UPDATED);
+        Roster.addColumn(Roster.LAST_UPDATED);
       }
       if (showComments) {
-        MemberData.addColumn(MemberData.COMMENTS);
+        Roster.addColumn(Roster.COMMENTS);
       }
       if (showCanEarnCredits) {
-        MemberData.addColumn(MemberData.CAN_EARN_CREDITS);
+        Roster.addColumn(Roster.CAN_EARN_CREDITS);
       }
 //        if(showOldCredits)  MemberData.addColumn(MemberData.CARRY_OVER_CREDITS);
       if (showCreditsEarned) {
-        MemberData.addColumn(MemberData.CREDITS_EARNED);
+        Roster.addColumn(Roster.CREDITS_EARNED);
       }
 //        if(showCreditsUsed)     MemberData.addColumn(MemberData.CREDITS_USED);
       if (showCreditDate) {
-        MemberData.addColumn(MemberData.LAST_CREDIT_UPDATE);
+        Roster.addColumn(Roster.LAST_CREDIT_UPDATE);
       }
       if (showTeamLead) {
-        MemberData.addColumn(MemberData.TEAM_LEAD);
+        Roster.addColumn(Roster.TEAM_LEAD);
       }
       if (showMentoring) {
-        MemberData.addColumn(MemberData.MENTORING);
+        Roster.addColumn(Roster.MENTORING);
       }
 
       if (showDayCnt) {
-        MemberData.addColumn(MemberData.SHOW_DAY_CNT);
+        Roster.addColumn(Roster.SHOW_DAY_CNT);
       }
       if (showDayList) {
-        MemberData.addColumn(MemberData.SHOW_DAY_LIST);
+        Roster.addColumn(Roster.SHOW_DAY_LIST);
       }
       if (showSwingCnt) {
-        MemberData.addColumn(MemberData.SHOW_SWING_CNT);
+        Roster.addColumn(Roster.SHOW_SWING_CNT);
       }
       if (showSwingList) {
-        MemberData.addColumn(MemberData.SHOW_SWING_LIST);
+        Roster.addColumn(Roster.SHOW_SWING_LIST);
       }
       if (showNightCnt) {
-        MemberData.addColumn(MemberData.SHOW_NIGHT_CNT);
+        Roster.addColumn(Roster.SHOW_NIGHT_CNT);
       }
       if (showNightList) {
-        MemberData.addColumn(MemberData.SHOW_NIGHT_LIST);
+        Roster.addColumn(Roster.SHOW_NIGHT_LIST);
       }
       if (showTrainingCnt) {
-        MemberData.addColumn(MemberData.SHOW_TRAINING_CNT);
+        Roster.addColumn(Roster.SHOW_TRAINING_CNT);
       }
       if (showTrainingList) {
-        MemberData.addColumn(MemberData.SHOW_TRAINING_LIST);
+        Roster.addColumn(Roster.SHOW_TRAINING_LIST);
       }
 
-      MemberData.printMemberListRowHeading(out, resort);
+      Roster.printMemberListRowHeading(out, resort);
       out.println(" </tr>");
     }
 
@@ -600,7 +608,7 @@ public class CustomizedList2 extends HttpServlet {
 //  patrol.resetRoster(sortString);
 
 //  MemberData member = patrol.nextMember("&nbsp;");
-      MemberData member;
+      Roster member;
       if ("shiftCnt".equals(sort1)) {
         if (useMinDays) {
           maxShiftCount = minDays - 1;
@@ -608,7 +616,7 @@ public class CustomizedList2 extends HttpServlet {
         else {
           maxShiftCount = 40; //todo this is a HACK
         }
-        TreeMap<String, MemberData> treeMap = new TreeMap<String, MemberData>(Collections.reverseOrder());
+        TreeMap<String, Roster> treeMap = new TreeMap<String, Roster>(Collections.reverseOrder());
         for (int memberIndex = 0; memberIndex < members.size(); memberIndex++) { //loop through all members
           member = members.elementAt(memberIndex);
           Integer totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
@@ -675,11 +683,11 @@ public class CustomizedList2 extends HttpServlet {
       String sortString = getSortString();
       patrol.resetRoster(sortString);
 //      patrol.resetRoster();
-      MemberData member;
+      Roster member;
 
       maxShiftCount = 0;
-      members = new Vector<MemberData>(PatrolData.MAX_PATROLLERS);
-      hash = new Hashtable<String, MemberData>();
+      members = new Vector<Roster>(PatrolData.MAX_PATROLLERS);
+      hash = new Hashtable<String, Roster>();
 //int xx = 0;
       while ((member = patrol.nextMember("&nbsp;")) != null) {
         if (member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {

@@ -1,4 +1,4 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.misc;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;

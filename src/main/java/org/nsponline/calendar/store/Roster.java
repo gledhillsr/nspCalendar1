@@ -1,4 +1,6 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.store;
+
+import org.nsponline.calendar.misc.PatrolData;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
@@ -12,7 +14,7 @@ import java.util.Vector;
  * @author Steve Gledhill
  */
 @SuppressWarnings("unused")
-public class MemberData {
+public class Roster {
 
   public static final String HARD_SPACE_NBSP = "&nbsp;";
   //static data
@@ -32,16 +34,16 @@ public class MemberData {
     lookupClassification.put("OTH", "Other");
   }
 
-  final static int DB_NAME = 0;      //EXACTLY as it appears in database
-  final static int DLG_NAME = 1;      //how should it be displayed on edit screens
-  final static int SERVLET_NAME = 2;  //how should it be passes into/from servlet forms
+  public final static int DB_NAME = 0;      //EXACTLY as it appears in database
+  public final static int DLG_NAME = 1;      //how should it be displayed on edit screens
+  public final static int SERVLET_NAME = 2;  //how should it be passes into/from servlet forms
   final static int EDIT_BY_DIRECTOR = 3; //need to be a director to edit these fields (ie ID#, classification, Director)
   final static int TABLE_NAME = 4; //need to be a director to edit these fields (ie ID#, classification, Director)
   final static int TABLE_WIDTH = 5; //need to be a director to edit these fields (ie ID#, classification, Director)
   //note, the values in dbData and the following defines MUST match
 //      they are in the ORDER THEY APPEAR ON THE DIALOG
 //      not in the order in the actual database
-  final static String dbData[][] = {
+  public final static String dbData[][] = {
 //DB_NAME,              DLG_NAME,                SERVLET_NAME    EDIT_BY_DIRECTOR   Column Heading    Column width
 //(name in database)  (displayed on dialog)  (passed arg name) (who can edit) (name on printout) (width on printout)
       {"IDNumber", "ID Number:&nbsp;", "IDToEdit", "y", "ID", "40"},      //0
@@ -82,53 +84,53 @@ public class MemberData {
       {"", "", "", "n", "Night Shift Details", "200"},   //35
       {"", "", "", "n", "Training Shift Details", "200"}}; //36
   //indexes into dbData array (displayed order, not defined order)
-  static final int ID_NUM = 0;
-  static final int CLASSIFICATION = 1;
-  static final int LAST = 2;
-  static final int FIRST = 3;
-  static final int SPOUSE = 4;
-  static final int ADDRESS = 5;
-  static final int CITY = 6;
-  static final int STATE = 7;
-  static final int ZIPCODE = 8;
-  static final int HOMEPHONE = 9;
-  static final int WORKPHONE = 10;
-  static final int CELLPHONE = 11;
-  static final int PAGER = 12;
-  static final int EMAIL = 13;
-  static final int EMERGENCY = 14;
-  static final int PASSWORD = 15;
-  static final int SUB = 16;
-  static final int COMMITMENT = 17;
-  static final int INSTRUCTOR = 18;
-  static final int DIRECTOR = 19;
-  static final int TEAM_LEAD = 20;
-  static final int MENTORING = 21;
-  static final int LAST_UPDATED = 22;
-  static final int CAN_EARN_CREDITS = 23;
-  static final int LAST_CREDIT_UPDATE = 24;
-  static final int CARRY_OVER_CREDITS = 25;
-  static final int CREDITS_EARNED = 26;
-  static final int CREDITS_USED = 27;
-  static final int COMMENTS = 28;
+  public final static int ID_NUM = 0;
+  public final static int CLASSIFICATION = 1;
+  public final static int LAST = 2;
+  public final static int FIRST = 3;
+  public final static int SPOUSE = 4;
+  public final static int ADDRESS = 5;
+  public final static int CITY = 6;
+  public final static int STATE = 7;
+  public final static int ZIPCODE = 8;
+  public final static int HOMEPHONE = 9;
+  public final static int WORKPHONE = 10;
+  public final static int CELLPHONE = 11;
+  public final static int PAGER = 12;
+  public final static int EMAIL = 13;
+  public final static int EMERGENCY = 14;
+  public final static int PASSWORD = 15;
+  public final static int SUB = 16;
+  public final static int COMMITMENT = 17;
+  public final static int INSTRUCTOR = 18;
+  public final static int DIRECTOR = 19;
+  public final static int TEAM_LEAD = 20;
+  public final static int MENTORING = 21;
+  public final static int LAST_UPDATED = 22;
+  public final static int CAN_EARN_CREDITS = 23;
+  public final static int LAST_CREDIT_UPDATE = 24;
+  public final static int CARRY_OVER_CREDITS = 25;
+  public final static int CREDITS_EARNED = 26;
+  public final static int CREDITS_USED = 27;
+  public final static int COMMENTS = 28;
   //remember to update ALL the databases if this changes, eVen though only brighton uses these fields
-  static final int DB_SIZE = 29;     //next available location
-  static final int BLANK = 98;
-  static final int BLANK_WIDE = 99;
+  public final static int DB_SIZE = 29;     //next available location
+  public final static int BLANK = 98;
+  public final static int BLANK_WIDE = 99;
 
-  static final int SHOW_DAY_CNT = DB_SIZE;
-  static final int SHOW_SWING_CNT = DB_SIZE + 1;
-  static final int SHOW_NIGHT_CNT = DB_SIZE + 2;
-  static final int SHOW_TRAINING_CNT = DB_SIZE + 3;
+  public final static int SHOW_DAY_CNT = DB_SIZE;
+  public final static int SHOW_SWING_CNT = DB_SIZE + 1;
+  public final static int SHOW_NIGHT_CNT = DB_SIZE + 2;
+  public final static int SHOW_TRAINING_CNT = DB_SIZE + 3;
 
-  static final int SHOW_DAY_LIST = DB_SIZE + 4;
-  static final int SHOW_SWING_LIST = DB_SIZE + 5;
-  static final int SHOW_NIGHT_LIST = DB_SIZE + 6;
-  static final int SHOW_TRAINING_LIST = DB_SIZE + 7;
+  public final static int SHOW_DAY_LIST = DB_SIZE + 4;
+  public final static int SHOW_SWING_LIST = DB_SIZE + 5;
+  public final static int SHOW_NIGHT_LIST = DB_SIZE + 6;
+  public final static int SHOW_TRAINING_LIST = DB_SIZE + 7;
   //-------------------
   static final int FULL_DB_SIZE = SHOW_TRAINING_LIST;
 
-  static int MAX_MEMBERS = 300;
+  public final static int MAX_MEMBERS = 300;  //todo HACK fix me
   static int HASH_NAMES = 0x0001;
   static int HASH_ASSIGNMENTS = 0x0002;
 
@@ -150,7 +152,7 @@ public class MemberData {
   public int[] AssignmentCount = new int[Assignments.MAX_SHIFT_TYPES];
   public String[] szAssignments = new String[Assignments.MAX_SHIFT_TYPES];
 
-  public MemberData() {
+  public Roster() {
     idNum = 0;
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
       AssignmentCount[i] = 0;
@@ -171,7 +173,7 @@ public class MemberData {
     memberData[COMMENTS] = "";
   }
 
-  public MemberData(HttpServletRequest request) {
+  public Roster(HttpServletRequest request) {
 
 //System.out.println("Constructor-MemberData(request)");
     idNum = 0;
@@ -227,7 +229,7 @@ public class MemberData {
 
       }
       else {
-        memberData[i] = request.getParameter(MemberData.dbData[i][SERVLET_NAME]);
+        memberData[i] = request.getParameter(Roster.dbData[i][SERVLET_NAME]);
       }
 
       if (memberData[i] == null || memberData[i].length() == 0) {
@@ -242,6 +244,10 @@ public class MemberData {
 //System.out.println("Constructor-MemberData["+i+"] = ("+memberData[i]+")");
     }
 
+  }
+
+  public int getIdNum() {
+    return idNum;
   }
 
   public void printEmergencyCallRow(PrintWriter out, String other) {
@@ -465,7 +471,7 @@ public class MemberData {
   }
 
   public static String getInstructorString(String szTmp) {
-    String str = MemberData.HARD_SPACE_NBSP;
+    String str = Roster.HARD_SPACE_NBSP;
     try {
 //System.out.println("instructor=("+szTmp+")");
       int idx = Integer.parseInt(szTmp);
@@ -920,7 +926,7 @@ public class MemberData {
   }
 
   public String getLastCreditDateStr() {
-    String szDate = MemberData.HARD_SPACE_NBSP;
+    String szDate = Roster.HARD_SPACE_NBSP;
     String str = memberData[LAST_CREDIT_UPDATE];
     if (str.length() > 8) {
       try {
@@ -1037,7 +1043,7 @@ public class MemberData {
     memberData[CAN_EARN_CREDITS] = str;
   }
 
-  boolean okToDisplay(boolean EveryBody, boolean SubList, boolean bListAll,
+  public boolean okToDisplay(boolean EveryBody, boolean SubList, boolean bListAll,
                       Vector vClassificationsToDisplay, int iCommitmentToDisplay,
                       boolean listDirector, int instructorFlags, int MinDays) {
 
