@@ -76,8 +76,9 @@ public class DailyReminder {
         continue;
       }
 
+      String resortStr = PatrolData.getResortFullName(resort);
       debugOut("Assignment=" + assignment.toString());
-      String message = "Reminder\n\nYou are scheduled to Ski Patrol at " + resort + ", on " + Utils.szDays[dayOfWeek] + ", " + Utils.szMonthsFull[month] + " " + date.get(Calendar.DAY_OF_MONTH) + ", " + date.get(Calendar.YEAR) + " from " +
+      String message = "Reminder\n\nYou are scheduled to Ski Patrol at " + resortStr + ", on " + Utils.szDays[dayOfWeek] + ", " + Utils.szMonthsFull[month] + " " + date.get(Calendar.DAY_OF_MONTH) + ", " + date.get(Calendar.YEAR) + " from " +
           assignment.getStartingTimeString() + " to " +
           assignment.getEndingTimeString() + ".\n\nThanks, your help is greatly appreciated.\n\n";
       message += "Please do NOT reply to this automated reminder. \nUnless, you are NOT a member of the National Ski Patrol, and received this email accidentally.";
@@ -149,6 +150,7 @@ public class DailyReminder {
     //loop for resorts
     for (String resort : PatrolData.resortMap.keySet()) {
       if (!"Sample".equals(resort)) {
+        sessionData.setLoggedInResort(resort); //used to set From field in emails (if director has SES verified address)
         new DailyReminder(resort, sessionData, mail);
       }
     }

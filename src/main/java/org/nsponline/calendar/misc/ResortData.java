@@ -6,14 +6,16 @@ package org.nsponline.calendar.misc;
 public class ResortData {
   private String resortShortName;
   private String resortFullName;
+  private String directorsVerifiedEmail;
   private String resortURL;
   private String resortImage;
   private int imageHeight;
   private int imageWidth;
 
-  public ResortData(String resortShortName, String resortFullName, String resortURL, String resortImage, int imageHeight, int imageWidth) {
+  public ResortData(String resortShortName, String resortFullName, String verifiedEmail, String resortURL, String resortImage, int imageHeight, int imageWidth) {
     this.resortShortName = resortShortName;
     this.resortFullName = resortFullName;
+    this.directorsVerifiedEmail = verifiedEmail;
     this.resortURL = resortURL;
     this.resortImage = resortImage;
     this.imageHeight = imageHeight;
@@ -26,6 +28,10 @@ public class ResortData {
 
   public String getResortFullName() {
     return resortFullName;
+  }
+
+  public String getDirectorsVerifiedEmail() {
+    return directorsVerifiedEmail;
   }
 
   public String getResortURL() {

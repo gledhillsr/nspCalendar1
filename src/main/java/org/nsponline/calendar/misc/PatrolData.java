@@ -35,42 +35,42 @@ public class PatrolData {
   static public HashMap<String, ResortData> resortMap = new HashMap<String, ResortData>();
   static private final int IMG_HEIGHT = 80;
   static {
-    resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
-    resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
-    resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
-    resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
-    resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
-    resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", "http://detroitmountain.com/", "/images/DetroitMountain.png", 73, 121));
-    resortMap.put("ElmCreek",       new ResortData("ElmCreek", "Elm Creek Park", "https://www.threeriversparks.org/parks/elm-creek-park.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
-    resortMap.put("GrandTarghee",   new ResortData("GrandTarghee", "Grand Targhee", "http://www.GrandTarghee.com", "/images/GrandTarghee.jpg", IMG_HEIGHT, 80));
-    resortMap.put("HermonMountain", new ResortData("HermonMountain", "Hermon Mountain", "http://www.skihermonmountain.com", "/images/HermonMountain.jpg", IMG_HEIGHT, 80));
-    resortMap.put("Hesperus",       new ResortData("Hesperus", "Hesperus", "http://www.ski-hesperus.com/", "/images/Hesperus.jpg", 84, 192));
-    resortMap.put("HylandHills",    new ResortData("HylandHills", "Hyland Hills Park", " https://threeriversparks.org/parks/hyland-lake-park/hyland-hills-ski-area.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
-    resortMap.put("IFNordic",       new ResortData("IFNordic", "IF Nordic", "", "/images/IFNordic.gif", IMG_HEIGHT, 80));
-    resortMap.put("JacksonHole",    new ResortData("JacksonHole", "Jackson Hole Fire/EMS", "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
-    resortMap.put("JacksonSpecialEvents", new ResortData("JacksonSpecialEvents", "Jackson Hole Fire/EMS Special Events", "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
-    resortMap.put("KellyCanyon",    new ResortData("KellyCanyon", "Kelly Canyon", "http://www.SkiKelly.com", "/images/KellyCanyon.jpg", IMG_HEIGHT, 80));
-    resortMap.put("LonesomePine",   new ResortData("LonesomePine", "Lonesome Pine Trails", "http://www.lonesomepines.org", "/images/lonesomepines.gif", IMG_HEIGHT, 80));
-    resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
-    resortMap.put("NorwayMountain", new ResortData("NorwayMountain", "Norway Mountain", "http://www.NorwayMountain.com", "/images/NorwayMountain.jpg", IMG_HEIGHT, 80));
-    resortMap.put("PaidSnowCreek",  new ResortData("PaidSnowCreek", "Paid SnowCreek", "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
-    resortMap.put("ParkCity",       new ResortData("ParkCity", "PCM at Canyons", "http://www.parkcitymountain.com", "/images/ParkCity.png", 30, 30));
-    resortMap.put("PebbleCreek",    new ResortData("PebbleCreek", "Pebble Creek", "http://www.pebblecreekskiarea.com", "/images/PebbleCreek.gif", IMG_HEIGHT, 80));
-    resortMap.put("PineCreek",      new ResortData("PineCreek", "Pine Creek", "http://www.pinecreekskiresort.com", "/images/pinecreek.gif", IMG_HEIGHT, 80));
-    resortMap.put("PineMountain",   new ResortData("PineMountain", "Pine Mountain", "http://www.PineMountainResort.com", "/images/PineMtnLogo.png", IMG_HEIGHT, 80));
-    resortMap.put("Pomerelle",      new ResortData("Pomerelle", "Pomerelle", "http://www.pomerelle-mtn.com", "/images/PomerelleLogo.gif", IMG_HEIGHT, 80));
-    resortMap.put("PowderRidge",    new ResortData("PowderRidge", "Powder Ridge", "http://www.powderridgeskipatrol.com", "/images/PowderRidge.png", IMG_HEIGHT, 80));
-    resortMap.put("RMSP",           new ResortData("RMSP", "Ragged Mountain", "http://www.rmskipatrol.com", "/images/RMSP_logo.JPG", IMG_HEIGHT, 80));
-    resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", "http://www.nspOnline.org", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
-    resortMap.put("SnowCreek",      new ResortData("SnowCreek", "SnowCreek", "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
-    resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", "http://www.SnowKing.com", "/images/SnowKing.jpg", IMG_HEIGHT, 80));
-    resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", "http://www.soldierhollow.com", "/images/SoldierHollow.jpg", IMG_HEIGHT, 60));
-    resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
-    resortMap.put("ThreeRivers",    new ResortData("ThreeRivers", "Three Rivers Park", "http://www.threeriverspark.com", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
+    resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
+    resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", null, "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
+    resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", null, "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
+    resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "steve@gledhills.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
+    resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
+    resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", null, "http://detroitmountain.com/", "/images/DetroitMountain.png", 73, 121));
+    resortMap.put("ElmCreek",       new ResortData("ElmCreek", "Elm Creek Park", null, "https://www.threeriversparks.org/parks/elm-creek-park.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
+    resortMap.put("GrandTarghee",   new ResortData("GrandTarghee", "Grand Targhee", null, "http://www.GrandTarghee.com", "/images/GrandTarghee.jpg", IMG_HEIGHT, 80));
+    resortMap.put("HermonMountain", new ResortData("HermonMountain", "Hermon Mountain", null, "http://www.skihermonmountain.com", "/images/HermonMountain.jpg", IMG_HEIGHT, 80));
+    resortMap.put("Hesperus",       new ResortData("Hesperus", "Hesperus", null, "http://www.ski-hesperus.com/", "/images/Hesperus.jpg", 84, 192));
+    resortMap.put("HylandHills",    new ResortData("HylandHills", "Hyland Hills Park", null, " https://threeriversparks.org/parks/hyland-lake-park/hyland-hills-ski-area.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
+    resortMap.put("IFNordic",       new ResortData("IFNordic", "IF Nordic", null, "", "/images/IFNordic.gif", IMG_HEIGHT, 80));
+    resortMap.put("JacksonHole",    new ResortData("JacksonHole", "Jackson Hole Fire/EMS", null, "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
+    resortMap.put("JacksonSpecialEvents", new ResortData("JacksonSpecialEvents", "Jackson Hole Fire/EMS Special Events", null, "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
+    resortMap.put("KellyCanyon",    new ResortData("KellyCanyon", "Kelly Canyon", null, "http://www.SkiKelly.com", "/images/KellyCanyon.jpg", IMG_HEIGHT, 80));
+    resortMap.put("LonesomePine",   new ResortData("LonesomePine", "Lonesome Pine Trails", null, "http://www.lonesomepines.org", "/images/lonesomepines.gif", IMG_HEIGHT, 80));
+    resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", null, "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
+    resortMap.put("NorwayMountain", new ResortData("NorwayMountain", "Norway Mountain", null, "http://www.NorwayMountain.com", "/images/NorwayMountain.jpg", IMG_HEIGHT, 80));
+    resortMap.put("PaidSnowCreek",  new ResortData("PaidSnowCreek", "Paid SnowCreek", null, "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
+    resortMap.put("ParkCity",       new ResortData("ParkCity", "PCM-Canyons", "dukespeer@gmail.com", "http://www.parkcitymountain.com", "/images/ParkCity.png", 30, 30));
+    resortMap.put("PebbleCreek",    new ResortData("PebbleCreek", "Pebble Creek", null, "http://www.pebblecreekskiarea.com", "/images/PebbleCreek.gif", IMG_HEIGHT, 80));
+    resortMap.put("PineCreek",      new ResortData("PineCreek", "Pine Creek", null, "http://www.pinecreekskiresort.com", "/images/pinecreek.gif", IMG_HEIGHT, 80));
+    resortMap.put("PineMountain",   new ResortData("PineMountain", "Pine Mountain", null, "http://www.PineMountainResort.com", "/images/PineMtnLogo.png", IMG_HEIGHT, 80));
+    resortMap.put("Pomerelle",      new ResortData("Pomerelle", "Pomerelle", null, "http://www.pomerelle-mtn.com", "/images/PomerelleLogo.gif", IMG_HEIGHT, 80));
+    resortMap.put("PowderRidge",    new ResortData("PowderRidge", "Powder Ridge", null, "http://www.powderridgeskipatrol.com", "/images/PowderRidge.png", IMG_HEIGHT, 80));
+    resortMap.put("RMSP",           new ResortData("RMSP", "Ragged Mountain", null, "http://www.rmskipatrol.com", "/images/RMSP_logo.JPG", IMG_HEIGHT, 80));
+    resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", null, "http://www.nspOnline.org", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
+    resortMap.put("SnowCreek",      new ResortData("SnowCreek", "SnowCreek", null, "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
+    resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", null, "http://www.SnowKing.com", "/images/SnowKing.jpg", IMG_HEIGHT, 80));
+    resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", null, "http://www.soldierhollow.com", "/images/SoldierHollow.jpg", IMG_HEIGHT, 60));
+    resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", null, "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
+    resortMap.put("ThreeRivers",    new ResortData("ThreeRivers", "Three Rivers Park", null, "http://www.threeriverspark.com", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
 //    resortMap.put("uop",            new ResortData("uop", "The Utah Olympic Park", "http://www.imd.org/uop.html", "/images/uop.jpg", IMG_HEIGHT, 80));
-    resortMap.put("WelchVillage",   new ResortData("WelchVillage", "Welch Village", "http://www.welchvillage.com", "/images/WelchVillage.jpg", IMG_HEIGHT, 80));
-    resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
-    resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
+    resortMap.put("WelchVillage",   new ResortData("WelchVillage", "Welch Village", null, "http://www.welchvillage.com", "/images/WelchVillage.jpg", IMG_HEIGHT, 80));
+    resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", null, "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
+    resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", null, "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
 
 /* - - - - - uncomment the following to run from the Internet - - - - - - */
@@ -674,6 +674,10 @@ public class PatrolData {
 
   static public boolean isValidResort(String resort) {
     return resortMap.containsKey(resort);
+  }
+
+  static public ResortData getResortInfo(String theResort) {
+    return resortMap.get(theResort);
   }
 
   public ResortData getResortInfo() {

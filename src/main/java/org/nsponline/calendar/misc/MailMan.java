@@ -15,14 +15,13 @@ import java.util.Collections;
 
 public class MailMan {
 
+  @SuppressWarnings("unused")
   private final static boolean DEBUG = false;
   private final static boolean DEBUG_DONT_SEND = false;
 
-  AmazonSimpleEmailServiceClient sesClient;
-  private final String fromAddress;
-  private final String replyToAddress;
-  @SuppressWarnings("FieldCanBeLocal")
-  private final String fromText;
+  private AmazonSimpleEmailServiceClient sesClient;
+  private String fromAddress;
+  private String replyToAddress;
 
   /**
    * MailMan constructor.
@@ -32,7 +31,6 @@ public class MailMan {
    * @param fromText    fromAddress text    ie: Steve Gledhill
    */
   public MailMan(String host, String fromAddress, String fromText, SessionData sessionData) {
-    logger(sessionData, "MailMan(host=" + host + ", fromAddress=" + fromAddress + ", fromText='" + fromText + "')");
     if (DEBUG_DONT_SEND) {
       debugOutDontSend(sessionData, "NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
       return;
@@ -45,8 +43,15 @@ public class MailMan {
       this.replyToAddress = null;
       System.out.println("DEBUG - MailMan failed to set replyToAddress to: [" + fromAddress + "]");
     }
-    this.fromAddress = "steve@gledhills.com";
-    this.fromText = fromText;
+    String resort = sessionData.getLoggedInResort();
+    ResortData resortInfo = PatrolData.getResortInfo(resort);
+    if (resortInfo != null && Utils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) {
+      this.fromAddress = resortInfo.getDirectorsVerifiedEmail();
+    }
+    else {
+      this.fromAddress = "steve@gledhills.com";
+    }
+    logger(sessionData, "MailMan(host=" + host + ", fromAddress=" + this.fromAddress+ ", replyToAddress=" + this.replyToAddress + ", fromText='" + fromText + "')");
     // Instantiate an Amazon SES client, which will make the service call. The service call requires your AWS credentials.
     // Because we're not providing an argument when instantiating the client, the SDK will attempt to find your AWS credentials
     // using the default credential provider chain. The first place the chain looks for the credentials is in environment variables
@@ -143,7 +148,7 @@ public class MailMan {
       if (replyToAddress != null) {
         request.setReplyToAddresses(Collections.singletonList(replyToAddress));
       }
-      System.out.println("Attempting to send an email through Amazon SES by using the AWS SDK for Java...");
+//      debugOut("Attempting to send an email through Amazon SES by using the AWS SDK for Java...");
 
       // Send the email.
       Long startMillis = System.nanoTime() / 1000;
