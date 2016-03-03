@@ -51,7 +51,9 @@ public class SessionData {
     readCredentials(new Properties(), out);
   }
 
-  public SessionData(Properties properties, PrintWriter out) {
+  public SessionData(Properties properties, PrintWriter out) {  //called by DailyReminder
+    this.session = null;
+    this.request = null;
     readCredentials(properties, out);
   }
 
@@ -146,20 +148,29 @@ public class SessionData {
 
   public void setLoggedInUserId(String loggedInUserId) {
     debugOut("SessionData.setLoggedInUserId=" + loggedInUserId);
-    session.setAttribute(LOGGED_IN_USER_ID_TAG, loggedInUserId);
+    if (session != null) {
+      session.setAttribute(LOGGED_IN_USER_ID_TAG, loggedInUserId);
+    }
   }
 
   public void clearLoggedInUserId() {
     debugOut("SessionData.clearLoggedInUserId()");
-    session.removeAttribute(LOGGED_IN_USER_ID_TAG);
+    if (session != null) {
+      session.removeAttribute(LOGGED_IN_USER_ID_TAG);
+    }
   }
 
   public void clearLoggedInResort() {
     debugOut("SessionData.clearLoggedInResort()");
-    session.removeAttribute(LOGGED_IN_RESORT_TAG);
+    if (session != null) {
+      session.removeAttribute(LOGGED_IN_RESORT_TAG);
+    }
   }
 
   public String getLoggedInUserId() {
+    if (session == null) {
+      return null;
+    }
     String userId = (String) session.getAttribute(LOGGED_IN_USER_ID_TAG);
     debugOut("SessionData.getLoggedInUserId=" + userId);
     return userId;
@@ -167,16 +178,24 @@ public class SessionData {
 
   public void setLoggedInResort(String loggedInResort) {
     debugOut("SessionData.setLoggedInResort=" + loggedInResort);
-    session.setAttribute(LOGGED_IN_RESORT_TAG, loggedInResort);
+    if (session != null) {
+      session.setAttribute(LOGGED_IN_RESORT_TAG, loggedInResort);
+    }
   }
 
   public String getLoggedInResort() {
+    if (session == null) {
+      return null;
+    }
     String resort = (String) session.getAttribute(LOGGED_IN_RESORT_TAG);
     debugOut("SessionData.getLoggedInResort=" + resort);
     return resort;
   }
 
   public boolean isLoggedIntoAnotherResort(String resortParameter) {
+    if (session == null) {
+      return true;
+    }
     String resort = (String) session.getAttribute(LOGGED_IN_RESORT_TAG);
     boolean isLoggedIn = resort != null && !resort.equals(resortParameter);
     debugOut("isLoggedIntoAnotherResort = (" + isLoggedIn + " ), resort=(" + resort + "), resortParameter=(" + resortParameter + ")");

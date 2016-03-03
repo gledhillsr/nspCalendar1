@@ -41,14 +41,20 @@ public class MailMan {
     }
     else {
       this.replyToAddress = null;
-      System.out.println("DEBUG - MailMan failed to set replyToAddress to: [" + fromAddress + "]");
+      if (Utils.isNotEmpty(fromAddress)) {
+        System.out.println("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
+      }
     }
-    String resort = sessionData.getLoggedInResort();
-    ResortData resortInfo = PatrolData.getResortInfo(resort);
-    if (resortInfo != null && Utils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) {
-      this.fromAddress = resortInfo.getDirectorsVerifiedEmail();
-    }
-    else {
+    try {
+      String resort = sessionData.getLoggedInResort();
+      ResortData resortInfo = PatrolData.getResortInfo(resort); //will return null if invalid resort (like in dailyReminder because no HttpSession)
+      if (resortInfo != null && Utils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) {
+        this.fromAddress = resortInfo.getDirectorsVerifiedEmail();
+      }
+      else {
+        this.fromAddress = "steve@gledhills.com";
+      }
+    } catch (NoClassDefFoundError e) {
       this.fromAddress = "steve@gledhills.com";
     }
     logger(sessionData, "MailMan(host=" + host + ", fromAddress=" + this.fromAddress+ ", replyToAddress=" + this.replyToAddress + ", fromText='" + fromText + "')");

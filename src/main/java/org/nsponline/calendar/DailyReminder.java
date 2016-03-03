@@ -109,7 +109,12 @@ public class DailyReminder {
           emailTo.add(emailAddress);
         }
         else {
-          debugOut("WARNING, invalid email address. " + member.getFullName() + " " + emailAddress);
+          if (Utils.isEmpty(emailAddress)) {
+            debugOut("WARNING, missing email address for " + member.getFullName());
+          }
+          else {
+            debugOut("WARNING, invalid email address. " + member.getFullName() + " [" + emailAddress + "]");
+          }
         }
       }
     }
@@ -141,16 +146,19 @@ public class DailyReminder {
     PrintWriter out = new PrintWriter(System.out);
     SessionData sessionData = new SessionData(properties, out);
 
+    out.println("******************************************************");
+    out.println("START RUNNING DAILY REMINDER: " + new Date().toString());
+    out.println("******************************************************");
     if (sessionData.getDbPassword() == null) {
       System.out.println("error session credentials not found");
       System.exit(1);
     }
     //setup credentials and connection
-    MailMan mail = new MailMan(sessionData.getSmtpHost(), sessionData.getEmailUser(), "Automated Ski Patrol Reminder", sessionData);
     //loop for resorts
     for (String resort : PatrolData.resortMap.keySet()) {
       if (!"Sample".equals(resort)) {
         sessionData.setLoggedInResort(resort); //used to set From field in emails (if director has SES verified address)
+        MailMan mail = new MailMan(sessionData.getSmtpHost(), sessionData.getEmailUser(), "Automated Ski Patrol Reminder", sessionData);
         new DailyReminder(resort, sessionData, mail);
       }
     }
