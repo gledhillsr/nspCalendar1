@@ -30,10 +30,12 @@ public final class Utils {
   }
 
   public static boolean isEmpty(String str) {
+    //noinspection Since15
     return str == null || str.isEmpty();
   }
 
   public static boolean isNotEmpty(String str) {
+    //noinspection Since15
     return str != null && !str.isEmpty();
   }
 
@@ -74,7 +76,7 @@ public final class Utils {
 //      System.out.flush();
     }
     catch (Exception e) {
-      uriRequestMsg += e.getMessage();
+      uriRequestMsg += e.getMessage() + " exception";
     }
     localPrintToLogFile(request, uriRequestMsg);
   }

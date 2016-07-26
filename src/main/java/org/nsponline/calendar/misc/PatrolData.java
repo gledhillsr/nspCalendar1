@@ -74,11 +74,11 @@ public class PatrolData {
   }
 
 /* - - - - - uncomment the following to run from the Internet - - - - - - */
-  final static String PRODUCTION_PRIVATE_IP = "172.31.50.20";//private ip PRODUCTION.  must match /etc/my.cnf
-//  final static String TESTING_PRIVATE_IP = "172.31.58.110";  //private ip TESTING.  must match /etc/my.cnf
-//  final static String LOCALHOST_IP = "127.0.0.1";            //must match /etc/my.cnf
+  final static String AMAZON_PRIVATE_IP = "172.31.0.109";//private ip PRODUCTION.  must match /etc/my.cnf
+//  final static String AMAZON_PRIVATE_IP = "172.31.59.53";  //private ip TESTING.  must match /etc/my.cnf
+//  final static String AMAZON_PRIVATE_IP = "127.0.0.1";            //must match /etc/my.cnf
 
-  final static String MYSQL_ADDRESS = PRODUCTION_PRIVATE_IP;  //todo get this from an environment or configuration
+  final static String MYSQL_ADDRESS = AMAZON_PRIVATE_IP;  //todo get this from an environment or configuration
 /*- - - - - end local declarations - - - - - -*/
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****

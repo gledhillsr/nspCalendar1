@@ -32,16 +32,16 @@ public class LoginHelp extends HttpServlet {
   private static boolean DEBUG_SENSITIVE = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName() + "..Get", request);
     new InternalLoginHelp(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    Utils.printRequestParameters(this.getClass().getSimpleName() + "..Post", request);
     new InternalLoginHelp(request, response);
   }
 
-  class InternalLoginHelp {
+  private class InternalLoginHelp {
 
     String resort;
     SessionData sessionData;
@@ -64,7 +64,7 @@ public class LoginHelp extends HttpServlet {
       if (isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
         sessionData.setLoggedInUserId(id);
         sessionData.setLoggedInResort(resort);
-        if (szParent == null || szParent.isEmpty()) {
+        if (Utils.isEmpty(szParent)) {
           szParent = "MonthCalendar";
         }
         // String newLoc = BASE_URL + resort + "/index.php?resort=" + resort + "&NSPgoto=" + szParent + "&ID=" + id;
@@ -131,7 +131,7 @@ public class LoginHelp extends HttpServlet {
 
 
     @SuppressWarnings("UnusedParameters")
-    public int sendPassword(PrintWriter out, String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
+    int sendPassword(PrintWriter out, String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
       Roster member = null;
       if (ID != null && !ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && ID.length() > 4) {
         member = patrol.getMemberByID(ID); //ID from cookie
@@ -170,7 +170,7 @@ public class LoginHelp extends HttpServlet {
       ResultSet rs;
 //System.out.println("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
       if (ID == null || pass == null) {
-        Utils.printToLogFile(sessionData.getRequest(), "Login Failed: either ID or Password not supplied");
+        Utils.printToLogFile(sessionData.getRequest(), "Login Failed: either ID (" + ID + ") or Password not supplied");
         return false;
       }
 

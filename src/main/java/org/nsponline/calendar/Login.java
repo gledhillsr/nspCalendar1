@@ -16,35 +16,40 @@ import java.io.PrintWriter;
  *
  * clear cookies, and push to MonthCalendar (no longer logged in)
  */
-public class Logout extends HttpServlet {
-//todo remove me
+public class Login extends HttpServlet {
+
+  static final boolean DEBUG = true;
+
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    new InnerLogout(request, response);
+    new InnerLogin(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    new InnerLogout(request, response);
+    new InnerLogin(request, response);
   }
 
-  private class InnerLogout {
+  private final class InnerLogin {
     private String resort;
+    SessionData sessionData;
 
-    InnerLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public InnerLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       response.setContentType("text/html");
       PrintWriter out = response.getWriter();
+
+      sessionData = new SessionData(request, out);
       resort = request.getParameter("resort");
-      if (PatrolData.isValidResort(resort)) {
-        response.setContentType("text/html");
-        SessionData sessionData = new SessionData(request, out);
-        sessionData.clearLoggedInResort();
-        sessionData.clearLoggedInUserId();
-        response.setStatus(204);
+      if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
+        logger("ERROR, unknown resort (" + resort + ")");
+        response.setStatus(400, "ERROR, unknown resort (" + resort + ")");
+        return;
       }
-      else {
-        response.setStatus(400);
-      }
+//      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+    }
+
+    private void logger(String str) {
+      Utils.printToLogFile(sessionData.getRequest(), str);
     }
   }
 }
