@@ -10,6 +10,7 @@ import java.util.Properties;
 /**
  * @author Steve Gledhill
  */
+
 public class SessionData {
 
   private final static Boolean DEBUG = false;

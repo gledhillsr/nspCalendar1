@@ -13,6 +13,8 @@ import java.io.PrintWriter;
 
 /**
  * @author Steve Gledhill
+ *
+ * login through my web client
  */
 public class MemberLogin extends HttpServlet {
 
