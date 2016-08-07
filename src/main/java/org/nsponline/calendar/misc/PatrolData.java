@@ -4,10 +4,7 @@ import org.nsponline.calendar.store.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,7 +13,7 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance"})
 public class PatrolData {
-  final static boolean DEBUG = false;
+  final static boolean DEBUG = true;
 
   //  final static String JDBC_DRIVER = "org.gjt.mm.mysql.Driver"; //todo change July 32 2015
   public final static String JDBC_DRIVER = "com.mysql.jdbc.Driver";
@@ -67,15 +64,14 @@ public class PatrolData {
     resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", null, "http://www.soldierhollow.com", "/images/SoldierHollow.jpg", IMG_HEIGHT, 60));
     resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", null, "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
     resortMap.put("ThreeRivers",    new ResortData("ThreeRivers", "Three Rivers Park", null, "http://www.threeriverspark.com", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
-//    resortMap.put("uop",            new ResortData("uop", "The Utah Olympic Park", "http://www.imd.org/uop.html", "/images/uop.jpg", IMG_HEIGHT, 80));
     resortMap.put("WelchVillage",   new ResortData("WelchVillage", "Welch Village", null, "http://www.welchvillage.com", "/images/WelchVillage.jpg", IMG_HEIGHT, 80));
     resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", null, "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", null, "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
 
 /* - - - - - uncomment the following to run from the Internet - - - - - - */
-  final static String AMAZON_PRIVATE_IP = "172.31.0.109";//private ip PRODUCTION.  must match /etc/my.cnf
-//  final static String AMAZON_PRIVATE_IP = "172.31.59.53";  //private ip TESTING.  must match /etc/my.cnf
+//  final static String AMAZON_PRIVATE_IP = "172.31.0.109";//private ip PRODUCTION.  must match /etc/my.cnf
+  final static String AMAZON_PRIVATE_IP = "172.31.59.53";  //private ip TESTING.  must match /etc/my.cnf
 //  final static String AMAZON_PRIVATE_IP = "127.0.0.1";            //must match /etc/my.cnf
 
   final static String MYSQL_ADDRESS = AMAZON_PRIVATE_IP;  //todo get this from an environment or configuration
@@ -132,6 +128,10 @@ public class PatrolData {
       //todo do something here. besides throw a NPE later
     }
   } //end PatrolData constructor
+
+  public Connection getConnection() {
+    return connection;
+  }
 
   public static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
     Connection conn = null;
@@ -327,7 +327,9 @@ public class PatrolData {
       if (DEBUG) {
         System.out.println("-- close connection (" + localResort + "): " + Utils.getCurrentDateTimeString());
       }
-      connection.close(); //let it close in finalizer ??
+      if (connection != null) {
+        connection.close(); //let it close in finalizer ??
+      }
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Error closing connection:" + e.getMessage());
@@ -869,4 +871,80 @@ public class PatrolData {
     Utils.printToLogFile(request ,"ERROR-PatrolData(" + localResort + "): " + msg);
   }
 
+  public static boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
+    boolean validLogin = false;
+    ResultSet rs;
+//System.out.println("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
+    if (ID == null || pass == null) {
+      Utils.printToLogFile(sessionData.getRequest(), "Login Failed: either ID (" + ID + ") or Password not supplied");
+      return false;
+    }
+
+    try {
+      //noinspection unused
+      Driver drv = (Driver) Class.forName(PatrolData.JDBC_DRIVER).newInstance();
+    }
+    catch (Exception e) {
+      Utils.printToLogFile(sessionData.getRequest(), "LoginHelp: Cannot find mysql driver, reason:" + e.toString());
+      out.println("LoginHelp: Cannot find mysql driver, reason:" + e.toString());
+      return false;
+    }
+
+    if (ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && pass.equalsIgnoreCase(sessionData.getBackDoorPassword())) {
+      return true;
+    }    // Try to connect to the database
+    try {
+      // Change MyDSN, myUsername and myPassword to your specific DSN
+      Connection c = PatrolData.getConnection(resort, sessionData);
+      @SuppressWarnings("SqlNoDataSourceInspection")
+      String szQuery = "SELECT * FROM roster WHERE IDNumber = \"" + ID + "\"";
+      PreparedStatement sRost = c.prepareStatement(szQuery);
+      if (sRost == null) {
+        return false;
+      }
+
+      rs = sRost.executeQuery();
+
+      if (rs != null && rs.next()) {      //will only loop 1 time
+
+        String originalPassword = rs.getString("password");
+        String lastName = rs.getString("LastName");
+        String firstName = rs.getString("FirstName");
+        String emailAddress = rs.getString("email");
+        originalPassword = originalPassword.trim();
+        lastName = lastName.trim();
+        pass = pass.trim();
+
+        boolean hasPassword = (originalPassword.length() > 0);
+        if (hasPassword) {
+          if (originalPassword.equalsIgnoreCase(pass)) {
+            validLogin = true;
+          }
+        }
+        else {
+          if (lastName.equalsIgnoreCase(pass)) {
+            validLogin = true;
+          }
+        }
+
+        if (validLogin) {
+          Utils.printToLogFile(sessionData.getRequest(), "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
+        }
+        else {
+          Utils.printToLogFile(sessionData.getRequest(), "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "]");
+        }
+      }
+      else {
+        Utils.printToLogFile(sessionData.getRequest(), "Login Failed: memberId not found [" + ID + "]");
+      }
+
+      c.close();
+    }
+    catch (Exception e) {
+      out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
+      Utils.printToLogFile(sessionData.getRequest(), "LoginHelp. Error connecting or reading table:" + e.getMessage());
+    } //end try
+
+    return validLogin;
+  }
 }

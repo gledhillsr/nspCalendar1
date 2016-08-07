@@ -1,8 +1,10 @@
 package org.nsponline.calendar;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
 import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.store.NspSession;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 
 /**
  * @author Steve Gledhill
@@ -17,7 +20,7 @@ import java.io.PrintWriter;
  * clear cookies, and push to MonthCalendar (no longer logged in)
  */
 public class Logout extends HttpServlet {
-//todo remove me
+
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InnerLogout(request, response);
@@ -28,6 +31,12 @@ public class Logout extends HttpServlet {
     new InnerLogout(request, response);
   }
 
+  public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    new InnerLogout(request, response);
+  }
+
+
   private class InnerLogout {
     private String resort;
 
@@ -35,16 +44,29 @@ public class Logout extends HttpServlet {
       response.setContentType("text/html");
       PrintWriter out = response.getWriter();
       resort = request.getParameter("resort");
-      if (PatrolData.isValidResort(resort)) {
-        response.setContentType("text/html");
-        SessionData sessionData = new SessionData(request, out);
-        sessionData.clearLoggedInResort();
-        sessionData.clearLoggedInUserId();
-        response.setStatus(204);
+      String sessionId = request.getHeader("Authorization");
+      if(Utils.isEmpty(sessionId)) {
+        Utils.buildErrorResponse(response, "Authorization header not found");
+        return;
       }
-      else {
-        response.setStatus(400);
+      if (!PatrolData.isValidResort(resort)) {
+        Utils.buildErrorResponse(response, "Resort not found (" + resort + ")");
+        return;
       }
+      SessionData sessionData = new SessionData(request, out);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      Connection connection = patrol.getConnection();
+      NspSession nspSession = NspSession.read(connection, sessionId);
+      if (nspSession == null) {
+        Utils.buildErrorResponse(response, "Authorization not found (" + sessionId + ")");
+        return;
+      }
+      nspSession.deleteRow(connection);
+      Utils.build204Response(response);
+
+//      sessionData.clearLoggedInResort();
+//      sessionData.clearLoggedInUserId();
+      patrol.close();
     }
   }
 }

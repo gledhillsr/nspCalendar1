@@ -1,6 +1,11 @@
 package org.nsponline.calendar.misc;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Enumeration;
@@ -23,6 +28,7 @@ public final class Utils {
       "July", "August", "September", "October", "November", "December"
   };
   public static String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "error"};
+  private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
 
   private Utils() {
@@ -109,5 +115,25 @@ public final class Utils {
     // java.util.Date currentTime = new java.util.Date(year,month,date);
     Calendar cal = new GregorianCalendar(TimeZone.getDefault());
     return formatter.format(cal.getTime());
+  }
+
+  public static void build204Response(HttpServletResponse response) throws IOException {
+    response.setStatus(204);
+  }
+
+  public static void buildOkResponse(HttpServletResponse response, ObjectNode returnNode) throws IOException {
+    response.setStatus(200);
+    response.setContentType("text/json");
+    System.out.println(returnNode.toString());
+    response.getWriter().write(returnNode.toString());
+  }
+
+  public static void buildErrorResponse(HttpServletResponse response, String errString) throws IOException {
+    response.setStatus(400);
+    response.setContentType("text/json");
+    ObjectNode errorNode = nodeFactory.objectNode();
+    errorNode.put("errorMsg", errString);
+    System.out.println(errorNode.toString());
+    response.getWriter().write(errorNode.toString());
   }
 }

@@ -11,7 +11,7 @@ import java.sql.Date;
  *
  * Store all session data required to support the REST API.
  */
-public class Session {
+public class NspSession {
 
   private static final String TABLE_NAME = "session";
 
@@ -19,7 +19,7 @@ public class Session {
   static final String AUTHENTICATED_USER_ID = "authenticatedUserId";
   static final String RESORT = "resort";
   static final String SESSION_CREATE_TIME = "sessionCreateTime";
-  static final String SESSION_LAST_ACCESS_TIME = "lastSessionAccessTime";
+  static final String SESSION_LAST_ACCESS_TIME = "sessionLastAccessTime";
   static final String SESSION_IP_ADDRESS = "sessionIpAddress";
   static final String IS_DIRECTOR = "isDirector";
 
@@ -31,7 +31,7 @@ public class Session {
   String sessionIpAddress;
   boolean isDirector;
 
-  public Session(String sessionId, String authenticatedUser, String resort, Date sessionCreateTime, Date lastSessionAccessTime, String sessionIpAddress, boolean isDirector) {
+  public NspSession(String sessionId, String authenticatedUser, String resort, Date sessionCreateTime, Date lastSessionAccessTime, String sessionIpAddress, boolean isDirector) {
     this.sessionId = sessionId;
     this.authenticatedUser = authenticatedUser;
     this.resort = resort;
@@ -41,7 +41,7 @@ public class Session {
     this.isDirector = isDirector;
   }
 
-  public static Session read(Connection connection, String sessionId) {
+  public static NspSession read(Connection connection, String sessionId) {
     if (sessionId == null || sessionId.length() != 36) {
       return null;
     }
@@ -59,9 +59,9 @@ public class Session {
         Date lastSessionAccessTime = sessionResults.getDate(SESSION_LAST_ACCESS_TIME);
         String sessionIpAddress = sessionResults.getString(SESSION_IP_ADDRESS);
         boolean isDirector = sessionResults.getBoolean(IS_DIRECTOR);
-        Session session = new Session(sessionId, authenticatedUser, resort, sessionCreateTime, lastSessionAccessTime, sessionIpAddress, isDirector);
+        NspSession nspSession = new NspSession(sessionId, authenticatedUser, resort, sessionCreateTime, lastSessionAccessTime, sessionIpAddress, isDirector);
         //todo log something
-        return session;
+        return nspSession;
       }
     }
     catch (SQLException e) {
@@ -83,40 +83,74 @@ public class Session {
 
   public boolean insertRow(Connection connection) {
     @SuppressWarnings("SqlNoDataSourceInspection")
-    String str = "insert into session (sessionId, authenticatedUserId, resort, sessionCreateTime, lastSessionAccessTime, sessionIpAddress, isDirector) values (?, ?, ?, ?, ?, ?, ?)";
-    PreparedStatement insertStatement = null;
-    try {
-      insertStatement = connection.prepareStatement(str);
+    String qryString = "INSERT INTO session Values(\'" + sessionId + "', \"" +
+        authenticatedUser + "\", \"" + resort + "\", \"" + sessionCreateTime + "\", \"" + lastSessionAccessTime + "\", \"" +
+        sessionIpAddress + "\", \"" + (isDirector? 1:0) + "\")";
 
-      insertStatement.setString(1, sessionId);
-      insertStatement.setString(2, authenticatedUser);
-      insertStatement.setString(3, resort);
-      insertStatement.setDate(4, sessionCreateTime);
-      insertStatement.setDate(5, lastSessionAccessTime);
-      insertStatement.setString(6, sessionIpAddress);
-      insertStatement.setBoolean(7, isDirector);
-      ResultSet sessionResults = insertStatement.executeQuery();
-      //todo log something
-      connection.commit();
+//    String qryString = newIndividualAssignment.getInsertSQLString(sessionData);
+    System.out.println("insertRow" + qryString);
+    try {
+      PreparedStatement sAssign = connection.prepareStatement(qryString);
+      sAssign.executeUpdate();
       return true;
     }
     catch (SQLException e) {
-      e.printStackTrace();
-      //todo ...
+      System.out.println("Cannot insert session, reason:" + e.getMessage());
+      return false;
     }
-    finally {
-      if (insertStatement != null) {
-        try {
-          insertStatement.close();
-        }
-        catch (SQLException e) {
-          //todo ...
-        }
-      }
-    }
-    return false;
+//    String str = "insert into session (sessionId, authenticatedUserId, resort, sessionCreateTime, lastSessionAccessTime, sessionIpAddress, isDirector) values (?, ?, ?, ?, ?, ?, ?)";
+//    PreparedStatement insertStatement = null;
+//    try {
+//      insertStatement = connection.prepareStatement(str);
+//
+//      insertStatement.setString(1, sessionId);
+//      insertStatement.setString(2, authenticatedUser);
+//      insertStatement.setString(3, resort);
+//      insertStatement.setDate(4, sessionCreateTime);
+//      insertStatement.setDate(5, lastSessionAccessTime);
+//      insertStatement.setString(6, sessionIpAddress);
+//      insertStatement.setBoolean(7, isDirector);
+//      Boolean isResultSet = insertStatement.execute();
+//      System.out.println("isResultSet = " + isResultSet);
+//      if (isResultSet) {
+//        System.out.println("resultset=" + insertStatement.getResultSet().toString());
+//      }
+//      //todo log something
+//      connection.commit();
+//      return true;
+//    }
+//    catch (SQLException e) {
+//      e.printStackTrace();
+//      //todo ...
+//    }
+//    finally {
+//      if (insertStatement != null) {
+//        try {
+//          insertStatement.close();
+//        }
+//        catch (SQLException e) {
+//          e.printStackTrace();
+//          //todo ...
+//        }
+//      }
+//    }
+//    return false;
   }
 
+  public boolean deleteRow(Connection connection) {
+    @SuppressWarnings("SqlNoDataSourceInspection")
+    String qryString = "DELETE FROM session WHERE " + SESSION_ID + " = '" + sessionId + "'";
+    System.out.println("deleteRow" + qryString);
+    try {
+      PreparedStatement sAssign = connection.prepareStatement(qryString);
+      sAssign.executeUpdate();
+      return true;
+    }
+    catch (SQLException e) {
+      System.out.println("Cannot insert session, reason:" + e.getMessage());
+      return false;
+    }
+  }
 
   public String getAuthenticatedUser() {
     return authenticatedUser;

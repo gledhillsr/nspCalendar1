@@ -12,9 +12,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.Date;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.store.NspSession;
+import org.nsponline.calendar.store.Roster;
+
+import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
 
 /**
  * @author Steve Gledhill
@@ -94,36 +101,52 @@ System.out.println("doPost");
       String resort = payload.getResort();
       String password = payload.getPassword();
       String patrollerId = payload.getPatrollerId();
+
       if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
-        buildErrorResponse(response, sessionData, "Resort not found (" + resort + ")");
+        buildErrorResponse(response, "Resort not found (" + resort + ")");
         return;
       }
       if (Utils.isEmpty(patrollerId) || Utils.isEmpty(password)) {
-        buildErrorResponse(response, sessionData, "Missing patrollerId or password");
+        buildErrorResponse(response, "Missing patrollerId or password");
         return;
       }
 
+//      ValidateCredentials credentials = new ValidateCredentials(sessionData, resort, patrollerId, password);
+      if (PatrolData.isValidLogin(out, resort, patrollerId, password, sessionData)) {   //does password match?
+        sessionData.setLoggedInUserId(patrollerId);
+        sessionData.setLoggedInResort(resort);
+      }
+      else {
+        buildErrorResponse(response, "Unknown patrollerId or password");
+        return;
+      }
+//      resort = sessionData.getLoggedInResort();
+//      patrollerId = sessionData.getLoggedInUserId();    //editor's ID
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      Roster patroller = patrol.getMemberByID(patrollerId); //ID from cookie
+      boolean isDirector = patroller.isDirector();
+
+
+
       String sessionId = java.util.UUID.randomUUID().toString();
-      String sessionIdKey = "nspSessionId";
-      buildOkResponse(response, sessionData, sessionIdKey, sessionId);
-    }
+//NspSession(String sessionId, String authenticatedUser, String resort, Date sessionCreateTime, Date lastSessionAccessTime, String sessionIpAddress, boolean isDirector) {
+      java.util.Calendar calendar = java.util.Calendar.getInstance();
 
-    private void buildOkResponse(HttpServletResponse response, SessionData sessionData, String sessionIdKey, String sessionId) throws IOException {
-      response.setStatus(200);
-      response.setContentType("text/json");
-      ObjectNode returnNode = nodeFactory.objectNode();
-      returnNode.put(sessionIdKey, sessionId);
-      logger(sessionData, returnNode.toString());
-      response.getWriter().write(returnNode.toString());
-    }
+      Date sessionCreateTime = new Date(calendar.getTimeInMillis());
+      String fromIp = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
 
-    private void buildErrorResponse(HttpServletResponse response, SessionData sessionData, String errString) throws IOException {
-      response.setStatus(400);
-      response.setContentType("text/json");
-      ObjectNode errorNode = nodeFactory.objectNode();
-      errorNode.put("errorMsg", errString);
-      logger(sessionData, errorNode.toString());
-      response.getWriter().write(errorNode.toString());
+      NspSession nspSession = new NspSession(sessionId, patrollerId, resort, sessionCreateTime, sessionCreateTime, fromIp, isDirector);
+      Connection connection = patrol.getConnection();
+      if (connection != null && nspSession.insertRow(connection)) {
+        ObjectNode returnNode = nodeFactory.objectNode();
+        returnNode.put("nspSessionId", sessionId);
+
+        Utils.buildOkResponse(response, returnNode);
+      }
+      else {
+        Utils.buildErrorResponse(response, "Internal error");
+      }
+      patrol.close();
     }
 
     private void logger(SessionData sessionData, String str) {

@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
   @SuppressWarnings("FieldCanBeLocal")
   private String resortParameter;
 
@@ -25,8 +25,18 @@ public class ValidateCredentials {
     this.resortParameter = request.getParameter("resort");
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
+    xyzzy(sessionData, response, parent, idParameter, idLoggedIn);
+  }
+
+  public ValidateCredentials(SessionData sessionData, String resort, String id, String password) {
+    this.resortParameter = resort;
+    String idParameter = id; //NOT REQUIRED (keep it that way)
+    xyzzy(sessionData, null, null, idParameter, null);
+  }
+
+  private void xyzzy(SessionData sessionData, HttpServletResponse response, String parent, String idParameter, String idLoggedIn) {
     debugOut("parameters  idParameter=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
-    debugOut("sessionData idLoggedIn=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
+//    debugOut("sessionData idLoggedIn=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
     if (Utils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData)) {
       sessionData.setLoggedInUserId(idParameter);
       sessionData.setLoggedInResort(resortParameter);
@@ -38,10 +48,9 @@ public class ValidateCredentials {
         sessionData.setLoggedInResort(null);
         sessionData.setLoggedInUserId(null);
         debugOut("RESETTING logged in resort/userId to null");
-        String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resortParameter + "&NSPgoto=" + parent;
-        debugOut("calling sendRedirect(" + newLoc + ")");
         if (Utils.isNotEmpty(parent)) {
-//does not work!    response.sendRedirect(URLEncoder.encode(newLoc));
+          String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resortParameter + "&NSPgoto=" + parent;
+          debugOut("calling sendRedirect(" + newLoc + ")");
           response.sendRedirect(newLoc);
         }
       }

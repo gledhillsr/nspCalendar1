@@ -61,7 +61,7 @@ public class LoginHelp extends HttpServlet {
       sessionData = new SessionData(request, out);
       PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
-      if (isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
+      if (PatrolData.isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
         sessionData.setLoggedInUserId(id);
         sessionData.setLoggedInResort(resort);
         if (Utils.isEmpty(szParent)) {
@@ -163,83 +163,6 @@ public class LoginHelp extends HttpServlet {
         }
       }
       return 1; //member not found
-    }
-
-    private boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
-      boolean validLogin = false;
-      ResultSet rs;
-//System.out.println("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
-      if (ID == null || pass == null) {
-        Utils.printToLogFile(sessionData.getRequest(), "Login Failed: either ID (" + ID + ") or Password not supplied");
-        return false;
-      }
-
-      try {
-        //noinspection unused
-        Driver drv = (Driver) Class.forName(PatrolData.JDBC_DRIVER).newInstance();
-      }
-      catch (Exception e) {
-        Utils.printToLogFile(sessionData.getRequest(), "LoginHelp: Cannot find mysql driver, reason:" + e.toString());
-        out.println("LoginHelp: Cannot find mysql driver, reason:" + e.toString());
-        return false;
-      }
-
-      if (ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && pass.equalsIgnoreCase(sessionData.getBackDoorPassword())) {
-        return true;
-      }    // Try to connect to the database
-      try {
-        // Change MyDSN, myUsername and myPassword to your specific DSN
-        Connection c = PatrolData.getConnection(resort, sessionData);
-        @SuppressWarnings("SqlNoDataSourceInspection")
-        String szQuery = "SELECT * FROM roster WHERE IDNumber = \"" + ID + "\"";
-        PreparedStatement sRost = c.prepareStatement(szQuery);
-        if (sRost == null) {
-          return false;
-        }
-
-        rs = sRost.executeQuery();
-
-        if (rs != null && rs.next()) {      //will only loop 1 time
-
-          String originalPassword = rs.getString("password");
-          String lastName = rs.getString("LastName");
-          String firstName = rs.getString("FirstName");
-          String emailAddress = rs.getString("email");
-          originalPassword = originalPassword.trim();
-          lastName = lastName.trim();
-          pass = pass.trim();
-
-          boolean hasPassword = (originalPassword.length() > 0);
-          if (hasPassword) {
-            if (originalPassword.equalsIgnoreCase(pass)) {
-              validLogin = true;
-            }
-          }
-          else {
-            if (lastName.equalsIgnoreCase(pass)) {
-              validLogin = true;
-            }
-          }
-
-          if (validLogin) {
-            Utils.printToLogFile(sessionData.getRequest(), "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
-          }
-          else {
-            Utils.printToLogFile(sessionData.getRequest(), "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "]");
-          }
-        }
-        else {
-          Utils.printToLogFile(sessionData.getRequest(), "Login Failed: memberId not found [" + ID + "]");
-        }
-
-        c.close();
-      }
-      catch (Exception e) {
-        out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-        Utils.printToLogFile(sessionData.getRequest(), "LoginHelp. Error connecting or reading table:" + e.getMessage());
-      } //end try
-
-      return validLogin;
     }
 
     public void printTop(PrintWriter out) {
