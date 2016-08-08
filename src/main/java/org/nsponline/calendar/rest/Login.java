@@ -1,4 +1,4 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nsponline.calendar.misc.PatrolData;
@@ -17,7 +17,6 @@ import java.sql.Date;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.ValidateCredentials;
 import org.nsponline.calendar.store.NspSession;
 import org.nsponline.calendar.store.Roster;
 

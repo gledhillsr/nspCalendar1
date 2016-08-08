@@ -1,4 +1,4 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.PatrolData;

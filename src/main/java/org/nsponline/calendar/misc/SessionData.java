@@ -13,8 +13,8 @@ import java.util.Properties;
 
 public class SessionData {
 
-  private final static Boolean DEBUG = true;
-  private final static Boolean DEBUG_VERBOSE = true;
+  private final static Boolean DEBUG = false;
+  private final static Boolean DEBUG_VERBOSE = false;
 
   private final static String PROPERTIES_FILE = "/var/lib/tomcat7/webapps/credentials.properties";
   //these fields should be defined in credentials.properties

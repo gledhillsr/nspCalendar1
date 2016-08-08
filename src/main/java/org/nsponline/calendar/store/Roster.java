@@ -1,6 +1,8 @@
 package org.nsponline.calendar.store;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.misc.Utils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
@@ -1126,5 +1128,41 @@ public class Roster {
   public String toString() {
     return memberData[ID_NUM] + "  " + memberData[FIRST] + " " + memberData[LAST];
   }
+
+  public ObjectNode toNode() {
+    ObjectNode returnNode = Utils.nodeFactory.objectNode();
+    returnNode.put("IDNumber", getID());
+    setIfNotEmpty(returnNode, "ClassificationCode", getClassification());
+    setIfNotEmpty(returnNode, "ClassificationCode", getClassification());
+    setIfNotEmpty(returnNode, "LastName", getLast());
+    setIfNotEmpty(returnNode, "FirstName", getFirst());
+    setIfNotEmpty(returnNode, "Spouse", getSpouse());
+    setIfNotEmpty(returnNode, "Address", getAddress());
+    setIfNotEmpty(returnNode, "City", getCity());
+    setIfNotEmpty(returnNode, "State", getState());
+    setIfNotEmpty(returnNode, "ZipCode", getZipCode());
+    setIfNotEmpty(returnNode, "HomePhone", getHomePhone());
+    setIfNotEmpty(returnNode, "WorkPhone", getWorkPhone());
+    setIfNotEmpty(returnNode, "CellPhone", getCellPhone());
+    setIfNotEmpty(returnNode, "Pager", getPager());
+    setIfNotEmpty(returnNode, "email", getEmailAddress());
+    setIfNotEmpty(returnNode, "EmergencyCallUp", getEmergency());
+    setIfNotEmpty(returnNode, "NightSubsitute", getSub());
+    setIfNotEmpty(returnNode, "Commitment", getCommitment());
+    setIfNotEmpty(returnNode, "Instructor", getInstructor());
+    setIfNotEmpty(returnNode, "Director", getDirector());
+    setIfNotEmpty(returnNode, "teamLead", getTeamLead());
+    setIfNotEmpty(returnNode, "mentoring", getMentoring());
+    setIfNotEmpty(returnNode, "lastUpdated", getLastUpdated());
+
+    return returnNode;
+  }
+
+  private void setIfNotEmpty(ObjectNode returnNode, String key, String value) {
+    if (Utils.isNotEmpty(value)) {
+      returnNode.put(key, value);
+    }
+  }
+
 } //end MemberData class
 

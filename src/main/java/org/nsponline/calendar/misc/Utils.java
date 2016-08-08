@@ -28,7 +28,7 @@ public final class Utils {
       "July", "August", "September", "October", "November", "December"
   };
   public static String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "error"};
-  private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+  public static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
 
   private Utils() {
