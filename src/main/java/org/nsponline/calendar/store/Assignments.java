@@ -1,5 +1,7 @@
 package org.nsponline.calendar.store;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
 import org.nsponline.calendar.misc.Utils;
@@ -396,6 +398,29 @@ public class Assignments {
   public void copyAssignedPatrollers(Assignments prevAssignment) {
     for (int i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       patrollerID[i] = (prevAssignment.getPosID(i));
+    }
+  }
+
+  public ObjectNode toNode() {
+    ObjectNode returnNode = Utils.nodeFactory.objectNode();
+
+    returnNode.put("Date", szDate);
+    returnNode.put("StartTime", szStartTime);
+    returnNode.put("EndTime", szEndTime);
+    setIfNotEmpty(returnNode, "EventName", szEventName);
+    returnNode.put("ShiftType", String.valueOf(type));
+    returnNode.put("Count", String.valueOf(count));
+    ArrayNode patrollerIds = Utils.nodeFactory.arrayNode();
+    for (int i=0; i < count; ++i) {
+      patrollerIds.add(patrollerID[i]);
+    }
+    returnNode.set("patrollerIds", patrollerIds);
+    return returnNode;
+  }
+
+  private void setIfNotEmpty(ObjectNode returnNode, String key, String value) {
+    if (Utils.isNotEmpty(value)) {
+      returnNode.put(key, value);
     }
   }
 }

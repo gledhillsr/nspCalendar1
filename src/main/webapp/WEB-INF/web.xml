@@ -91,6 +91,10 @@
         <servlet-class>org.nsponline.calendar.rest.User</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>UserAssignments</servlet-name>
+        <servlet-class>org.nsponline.calendar.rest.UserAssignments</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Logout</servlet-name>
         <servlet-class>org.nsponline.calendar.rest.Logout</servlet-class>
     </servlet>
@@ -119,6 +123,10 @@
     <servlet-mapping>
         <servlet-name>User</servlet-name>
         <url-pattern>/user</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UserAssignments</servlet-name>
+        <url-pattern>/user/assignments</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Logout</servlet-name>
