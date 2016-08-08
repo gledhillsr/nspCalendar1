@@ -98,7 +98,7 @@ public final class Utils {
 //        agent = split[0];
 //      }
     }
-    System.out.print("[" + getCurrentDateTimeString() + "] [" + fromIp + "] ");
+    log("[" + getCurrentDateTimeString() + "] [" + fromIp + "] ");
   }
 
   public static void printToLogFile(HttpServletRequest request, String msg) {
@@ -122,18 +122,21 @@ public final class Utils {
   }
 
   public static void buildOkResponse(HttpServletResponse response, ObjectNode returnNode) throws IOException {
+    log("Response OK: " + returnNode.toString());
     response.setStatus(200);
-    response.setContentType("text/json");
-    System.out.println(returnNode.toString());
+    response.setContentType("application/json");
+    log(returnNode.toString());
     response.getWriter().write(returnNode.toString());
   }
 
-  public static void buildErrorResponse(HttpServletResponse response, String errString) throws IOException {
-    response.setStatus(400);
-    response.setContentType("text/json");
-    ObjectNode errorNode = nodeFactory.objectNode();
-    errorNode.put("errorMsg", errString);
-    System.out.println(errorNode.toString());
-    response.getWriter().write(errorNode.toString());
+  public static void buildErrorResponse(HttpServletResponse response, int status, String errString) throws IOException {
+    log("Response Error: " + status + ": " + errString);
+    response.setStatus(status);
+    response.addHeader("X-Reason", errString);
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  public static void log(String msg) {
+    System.out.println(msg);
   }
 }

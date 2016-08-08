@@ -1,6 +1,5 @@
 package org.nsponline.calendar.rest;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
 import org.nsponline.calendar.misc.Utils;
@@ -46,11 +45,11 @@ public class Logout extends HttpServlet {
       resort = request.getParameter("resort");
       String sessionId = request.getHeader("Authorization");
       if(Utils.isEmpty(sessionId)) {
-        Utils.buildErrorResponse(response, "Authorization header not found");
+        Utils.buildErrorResponse(response, 400, "Authorization header not found");
         return;
       }
       if (!PatrolData.isValidResort(resort)) {
-        Utils.buildErrorResponse(response, "Resort not found (" + resort + ")");
+        Utils.buildErrorResponse(response, 400, "Resort not found (" + resort + ")");
         return;
       }
       SessionData sessionData = new SessionData(request, out);
@@ -58,7 +57,7 @@ public class Logout extends HttpServlet {
       Connection connection = patrol.getConnection();
       NspSession nspSession = NspSession.read(connection, sessionId);
       if (nspSession == null) {
-        Utils.buildErrorResponse(response, "Authorization not found (" + sessionId + ")");
+        Utils.buildErrorResponse(response, 400, "Authorization not found (" + sessionId + ")");
         return;
       }
       nspSession.deleteRow(connection);

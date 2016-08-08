@@ -43,11 +43,11 @@ public class UserAssignments extends HttpServlet {
       resort = request.getParameter("resort");
       String sessionId = request.getHeader("Authorization");
       if(Utils.isEmpty(sessionId)) {
-        Utils.buildErrorResponse(response, "Authorization header not found");
+        Utils.buildErrorResponse(response, 400, "Authorization header not found");
         return;
       }
       if (!PatrolData.isValidResort(resort)) {
-        Utils.buildErrorResponse(response, "Resort not found (" + resort + ")");
+        Utils.buildErrorResponse(response, 400, "Resort not found (" + resort + ")");
         return;
       }
       SessionData sessionData = new SessionData(request, out);
@@ -55,13 +55,13 @@ public class UserAssignments extends HttpServlet {
       Connection connection = patrol.getConnection();
       NspSession nspSession = NspSession.read(connection, sessionId);
       if (nspSession == null) {
-        Utils.buildErrorResponse(response, "Authorization not found (" + sessionId + ")");
+        Utils.buildErrorResponse(response, 400, "Authorization not found (" + sessionId + ")");
         return;
       }
       String authenticatedUserId = nspSession.getAuthenticatedUser();
       Roster patroller = patrol.getMemberByID(authenticatedUserId);
       if (patroller == null) {
-        Utils.buildErrorResponse(response, "user not found (" + authenticatedUserId + ")");
+        Utils.buildErrorResponse(response, 400, "user not found (" + authenticatedUserId + ")");
         return;
       }
       //everything is OK
