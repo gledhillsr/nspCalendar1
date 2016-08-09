@@ -22,15 +22,17 @@ import java.sql.Date;
 import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
 
 /**
- * @author Steve Gledhill
-
- * POST
+ * get an Authorization Token for the specified resort.  Given a valid userId/password
+ *
+ * @POST
  *    http:/nsponline.org/login?resort=Sample
  * @Header Content-Type: application/json
- * @Body {
- *    "id": "123456",
- *    "password": "password"
- * }
+ * @Body
+ *    {
+ *      "id": "123456",
+ *      "password": "password"
+ *    }
+ *
  * @Response 200 - OK
  *    Content-Type: application/json
  *    {
@@ -41,27 +43,23 @@ import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
  *    X-Reason: "Missing id or password"
  * @Response 401 - Unauthorized
  *    X-Reason: "no matching id/password for resort: Sample"
+ *
+ * @author Steve Gledhill
  */
 
-//@Path("/")
-//@Produces(MediaType.APPLICATION_JSON)
-//@Consumes(MediaType.APPLICATION_JSON)
-@SuppressWarnings("JavaDoc")
 public class Login extends HttpServlet {
 
   private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
-  //  @GET
-//  @Timed(name = "PersonResource.getCurrentPerson", absolute = true)
-//  @Path("CURRENT")
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    ProcessLogin(request, response);
+    doLogin(request, response);
   }
 
-  private void ProcessLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  private void doLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     PrintWriter out = response.getWriter();
     SessionData sessionData = new SessionData(request, out);
+    response.setContentType("application/json");
 
     ObjectMapper objectMapper = new ObjectMapper();
     StringBuilder jsonBuffer = new StringBuilder();
@@ -124,7 +122,7 @@ public class Login extends HttpServlet {
     }
     else {
       String errMsg = (connection == null) ? "Could not get DB connection" : "Row insertion failed";
-      Utils.buildErrorResponse(response, 400, "Internal error: " + errMsg);
+      Utils.buildErrorResponse(response, 500, "Internal error: " + errMsg);
     }
     patrol.close();
   }
