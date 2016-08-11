@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * If a field is empty, then it will not be represented in the body
  *
  * @GET
- *     http:/nsponline.org/user/assignments?resort=Sample
+ *     http:/nsponline.org/assignments?resort=Sample
  * @Header Authorization: [authToken]
  *
  * @Response 200 - OK
@@ -62,21 +62,21 @@ import java.util.ArrayList;
  *
  * @author Steve Gledhill
  */
-public class UserAssignments extends HttpServlet {
+public class PatrolAssignments extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    getUserAssignments(request, response);
+    getPatrolAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    getUserAssignments(request, response);
+    getPatrolAssignments(request, response);
   }
 
 
   @SuppressWarnings("Duplicates")
-  private void getUserAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  private void getPatrolAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     response.setContentType("application/json");
     PrintWriter out = response.getWriter();
     String resort = request.getParameter("resort");
@@ -96,10 +96,12 @@ public class UserAssignments extends HttpServlet {
       Utils.buildErrorResponse(response, 400, "Resort not found (" + resort + ")");
       return;
     }
-    //if no year, do everything
-    //if yea, them month must exist
-    if ((year == 0 && month != 0) || (year != 0 && month == 0)) {
-      Utils.buildErrorResponse(response, 400, "required 'year' (" + szYear + ") and 'month' (" + szMonth + ")");
+    if (year == 0) {
+      Utils.buildErrorResponse(response, 400, "Invalid 'year' (" + szYear + ")");
+      return;
+    }
+    if (month == 0) {
+      Utils.buildErrorResponse(response, 400, "Invalid 'month' (" + szMonth+ ")");
       return;
     }
 
@@ -118,21 +120,17 @@ public class UserAssignments extends HttpServlet {
       return;
     }
 
-    //everything is OK, do the real work
+    //state is OK.  Do the real work
     ObjectNode returnNode = Utils.nodeFactory.objectNode();
-    returnNode.put("patrollerId", authenticatedUserId);
     returnNode.put("resort", resort);
 
     ArrayNode assignmentsArrayNode = Utils.nodeFactory.arrayNode();
     ArrayList<Assignments> assignmentsList;
-    if (year == 0) {
-      assignmentsList = patrol.readAllSortedAssignments(authenticatedUserId);
-    }
-    else if (day != 0) {
-      assignmentsList = patrol.readSortedAssignments(authenticatedUserId, year, month, day);
+    if (day != 0) {
+      assignmentsList = patrol.readSortedAssignments(year, month, day);
     }
     else {
-      assignmentsList = patrol.readSortedAssignments(authenticatedUserId, year, month);
+      assignmentsList = patrol.readSortedAssignments(year, month);
     }
     for (Assignments ns : assignmentsList) {
       assignmentsArrayNode.add(ns.toNode());

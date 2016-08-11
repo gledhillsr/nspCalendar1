@@ -95,6 +95,10 @@
         <servlet-class>org.nsponline.calendar.rest.UserAssignments</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>PatrolAssignments</servlet-name>
+        <servlet-class>org.nsponline.calendar.rest.PatrolAssignments</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>Logout</servlet-name>
         <servlet-class>org.nsponline.calendar.rest.Logout</servlet-class>
     </servlet>
@@ -127,6 +131,10 @@
     <servlet-mapping>
         <servlet-name>UserAssignments</servlet-name>
         <url-pattern>/user/assignments</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PatrolAssignments</servlet-name>
+        <url-pattern>/patrol/assignments</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Logout</servlet-name>

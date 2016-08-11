@@ -139,4 +139,16 @@ public final class Utils {
   public static void log(String msg) {
     System.out.println(msg);
   }
+
+  public static int convertToInt(String szNumber) {
+    if (isEmpty(szNumber)) {
+      return 0;
+    }
+    try {
+      return Integer.valueOf(szNumber);
+    }
+    catch (NumberFormatException e) {
+      return 0;
+    }
+  }
 }
