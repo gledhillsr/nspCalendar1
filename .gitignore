@@ -5,6 +5,7 @@
 *.war
 *.ear
 *.iws
+.DS_Store
 credentials.properties
 .idea/
 target/
