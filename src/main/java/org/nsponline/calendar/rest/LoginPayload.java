@@ -7,24 +7,19 @@ package org.nsponline.calendar.rest;
 @SuppressWarnings("WeakerAccess")
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginPayload {
-  public String patrollerId;
+  public String id;
   public String resort;
   public String password;
 
   public LoginPayload() { }
 
   public String toString() {
-    return "patrollerId: [" + patrollerId + "], resort: [" + resort + "], password: [" + password + "]";
+    return "id: [" + id + "], password: [" + password + "]";
   }
 
-  @com.fasterxml.jackson.annotation.JsonProperty("resort")
-  String getResort() {
-    return resort;
-  }
-
-  @com.fasterxml.jackson.annotation.JsonProperty("patrollerId")
-  String getPatrollerId() {
-    return patrollerId;
+  @com.fasterxml.jackson.annotation.JsonProperty("id")
+  String getId() {
+    return id;
   }
 
   @com.fasterxml.jackson.annotation.JsonProperty("password")

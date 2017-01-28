@@ -1,6 +1,5 @@
 package org.nsponline.calendar.rest;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
 import org.nsponline.calendar.misc.Utils;
@@ -15,59 +14,54 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 
 /**
- * @author Steve Gledhill
+ * discard a Authorization Token for the specified resort.
  *
- * clear cookies, and push to MonthCalendar (no longer logged in)
+ * @DELETE
+ *     http:/nsponline.org/logout?resort=Sample
+ * @Header Authorization: [authToken]
+ *
+ * @Response 204 - OK, No Content
+ * @Response 400 - Bad Request
+ *     X-Reason: "Resort not found"
+ *     X-Reason: "Authorization header not found"
+ * @Response 401 - Unauthorized
+ *     X-Reason: "Invalid Authorization"
+ *
+ * @author Steve Gledhill
  */
 public class Logout extends HttpServlet {
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    new InnerLogout(request, response);
-  }
-
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    new InnerLogout(request, response);
-  }
-
   public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    new InnerLogout(request, response);
+    doLogout(request, response);
   }
 
-
-  private class InnerLogout {
-    private String resort;
-
-    InnerLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-      response.setContentType("text/html");
-      PrintWriter out = response.getWriter();
-      resort = request.getParameter("resort");
-      String sessionId = request.getHeader("Authorization");
-      if(Utils.isEmpty(sessionId)) {
-        Utils.buildErrorResponse(response, "Authorization header not found");
-        return;
-      }
-      if (!PatrolData.isValidResort(resort)) {
-        Utils.buildErrorResponse(response, "Resort not found (" + resort + ")");
-        return;
-      }
-      SessionData sessionData = new SessionData(request, out);
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-      Connection connection = patrol.getConnection();
-      NspSession nspSession = NspSession.read(connection, sessionId);
-      if (nspSession == null) {
-        Utils.buildErrorResponse(response, "Authorization not found (" + sessionId + ")");
-        return;
-      }
-      nspSession.deleteRow(connection);
-      Utils.build204Response(response);
-
-//      sessionData.clearLoggedInResort();
-//      sessionData.clearLoggedInUserId();
-      patrol.close();
+  private void doLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    String resort;
+    response.setContentType("text/html");
+    PrintWriter out = response.getWriter();
+    resort = request.getParameter("resort");
+    String sessionId = request.getHeader("Authorization");
+    if (Utils.isEmpty(sessionId)) {
+      Utils.buildErrorResponse(response, 400, "Authorization header not found");
+      return;
     }
+    if (!PatrolData.isValidResort(resort)) {
+      Utils.buildErrorResponse(response, 400, "Resort not found (" + resort + ")");
+      return;
+    }
+    SessionData sessionData = new SessionData(request, out);
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+    Connection connection = patrol.getConnection();
+    NspSession nspSession = NspSession.read(connection, sessionId);
+    if (nspSession == null) {
+      Utils.buildErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
+      return;
+    }
+    nspSession.deleteRow(connection);
+    Utils.build204Response(response);
+
+    patrol.close();
   }
 }
 

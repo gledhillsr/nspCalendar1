@@ -804,11 +804,11 @@ public class PatrolData {
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 //      int cnt = 1;
       while (assignmentResults.next()) {
-        Assignments ns = new Assignments();
-        ns.read(sessionData, assignmentResults);
-        if (ns.includesPatroller(patrollerId)) {
+        Assignments assignments = new Assignments();
+        assignments.read(sessionData, assignmentResults);
+        if (assignments.includesPatroller(patrollerId)) {
 //          logger("(" + (cnt++) + ") NextAssignment-" + ns.toString());
-          monthAssignments.add(ns);
+          monthAssignments.add(assignments);
         }
       }
     }
@@ -816,6 +816,26 @@ public class PatrolData {
       System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
     } //end try
     return monthAssignments;
+  }
+
+  public ArrayList<Assignments> readSortedAssignments(String patrollerId, int year, int month) {
+    ArrayList<Assignments> unFilteredAssignments = readSortedAssignments(year, month);
+    return filterAssignments(patrollerId, unFilteredAssignments);
+  }
+
+  public ArrayList<Assignments> readSortedAssignments(String patrollerId, int year, int month, int day) {
+    ArrayList<Assignments> unFilteredAssignments = readSortedAssignments(year, month, day);
+    return filterAssignments(patrollerId, unFilteredAssignments);
+  }
+
+  private ArrayList<Assignments> filterAssignments(String patrollerId, ArrayList<Assignments> unFilteredAssignments) {
+    ArrayList<Assignments> filteredAssignments = new ArrayList<Assignments>();
+    for (Assignments eachAssignment : unFilteredAssignments) {
+      if (eachAssignment.includesPatroller(patrollerId)) {
+        filteredAssignments.add(eachAssignment);
+      }
+    }
+    return filteredAssignments;
   }
 
   public ArrayList<Assignments> readSortedAssignments(int year, int month) {
