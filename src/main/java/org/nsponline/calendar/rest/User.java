@@ -19,25 +19,36 @@ import java.sql.Connection;
  * If a field is empty, then it will not be represented in the body
  *
  * @GET
- *     http:/nsponline.org/user?resort=Sample
+ *     http:/nsponline.org/user?
+ *      resort=Sample   (required)
  * @Header Authorization: [authToken]
  *
  * @Response 200 - OK
  * @Header Content-Type - application/json
  * @Body
- *     {
- *       "IDNumber": "123456",
- *       "ClassificationCode": "SR",
- *       "LastName": "Director",
- *       "FirstName": "Joe",
- *       "email": "JCool@gledhills.com",
- *       "Commitment": "2",
- *       "Instructor": "0",
- *       "Director": "yes",
- *       "teamLead": "0",
- *       "mentoring": "0",
- *       "lastUpdated": "2015-10-04"
- *     }
+ *   {
+ *     "IDNumber": "192443",
+ *     "ClassificationCode": "SR",
+ *     "LastName": "Gledhill",
+ *     "FirstName": "Steve",
+ *     "Spouse": "Nancy",
+ *     "Address": "11532 Cherry Hill Drive",
+ *     "City": "Sandy",
+ *     "State": "UT",
+ *     "ZipCode": "84094",
+ *     "HomePhone": "(801) 571-7716",
+ *     "CellPhone": "(801) 209-5974",
+ *     "Pager": "none",
+ *     "email": "steve@gledhills.com",
+ *     "EmergencyCallUp": "both",
+ *     "NightSubsitute": "yes",
+ *     "Commitment": "2",
+ *     "Instructor": "2",
+ *     "Director": "yesEmail",
+ *     "teamLead": "1",
+ *     "mentoring": "0",
+ *     "lastUpdated": "2016-10-16"
+ *   }
  * @Response 400 - Bad Request
  *     X-Reason: "Resort not found"
  *     X-Reason: "Authorization header not found"
@@ -46,14 +57,11 @@ import java.sql.Connection;
  *
  * @author Steve Gledhill
  */
+@SuppressWarnings("JavaDoc")
 public class User extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    new InnerUser(request, response);
-  }
-
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    System.out.println("ZZZ new Rest API GET: /user?resort=" + request.getParameter("resort"));
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     new InnerUser(request, response);
   }

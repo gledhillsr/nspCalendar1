@@ -13,21 +13,19 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance"})
 public class PatrolData {
-  final static boolean DEBUG = false;
+  private final static boolean DEBUG = false;
 
-  //  final static String JDBC_DRIVER = "org.gjt.mm.mysql.Driver"; //todo change July 32 2015
-  public final static String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-  public final static String newShiftStyle = "--New Shift Style--";
+  /* - - - - - uncomment the following to run from the Internet - - - - - - */
+  private final static String AMAZON_PRIVATE_IP = "172.31.0.109";//private ip PRODUCTION.  must match /etc/my.cnf
+//  final static String AMAZON_PRIVATE_IP = "172.31.59.53";  //private ip TESTING.  must match /etc/my.cnf
+//  final static String AMAZON_PRIVATE_IP = "127.0.0.1";            //must match /etc/my.cnf
 
-  // create a Mountain Standard Time time zone
-//  final static String[] ids = TimeZone.getAvailableIDs(-7 * 60 * 60 * 1000);
-//  final static SimpleTimeZone MDT = new SimpleTimeZone(-7 * 60 * 60 * 1000, ids[0]);
-  public final static String NEW_SHIFT_STYLE = "--New Shift Style--";
-  // set up rules for daylight savings time
-//  static {
-//    MDT.setStartRule(Calendar.APRIL, 1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
-//    MDT.setEndRule(Calendar.OCTOBER, -1, Calendar.SUNDAY, 2 * 60 * 60 * 1000);
-//  }
+  private final static String MYSQL_ADDRESS = AMAZON_PRIVATE_IP;  //todo get this from an environment or configuration
+
+  // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****
+  private final static String backDoorFakeFirstName = "System";
+  private final static String backDoorFakeLastName = "Administrator";
+  private final static String backDoorEmail = "Steve@Gledhills.com";
 
   static public HashMap<String, ResortData> resortMap = new HashMap<String, ResortData>();
   static private final int IMG_HEIGHT = 80;
@@ -76,18 +74,12 @@ public class PatrolData {
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", null, "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
 
-/* - - - - - uncomment the following to run from the Internet - - - - - - */
-  final static String AMAZON_PRIVATE_IP = "172.31.0.109";//private ip PRODUCTION.  must match /etc/my.cnf
-//  final static String AMAZON_PRIVATE_IP = "172.31.59.53";  //private ip TESTING.  must match /etc/my.cnf
-//  final static String AMAZON_PRIVATE_IP = "127.0.0.1";            //must match /etc/my.cnf
+  //  final static String JDBC_DRIVER = "org.gjt.mm.mysql.Driver"; //todo change July 32 2015
+  private final static String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+  public final static String newShiftStyle = "--New Shift Style--";
 
-  final static String MYSQL_ADDRESS = AMAZON_PRIVATE_IP;  //todo get this from an environment or configuration
-/*- - - - - end local declarations - - - - - -*/
-
-  // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****
-  final static String backDoorFakeFirstName = "System";
-  final static String backDoorFakeLastName = "Administrator";
-  final static String backDoorEmail = "Steve@Gledhills.com";
+  // create a Mountain Standard Time time zone
+  public final static String NEW_SHIFT_STYLE = "--New Shift Style--";
 
   public final static int MAX_PATROLLERS = 400; //todo hack fix me
   public final static String SERVLET_URL = "/calendar-1/";
@@ -97,11 +89,10 @@ public class PatrolData {
 
   //all the folowing instance variables must be initialized in the constructor
   //  private Connection connection;
-  Connection connection;
+  private Connection connection;
   private ResultSet rosterResults;
   private ResultSet assignmentResults;
   private PreparedStatement shiftStatement;
-  private ResultSet shiftResults;
   private boolean fetchFullData;
   private String localResort;
   private SessionData sessionData;
@@ -111,7 +102,6 @@ public class PatrolData {
     rosterResults = null;
     assignmentResults = null;
     shiftStatement = null;
-    shiftResults = null;
     localResort = myResort;
     fetchFullData = readAllData;
 
@@ -219,7 +209,7 @@ public class PatrolData {
   public void resetShiftDefinitions() {
     try {
       shiftStatement = connection.prepareStatement("SELECT * FROM shiftdefinitions ORDER BY \"" + ShiftDefinitions.tags[0] + "\""); //sort by default key
-      shiftResults = shiftStatement.executeQuery();
+      shiftStatement.executeQuery();  //todo ignore return ???
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Error reseting Shifts table query:" + e.getMessage());
@@ -382,6 +372,7 @@ public class PatrolData {
       while (rosterResults.next()) {
         int id = rosterResults.getInt("IDNumber");
         String str1 = id + "";
+        //noinspection Duplicates
         if (str1.equals(szMemberID)) {
           member = new Roster();  //"&nbsp;" is the default
           if (fetchFullData) {
@@ -442,6 +433,7 @@ public class PatrolData {
         String str1 = rosterResults.getString("LastName").trim() + ", " +
             rosterResults.getString("FirstName").trim();
 //System.out.println("getMemberByLastNameFirstName: (" + szFullName + ") (" + str1 + ") cmp=" + str1.equals(szFullName));
+        //noinspection Duplicates
         if (str1.equals(szFullName)) {
           member = new Roster();  //"&nbsp;" is the default
           if (fetchFullData) {
@@ -704,7 +696,7 @@ public class PatrolData {
     return "Error, invalid resort (" + resort + ")";
   }
 
-  static public String getJDBC_URL(String resort) {
+  private static String getJDBC_URL(String resort) {
     String jdbcLoc = "jdbc:mysql://" + MYSQL_ADDRESS + "/";
     if (isValidResort(resort)) {
       return jdbcLoc + resort;

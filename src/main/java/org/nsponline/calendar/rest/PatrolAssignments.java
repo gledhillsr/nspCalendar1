@@ -19,18 +19,20 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
- * query the logged in patroller's information, given a resort and an Authorization Token.
- * If a field is empty, then it will not be represented in the body
+ * query the patroller's entire shift schedule for a specified year/month, and optionally a specific day
  *
  * @GET
- *     http:/nsponline.org/assignments?resort=Sample
+ *     http:/nsponline.org/patrol/assignments?
+ *      resort=Sample (required)
+ *      year=2017     (required)
+ *      month=1       (required,  1 is January)
+ *      day=3         (optional)
  * @Header Authorization: [authToken]
  *
  * @Response 200 - OK
  * @Header Content-Type - application/json
  * @Body
  *    {
- *      "patrollerId": "123456",
  *      "resort": "Sample",
  *      "assignments": [
  *        {
@@ -62,18 +64,14 @@ import java.util.ArrayList;
  *
  * @author Steve Gledhill
  */
+@SuppressWarnings("JavaDoc")
 public class PatrolAssignments extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    System.out.println("ZZZ new Rest API GET: /assignments?resort=" + request.getParameter("resort"));
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     getPatrolAssignments(request, response);
   }
-
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    getPatrolAssignments(request, response);
-  }
-
 
   @SuppressWarnings("Duplicates")
   private void getPatrolAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {

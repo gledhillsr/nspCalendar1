@@ -34,7 +34,7 @@ import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
  *    }
  *
  * @Response 200 - OK
- *    Content-Type: application/json
+ *    body Content-Type: application/json
  *    {
  *      "authToken":"368c9f15-01b4-4a49-9b8d-989f4b2d30ed"
  *    }
@@ -47,11 +47,13 @@ import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
  * @author Steve Gledhill
  */
 
+@SuppressWarnings("JavaDoc")
 public class Login extends HttpServlet {
 
   private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    System.out.println("ZZZ new Rest API POST: /login?resort=" + request.getParameter("resort"));
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     doLogin(request, response);
   }
@@ -73,7 +75,7 @@ public class Login extends HttpServlet {
     catch (Exception e) {
         /*report an error*/
     }
-    logger(sessionData, "jsonBuffer:" + jsonBuffer.toString());
+//    logger(sessionData, "jsonBuffer:" + jsonBuffer.toString());
 
     String resort = request.getParameter("resort");
     if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {

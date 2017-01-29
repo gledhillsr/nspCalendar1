@@ -88,7 +88,7 @@ public class NspSession {
         sessionIpAddress + "\", \"" + (isDirector? 1:0) + "\")";
 
 //    String qryString = newIndividualAssignment.getInsertSQLString(sessionData);
-    System.out.println("insertRow" + qryString);
+    System.out.println("insertRow: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();

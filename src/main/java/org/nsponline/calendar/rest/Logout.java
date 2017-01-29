@@ -29,9 +29,11 @@ import java.sql.Connection;
  *
  * @author Steve Gledhill
  */
+@SuppressWarnings("JavaDoc")
 public class Logout extends HttpServlet {
 
   public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    System.out.println("ZZZ new Rest API DELETE: /logout?resort=" + request.getParameter("resort"));
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     doLogout(request, response);
   }

@@ -19,11 +19,14 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
- * query the logged in patroller's information, given a resort and an Authorization Token.
- * If a field is empty, then it will not be represented in the body
+ * query the logged in patroller's shift schedule for a specified year/month, and optionally a specific day
  *
  * @GET
- *     http:/nsponline.org/user/assignments?resort=Sample
+ *     http:/nsponline.org/user/assignments?
+ *      resort=Sample   (required)
+ *      year=2017
+ *      month=1         (1 is January)
+ *      day=3
  * @Header Authorization: [authToken]
  *
  * @Response 200 - OK
@@ -62,18 +65,14 @@ import java.util.ArrayList;
  *
  * @author Steve Gledhill
  */
+@SuppressWarnings("JavaDoc")
 public class UserAssignments extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    System.out.println("ZZZ new Rest API GET: /user/assignments?resort=" + request.getParameter("resort"));
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     getUserAssignments(request, response);
   }
-
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
-    getUserAssignments(request, response);
-  }
-
 
   @SuppressWarnings("Duplicates")
   private void getUserAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
