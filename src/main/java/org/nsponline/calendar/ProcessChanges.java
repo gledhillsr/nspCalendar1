@@ -591,46 +591,39 @@ public class ProcessChanges extends HttpServlet {
       String smtp = sessionData.getSmtpHost(); //"mail.gledhills.com";
       String from = sessionData.getEmailUser(); //"steve@gledhills.com";
 //System.out.println("ds.getNotifyChanges()="+ds.getNotifyChanges());
-      //noinspection StatementWithEmptyBody
       if (!ds.getNotifyChanges()) {
         //director settings say don't email on changes to calendar
+        debugOut("debug, no mail sent because notify changes is 'false'");
       }
-      else //noinspection StatementWithEmptyBody
-        if (submitterID.equals(sessionData.getBackDoorUser())) { //using back door login, don't send emails
-//                System.out.println("hack, no mail being sent by the System Administrator");
-        }
-        else //noinspection StatementWithEmptyBody
-          if (resort.equalsIgnoreCase("Sample")) {
-//                System.out.println("hack, no mail being sent for Sample resort");
+      else if (submitterID.equals(sessionData.getBackDoorUser())) { //using back door login, don't send emails
+        debugOut("debug, no mail being sent by the System Administrator");
+      }
+      else if (resort.equalsIgnoreCase("Sample")) {
+        debugOut("debug, no mail being sent for Sample resort");
+      }
+      else {    //hack to stop email
+        MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
+        patrolData.resetRoster();
+        Roster mbr;
+        sentToFirst = false;
+        sentToSecond = false;
+        //email all directors in the yesEmail list
+        while ((mbr = patrolData.nextMember("")) != null) {
+          if (mbr.isDirector() && mbr.getDirector().equalsIgnoreCase("yesEmail")) {
+            mailto(sessionData, mail, mbr, strChange3, true);
           }
-          else {    //hack to stop email
-//              if(submitter.isDirector())
-//                  System.out.println("=== via director ===");
-            MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
-            patrolData.resetRoster();
-            Roster mbr;
-            sentToFirst = false;
-            sentToSecond = false;
-            //email all directors in the yesEmail list
-//    System.out.println("----------------");
-            while ((mbr = patrolData.nextMember("")) != null) {
-              if (mbr.isDirector() && mbr.getDirector().equalsIgnoreCase("yesEmail")) {
-                mailto(sessionData, mail, mbr, strChange3, true);
-              }
 
-            } //end while
-            //send e-mail to 1st patroller
-            if (notifyPatrollers) {
-              if (!sentToFirst && member1 != null) {
-                mailto(sessionData, mail, member1, strChange3, false);
-              }
-              if (!sentToSecond && member2 != null) {
-                mailto(sessionData, mail, member2, strChange3, false);
-              }
-            }
-// System.out.println(strChange3); //LOG message
-//todo srg            mail.close();
+        } //end while
+        //send e-mail to 1st patroller
+        if (notifyPatrollers) {
+          if (!sentToFirst && member1 != null) {
+            mailto(sessionData, mail, member1, strChange3, false);
           }
+          if (!sentToSecond && member2 != null) {
+            mailto(sessionData, mail, member2, strChange3, false);
+          }
+        }
+      }
     }
 
     /**
@@ -645,29 +638,27 @@ public class ProcessChanges extends HttpServlet {
         //todo send director notifications here???
       }
 
-//if(mbr != null) return;   //hack
       if (mbr == null) {
         return;
       }
       String recipient = mbr.getEmailAddress();
       if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
-//        try {
-          if (member1 != null && member1.getID().equals(mbr.getID())) {
-            sentToFirst = true;
-          }
-          else if (member2 != null && member2.getID().equals(mbr.getID())) {
-            sentToSecond = true;
-          }
-//System.out.println("sending to: "+recipient);   //no e-mail, JUST LOG IT
-          mail.sendMessage(sessionData, "Patrol Roster Changed (" + resort + ")", strChange3, recipient);
-//System.out.println("mail was sucessfull");  //no e-mail, JUST LOG IT
-//        }
-//        catch (MailManException ex) {
-//          System.out.println("ERROR-ProcessChanges: " + ex);
-//          System.out.println("ERROR-ProcessChanges: attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
-//        }
+        if (member1 != null && member1.getID().equals(mbr.getID())) {
+          sentToFirst = true;
+        }
+        else if (member2 != null && member2.getID().equals(mbr.getID())) {
+          sentToSecond = true;
+        }
+        mail.sendMessage(sessionData, "Patrol Roster Changed (" + resort + ")", strChange3, recipient);
       }
-    } //end mailto
+    }
+
+    private void debugOut(String msg) {
+      //noinspection ConstantConditions
+      if (DEBUG) {
+        System.out.println("DEBUG-ProcessChanges: " + msg);
+      }
+    }
 
     private void debugOut(HttpServletRequest request, String msg) {
       //noinspection ConstantConditions
