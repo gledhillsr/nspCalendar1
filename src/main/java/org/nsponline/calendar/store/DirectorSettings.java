@@ -1,5 +1,9 @@
 package org.nsponline.calendar.store;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.nsponline.calendar.misc.Utils;
+
 import java.lang.*;
 import java.sql.*;
 
@@ -267,7 +271,7 @@ public class DirectorSettings {
     return (sec / 3600) + ":" + ((min < 10) ? "0" : "") + min;
   }
 
-  //-----------------------------------------------------
+//-----------------------------------------------------
 // Setter methods
 //-----------------------------------------------------
   public void setSendReminder(boolean flag) {
@@ -409,9 +413,6 @@ public class DirectorSettings {
     return false;
   }
 
-  //---------------
-// reset
-//---------------
   static public ResultSet reset(Connection connection) {
     PreparedStatement directorStatement;
     try {
@@ -439,5 +440,15 @@ public class DirectorSettings {
         " " + START_DATE_FIELD + "=" + szStartDate +
         " " + END_DATE_FIELD + "=" + szEndDate +
         " " + REMOVE_ACCESS_FIELD + "=" + nRemoveAccess;
+  }
+
+  public ObjectNode toNode() {
+    ObjectNode returnNode = Utils.nodeFactory.objectNode();
+
+    returnNode.put("formalName", szPatrolName);
+    returnNode.put("changesByDirectorsOnly", "1".equals(szDirectorsOnlyChange));
+    returnNode.put("whenCanUserDelete", (nRemoveAccess == 127) ? (-1) : nRemoveAccess);
+    returnNode.put("patrollersCanSendMail", "1".equals(szEMailAll));
+    return returnNode;
   }
 }
