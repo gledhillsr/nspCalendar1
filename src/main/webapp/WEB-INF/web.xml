@@ -10,10 +10,10 @@
         National Ski Patrol Online Scheduling Software
     </description>
 
-    <servlet>
-        <servlet-name>StatusServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.Status</servlet-class>
-    </servlet>
+    <!--<servlet>-->
+        <!--<servlet-name>StatusServlet</servlet-name>-->
+        <!--<servlet-class>org.nsponline.calendar.Status</servlet-class>-->
+    <!--</servlet>-->
     <servlet>
         <servlet-name>MemberLoginServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.MemberLogin</servlet-class>
@@ -95,8 +95,16 @@
         <servlet-class>org.nsponline.calendar.rest.Resort</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ResortList</servlet-name>
+        <servlet-class>org.nsponline.calendar.rest.ResortList</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>UserAssignments</servlet-name>
         <servlet-class>org.nsponline.calendar.rest.UserAssignments</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UserList</servlet-name>
+        <servlet-class>org.nsponline.calendar.rest.UserList</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PatrolAssignments</servlet-name>
@@ -112,10 +120,10 @@
     </servlet>
 
 <!--    define & map URL patterns -->
-    <servlet-mapping>
-        <servlet-name>StatusServlet</servlet-name>
-        <url-pattern>/Status</url-pattern>
-    </servlet-mapping>
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>StatusServlet</servlet-name>-->
+        <!--<url-pattern>/Status</url-pattern>-->
+    <!--</servlet-mapping>-->
     <servlet-mapping>
         <servlet-name>MemberLoginServlet</servlet-name>
         <url-pattern>/MemberLogin</url-pattern>
@@ -137,8 +145,16 @@
         <url-pattern>/resort</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>ResortList</servlet-name>
+        <url-pattern>/resort/list</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>UserAssignments</servlet-name>
         <url-pattern>/user/assignments</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UserList</servlet-name>
+        <url-pattern>/user/list</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PatrolAssignments</servlet-name>

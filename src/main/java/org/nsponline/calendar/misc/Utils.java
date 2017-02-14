@@ -148,6 +148,7 @@ public final class Utils {
       return Integer.valueOf(szNumber);
     }
     catch (NumberFormatException e) {
+      System.out.println("NumberFormatException on [" + szNumber + "]");
       return 0;
     }
   }

@@ -6,6 +6,7 @@ import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
 import org.nsponline.calendar.misc.Utils;
 import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.NspSession;
 import org.nsponline.calendar.store.Roster;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * query the patroller's entire shift schedule for a specified year/month, and optionally a specific day
@@ -68,7 +70,7 @@ import java.util.ArrayList;
 public class PatrolAssignments extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    System.out.println("ZZZ new Rest API GET: /assignments?resort=" + request.getParameter("resort"));
+    System.out.println("ZZZ new Rest API GET: /patrol/assignments?resort=" + request.getParameter("resort"));
     Utils.printRequestParameters(this.getClass().getSimpleName(), request);
     getPatrolAssignments(request, response);
   }
@@ -81,6 +83,10 @@ public class PatrolAssignments extends HttpServlet {
     String szYear = request.getParameter("year");
     String szMonth = request.getParameter("month");
     String szDay = request.getParameter("day");
+    System.out.println(" --patrol/assignments... resort: [" + resort
+        + "], year: [" + szYear
+        + "], month: [" + szMonth
+        + "], day: [" + szDay);
     int year = Utils.convertToInt(szYear);
     int month = Utils.convertToInt(szMonth);
     int day = Utils.convertToInt(szDay);
@@ -94,12 +100,8 @@ public class PatrolAssignments extends HttpServlet {
       Utils.buildErrorResponse(response, 400, "Resort not found (" + resort + ")");
       return;
     }
-    if (year == 0) {
-      Utils.buildErrorResponse(response, 400, "Invalid 'year' (" + szYear + ")");
-      return;
-    }
-    if (month == 0) {
-      Utils.buildErrorResponse(response, 400, "Invalid 'month' (" + szMonth+ ")");
+    if ((year == 0) != (month == 0)) {
+      Utils.buildErrorResponse(response, 400, "Invalid 'year' (" + szYear + "), 'month' (" + szMonth+ ")");
       return;
     }
 
@@ -108,12 +110,14 @@ public class PatrolAssignments extends HttpServlet {
     Connection connection = patrol.getConnection();
     NspSession nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
+      System.out.println("ERROR:  Invalid Authorization (" + sessionId + ")");
       Utils.buildErrorResponse(response, 401, "Invalid Authorization (" + sessionId + ")");
       return;
     }
     String authenticatedUserId = nspSession.getAuthenticatedUser();
     Roster patroller = patrol.getMemberByID(authenticatedUserId);
     if (patroller == null) {
+      System.out.println("ERROR:  User not found (" + authenticatedUserId + ")");
       Utils.buildErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
       return;
     }
@@ -123,16 +127,45 @@ public class PatrolAssignments extends HttpServlet {
     returnNode.put("resort", resort);
 
     ArrayNode assignmentsArrayNode = Utils.nodeFactory.arrayNode();
-    ArrayList<Assignments> assignmentsList;
+    ArrayList<Assignments> assignmentsList = new ArrayList<Assignments>();
     if (day != 0) {
       assignmentsList = patrol.readSortedAssignments(year, month, day);
     }
-    else {
+    else if (year != 0 ) {
       assignmentsList = patrol.readSortedAssignments(year, month);
     }
+    else {
+      //entire season
+
+      DirectorSettings directorSettings = patrol.readDirectorSettings();
+      int startDay = directorSettings.getStartDay();
+      int startMonth = directorSettings.getStartMonth();
+      int startYear;
+      //calculate current year
+      Calendar today = Calendar.getInstance();
+      int todayYear = today.get(Calendar.YEAR);
+      int todayMonth = today.get(Calendar.MONTH);
+      startYear = (todayMonth > 6) ? todayYear: (todayYear - 1);
+      int endDay = directorSettings.getEndDay();
+      int endMonth = directorSettings.getEndMonth();
+      int endYear = startYear + 1;
+
+      System.out.println("full season from: "
+          + startMonth + "/" + startDay + "/" + startYear
+          + " to: " + endDay + "/" + endMonth + "/" + endYear);
+      for(int mon = startMonth; mon <= 12; mon++) {
+        assignmentsList.addAll(patrol.readSortedAssignments(startYear, mon));
+      }
+      for(int mon = 1; mon <= endMonth; mon++) {
+        assignmentsList.addAll(patrol.readSortedAssignments(endYear, mon));
+      }
+    }
+    int count = 0;
     for (Assignments ns : assignmentsList) {
+      count++;
       assignmentsArrayNode.add(ns.toNode());
     }
+    System.out.println("  -- assignments count = " + count);
     returnNode.set("assignments", assignmentsArrayNode);
     Utils.buildOkResponse(response, returnNode);
 
