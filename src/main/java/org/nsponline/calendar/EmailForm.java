@@ -190,12 +190,12 @@ public class EmailForm extends HttpServlet {
         fromEmailAddress = fromEmail;
       }
 
-      messageIsUnique = (message.indexOf("$pass$") != -1 ||
-          message.indexOf("$last$") != -1 ||
-          message.indexOf("$first$") != -1 ||
-          message.indexOf("$id$") != -1 ||
-          message.indexOf("$carryovercredits$") != -1 ||
-          message.indexOf("$credits$") != -1);
+      messageIsUnique = (message.contains("$pass$") ||
+          message.contains("$last$") ||
+          message.contains("$first$") ||
+          message.contains("$id$") ||
+          message.contains("$carryovercredits$") ||
+          message.contains("$credits$"));
       return true;
     }
 

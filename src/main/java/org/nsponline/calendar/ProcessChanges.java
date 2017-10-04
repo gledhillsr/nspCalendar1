@@ -21,7 +21,7 @@ import java.util.TimeZone;
 public class ProcessChanges extends HttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG = false;
+  private static boolean DEBUG = true;   //keep this true (not enough other debugging)
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean PAUSE_ON_THIS_SCREEN = false;
 

@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Main method to track general info about a resort (patrol)  Not backed by a table.  But stores
+ * general display info about all patrols
  * @author Steve Gledhill
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance"})
