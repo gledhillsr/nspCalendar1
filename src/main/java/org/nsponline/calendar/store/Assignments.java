@@ -326,7 +326,7 @@ public class Assignments {
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-    LOG(sessionData, qryString);
+    debugOut(qryString);
     return qryString;
   }
 

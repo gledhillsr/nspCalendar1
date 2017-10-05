@@ -98,11 +98,15 @@ public final class Utils {
 //        agent = split[0];
 //      }
     }
-    log("[" + getCurrentDateTimeString() + "] [" + fromIp + "] ");
+    System.out.print("[" + getCurrentDateTimeString() + "] [" + fromIp + "] :");
   }
 
   public static void printToLogFile(HttpServletRequest request, String msg) {
     localPrintToLogFile(request, " - " + msg);
+  }
+
+  public static void printToLogFile(HttpServletRequest request, String resort, String user, String msg) {
+    localPrintToLogFile(request, " resort=" + resort + ", user=" + user + " - " + msg);
   }
 
   private static void localPrintToLogFile(HttpServletRequest request, String msg) {

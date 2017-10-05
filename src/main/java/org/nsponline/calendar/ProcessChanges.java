@@ -1,9 +1,5 @@
 package org.nsponline.calendar;
 
-/**
- * @author Steve Gledhill
- */
-
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.*;
 
@@ -20,8 +16,6 @@ import java.util.TimeZone;
 
 public class ProcessChanges extends HttpServlet {
 
-  @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG = true;   //keep this true (not enough other debugging)
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean PAUSE_ON_THIS_SCREEN = false;
 
@@ -115,7 +109,7 @@ public class ProcessChanges extends HttpServlet {
       readParameters(request);
       OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
-      printBody(sessionData);
+      printBody(request, sessionData);
       outerPage.printResortFooter(out);
       if (!PAUSE_ON_THIS_SCREEN) {
         response.sendRedirect(PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&resort=" + resort + "&ID=" + szMyID);
@@ -138,13 +132,13 @@ public class ProcessChanges extends HttpServlet {
       index1AsString = request.getParameter("index1");    //required 0-based
       listName = request.getParameter("listName");        //name 'selected' by radio button (can be null if 'remove' existing name)
 
-      debugOut(request, "readParameters: submitterID=" + submitterID
-          + ", transaction=" + transaction
-          + ", selectedID=" + selectedID
-          + ", szdate1=" + szdate1
-          + ", pos1=" + pos1
-          + ", index1=" + index1AsString
-          + ", listName=" + listName);
+//      log(request, "ProcessChanges: submitterID=" + submitterID
+//          + ", transaction=" + transaction
+//          + ", selectedID=" + selectedID
+//          + ", szdate1=" + szdate1
+//          + ", pos1=" + pos1
+//          + ", index1=" + index1AsString
+//          + ", listName=" + listName);
 
       member1 = null;
       member2 = null;
@@ -156,10 +150,8 @@ public class ProcessChanges extends HttpServlet {
         out.println("<h1>Error: member " + submitterID + " not found!</h1><br>");
         return;
       }
-      Utils.printToLogFile(request, "submitter: " + submitter.getFullName() + " (" + resort + ") trans=" + transaction +
-          " date1=" + szdate1 + " selectedID=" + selectedID +
-          " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old name(" + listName +
-          ") recorded at time ");
+      log(request, "submitter=" + submitter.getFullName() + " selectedID=" + selectedID  + " resort=" + resort + " trans=" + transaction +
+          " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old_name=" + listName);
       szSubmitterName = submitter.getFullName();
 
       nPos1 = Integer.parseInt(pos1);
@@ -516,7 +508,7 @@ public class ProcessChanges extends HttpServlet {
     /**
      * printBody
      */
-    public void printBody(SessionData sessionData) {
+    public void printBody(HttpServletRequest request, SessionData sessionData) {
 
       DisplayTransactionInformation();
       DirectorSettings ds = patrolData.readDirectorSettings();
@@ -576,7 +568,7 @@ public class ProcessChanges extends HttpServlet {
 //          String from="SGledhill@Novell.com" ;
 //          if(!submitter.isDirector()) {
 
-        sendMailNotifications(ds, notifyPatrollers, sessionData);
+        sendMailNotifications(request, ds, notifyPatrollers, sessionData);
 
       } // not err in writing assignment data
 //Return to Calendar
@@ -587,19 +579,19 @@ public class ProcessChanges extends HttpServlet {
       out.println("<br/><br/>");
     }
 
-    private void sendMailNotifications(DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
+    private void sendMailNotifications(HttpServletRequest request, DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
       String smtp = sessionData.getSmtpHost(); //"mail.gledhills.com";
       String from = sessionData.getEmailUser(); //"steve@gledhills.com";
 //System.out.println("ds.getNotifyChanges()="+ds.getNotifyChanges());
       if (!ds.getNotifyChanges()) {
         //director settings say don't email on changes to calendar
-        debugOut("debug, no mail sent because notify changes is 'false'");
+        log(request,"debug, no mail sent because notify changes is 'false'");
       }
       else if (submitterID.equals(sessionData.getBackDoorUser())) { //using back door login, don't send emails
-        debugOut("debug, no mail being sent by the System Administrator");
+        log(request,"debug, no mail being sent by the System Administrator");
       }
       else if (resort.equalsIgnoreCase("Sample")) {
-        debugOut("debug, no mail being sent for Sample resort");
+        log(request,"debug, no mail being sent for Sample resort");
       }
       else {    //hack to stop email
         MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
@@ -653,18 +645,14 @@ public class ProcessChanges extends HttpServlet {
       }
     }
 
-    private void debugOut(String msg) {
+    private void log(String msg) {
       //noinspection ConstantConditions
-      if (DEBUG) {
-        System.out.println("DEBUG-ProcessChanges: " + msg);
-      }
+      System.out.println("ProcessChanges: " + msg);
     }
 
-    private void debugOut(HttpServletRequest request, String msg) {
+    private void log(HttpServletRequest request, String msg) {
       //noinspection ConstantConditions
-      if (DEBUG) {
-        Utils.printToLogFile(request, "DEBUG-ProcessChanges: " + msg);
-      }
+      Utils.printToLogFile(request, resort, submitterID, "ProcessChanges: " + msg);
     }
   } //end LocalProcessChanges
 }

@@ -490,7 +490,7 @@ public class PatrolData {
         if (assignmentResultsLocal.next()) {
           ns = new Assignments();
           ns.read(sessionData, assignmentResultsLocal);
-          logger("readAssignment(" + queryString + ")= " + ns.toString());
+//          logger("readAssignment(" + queryString + ")= " + ns.toString());
           return ns;
         }
     }
@@ -765,7 +765,7 @@ public class PatrolData {
 
   private void logger(String message) {
     if (sessionData != null && sessionData.getRequest() != null) {
-      Utils.printToLogFile(sessionData.getRequest(), message);
+      Utils.printToLogFile(sessionData.getRequest(), localResort, sessionData.getLoggedInUserId(),  message);
     }
     else {
       logger(localResort, message);

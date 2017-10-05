@@ -117,7 +117,7 @@ public class MailMan {
   }
 
   private void logger(SessionData sessionData, Object... msg) {
-    Utils.printToLogFile(sessionData.getRequest(), "MailMan: ");
+    Utils.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), sessionData.getLoggedInUserId(), "MailMan: ");
     for (Object item : msg) {
       System.out.print(item); //keep this here
     }

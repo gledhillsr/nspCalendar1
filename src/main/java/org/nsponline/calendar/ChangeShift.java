@@ -548,7 +548,7 @@ debugOut(sessionData, "printBottom, submitterID=");
 
     private void debugOut(SessionData sessionData, String msg) {
       if (DEBUG) {
-        Utils.printToLogFile(sessionData.getRequest() ,"DEBUG-ChangeShift(" + resort + "): " + msg);
+        Utils.printToLogFile(sessionData.getRequest() ,resort, sessionData.getLoggedInUserId(),"ChangeShift: " + msg);
       }
     }
   }
