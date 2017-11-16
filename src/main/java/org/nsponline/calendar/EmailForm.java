@@ -76,7 +76,7 @@ public class EmailForm extends HttpServlet {
 
     private String subject;
     private String message;
-    private String fromEmail;
+    private String memberFromEmailAddress;
     private Roster fromMember;
     boolean hasValidReturnEmailAddress;
     String smtp;
@@ -150,10 +150,10 @@ public class EmailForm extends HttpServlet {
     }
 
     private boolean getFromEmailAddress() {
-      fromEmail = fromMember.getEmailAddress();
+      memberFromEmailAddress = fromMember.getEmailAddress();
       hasValidReturnEmailAddress = true;
-      if (!Utils.isValidEmailAddress(fromEmail)) {
-        fromEmail = fallback_from;
+      if (!Utils.isValidEmailAddress(memberFromEmailAddress)) {
+        memberFromEmailAddress = fallback_from;
         hasValidReturnEmailAddress = false;
       }
       return true;
@@ -187,7 +187,7 @@ public class EmailForm extends HttpServlet {
       fullPatrolName = PatrolData.getResortFullName(resort);
 
       if (hasValidReturnEmailAddress) {
-        fromEmailAddress = fromEmail;
+        fromEmailAddress = memberFromEmailAddress;
       }
 
       messageIsUnique = (message.contains("$pass$") ||
@@ -206,7 +206,7 @@ public class EmailForm extends HttpServlet {
       out.println(str + "<br>");
 //output to tomcat logs
       PatrolData.logger(resort, str + " resort=" + resort);
-      PatrolData.logger(resort, "from=" + fromMember.getFullName() + " &lt;<b>" + fromEmail + "&gt;</b><br><br>");
+      PatrolData.logger(resort, "from=" + fromMember.getFullName() + " &lt;<b>" + memberFromEmailAddress + "&gt;</b><br><br>");
       PatrolData.logger(resort, "Subject=" + subject + "<br>");
       PatrolData.logger(resort, "Message=" + message + "<br>" + "time=" + calendar.getTime().toString() + "<br>");
     }
@@ -257,8 +257,14 @@ public class EmailForm extends HttpServlet {
             "to: " + fromMember.getFullName() + ", who had an invalid email address in the system.\n\n";
       }
       else {
-        newMessage += "Please Don't respond to this email.  SEND any responses\n" +
-            "to: " + fromMember.getEmailAddress() + " .  I am working on restoring our original functionality where the return address could be specified.\n\n";
+        ResortData resortInfo = PatrolData.getResortInfo(resort); //will return null if invalid resort (like in dailyReminder because no HttpSession)
+        String directorsVerifiedEmail = (resortInfo != null && Utils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) ? resortInfo.getDirectorsVerifiedEmail() : null;
+
+          log("the fromEmailAddress=" + fromEmailAddress);
+        if (directorsVerifiedEmail == null) {
+          newMessage += "Please Don't respond to this email.  SEND any responses\n" +
+              "to: " + fromMember.getEmailAddress() + " .  I am working on setting this 'From' address to be specific to your patrol.\n\n";
+        }
       }
       newMessage += "This was sent from the Ski Patrol Web Site Auto Mailer.\n" +
           "--------------------------------------------------------\n";
@@ -303,53 +309,6 @@ public class EmailForm extends HttpServlet {
       }
     }
 
-//  private void mailTo2(String fromEmailAddr, MemberData member, String subject, String newMessage) {
-//
-//    Properties props = new Properties();
-//    props.put("mail.smtp.auth", "true");
-//    props.put("mail.smtp.starttls.enable", "true");
-//    props.put("mail.smtp.host", "smtp.gmail.com");
-//    props.put("mail.smtp.port", "587");
-//
-////todo move this out of the loop
-//    String recipient = member.getEmailAddress();
-//    if (!isValidAddress(recipient)) {
-//      return;
-//    }
-//    Session session = Session.getInstance(props,
-//        new javax.mail.Authenticator() {
-//          protected PasswordAuthentication getPasswordAuthentication() {
-//            return new PasswordAuthentication(username, password);
-//          }
-//        });
-//    try {
-//      PatrolData.logger(resort, "session=" + session);
-//      Message message = new MimeMessage(session);
-//      InternetAddress fromAddress = new InternetAddress(fromEmailAddr);
-//      try {
-//        fromAddress = new InternetAddress(fromEmailAddr, member.getFullName());
-//      } catch (Exception e) {
-//        PatrolData.logger(resort, "ERROR creating (fromEmail,fullName) e=" + e);
-//      }
-//      System.out.print(resort + " -- from: " + fromAddress);
-//      message.setFrom(fromAddress);
-//      System.out.print(", to: " + recipient);
-//      message.setRecipients(Message.RecipientType.TO,
-//          InternetAddress.parse(recipient));
-//      System.out.print(", subject: " + subject);
-//      message.setSubject(subject);
-//      message.setText(newMessage);
-//
-//      System.out.print("sending...");
-//      Transport.send(message);
-//
-//      PatrolData.logger(resort, "Done");
-//
-//    } catch (MessagingException e) {
-//      throw new RuntimeException(e);
-//    }
-//  }
-
     /**
      * replace of word processing characters for '(146), "(147), and "(148) to normal characters
      * for some weird reason, the String.replace() command did not work for char's > 127
@@ -380,14 +339,7 @@ public class EmailForm extends HttpServlet {
       String recipient = mbr.getEmailAddress();
       if (Utils.isValidEmailAddress(recipient)) {
         debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
-//        try {
         mail.sendMessage(sessionData, subject, message, recipient);
-////                PatrolData.logger(resort, "  mail was sucessfull");    //no e-mail, JUST LOG IT
-//        }
-//        catch (MailManException ex) {
-//          System.out.println("  error " + ex);
-//          System.out.println("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
-//        }
       }
     } //end mailto
 
@@ -470,7 +422,7 @@ public class EmailForm extends HttpServlet {
         out.println("<input type=\"button\" value=\"Disabled in Demo\" onClick=\"history.back()\">");
       }
       else {
-        out.println("<input type=\"submit\" name=\"Submit\" value=\"Send Mail\">&nbsp;&nbsp;&nbsp;&nbsp;");
+        out.println("<input type=\"submit\" name=\"Submit\" value=\"Send Mail\">&nbsp;(be patient, sending mail can take 30 seconds to respond)&nbsp;&nbsp;&nbsp;");
       }
       out.println("<input type=\"button\" value=\"Cancel\" onClick=\"history.back()\">");
       out.println("</p>");

@@ -49,6 +49,7 @@ public class MailMan {
       String resort = sessionData.getLoggedInResort();
       ResortData resortInfo = PatrolData.getResortInfo(resort); //will return null if invalid resort (like in dailyReminder because no HttpSession)
       if (resortInfo != null && Utils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) {
+        //todo NOTE: this is where we load the resort/directors email address
         this.fromAddress = resortInfo.getDirectorsVerifiedEmail();
       }
       else {
