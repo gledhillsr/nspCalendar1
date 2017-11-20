@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 
 /**
  * @author Steve Gledhill
@@ -32,7 +33,7 @@ public class MemberList extends HttpServlet {
   }
 
   private final class LocalMemberList {
-    private static final int MIN_VALID_EMAIL_SIZE = 6;
+//    private static final int MIN_VALID_EMAIL_SIZE = 6;
 
     private PrintWriter out;
     private String patrollerId;
@@ -68,11 +69,13 @@ public class MemberList extends HttpServlet {
       outerPage.printResortFooter(out);
     }
 
+    @SuppressWarnings("StringConcatenationInLoop")
     private void readData(SessionData sessionData, String iDOfEditor) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      ResultSet rosterResults = patrol.resetRoster();
       ds = patrol.readDirectorSettings();
 
-      Roster member = patrol.nextMember("");
+      Roster member = patrol.nextMember("", rosterResults);
       while (member != null) {
         String emailAddress = member.getEmailAddress();
         if (Utils.isValidEmailAddress(emailAddress)) {
@@ -81,7 +84,7 @@ public class MemberList extends HttpServlet {
           }
           ePatrollerList += member.getEmailAddress();
         }
-        member = patrol.nextMember("");
+        member = patrol.nextMember("", rosterResults);
       }
 
       Roster editor = patrol.getMemberByID(iDOfEditor); //ID from cookie
@@ -127,19 +130,21 @@ public class MemberList extends HttpServlet {
 
     private int printBody(SessionData sessionData) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
-      Roster member = patrol.nextMember("&nbsp;");
+      ResultSet rosterResults = patrol.resetRoster();
+      Roster member = patrol.nextMember("&nbsp;", rosterResults);
       int count = 0;
       while (member != null) {
         if (!member.getCommitment().equals("0")) {  //only display if NOT "Inactive"
           ++count;
           member.printMemberListRow(out);
         }
-        member = patrol.nextMember("&nbsp;");   // "&nbsp;" is the default string field
+        member = patrol.nextMember("&nbsp;", rosterResults);   // "&nbsp;" is the default string field
       }
       patrol.close(); //must close connection!
       return count;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void debugOut(String str) {
       if (DEBUG) {
         System.out.println("DEBUG-SubList(" + resort + "): " + str);

@@ -9,6 +9,7 @@ import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
 
 import java.io.*;
+import java.sql.ResultSet;
 import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -245,9 +246,9 @@ public class Download extends HttpServlet {
         classificationsToDisplay.add(incList[i]);
 //System.out.println(i+") "+incList[i]+" found");
       }
-      else {
-//System.out.println(i+") "+incList[i]+" skipped");
-      }
+//      else {
+////System.out.println(i+") "+incList[i]+" skipped");
+//      }
     }
 //commitment
     if( request.getParameter("FullTime") != null)   commitmentToDisplay += 4;
@@ -283,9 +284,9 @@ public class Download extends HttpServlet {
 //end hack
 
 //System.out.println("sortString="+sortString);
-    patrol.resetRoster(sortString);
+    ResultSet rosterResults = patrol.resetRoster(sortString);
     ePatrollerList = "";
-    Roster member = patrol.nextMember("&nbsp;");
+    Roster member = patrol.nextMember("&nbsp;", rosterResults);
 //      MemberData member = patrol.nextMember("");
 //int xx=0;
     while(member != null) {
@@ -300,7 +301,7 @@ public class Download extends HttpServlet {
         }
       }
 //else System.out.println("NOT OK to display "+member);
-      member = patrol.nextMember("");
+      member = patrol.nextMember("", rosterResults);
     }
 //System.out.println("length of email string = "+ePatrollerList.length());
     Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
@@ -452,7 +453,7 @@ public class Download extends HttpServlet {
     String sortString = "LastName,FirstName";
 //end hack
 //System.out.println("readAssignments-sortString="+sortString);
-    patrol.resetRoster(sortString);
+    ResultSet rosterResults = patrol.resetRoster(sortString);
 //      patrol.resetRoster();
     Roster member;
 
@@ -460,7 +461,7 @@ public class Download extends HttpServlet {
     members = new Vector(PatrolData.MAX_PATROLLERS);
     hash = new Hashtable();
 //int xx = 0;
-    while((member = patrol.nextMember("&nbsp;")) != null) {
+    while((member = patrol.nextMember("&nbsp;", rosterResults)) != null) {
 //System.out.println(++xx);
       if(member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
 //              ++count;
@@ -470,7 +471,7 @@ public class Download extends HttpServlet {
 //else System.out.println("NOT ok to display "+member);
     }
 
-    patrol.resetAssignments();
+    ResultSet assignmentResults = patrol.resetAssignments();
 //        SimpleDateFormat normalDateFormatter = new SimpleDateFormat ("MM'/'dd'/'yyyy");
 //System.out.println("StartYear="+StartYear+", StartMonth="+StartMonth+", StartDay="+StartDay);
 //System.out.println("EndYear="+EndYear+", EndMonth="+EndMonth+", StartDay="+StartDay);
@@ -478,18 +479,15 @@ public class Download extends HttpServlet {
     long startMillis = 0;
     long endMillis = 99999999999999L;
     long currMillis;
-    if(date != null && StartYear != 0)
+    if(StartYear != 0)
       startMillis = date.getTimeInMillis();
     date = new GregorianCalendar(EndYear,EndMonth,EndDay);
-    if(date != null && EndYear != 0)
+    if(EndYear != 0)
       endMillis = date.getTimeInMillis();
 
-    while((ns = patrol.readNextAssignment()) != null) {
+    while((ns = patrol.readNextAssignment(assignmentResults)) != null) {
       date = new GregorianCalendar(ns.getYear(),ns.getMonth(),ns.getDay());
-      if(date != null)
-        currMillis = date.getTimeInMillis();
-      else
-        currMillis = startMillis+1;
+      currMillis = date.getTimeInMillis();
 //System.out.print("start="+startMillis+"end="+endMillis+" curr="+currMillis+" "+ns.getYear()+" "+ns.getMonth()+" "+ns.getDay());
       if(startMillis <= currMillis && currMillis <= endMillis) {
 //System.out.println(" ok");

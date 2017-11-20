@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -200,7 +201,7 @@ public class DayShifts extends HttpServlet {
 
     private void processChangeRequest(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<ShiftDefinitions> parameterShifts) {
 //write out changes
-      patrol.resetAssignments();
+      ResultSet assignmentResults = patrol.resetAssignments();
 //      int assignmentSize = assignmentsFromDisk.size();
       if (saveAssignmentBtn) {
         doSaveAssignments(request, patrol, assignmentsFromDisk);
@@ -559,17 +560,16 @@ public class DayShifts extends HttpServlet {
       int y, m, d;
 
       patrol.resetAssignments();
-      patrol.resetRoster();
+      ResultSet rosterResults = patrol.resetRoster();
       Roster member;
       shiftsTemplates = new ArrayList<ShiftDefinitions>();
 
 //
 // read in all patrol members
 //
-      patrol.resetRoster();
       sortedRoster = new String[PatrolData.MAX_PATROLLERS];
       rosterSize = 0;
-      while ((member = patrol.nextMember("")) != null) {
+      while ((member = patrol.nextMember("", rosterResults)) != null) {
         sortedRoster[rosterSize] = member.getFullName_lastNameFirst();
         rosterSize++;
         idNum = member.getID();
@@ -641,9 +641,8 @@ public class DayShifts extends HttpServlet {
 //build list of PREDEFINED SHIFTS for the drop down selection
 //      patrol.resetShiftDefinitions();   //'shiftdefinitions'
 //      Shifts sData;
-      for (ShiftDefinitions sData : patrol.readShiftDefinitions()) {
-        shiftsTemplates.add(sData);
-      } //end while Shifts
+      //end while Shifts
+      shiftsTemplates.addAll(patrol.readShiftDefinitions());
     } //end ReadParameters
 
     private void debugOut(HttpServletRequest request, String msg) {

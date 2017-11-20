@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 
 /*
  * @author Steve Gledhill
@@ -70,12 +71,13 @@ public class Directors extends HttpServlet {
 
     public int readData(String readID, SessionData sessionData) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      ResultSet rosterResults = patrol.resetRoster();
 
       sortedRoster = new String[400];
 
       rosterSize = 0;
       Roster member;
-      while ((member = patrol.nextMember("")) != null) {
+      while ((member = patrol.nextMember("", rosterResults)) != null) {
         sortedRoster[rosterSize++] = member.getLast() + ", " + member.getFirst();
       }
       if (readID.equalsIgnoreCase(sessionData.getBackDoorUser())) {

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.*;
 
 /**
@@ -205,8 +206,9 @@ public class MonthCalendar extends HttpServlet {
     private void readData(PrintWriter out, String resort, SessionData sessionData) {
       Roster member;
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      ResultSet rosterResults = patrol.resetRoster();
       directorSettings = patrol.readDirectorSettings();
-      while ((member = patrol.nextMember("")) != null) {
+      while ((member = patrol.nextMember("", rosterResults)) != null) {
         names.put(member.getIdNum(), member.getFullName() + ", " + member.getHomePhone());
         if (member.getID().equals(patrollerId) || sessionData.getBackDoorUser().equals(patrollerId)) {
           isDirector = member.isDirector();
@@ -419,7 +421,11 @@ public class MonthCalendar extends HttpServlet {
       out.println("<FORM target='_self' name='myForm'>");
       out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'>");
       out.println("<TR><TD ALIGN='LEFT' VALIGN='Bottom'><BR>");
-      out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + Utils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
+      String testingMessage = "";
+      if (PatrolData.USING_TESTING_ADDRESS) {
+        testingMessage = " TESTING ";
+      }
+      out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + Utils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
       out.println("<font size=3>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       if (notLoggedIn) {
@@ -569,6 +575,7 @@ public class MonthCalendar extends HttpServlet {
       out.println("<TD WIDTH='" + wid + "%' BGCOLOR='#e1e1e1' VALIGN='TOP' HEIGHT='64'>&nbsp;</TD>");
     }
 
+    @SuppressWarnings({"deprecation", "Since15"})
     private void printCell(PrintWriter out, String resort, Assignments[][] data, int day, int dayOfWeek, int wid, int currMon) {
       //output DATE
       int assignmentCount = 0;

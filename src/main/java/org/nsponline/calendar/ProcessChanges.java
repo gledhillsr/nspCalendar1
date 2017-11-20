@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -595,12 +596,12 @@ public class ProcessChanges extends HttpServlet {
       }
       else {    //hack to stop email
         MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
-        patrolData.resetRoster();
+        ResultSet rosterResults = patrolData.resetRoster();
         Roster mbr;
         sentToFirst = false;
         sentToSecond = false;
         //email all directors in the yesEmail list
-        while ((mbr = patrolData.nextMember("")) != null) {
+        while ((mbr = patrolData.nextMember("", rosterResults)) != null) {
           if (mbr.isDirector() && mbr.getDirector().equalsIgnoreCase("yesEmail")) {
             mailto(sessionData, mail, mbr, strChange3, true);
           }
@@ -645,6 +646,7 @@ public class ProcessChanges extends HttpServlet {
       }
     }
 
+    @SuppressWarnings("unused")
     private void log(String msg) {
       //noinspection ConstantConditions
       System.out.println("ProcessChanges: " + msg);

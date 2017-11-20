@@ -1,6 +1,7 @@
 package org.nsponline.calendar.store;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.Utils;
 
@@ -11,6 +12,9 @@ import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
+import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 
 /**
  * @author Steve Gledhill
@@ -549,12 +553,13 @@ public class Roster {
   private String readString(ResultSet rosterResults, String tag, String szDefault) {
     try {
       String str = rosterResults.getString(tag);
-
-      if (!testIfValid(str)) {
+//todo srg 2017 - decode all roster data here
+      String unescapedStr = StringEscapeUtils.unescapeHtml4(str);
+      if (!testIfValid(unescapedStr)) {
         return szDefault;
       }
       else {
-        return str;
+        return unescapedStr;
       }
     }
     catch (Exception e) {
@@ -563,10 +568,6 @@ public class Roster {
     } //end try
   }
 
-  /*************************/
-    /* getFullClassification */
-
-  /*************************/
   public String getFullClassification() {
     String classification = null;
     try {

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 
 /**
  * @author Steve Gledhill
@@ -39,7 +40,7 @@ public class SubList extends HttpServlet {
     PatrolData patrol;
     boolean isDirector;
 
-    public InnerSubList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    InnerSubList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
@@ -68,14 +69,15 @@ public class SubList extends HttpServlet {
       outerPage.printResortFooter(out);
     }
 
-    public void printStartOfTable(String IDOfEditor) {
+    @SuppressWarnings("StringConcatenationInLoop")
+    void printStartOfTable(String IDOfEditor) {
       out.println("<h2>Substitute List for " + PatrolData.getResortFullName(resort) + "</h2>");
 //          if(isDirector || (ds != null && !ds.getEmailAll()))
       {
 //      //getEmailAddress()
         String ePatrollerList = "";
-        patrol.resetRoster();
-        Roster member = patrol.nextMember("");
+        ResultSet rosterResults = patrol.resetRoster();
+        Roster member = patrol.nextMember("", rosterResults);
         while (member != null) {
           String em = member.getEmailAddress();
           if (member.getSub() == null || (!member.getSub().startsWith("y") && !member.getSub().startsWith("Y"))) {
@@ -87,7 +89,7 @@ public class SubList extends HttpServlet {
             }
             ePatrollerList += member.getEmailAddress();
           }
-          member = patrol.nextMember("");
+          member = patrol.nextMember("", rosterResults);
         }
 
         out.println("<p><Bold>");
@@ -124,8 +126,8 @@ public class SubList extends HttpServlet {
     }
 
     public void printBody() {
-      patrol.resetRoster();
-      Roster member = patrol.nextMember("&nbsp;");
+      ResultSet rosterResults = patrol.resetRoster();
+      Roster member = patrol.nextMember("&nbsp;", rosterResults);
 
       while (member != null) {
 
@@ -136,10 +138,11 @@ public class SubList extends HttpServlet {
         if (member.getSub() != null && (member.getSub().startsWith("y") || member.getSub().startsWith("Y"))) {
           printRow(member.getFullName_lastNameFirst(), member.getHomePhone(), member.getWorkPhone(), member.getCellPhone(), member.getPager(), member.getEmailAddress());
         }
-        member = patrol.nextMember("&nbsp;");   // "&nbsp;" is the default string field
+        member = patrol.nextMember("&nbsp;", rosterResults);   // "&nbsp;" is the default string field
       }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void debugOut(String str) {
       if (DEBUG) {
         System.out.println("DEBUG-SubList(" + resort + "): " + str);

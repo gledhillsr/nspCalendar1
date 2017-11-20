@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import java.util.List;
 
 /**
@@ -18,12 +19,14 @@ import java.util.List;
 public class PatrolData {
   private final static boolean DEBUG = false;
 
-  /* - - - - - uncomment the following to run from the Internet - - - - - - */
-  private final static String AMAZON_PRIVATE_IP = "172.31.0.109";//private ip PRODUCTION.  must match /etc/my.cnf
-//  private final static String AMAZON_PRIVATE_IP = "172.31.59.53";  //private ip TESTING.  must match /etc/my.cnf
-//  final static String AMAZON_PRIVATE_IP = "127.0.0.1";            //must match /etc/my.cnf
+/* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
+//private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
 
-  private final static String MYSQL_ADDRESS = AMAZON_PRIVATE_IP;  //todo get this from an environment or configuration
+  private final static String MYSQL_ADDRESS = "172.31.61.145";  //private ip TESTING.  must match /etc/my.cnf
+  public final static Boolean USING_TESTING_ADDRESS = true;   //if TRUE, will add a "TESTING" to the calendar page
+
+//  private final static String MYSQL_ADDRESS = "127.0.0.1";  //local laptop.  must match /etc/my.cnf
+/* ------------------------------------------------------------------------------------------ */
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****
   private final static String backDoorFakeFirstName = "System";
@@ -96,8 +99,8 @@ public class PatrolData {
   //all the folowing instance variables must be initialized in the constructor
   //  private Connection connection;
   private Connection connection;
-  private ResultSet rosterResults;
-  private ResultSet assignmentResults;
+//  private ResultSet rosterResults;
+//  private ResultSet assignmentResults;  //todo get rid of this global !!!
   private PreparedStatement shiftStatement;
   private boolean fetchFullData;
   private String localResort;
@@ -105,8 +108,8 @@ public class PatrolData {
 
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData) {
     this.sessionData = sessionData;
-    rosterResults = null;
-    assignmentResults = null;
+//    rosterResults = null;
+//    assignmentResults = null;
     shiftStatement = null;
     localResort = myResort;
     fetchFullData = readAllData;
@@ -124,7 +127,7 @@ public class PatrolData {
 
     if (connection != null) //error was already displayed, if null
     {
-      resetRoster();
+//      resetRoster();
     }
     else {
       errorOut(sessionData,"getConnection(" + localResort + ", sessionData) failed.");
@@ -151,20 +154,20 @@ public class PatrolData {
     return conn;
   }
 
-  public void resetAssignments() {
-    //todo srg, get rid of this method and make assignmentResults method local
+  public ResultSet resetAssignments() {
     try {
       String selectAllAssignmentsByDateSQLString = Assignments.getSelectAllAssignmentsByDateSQLString();
       logger("resetAssignments: " + selectAllAssignmentsByDateSQLString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(selectAllAssignmentsByDateSQLString);
-      assignmentResults = assignmentsStatement.executeQuery(); //todo uses global :-(
+      return assignmentsStatement.executeQuery();
     }
     catch (Exception e) {
       errorOut(sessionData,"(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      return null;
     } //end try
   }
 
-  public Assignments readNextAssignment() {
+  public Assignments readNextAssignment(ResultSet assignmentResults) {
     //todo srg fix all callers to this.  it is returning things out of order.  use readSortedAssignments
 //    logger("\n**********\nfix all callers of this API (except PurgeAssignments, ?)");
 //    Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
@@ -192,23 +195,25 @@ public class PatrolData {
     return ns;
   }
 
-  public void resetRoster() {
+  public ResultSet resetRoster() {
     try {
       PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY LastName, FirstName");
-      rosterResults = rosterStatement.executeQuery();
+      return rosterStatement.executeQuery();
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Error reseting roster table query:" + e.getMessage());
+      return null;
     } //end try
   }
 
-  public void resetRoster(String sort) {
+  public ResultSet resetRoster(String sort) {
     try {
       PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY " + sort);
-      rosterResults = rosterStatement.executeQuery();
+      return rosterStatement.executeQuery();
     }
     catch (Exception e) {
       System.out.println("(" + localResort + ") Error reseting roster table query:" + e.getMessage());
+      return null;
     } //end try
   }
 
@@ -340,7 +345,7 @@ public class PatrolData {
     } //end try
   } // end close
 
-  public Roster nextMember(String defaultString) {
+  public Roster nextMember(String defaultString, ResultSet rosterResults) {
     Roster member = null;
     try {
       if (rosterResults.next()) {
@@ -374,7 +379,7 @@ public class PatrolData {
     }
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
-      rosterResults = rosterStatement.executeQuery();
+      ResultSet rosterResults = rosterStatement.executeQuery();
       while (rosterResults.next()) {
         int id = rosterResults.getInt("IDNumber");
         String str1 = id + "";
@@ -406,7 +411,7 @@ public class PatrolData {
 //System.out.println(str);
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
-      rosterResults = rosterStatement.executeQuery();
+      ResultSet rosterResults = rosterStatement.executeQuery();
       if (rosterResults.next()) {
         member = new Roster();  //"&nbsp;" is the default
         if (fetchFullData) {
@@ -433,7 +438,7 @@ public class PatrolData {
     String str = "SELECT * FROM roster";
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
-      rosterResults = rosterStatement.executeQuery();
+      ResultSet rosterResults = rosterStatement.executeQuery();
       while (rosterResults.next()) {
 //                int id = rosterResults.getInt("IDNumber");
         String str1 = rosterResults.getString("LastName").trim() + ", " +

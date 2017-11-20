@@ -15,8 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.ResultSet;
 
 /**
  * query the logged in patroller's information, given a resort and an Authorization Token.
@@ -97,11 +96,11 @@ public class UserList extends HttpServlet {
         return;
       }
 
-      patrol.resetRoster();
+      ResultSet rosterResults = patrol.resetRoster();
       int rosterSize = 0;
       Roster patroller;
       ArrayNode rosterArrayNode = Utils.nodeFactory.arrayNode();
-      while ((patroller = patrol.nextMember("")) != null) {
+      while ((patroller = patrol.nextMember("", rosterResults)) != null) {
         rosterSize++;
         rosterArrayNode.add(patroller.toNode());
       }

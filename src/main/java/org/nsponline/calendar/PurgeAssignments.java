@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.Calendar;
 
 /**
@@ -129,8 +130,8 @@ public class PurgeAssignments extends HttpServlet {
 
       System.out.println("Purgins ALL shifts on and before " + startDay + "/" + startMonth + "/" + startYear);
 
-      patrol.resetAssignments();
-      while ((assignment = patrol.readNextAssignment()) != null) {
+      ResultSet assignmentResults= patrol.resetAssignments();
+      while ((assignment = patrol.readNextAssignment(assignmentResults)) != null) {
         year = assignment.getYear();
         month = assignment.getMonth();
         day = assignment.getDay();

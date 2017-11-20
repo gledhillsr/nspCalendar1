@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.*;
 
 public class ChangeShift extends HttpServlet {
@@ -492,14 +493,14 @@ debugOut(sessionData, "printBottom, submitterID=");
       ds = patrol.readDirectorSettings();
       removeAccess = ds.getRemoveAccess();
       allowEditing = !ds.getDirectorsOnlyChange() || member1.isDirector();
-      patrol.resetAssignments();
-      patrol.resetRoster();
+//      ResultSet assignmentResults = patrol.resetAssignments();
+      ResultSet rosterResults = patrol.resetRoster();
       sortedRoster = new String[300];
       rosterSize = 0;
       Roster member;
       isDirector = szMyID.equalsIgnoreCase(sessionData.getBackDoorUser());
 
-      while ((member = patrol.nextMember("")) != null) {
+      while ((member = patrol.nextMember("", rosterResults)) != null) {
         if (member.getID().equals(szMyID)) {
           isDirector = member.isDirector();
         }

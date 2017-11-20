@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.*;
 
 
@@ -279,8 +280,8 @@ public class CustomizedList2 extends HttpServlet {
 
 
       directorSettings = patrol.readDirectorSettings();
-      String sortString = getSortString();
-      patrol.resetRoster(sortString);
+//zz      String sortString = getSortString();
+//zz      patrol.resetRoster(sortString);
 //        ePatrollerList = "";
 //        MemberData member = patrol.nextMember("&nbsp;");
 ////      MemberData member = patrol.nextMember("");
@@ -310,6 +311,7 @@ public class CustomizedList2 extends HttpServlet {
       String options = "";
 //classification
       for (int j = 0; j < classificationsToDisplay.size(); ++j) {
+        //noinspection StringConcatenationInLoop
         options += "&" + classificationsToDisplay.elementAt(j) + "=1";
       }
 
@@ -538,7 +540,7 @@ public class CustomizedList2 extends HttpServlet {
       out.println("<br>As of: " + new java.util.Date());
     }
 
-    public String getSortString() {
+    String getSortString() {
       String sortString;
       if (sort1 == null || sort1.equals("Name") || sort1.equals("shiftCnt")) {
         sortString = firstNameFirst ? "FirstName,LastName" : "LastName,FirstName";
@@ -677,11 +679,11 @@ public class CustomizedList2 extends HttpServlet {
      *
      * @param patrol patrolData
      */
-    public void readAssignments(PatrolData patrol) {
+    void readAssignments(PatrolData patrol) {
       Assignments ns;
       int i;
       String sortString = getSortString();
-      patrol.resetRoster(sortString);
+      ResultSet rosterResults = patrol.resetRoster(sortString);
 //      patrol.resetRoster();
       Roster member;
 
@@ -689,7 +691,7 @@ public class CustomizedList2 extends HttpServlet {
       members = new Vector<Roster>(PatrolData.MAX_PATROLLERS);
       hash = new Hashtable<String, Roster>();
 //int xx = 0;
-      while ((member = patrol.nextMember("&nbsp;")) != null) {
+      while ((member = patrol.nextMember("&nbsp;", rosterResults)) != null) {
         if (member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
 //              ++count;
           members.addElement(member);
@@ -697,7 +699,7 @@ public class CustomizedList2 extends HttpServlet {
         }
       }
 
-      patrol.resetAssignments();
+      ResultSet assignmentResults = patrol.resetAssignments();
 //        SimpleDateFormat normalDateFormatter = new SimpleDateFormat ("MM'/'dd'/'yyyy");
       GregorianCalendar date = new GregorianCalendar(StartYear, StartMonth, StartDay);
       long startMillis = 0;
@@ -711,7 +713,7 @@ public class CustomizedList2 extends HttpServlet {
         endMillis = date.getTimeInMillis();
       }
 
-      while ((ns = patrol.readNextAssignment()) != null) {
+      while ((ns = patrol.readNextAssignment(assignmentResults)) != null) {
         date = new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay());
         currMillis = date.getTimeInMillis();
         if (startMillis <= currMillis && currMillis <= endMillis) {

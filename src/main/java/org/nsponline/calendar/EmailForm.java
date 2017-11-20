@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -288,6 +289,7 @@ public class EmailForm extends HttpServlet {
 //todo srg zzz this is where the main loop is (Oct 28, 2013)
       //loop for each patroller
       int currentEmailCount = 0;
+      //noinspection PointlessBooleanExpression,ConstantConditions
       if (true || messageIsUnique) {
         for (String memberId : memberIds) {
           Roster member = patrol.getMemberByID(memberId);
@@ -303,10 +305,10 @@ public class EmailForm extends HttpServlet {
           }
         }
       }
-      else {
-        //          newMessage = getUniqueMessage(null);
-        //          mailToAll(mail, subject, newMessage);
-      }
+//      else {
+//        //          newMessage = getUniqueMessage(null);
+//        //          mailToAll(mail, subject, newMessage);
+//      }
     }
 
     /**
@@ -586,14 +588,14 @@ public class EmailForm extends HttpServlet {
     private void readAssignments(PatrolData patrol) {
       Assignments ns;
       int i;
-      patrol.resetRoster();
+      ResultSet rosterResults = patrol.resetRoster();
       Roster member;
 
 //        maxShiftCount = 0;
       members = new Vector<Roster>(PatrolData.MAX_PATROLLERS);
       mapId2MemberData = new Hashtable<String, Roster>();
       debugOut("====== entering readAssignments ===========");
-      while ((member = patrol.nextMember("&nbsp;")) != null) {
+      while ((member = patrol.nextMember("&nbsp;", rosterResults)) != null) {
 //System.out.print(member);
         if (member.okToDisplay(EveryBody, SubList, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
 //              ++count;
@@ -610,9 +612,9 @@ public class EmailForm extends HttpServlet {
       long endMillis = (new GregorianCalendar(EndYear, EndMonth, EndDay)).getTimeInMillis();
       long currMillis;
 
-      patrol.resetAssignments();
+      ResultSet assignmentResults = patrol.resetAssignments();
       //loop through all assignments
-      while ((ns = patrol.readNextAssignment()) != null) {
+      while ((ns = patrol.readNextAssignment(assignmentResults)) != null) {
         currMillis = (new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay())).getTimeInMillis();
 //if(debug) System.out.print("start="+startMillis+"end="+endMillis+" curr="+currMillis+" "+ns.getYear()+" "+ns.getMonth()+" "+ns.getDay());
         if (startMillis <= currMillis && currMillis <= endMillis) {
@@ -667,10 +669,10 @@ public class EmailForm extends HttpServlet {
 
       readAssignments(patrol); //must read ASSIGNMENT data for other code to work
 
-      patrol.resetRoster();
+      ResultSet rosterResults = patrol.resetRoster();
       emaiPatrollerList = new Vector<String>();
       invalidEmailPatrollerList = new Vector<String>();
-      Roster memberx = patrol.nextMember("&nbsp;");
+      Roster memberx = patrol.nextMember("&nbsp;", rosterResults);
 //	int siz = members.size();
 //	int i = 0;
 //int xx=0;
@@ -692,7 +694,7 @@ public class EmailForm extends HttpServlet {
           }
         }
 //else System.out.println("NOT OK to display "+member);
-        memberx = patrol.nextMember("");
+        memberx = patrol.nextMember("", rosterResults);
       }
 //System.out.println("length of email string = "+ePatrollerList.length());
       Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie

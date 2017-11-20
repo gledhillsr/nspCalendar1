@@ -93,7 +93,7 @@ public class ListAssignments extends HttpServlet {
       myID = Integer.parseInt(szMyID);
       myName = member.getFullName();
 
-      patrol.resetRoster();
+//????      patrol.resetRoster();
       if (resort.equals("Brighton")) {
         Calendar calendar = new GregorianCalendar();
 
@@ -183,6 +183,7 @@ public class ListAssignments extends HttpServlet {
       out.println("<br><br>As of: " + new java.util.Date());
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void debugOut(String msg) {
       if (DEBUG) {
         System.out.println("DEBUG-ListAssignments(" + resort + "): " + msg);
