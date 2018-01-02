@@ -20,10 +20,10 @@ public class PatrolData {
   private final static boolean DEBUG = false;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
-//private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
+private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
 
-  private final static String MYSQL_ADDRESS = "172.31.61.145";  //private ip TESTING.  must match /etc/my.cnf
-  public final static Boolean USING_TESTING_ADDRESS = true;   //if TRUE, will add a "TESTING" to the calendar page
+//  private final static String MYSQL_ADDRESS = "172.31.61.145";  //private ip TESTING.  must match /etc/my.cnf
+  public final static Boolean USING_TESTING_ADDRESS = false;   //if TRUE, will add a "TESTING" to the calendar page
 
 //  private final static String MYSQL_ADDRESS = "127.0.0.1";  //local laptop.  must match /etc/my.cnf
 /* ------------------------------------------------------------------------------------------ */
@@ -39,7 +39,7 @@ public class PatrolData {
     resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
     resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", null, "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
     resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", null, "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
-    resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "steve@gledhills.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
+    resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "wgallagher2308@gmail.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
     resortMap.put("CoffeeMill",     new ResortData("CoffeeMill", "CoffeeMill", null, "https://cm-skipatrol.org/", "/images/CoffeeMillLogo.png", IMG_HEIGHT, 87));
     resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", null, "http://detroitmountain.com/", "/images/DetroitMountain.png", 73, 121));
@@ -73,7 +73,7 @@ public class PatrolData {
 //snowbird (hosts)
     resortMap.put("SnowCreek",      new ResortData("SnowCreek", "SnowCreek", null, "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
     resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", null, "http://www.SnowKing.com", "/images/SnowKing.jpg", IMG_HEIGHT, 80));
-    resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", null, "http://www.soldierhollow.com", "/images/SoldierHollow.jpg", IMG_HEIGHT, 60));
+    resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", null, "http://utaholympiclegacy.org/soldier-hollow/", "/images/SOHO_II.jpg", IMG_HEIGHT, 60));
     resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", null, "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
 //replaced by Hyland hills    resortMap.put("ThreeRivers",    new ResortData("ThreeRivers", "Three Rivers Park", null, "http://www.threeriverspark.com", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
 //uop

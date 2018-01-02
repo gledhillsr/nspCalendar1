@@ -423,7 +423,7 @@ public class MonthCalendar extends HttpServlet {
       out.println("<TR><TD ALIGN='LEFT' VALIGN='Bottom'><BR>");
       String testingMessage = "";
       if (PatrolData.USING_TESTING_ADDRESS) {
-        testingMessage = " TESTING ";
+        testingMessage = "ERROR!!! Using to older database!!! Contact Steve Gledhill (801)209-5974 ASAP";
       }
       out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + Utils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
       out.println("<font size=3>");
