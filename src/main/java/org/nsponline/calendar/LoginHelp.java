@@ -26,16 +26,17 @@ public class LoginHelp extends HttpServlet {
   private static boolean DEBUG_SENSITIVE = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new InternalLoginHelp(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
+    LOG.logRequestParameters("POST", request);
     new InternalLoginHelp(request, response);
   }
 
   private class InternalLoginHelp {
+    private Logger LOG;
 
     String resort;
     SessionData sessionData;
@@ -53,7 +54,7 @@ public class LoginHelp extends HttpServlet {
       out = response.getWriter();
 
       sessionData = new SessionData(request, out);
-      PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
       if (PatrolData.isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
         sessionData.setLoggedInUserId(id);

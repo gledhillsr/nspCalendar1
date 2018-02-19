@@ -64,7 +64,7 @@ public class OuterPage {
     out.println(footer);
   }
 
-  public String readFile(String resourceFile) {
+  private String readFile(String resourceFile) {
     ClassLoader classLoader = getClass().getClassLoader();
     URL fileResource = classLoader.getResource(resourceFile);
     debugOut("readFile: fileResource=" + fileResource);

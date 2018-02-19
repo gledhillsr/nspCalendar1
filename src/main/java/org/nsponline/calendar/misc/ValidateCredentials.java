@@ -17,27 +17,28 @@ public class ValidateCredentials {
   private static final boolean DEBUG = false;
   @SuppressWarnings("FieldCanBeLocal")
   private String resortParameter;
+  private Logger LOG;
 
   private boolean hasInvalidCredentials;
 
   @SuppressWarnings("UnusedParameters")
-  public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent) {
+  public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
+    LOG = new Logger(this.getClass(), parentLogger);
     this.resortParameter = request.getParameter("resort");
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
-    xyzzy(sessionData, response, parent, idParameter, idLoggedIn);
+    init(sessionData, response, parent, idParameter, idLoggedIn);
   }
 
-  public ValidateCredentials(SessionData sessionData, String resort, String id, String password) {
+  public ValidateCredentials(SessionData sessionData, String resort, String id) {
     this.resortParameter = resort;
-    String idParameter = id; //NOT REQUIRED (keep it that way)
-    xyzzy(sessionData, null, null, idParameter, null);
+    init(sessionData, null, null, id, null);
   }
 
-  private void xyzzy(SessionData sessionData, HttpServletResponse response, String parent, String idParameter, String idLoggedIn) {
+  private void init(SessionData sessionData, HttpServletResponse response, String parent, String idParameter, String idLoggedIn) {
     debugOut("parameters  idParameter=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
 //    debugOut("sessionData idLoggedIn=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
-    if (Utils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData)) {
+    if (Utils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData, LOG)) {
       sessionData.setLoggedInUserId(idParameter);
       sessionData.setLoggedInResort(resortParameter);
     }
@@ -63,13 +64,13 @@ public class ValidateCredentials {
     }
   }
 
-  private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData) {
+  private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData, Logger parentLog) {
     if (StringUtils.isNullOrEmpty(resortParameter) ||
         StringUtils.isNullOrEmpty(idParameter) ||
         !PatrolData.isValidResort(resortParameter)) {
       return false;
     }
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData, parentLog); //when reading members, read full data
     boolean validId = patrol.getMemberByID(idParameter) != null;
     patrol.close();
     debugOut("cheated login, validId (" + idParameter + ") = " + validId);

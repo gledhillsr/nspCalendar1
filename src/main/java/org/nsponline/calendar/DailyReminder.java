@@ -14,10 +14,12 @@ import java.util.*;
 
 public class DailyReminder {
   final private static boolean DEBUG = true;
+  private Logger LOG;
 
   public DailyReminder(String resort, SessionData sessionData, MailMan mail) {
+    LOG = new Logger(this.getClass(), null, "DailyReminder");
     debugOut("*** Processing email reminders for resort=" + resort);
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     DirectorSettings ds = patrol.readDirectorSettings();
     if (!ds.getSendReminder()) {
       debugOut("Don't send email reminders for resort=" + resort + ". The director settings denied this...");

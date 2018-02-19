@@ -20,16 +20,17 @@ public class PurgeAssignments extends HttpServlet {
   private static Logger LOG = new Logger(PurgeAssignments.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new LocalPurgeAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
+    LOG.logRequestParameters("POST", request);
     new LocalPurgeAssignments(request, response);
   }
 
   private class LocalPurgeAssignments {
+    private Logger LOG;
 
     String szMyID;
     PrintWriter out;
@@ -43,7 +44,7 @@ public class PurgeAssignments extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -55,7 +56,7 @@ public class PurgeAssignments extends HttpServlet {
         response.sendRedirect(PatrolData.SERVLET_URL + "Directors?resort=" + resort + "&ID=" + szMyID);
       }
       else {
-        PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+        PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
         OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
         outerPage.printResortHeader(out);
@@ -89,7 +90,7 @@ public class PurgeAssignments extends HttpServlet {
 // readData
 //------------
     private void readParameters(HttpServletRequest request, SessionData sessionData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData); //when reading members, read minimal data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, LOG); //when reading members, read minimal data
       DirectorSettings ds = patrol.readDirectorSettings();
 //Uitls.log("Original settings: "+ds.toString());
       String temp = request.getParameter("XYZ"); //allways a non-null value when returning
@@ -122,7 +123,7 @@ public class PurgeAssignments extends HttpServlet {
     //write data to database
     private void deleteAssignments(SessionData sessionData) {
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData); //when reading members, read minimal data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, LOG); //when reading members, read minimal data
       Assignments assignment;
       int year, month, day;
 

@@ -15,13 +15,12 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance"})
 public class PatrolData {
-  private static final Logger LOG = new Logger(PatrolData.class);
   private final static boolean DEBUG = false;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
 private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
 
-  public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
+  public final static Boolean USING_TESTING_ADDRESS = true;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
   static {
     //noinspection ConstantConditions
@@ -110,8 +109,10 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
   private boolean fetchFullData;
   private String localResort;
   private SessionData sessionData;
+  Logger LOG;
 
-  public PatrolData(boolean readAllData, String myResort, SessionData sessionData) {
+  public PatrolData(boolean readAllData, String myResort, SessionData sessionData, final Logger parentLogger) {
+    LOG = new Logger(PatrolData.class, parentLogger);
     this.sessionData = sessionData;
 //    rosterResults = null;
 //    assignmentResults = null;
@@ -164,7 +165,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
       return assignmentsStatement.executeQuery();
     }
     catch (Exception e) {
-      logError(sessionData, "(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") Error (line 167) resetting Assignments table query:" + e.getMessage());
       return null;
     } //end try
   }
@@ -264,30 +265,30 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     ArrayList<ShiftDefinitions> shiftDefinitions = new ArrayList<ShiftDefinitions>();
     try {
       String qryString = "SELECT * FROM `shiftdefinitions` ORDER BY `shiftdefinitions`.`EventName` ASC";
-//      logger("readShiftDefinitions: " + qryString);
+      LOG.logSqlStatement(qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
       while (assignmentResults.next()) {
-        ShiftDefinitions ns = new ShiftDefinitions();
+        ShiftDefinitions ns = new ShiftDefinitions(LOG);
         ns.read(assignmentResults);
 //        logger(".. NextShifts-" + ns.toString());
         shiftDefinitions.add(ns);
       }
     }
     catch (Exception e) {
-      Logger.logException("(" + localResort + ") Error resetting Assignments table ", e);
+      LOG.logException("(" + localResort + ") Error (line 279) resetting Assignments table ", e);
     } //end try
     return shiftDefinitions;
   }
 
   public void decrementShift(ShiftDefinitions ns) {
     if (DEBUG) {
-      Logger.log("decrement shift:" + ns);
+      LOG.log("decrement shift:" + ns);
     }
     int i = ns.getEventIndex();
     if (DEBUG) {
-      Logger.log("event index =" + i);
+      LOG.log("event index =" + i);
     }
 
     if (i == 0) {
@@ -818,7 +819,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
       }
     }
     catch (Exception e) {
-      Logger.logException("(" + localResort + ") Error resetting Assignments table", e);
+      Logger.logException("(" + localResort + ") Error (line 821) resetting Assignments table", e);
     } //end try
     return monthAssignments;
   }
@@ -861,7 +862,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
       }
     }
     catch (Exception e) {
-      Logger.logException("(" + localResort + ") Error resetting Assignments table", e);
+      Logger.logException("(" + localResort + ") Error (line 864) resetting Assignments table", e);
     } //end try
     return monthAssignments;
   }
@@ -884,7 +885,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
       }
     }
     catch (Exception e) {
-      Logger.logException("(" + localResort + ") Error resetting Assignments table", e);
+      Logger.logException("(" + localResort + ") Error (line 887) resetting Assignments table", e);
     } //end try
     return monthAssignments;
   }

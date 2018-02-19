@@ -23,16 +23,17 @@ public class SubList extends HttpServlet {
   static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new InnerSubList(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
+    LOG.logRequestParameters("POST", request);
     doGet(request, response);
   }
 
   private class InnerSubList {
+    private Logger LOG;
     PrintWriter out;
     private String resort;
     PatrolData patrol;
@@ -42,7 +43,7 @@ public class SubList extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "SubList");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "SubList", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -51,7 +52,7 @@ public class SubList extends HttpServlet {
       String IDOfEditor = sessionData.getLoggedInUserId();
       isDirector = false;
       patrol = null;
-      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       Roster editor = patrol.getMemberByID(IDOfEditor);
       if (editor != null) {
         isDirector = editor.isDirector();

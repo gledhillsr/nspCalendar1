@@ -15,21 +15,19 @@ import java.sql.*;
  * @author Steve Gledhill
  */
 public class UpdateInfo extends HttpServlet {
-  private static Logger LOG = new Logger(UpdateInfo.class);
   private static final boolean debug = false;
   private static final String szMonths[] = { "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"}; //0 based months
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
-    new InternalUpdateInfo(request, response);
+    new InternalUpdateInfo(request, response, "GET");
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
-    new InternalUpdateInfo(request, response);
+    new InternalUpdateInfo(request, response, "POST");
   }
 
   private class InternalUpdateInfo {
+    private Logger LOG;
     PrintWriter out;
     String title;
     //  ResultSet rs;
@@ -47,9 +45,13 @@ public class UpdateInfo extends HttpServlet {
     boolean editInfo;
     private String resort;
 
-    private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException, ServletException {
+      out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "UpdateInfo");
+      LOG = new Logger(UpdateInfo.class, request, methodType);
+      LOG.logRequestParameters();
+
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "UpdateInfo", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -91,7 +93,7 @@ public class UpdateInfo extends HttpServlet {
 
       response.setContentType("text/html");
       out = response.getWriter();
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
@@ -110,7 +112,7 @@ public class UpdateInfo extends HttpServlet {
     }
 
     public int readData(String readID, SessionData sessionData) {
-      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       if ((setNewID || editInfo || deletePatroller || finalDelete) && NameToEdit != null) {
 
         debugOut("in UpdateInfo, setNewID=" + setNewID + ", editInfo=" + editInfo + ", NameToEdit=(" + NameToEdit + ")");
@@ -222,7 +224,7 @@ public class UpdateInfo extends HttpServlet {
 
         }
         catch (Exception e) {
-          Logger.logException("(" + resort + ") Error resetting Assignments table ", e);
+          LOG.logException("(" + resort + ") Error (line 225) resetting Assignments table ", e);
         } //end try
       }
     }
@@ -319,7 +321,7 @@ public class UpdateInfo extends HttpServlet {
           }
           //check for duplicate ID
 //asdfasdfasd7
-          patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+          patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
           Roster mem = patrol.getMemberByID(md.getID()); //zz
           patrol.close(); //must close connection!
           if (mem != null) {
@@ -338,7 +340,7 @@ public class UpdateInfo extends HttpServlet {
             Logger.log("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
           }
           //test if any ID change was made
-          patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+          patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
           Roster mem = patrol.getMemberByID(md.getID()); //zz
           patrol.close(); //must close connection!
           if (mem != null) {

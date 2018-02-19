@@ -69,7 +69,7 @@ public class PatrolAssignments extends HttpServlet {
   private static Logger LOG = new Logger(PatrolAssignments.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     getPatrolAssignments(request, response);
   }
 
@@ -104,7 +104,7 @@ public class PatrolAssignments extends HttpServlet {
     }
 
     SessionData sessionData = new SessionData(request, out);
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     Connection connection = patrol.getConnection();
     NspSession nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {

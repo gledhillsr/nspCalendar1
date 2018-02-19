@@ -4,11 +4,8 @@ package org.nsponline.calendar;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.*;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.*;
@@ -18,65 +15,56 @@ import java.util.*;
  *         <p/>
  *         display a 1 month calendar
  */
-public class MonthCalendar extends HttpServlet {
-  private static Logger LOG = new Logger(MonthCalendar.class);
-
+public class MonthCalendar extends nspHttpServlet {
   private final static boolean DEBUG = false;
-
   private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
-    new MonthCalendarInternal(request, response);
+  private Calendar calendar;
+  private java.util.Date trialTime;
+  private Assignments monthData[][];
+  private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
+  private ShiftDefinitions WeeklyShifts[][];
+  private int currYear = 0;   //not initialized
+  private int currMonth = 0; //0 based month
+  private int realCurrMonth = 0;
+  private int realCurrYear = 0;
+  private int realCurrDate = 0;
+  private int seasonStartDay;
+  private int seasonStartMonth;
+  private int seasonEndDay;
+  private int seasonEndMonth;
+  private int textFontSize;
+
+  private int nextMonth, nextYear;
+  private int prevMonth, prevYear;
+
+  private String patrollerId;
+  private Hashtable<Integer, String> names;
+  private boolean isDirector;
+  private DirectorSettings directorSettings;
+  private boolean denseFormat;
+  private int maxAssignmentCnt;
+  private int maxNameLen;
+  private int textLen;
+  private int dayWidth;   //normal is 14 and 14 (100/7 = 14) ps need to FIX is other spots also
+  private int wkEndWidth; //big weekend is 11 and 22 (100/9)
+  private boolean notLoggedIn;
+  private String patrollerIdTag;
+
+  @Override
+  Class getServletClass() {
+    return this.getClass();
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
-    new MonthCalendarInternal(request, response);
+  String getParentIfBadCredentials() {
+    return null; //do not redirect
   }
 
-  private class MonthCalendarInternal {
-    private Calendar calendar;
-    private java.util.Date trialTime;
-    private Assignments monthData[][];
-    private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
-    private ShiftDefinitions WeeklyShifts[][];
-    private int currYear = 0;   //not initialized
-    private int currMonth = 0; //0 based month
-    private int realCurrMonth = 0;
-    private int realCurrYear = 0;
-    private int realCurrDate = 0;
-    private int seasonStartDay;
-    private int seasonStartMonth;
-    private int seasonEndDay;
-    private int seasonEndMonth;
-    private int textFontSize;
+  @Override
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
 
-    private int nextMonth, nextYear;
-    private int prevMonth, prevYear;
-
-    private String patrollerId;
-    private Hashtable<Integer, String> names;
-    private boolean isDirector;
-    private DirectorSettings directorSettings;
-    private boolean denseFormat;
-    private int maxAssignmentCnt;
-    private int maxNameLen;
-    private int textLen;
-    private int dayWidth;   //normal is 14 and 14 (100/7 = 14) ps need to FIX is other spots also
-    private int wkEndWidth; //big weekend is 11 and 22 (100/9)
-    private boolean notLoggedIn;
-    private String patrollerIdTag;
-    private String resort;
-    private SessionData sessionData;
-
-    MonthCalendarInternal(HttpServletRequest request, HttpServletResponse response) throws IOException {
       String szMonth;
       String szYear;
-      PrintWriter out;
-
-      response.setContentType("text/html");
-      out = response.getWriter();
       textFontSize = 10;
       currYear = 0;   //not initialized
       currMonth = 0; //0 based month
@@ -93,8 +81,7 @@ public class MonthCalendar extends HttpServlet {
         textLen = 0;  //undefined
       }
 
-      sessionData = new SessionData(request, out);
-      new ValidateCredentials(sessionData, request, response, null);  //do not redirect
+//      new ValidateCredentials(sessionData, request, response, null);  //do not redirect
       patrollerId = sessionData.getLoggedInUserId();
       if (Utils.isNotEmpty(patrollerId)) {
         patrollerIdTag = "&ID=" + patrollerId;
@@ -105,7 +92,6 @@ public class MonthCalendar extends HttpServlet {
         notLoggedIn = true;
       }
 
-      resort = request.getParameter("resort");
       isDirector = false;
       directorSettings = null;
       szMonth = request.getParameter("month");
@@ -139,7 +125,7 @@ public class MonthCalendar extends HttpServlet {
         return;
       }
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
 
@@ -203,7 +189,7 @@ public class MonthCalendar extends HttpServlet {
     @SuppressWarnings("ConstantConditions")
     private void readData(PrintWriter out, String resort, SessionData sessionData) {
       Roster member;
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
       ResultSet rosterResults = patrol.resetRoster();
       directorSettings = patrol.readDirectorSettings();
       while ((member = patrol.nextMember("", rosterResults)) != null) {
@@ -831,4 +817,3 @@ public class MonthCalendar extends HttpServlet {
       }
     }
   }
-}

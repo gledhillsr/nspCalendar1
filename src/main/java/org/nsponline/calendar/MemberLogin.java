@@ -20,16 +20,17 @@ public class MemberLogin extends HttpServlet {
   private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new MemberLoginInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
+    LOG.logRequestParameters("POST", request);
     new MemberLoginInternal(request, response);
   }
 
   private final class MemberLoginInternal {
+    private Logger LOG;
     private String resort;
     SessionData sessionData;
 
@@ -54,7 +55,7 @@ public class MemberLogin extends HttpServlet {
             "description of what you did to see this error. and I will fix it ASAP!!!");
         return;
       }
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
 

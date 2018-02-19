@@ -2,7 +2,6 @@ package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.PurgeAssignments;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.NspSession;
 
@@ -43,7 +42,7 @@ public class ResortList extends HttpServlet {
   private static Logger LOG = new Logger(ResortList.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new InnerResortList(request, response);
   }
 
@@ -64,7 +63,7 @@ public class ResortList extends HttpServlet {
         return;
       }
       SessionData sessionData = new SessionData(request, out);
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       Connection connection = patrol.getConnection();
       NspSession nspSession = NspSession.read(connection, sessionId);
       if (nspSession == null) {

@@ -16,16 +16,17 @@ public class Preferences extends HttpServlet {
   private static Logger LOG = new Logger(Preferences.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new LocalPreferences(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
+    LOG.logRequestParameters("POST", request);
     new LocalPreferences(request, response);
   }
 
   private class LocalPreferences {
+    private Logger LOG;
 
     String szMyID;
     PrintWriter out;
@@ -57,14 +58,14 @@ public class Preferences extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "Directors");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "Directors", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
       resort = request.getParameter("resort");
       szMyID = sessionData.getLoggedInUserId();
       readParameters(request, sessionData);
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
@@ -111,7 +112,7 @@ public class Preferences extends HttpServlet {
 // readData
 //------------
     private void readParameters(HttpServletRequest request, SessionData sessionData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData); //when reading members, read minimal data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, LOG); //when reading members, read minimal data
       DirectorSettings ds = patrol.readDirectorSettings();
 //Log.log("Original settings: "+ds.toString());
       String saveChangesBtn = request.getParameter("SaveChangesBtn");

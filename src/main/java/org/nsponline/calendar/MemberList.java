@@ -22,7 +22,7 @@ public class MemberList extends HttpServlet {
   private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new LocalMemberList(request, response);
   }
 
@@ -31,7 +31,7 @@ public class MemberList extends HttpServlet {
   }
 
   private final class LocalMemberList {
-//    private static final int MIN_VALID_EMAIL_SIZE = 6;
+    private Logger LOG;
 
     private PrintWriter out;
     private String patrollerId;
@@ -48,7 +48,7 @@ public class MemberList extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -56,7 +56,7 @@ public class MemberList extends HttpServlet {
       ds = null;
       resort = sessionData.getLoggedInResort();
       patrollerId = sessionData.getLoggedInUserId();
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       readData(sessionData, patrollerId);
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
@@ -69,7 +69,7 @@ public class MemberList extends HttpServlet {
 
     @SuppressWarnings("StringConcatenationInLoop")
     private void readData(SessionData sessionData, String iDOfEditor) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       ResultSet rosterResults = patrol.resetRoster();
       ds = patrol.readDirectorSettings();
 
@@ -127,7 +127,7 @@ public class MemberList extends HttpServlet {
     }
 
     private int printBody(SessionData sessionData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       ResultSet rosterResults = patrol.resetRoster();
       Roster member = patrol.nextMember("&nbsp;", rosterResults);
       int count = 0;

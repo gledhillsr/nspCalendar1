@@ -32,7 +32,7 @@ public class Logout extends HttpServlet {
   private static Logger LOG = new Logger(Logout.class);
 
   public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    LOG.printRequestParameters(LogLevel.INFO, "DELETE", request);
+    LOG.logRequestParameters("DELETE", request);
     doLogout(request, response);
   }
 
@@ -51,7 +51,7 @@ public class Logout extends HttpServlet {
       return;
     }
     SessionData sessionData = new SessionData(request, out);
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     Connection connection = patrol.getConnection();
     NspSession nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {

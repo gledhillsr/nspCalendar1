@@ -15,89 +15,82 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.TimeZone;
 
-public class ProcessChanges extends HttpServlet {
-  private static Logger LOG = new Logger(ProcessChanges.class);
-
+public class ProcessChanges extends nspHttpServlet {
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean PAUSE_ON_THIS_SCREEN = false;
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
-    new LocalProcessChanges(request, response);
+  private int date1, month1, year1, dayOfWeek0based;
+
+  @SuppressWarnings("unused")
+  private int date2, month2, year2, dayOfWeek2; //date2 etc all have to do with "trade" which is currently disabled
+  private PatrolData patrolData;
+  private String strChange3 = "";
+
+  private Assignments night1, night2;
+  private String szSubmitterName;
+  private java.util.Date currTime;
+  private int nIndex1AsNum;
+  private String szMyID;
+  private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
+
+  private boolean sentToFirst;
+  private boolean sentToSecond;
+  private String submitterID;
+  private String transaction;
+  private String selectedID;
+  private String szdate1;
+  private String pos1;
+  private String szPos2;
+  private String index1AsString;
+  private String listName;
+  private String newID;
+  private String newName;
+  private String secondID;
+
+  @SuppressWarnings("unused")
+  private String secondName;  //secondName etc all have to do with "trade" which is currently disabled
+  private Roster submitter;
+  private Roster member1;
+  private Roster member2;     //replaced member
+  private Calendar calendarToday;
+
+  private boolean dupError;
+  private int nPos1;
+  private boolean err;
+
+  private int transNumber;
+  private final int ERROR = 0;
+  private final int INSERT = 1;
+  private final int REPLACE = 2;
+  private final int REMOVE = 3;
+  private final int TRADE = 4;
+  private final int MISSED_SHIFT = 5;
+  private final int NEEDS_REPLACEMENT = 6;
+  private final int NO_REPLACEMENT_NEEDED = 7;
+
+  private static final String trans[] = {
+    "Error",
+    "Insert Patroller",
+    "Replace Patroller",
+    "Remove Patroller",
+    "Trade Days with Patroller",
+    "Missed Shift",
+    "Needs a Replacement",
+    "No Replacement Needed"
+  };
+
+  @Override
+  Class getServletClass() {
+    return this.getClass();
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
-    new LocalProcessChanges(request, response);
+  @Override
+  String getParentIfBadCredentials() {
+    return null;
   }
 
-  private class LocalProcessChanges {
-
-    private PrintWriter out;
-    private int date1, month1, year1, dayOfWeek0based;
-
-    @SuppressWarnings("unused")
-    private int date2, month2, year2, dayOfWeek2; //date2 etc all have to do with "trade" which is currently disabled
-    private PatrolData patrolData;
-    private String strChange3 = "";
-
-    private Assignments night1, night2;
-    private String szSubmitterName;
-    private java.util.Date currTime;
-    private int nIndex1AsNum;
-    private String szMyID;
-    private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
-
-    private boolean sentToFirst;
-    private boolean sentToSecond;
-    private String submitterID;
-    private String transaction;
-    private String selectedID;
-    private String szdate1;
-    private String pos1;
-    private String szPos2;
-    private String index1AsString;
-    private String listName;
-    private String newID;
-    private String newName;
-    private String secondID;
-
-    @SuppressWarnings("unused")
-    private String secondName;  //secondName etc all have to do with "trade" which is currently disabled
-    private Roster submitter;
-    private Roster member1;
-    private Roster member2;     //replaced member
-    private Calendar calendarToday;
-
-    private boolean dupError;
-    private int nPos1;
-    private boolean err;
-    private String resort;
-
-    private int transNumber;
-    private final int ERROR = 0;
-    private final int INSERT = 1;
-    private final int REPLACE = 2;
-    private final int REMOVE = 3;
-    private final int TRADE = 4;
-    private final int MISSED_SHIFT = 5;
-    private final int NEEDS_REPLACEMENT = 6;
-    private final int NO_REPLACEMENT_NEEDED = 7;
-
-    private String trans[] = {
-        "Error",
-        "Insert Patroller",
-        "Replace Patroller",
-        "Remove Patroller",
-        "Trade Days with Patroller",
-        "Missed Shift",
-        "Needs a Replacement",
-        "No Replacement Needed"
-    };
-
-    private LocalProcessChanges(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-      SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar"); //this class has no display
+  @Override
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -105,9 +98,8 @@ public class ProcessChanges extends HttpServlet {
       resort = request.getParameter("resort");
 
       response.setContentType("text/html");
-      out = response.getWriter();
 
-      patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       readParameters(request);
       OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
@@ -647,16 +639,15 @@ public class ProcessChanges extends HttpServlet {
       }
     }
 
-    @SuppressWarnings("unused")
-    private void log(String msg) {
-      //noinspection ConstantConditions
-      Logger.log("ProcessChanges: " + msg);
-    }
+//    @SuppressWarnings("unused")
+//    private void log(String msg) {
+//      //noinspection ConstantConditions
+//      Logger.log("ProcessChanges: " + msg);
+//    }
 
     private void log(HttpServletRequest request, String msg) {
       //noinspection ConstantConditions
       Logger.printToLogFile(request, resort, submitterID, "ProcessChanges: " + msg);
     }
-  } //end LocalProcessChanges
-}
+  }
 

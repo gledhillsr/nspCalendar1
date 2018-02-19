@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
  */
 @SuppressWarnings("unused")
 public class ShiftDefinitions {
-  private static final Logger LOG = new Logger(ShiftDefinitions.class);
+  private Logger LOG;
 
   //static data
   //format EventName Saturday_0, Saturday_1, World Cup_0 etc
@@ -19,13 +19,13 @@ public class ShiftDefinitions {
   //format EndTime 08:00 (text format)
   //format Count (int)
   public final static String tags[] = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
-  final static int EVENT_NAME_INDEX = 0;
-  final static int START_TIME_INDEX = 1;
-  final static int END_TIME_INDEX = 2;
-  final static int COUNT_INDEX = 3;
-  final static int TYPE_INDEX = 4;
+  private final static int EVENT_NAME_INDEX = 0;
+  private final static int START_TIME_INDEX = 1;
+  private final static int END_TIME_INDEX = 2;
+  private final static int COUNT_INDEX = 3;
+  private final static int TYPE_INDEX = 4;
 
-  final static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+  private final static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
   public final static int MAX = 35;  //maximum # of different shifts on any single day
 
   //instance data
@@ -34,10 +34,10 @@ public class ShiftDefinitions {
   private String endTime;
   private int count;
   private int type;
+  private boolean existed;
 
-  private boolean existed;   //todo srg dangerous, use getter instead
-
-  public ShiftDefinitions() {
+  public ShiftDefinitions(Logger parentLogger) {
+    LOG = new Logger(this.getClass(), parentLogger);
     eventName = null;
     startTime = null;
     endTime = null;
@@ -46,7 +46,8 @@ public class ShiftDefinitions {
     existed = false;
   }
 
-  public ShiftDefinitions(String name, String start, String end, int cnt, int typ) {
+  public ShiftDefinitions(String name, String start, String end, int cnt, int typ, Logger parentLogger) {
+    LOG = new Logger(this.getClass(), parentLogger);
     eventName = name;
     startTime = start;
     endTime = end;
@@ -77,7 +78,6 @@ public class ShiftDefinitions {
       if (type < 0 || type >= Assignments.MAX_SHIFT_TYPES) {
         type = 0;  //reset to default, if invalid
       }
-//Log.log("read shift: "+toString());
       existed = true;
     }
     catch (Exception e) {

@@ -52,7 +52,7 @@ public class Login extends HttpServlet {
   private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
+    LOG.logRequestParameters("POST", request);
     doLogin(request, response);
   }
 
@@ -101,7 +101,7 @@ public class Login extends HttpServlet {
       return;
     }
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     Roster patroller = patrol.getMemberByID(patrollerId); //ID from cookie
     boolean isDirector = patroller.isDirector();
 

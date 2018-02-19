@@ -14,19 +14,17 @@ import java.util.ArrayList;
 
 
 public class EditShifts extends HttpServlet {
-  private static Logger LOG = new Logger(EditShifts.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalEditShifts(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalEditShifts(request, response);
   }
 
   private class LocalEditShifts {
+    private Logger LOG;
     String szMyID;
     ArrayList<ShiftDefinitions> shifts;
     PrintWriter out;
@@ -44,7 +42,7 @@ public class EditShifts extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -62,7 +60,7 @@ public class EditShifts extends HttpServlet {
         selectedShift = ""; //shift no longer exists
       }
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
@@ -183,7 +181,7 @@ public class EditShifts extends HttpServlet {
       shiftToDelete = 0;
       ShiftDefinitions[] todaysData = new ShiftDefinitions[shiftCount];
       int cnt = 0;
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
       // read Shift ski assignments for the specific day
       shifts = new ArrayList<ShiftDefinitions>();
       patrol.resetShiftDefinitions();  //todo 12/30/15  this does nothing or is broken
@@ -217,7 +215,7 @@ public class EditShifts extends HttpServlet {
         if (displayParameters) {
           Logger.log(tEvent + " " + tStart + ", " + tEnd + ", " + tCount + ", " + tTyp);
         }
-        todaysData[cnt] = new ShiftDefinitions(tEvent, tStart, tEnd, tCnt, tTyp);
+        todaysData[cnt] = new ShiftDefinitions(tEvent, tStart, tEnd, tCnt, tTyp, LOG);
         if (newShift) {
           if (displayParameters) {
             Logger.log("INSERT this shift: " + todaysData[cnt]);
@@ -282,7 +280,7 @@ public class EditShifts extends HttpServlet {
         String start = "8:30";
         String end = "14:00";
         cnt = 1;
-        ShiftDefinitions shiftDefinition = new ShiftDefinitions(ShiftDefinitions.createShiftName(selectedShift, selectedSize), start, end, cnt, Assignments.DAY_TYPE);
+        ShiftDefinitions shiftDefinition = new ShiftDefinitions(ShiftDefinitions.createShiftName(selectedShift, selectedSize), start, end, cnt, Assignments.DAY_TYPE, LOG);
         shifts.add(shiftDefinition);   //add to my local array
         patrol.writeShift(shiftDefinition);    //write to database
       }

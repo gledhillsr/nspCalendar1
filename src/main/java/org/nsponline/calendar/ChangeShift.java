@@ -8,85 +8,63 @@ import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.store.NewIndividualAssignment;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.*;
 
-public class ChangeShift extends HttpServlet {
-  private static Logger LOG = new Logger(ChangeShift.class);
+public class ChangeShift extends nspHttpServlet {
   boolean DEBUG = false;
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
-    new LocalChangeShift(request, response);
+  private String[] sortedRoster;
+  private Hashtable<String, String> numToName = new Hashtable<String, String>();
+  private int rosterSize;
+  private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
+
+  private String newName1 = "";
+  private String newName = "";
+  private String newIdNumber = "0";
+  private String szMyID = null;
+  private String myName;
+  private String myName1;
+  private boolean posWasEmpty = true;
+
+  private int dayOfWeek;  //0=Sunday
+  private int dayOfMonth;       //1 based
+  private int month;      //0 based
+  private int year;       //duh
+  private int pos;        //
+  private int index;      //
+  private int totalAssignmentGroupsForToday;
+  private Assignments[] assignmentGroups;
+  private boolean allowEditing;
+  private boolean isDirector;
+  private int removeAccess;
+  private int visibleRadioButtons = 0;
+
+  @Override
+    Class getServletClass() {
+      return this.getClass();
+    }
+
+  String getParentIfBadCredentials() {
+    return "MonthCalendar";
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
-    new LocalChangeShift(request, response);
-  }
+  public ChangeShift() {
+    }
 
-  private class LocalChangeShift {
-    //------------
-    // static data
-//------------
-    Calendar calendarToday = null;
-    String[] sortedRoster;
-    Hashtable<String, String> numToName = new Hashtable<String, String>();
-    int rosterSize;
-    HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
-
-    int myShiftCount;
-    private String resort;
-//    Calendar calendar;
-    String newName1 = "";
-    String newName = "";
-    String newIdNumber = "0";
-    String szMyID = null;
-    String myName;
-    String myName1;
-    boolean posWasEmpty = true;
-
-    int dayOfWeek;  //0=Sunday
-    int dayOfMonth;       //1 based
-    int month;      //0 based
-    int year;       //duh
-    int pos;        //
-    int index;      //
-    int totalAssignmentGroupsForToday;
-    int todayDate;      //1 based
-    int todayMonth;     //0 based
-    int todayYear;      //duh
-//    String szYear;
-//    String szDate;
-    Assignments[] assignmentGroups;
-    boolean allowEditing;
-    boolean isDirector;
-    int removeAccess;
-    int visibleRadioButtons = 0;
-    java.util.Date currTime;
-    PrintWriter out;
-
-    private LocalChangeShift(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      response.setContentType("text/html");
-      out = response.getWriter();
-
-      SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
+    @Override
+    public void servletBody(HttpServletRequest request, HttpServletResponse response) {
       if (credentials.hasInvalidCredentials()) {
         return;
       }
-      resort = sessionData.getLoggedInResort();
+
       szMyID = sessionData.getLoggedInUserId();
 //      debugOut(sessionData, " STARTING: userID=" + szMyID);
       readParameterData(sessionData, request);
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
       readData(sessionData, patrol);
 
       visibleRadioButtons = 0;
@@ -510,38 +488,18 @@ debugOut(sessionData, "printBottom, submitterID=");
 
       // create a GregorianCalendar with the Pacific Daylight time zone
       // and the current date and time
-      calendarToday = new GregorianCalendar(TimeZone.getDefault());
-      currTime = new java.util.Date();
+      final Calendar calendarToday = new GregorianCalendar(TimeZone.getDefault());
+      final Date currTime = new Date();
 
       calendarToday.setTime(currTime);
-      todayYear = calendarToday.get(Calendar.YEAR);
-      todayMonth = calendarToday.get(Calendar.MONTH) + 1;  //MONTH is 1 based
-      todayDate = calendarToday.get(Calendar.DATE);
-//        if(resort.equals("Brighton")) {
 
       monthNewIndividualAssignments = patrol.readNewIndividualAssignments(year, month + 1, dayOfMonth); //entire day
-//        }
-
-//------------------------------------------------
-// read Shift ski assignments for the specific date
-//------------------------------------------------
-//    myShiftAssignments = new Shifts[300]; //assume never more than 300 per season
-      //save all of MY assignments
 
       totalAssignmentGroupsForToday = 0;
-//        String lastPos = " ";
       assignmentGroups = new Assignments[50];
-//      Assignments data;
-      myShiftCount = 0;
-//    assignmentCount = 0;
       for (Assignments shiftAssignments : patrol.readSortedAssignments(year, month + 1, dayOfMonth)) {
-//        y = data.getYear();
-//        m = data.getMonth() - 1; //make it 0 based
-//        d = data.getDay();
-//        if (year == y && month == m && date == d) {
         debugOut(sessionData, "readData-asignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
         assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
-///        }
       } //end while Shift ski assignments
     } //end of readdata
 
@@ -550,5 +508,4 @@ debugOut(sessionData, "printBottom, submitterID=");
         Logger.printToLogFile(sessionData.getRequest() , resort, sessionData.getLoggedInUserId(), "ChangeShift: " + msg);
       }
     }
-  }
 } //end class ChangeShift

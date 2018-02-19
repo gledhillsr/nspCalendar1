@@ -20,32 +20,28 @@ import java.util.GregorianCalendar;
  *         Brighton patrollers also get a view of the locker room assignments
  */
 public class ListAssignments extends HttpServlet {
-  private static Logger LOG = new Logger(ListAssignments.class);
-  private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
-    new LocalListAssignments(request, response);
+    new LocalListAssignments(request, response, "GET");
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
-    new LocalListAssignments(request, response);
+    new LocalListAssignments(request, response, "POST");
   }
 
   private final class LocalListAssignments {
-
+    private Logger LOG;
     private String resort;
 
-    private LocalListAssignments(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
+    private LocalListAssignments(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException, ServletException {
+      LOG = new Logger(ListAssignments.class, request, methodType);
+      LOG.logRequestParameters();
       String patrollerId;
       PrintWriter out;
-
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "ListAssignments");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "ListAssignments", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -53,7 +49,7 @@ public class ListAssignments extends HttpServlet {
       resort = sessionData.getLoggedInResort();
       patrollerId = sessionData.getLoggedInUserId();
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop(out);
@@ -86,7 +82,7 @@ public class ListAssignments extends HttpServlet {
         return;
       }
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       Roster member = patrol.getMemberByID(szMyID);
       myID = Integer.parseInt(szMyID);
       myName = member.getFullName();
@@ -131,7 +127,7 @@ public class ListAssignments extends HttpServlet {
             pat0 = Integer.parseInt(ns.getPosID(shiftType));
           }
           catch (Exception e) {
-            Logger.log("error id (" + ns.getPosID(shiftType) + ")");
+            LOG.error("error id (" + ns.getPosID(shiftType) + ")");
             continue;
           }
           if (Math.abs(pat0) == myID) {  //check if 'myID'
@@ -183,9 +179,7 @@ public class ListAssignments extends HttpServlet {
 
     @SuppressWarnings("SameParameterValue")
     private void debugOut(String msg) {
-      if (DEBUG) {
-        Logger.log("DEBUG-ListAssignments resort=" + resort + ", " + msg);
-      }
+      Logger.log("DEBUG-ListAssignments resort=" + resort + ", " + msg);
     }
   }
 }

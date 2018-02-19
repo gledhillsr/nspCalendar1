@@ -1,6 +1,5 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.LogLevel;
 import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
@@ -23,7 +22,7 @@ public class MemberLogout extends HttpServlet {
   static final boolean DEBUG = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new InnerLogout(request, response);
   }
 
@@ -32,6 +31,7 @@ public class MemberLogout extends HttpServlet {
   }
 
   private class InnerLogout {
+    private Logger LOG;
     private String resort;
 
     public InnerLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {

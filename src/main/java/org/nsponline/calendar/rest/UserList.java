@@ -65,7 +65,7 @@ public class UserList extends HttpServlet {
   private static Logger LOG = new Logger(UserList.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new InnerUserList(request, response);
   }
 
@@ -86,7 +86,7 @@ public class UserList extends HttpServlet {
         return;
       }
       SessionData sessionData = new SessionData(request, out);
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       Connection connection = patrol.getConnection();
       NspSession nspSession = NspSession.read(connection, sessionId);
       if (nspSession == null) {

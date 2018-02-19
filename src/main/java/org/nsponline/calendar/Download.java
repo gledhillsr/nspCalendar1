@@ -16,12 +16,12 @@ public class Download extends HttpServlet {
   private static Logger LOG = new Logger(Download.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
+    LOG.logRequestParameters("GET", request);
     new LocalDownload(request, response);
   }
 
   private class LocalDownload {
-  boolean debug = true;	//-----------
+    boolean debug = true;	//-----------
   //    ResourceBundle rb = ResourceBundle.getBundle("LocalStrings");
   PrintWriter out;
   boolean isExcel;
@@ -100,7 +100,7 @@ public class Download extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar");
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -268,7 +268,7 @@ public class Download extends HttpServlet {
 //Log.log("listDirector= "+listDirector);
 //Log.log("instructorFlags= "+instructorFlags);
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
     //read assignments within a range and get shift count
     readAssignments(patrol); //must read for other code to work
@@ -355,7 +355,7 @@ public class Download extends HttpServlet {
 
 
   public void excelOutput(SessionData sessionData) {
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
 //sg 8/31/07
 //        MemberData member = patrol.nextMember("");
 //        out.println(member.getExcelHeader());
