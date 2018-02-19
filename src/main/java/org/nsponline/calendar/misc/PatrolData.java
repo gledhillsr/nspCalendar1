@@ -20,7 +20,7 @@ public class PatrolData {
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
 private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
 
-  public final static Boolean USING_TESTING_ADDRESS = true;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
+  public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
   static {
     //noinspection ConstantConditions
