@@ -159,7 +159,7 @@ public class NewIndividualAssignment {
         tag[LAST_MODIFIED_DATE_INDEX] + " = '" + szLastModDate + "', " +
         tag[LAST_MODIFIED_BY_INDEX] + " = '" + lastModifiedBy + "'";
     qryString += " WHERE " + tag[DATE_SHIFT_POS_INDEX] + " = '" + dateShiftPos + "'";
-    Logger.printToLogFile(sessionData.getRequest(), qryString);
+    Logger.logSqlStatementStatic(qryString);
     return qryString;
   }
 

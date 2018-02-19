@@ -50,6 +50,7 @@ public class NspSession {
     PreparedStatement sessionStatement = null;
     @SuppressWarnings("SqlNoDataSourceInspection")
     String str = "SELECT * FROM " + TABLE_NAME + " WHERE " + SESSION_ID + " = ?" ;
+    LOG.logSqlStatement(str);
     try {
       sessionStatement = connection.prepareStatement(str);
       sessionStatement.setString(1, sessionId);
@@ -89,7 +90,6 @@ public class NspSession {
         authenticatedUser + "\", \"" + resort + "\", \"" + sessionCreateTime + "\", \"" + lastSessionAccessTime + "\", \"" +
         sessionIpAddress + "\", \"" + (isDirector? 1:0) + "\")";
 
-//    String qryString = newIndividualAssignment.getInsertSQLString(sessionData);
     LOG.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);

@@ -416,7 +416,9 @@ public class DirectorSettings {
   static public ResultSet reset(Connection connection) {
     PreparedStatement directorStatement;
     try {
-      directorStatement = connection.prepareStatement("SELECT * FROM directorsettings ORDER BY \"" + PATROL_NAME_FIELD + "\""); //sort by default key
+      String sqlQuery = "SELECT * FROM directorsettings ORDER BY \"" + PATROL_NAME_FIELD + "\"";
+      Logger.logSqlStatementStatic(sqlQuery);
+      directorStatement = connection.prepareStatement(sqlQuery); //sort by default key
       return directorStatement.executeQuery();
     }
     catch (Exception e) {

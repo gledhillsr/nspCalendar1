@@ -688,7 +688,7 @@ public class Roster {
       }
     }
     qryString += " )";
-    PatrolData.logger(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -738,7 +738,7 @@ public class Roster {
       }
     }
     qryString += " WHERE " + dbData[ID_NUM][DB_NAME] + " =" + memberData[ID_NUM];
-    PatrolData.logger(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -778,7 +778,7 @@ public class Roster {
     int i;
     //noinspection UnnecessaryLocalVariable
     String qryString = "DELETE FROM roster WHERE " + dbData[ID_NUM][DB_NAME] + " = '" + memberData[ID_NUM] + "'";
-//Log.log(qryString);
+    Logger.logSqlStatementStatic(qryString);
     return qryString;
   }
 

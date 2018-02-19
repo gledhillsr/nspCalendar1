@@ -209,7 +209,7 @@ public class UpdateInfo extends HttpServlet {
       String IDpos[] = {"P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"};
       for (int i = 0; i < 10; ++i) {
         String qryString = "SELECT Date, " + IDpos[i] + " FROM `assignments` WHERE " + IDpos[i] + "=" + oldMemberID;
-//Log.log(qryString);
+        LOG.logSqlStatement(qryString);
         try {
           cs = c.prepareStatement(qryString);
           cr = cs.executeQuery();

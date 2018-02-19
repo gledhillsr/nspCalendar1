@@ -1,57 +1,35 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * @author Steve Gledhill
- *
+ * <p>
  * clear cookies, and push to MonthCalendar (no longer logged in)
  */
-public class MemberLogout extends HttpServlet {
-  private static Logger LOG = new Logger(MemberLogout.class);
+public class MemberLogout extends nspHttpServlet {
 
-  static final boolean DEBUG = true;
-
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
-    new InnerLogout(request, response);
+  Class getServletClass() {
+    return this.getClass();
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    doGet(request, response);
+  String getParentIfBadCredentials() {
+    return null;
   }
 
-  private class InnerLogout {
-    private Logger LOG;
-    private String resort;
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    sessionData.clearLoggedInResort();
+    sessionData.clearLoggedInUserId();
+    String newLoc = PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort;
+    debugOut("Logout sendRedirect to: " + newLoc);
+    response.sendRedirect(newLoc);
+  }
 
-    public InnerLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-      response.setContentType("text/html");
-      PrintWriter out = response.getWriter();
-      resort = request.getParameter("resort");
-      response.setContentType("text/html");
-      SessionData sessionData = new SessionData(request, out);
-      sessionData.clearLoggedInResort();
-      sessionData.clearLoggedInUserId();
-      String newLoc = PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort;
-      debugOut("Logout sendRedirect to: " + newLoc);
-      response.sendRedirect(newLoc);
-    }
-
-    private void debugOut(String str) {
-      if (DEBUG) {
-        Logger.log("DEBUG-Logout(" + resort + "): " + str);
-      }
-    }
+  private void debugOut(String str) {
+      LOG.info("DEBUG-Logout(" + resort + "): " + str);
   }
 }
 

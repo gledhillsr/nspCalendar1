@@ -260,7 +260,7 @@ public class EditShifts extends HttpServlet {
           }
           else if (!newShift && shiftCount > 0 && !shiftDefinition.equals(todaysData[selectedSize])) {
             if (displayParameters) {
-              Logger.log("UPDATE this shift: " + selectedSize);
+              Logger.log("update this shift: " + selectedSize);
             }
             shiftDefinition = todaysData[selectedSize];
             patrol.writeShift(shiftDefinition);

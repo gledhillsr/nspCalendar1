@@ -200,7 +200,9 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
 
   public ResultSet resetRoster() {
     try {
-      PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY LastName, FirstName");
+      String sqlQuery = "SELECT * FROM roster ORDER BY LastName, FirstName";
+      LOG.logSqlStatement(sqlQuery);
+      PreparedStatement rosterStatement = connection.prepareStatement(sqlQuery);
       return rosterStatement.executeQuery();
     }
     catch (Exception e) {
@@ -368,6 +370,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
   public Roster getMemberByID(String szMemberID) {
     Roster member;
     String str = "SELECT * FROM roster WHERE IDNumber =" + szMemberID;
+    LOG.logSqlStatement(str);
     if (szMemberID == null || szMemberID.length() <= 3) {
       return null;
     }
@@ -411,7 +414,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
   public Roster getMemberByEmail(String szEmail) {
     Roster member;
     String str = "SELECT * FROM roster WHERE email =\"" + szEmail + "\"";
-//Log.log(str);
+    LOG.logSqlStatement(str);
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
       ResultSet rosterResults = rosterStatement.executeQuery();
@@ -439,6 +442,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
   public Roster getMemberByLastNameFirstName(String szFullName) {
     Roster member;
     String str = "SELECT * FROM roster";
+    LOG.logSqlStatement(str);
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
       ResultSet rosterResults = rosterStatement.executeQuery();
@@ -494,6 +498,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     Assignments ns;
     try {
       String queryString = "SELECT * FROM assignments WHERE Date=\'" + myDate + "\'";
+      LOG.logSqlStatement(queryString);
       PreparedStatement assignmentsStatementLocal = connection.prepareStatement(queryString);
       ResultSet assignmentResultsLocal = assignmentsStatementLocal.executeQuery();
 
@@ -520,7 +525,6 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     else {
       qryString = ns.getInsertQueryString(sessionData);
     }
-    LOG.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -805,7 +809,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
-      logger("readAllSortedAssignments(" + patrollerId + "): " + qryString);
+      LOG.logSqlStatement(qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 //      int cnt = 1;
@@ -850,7 +854,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
-      debugOut(null, "readSortedAssignments: " + qryString);
+      LOG.logSqlStatement(qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
@@ -873,7 +877,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
     try {
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
-      logger("readSortedAssignments:" + qryString);
+      LOG.logSqlStatement(qryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
@@ -931,6 +935,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
       Connection c = PatrolData.getConnection(resort, sessionData);
       @SuppressWarnings("SqlNoDataSourceInspection")
       String szQuery = "SELECT * FROM roster WHERE IDNumber = \"" + ID + "\"";
+      Logger.logSqlStatementStatic(szQuery);
       PreparedStatement sRost = c.prepareStatement(szQuery);
       if (sRost == null) {
         return false;

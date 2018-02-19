@@ -3,8 +3,6 @@ package org.nsponline.calendar;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Roster;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -17,31 +15,14 @@ import java.io.PrintWriter;
  *         2) if valid, go to parent page
  *         3) else display login help screen
  */
-public class LoginHelp extends HttpServlet {
-  private static Logger LOG = new Logger(LoginHelp.class);
+public class LoginHelp extends nspHttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG = false;
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG_SENSITIVE = false;
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
-    new InternalLoginHelp(request, response);
-  }
-
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("POST", request);
-    new InternalLoginHelp(request, response);
-  }
-
-  private class InternalLoginHelp {
-    private Logger LOG;
-
-    String resort;
-    SessionData sessionData;
-
-    InternalLoginHelp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 
       PrintWriter out;
       String szParent;
@@ -259,5 +240,12 @@ public class LoginHelp extends HttpServlet {
         Logger.printToLogFile(sessionData.getRequest(), "DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);
       }
     }
+
+  Class getServletClass() {
+    return this.getClass();
+  }
+
+  String getParentIfBadCredentials() {
+    return null;
   }
 }

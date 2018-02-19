@@ -30,10 +30,10 @@ public class ValidateCredentials {
     init(sessionData, response, parent, idParameter, idLoggedIn);
   }
 
-  public ValidateCredentials(SessionData sessionData, String resort, String id) {
-    this.resortParameter = resort;
-    init(sessionData, null, null, id, null);
-  }
+//  public ValidateCredentials(SessionData sessionData, String resort, String id) {
+//    this.resortParameter = resort;
+//    init(sessionData, null, null, id, null);
+//  }
 
   private void init(SessionData sessionData, HttpServletResponse response, String parent, String idParameter, String idLoggedIn) {
     debugOut("parameters  idParameter=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);

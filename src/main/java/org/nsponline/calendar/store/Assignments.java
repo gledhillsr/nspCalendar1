@@ -362,7 +362,9 @@ public class Assignments {
   }
 
   public static String getSelectAllAssignmentsByDateSQLString() {
-    return "SELECT * FROM assignments ORDER BY \"" + getDateSqlTag() + "\"";
+    String sqlQuery = "SELECT * FROM assignments ORDER BY \"" + getDateSqlTag() + "\"";
+    LOG.logSqlStatement(sqlQuery);
+    return sqlQuery;
   }
 
   public String toString() {
