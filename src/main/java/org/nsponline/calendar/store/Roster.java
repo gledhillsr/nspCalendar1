@@ -2,6 +2,7 @@ package org.nsponline.calendar.store;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.Utils;
 
@@ -13,14 +14,12 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
-import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
-
 /**
  * @author Steve Gledhill
  */
 @SuppressWarnings("unused")
 public class Roster {
+  private static Logger LOG = new Logger(Roster.class);
 
   public static final String HARD_SPACE_NBSP = "&nbsp;";
   //static data
@@ -181,7 +180,7 @@ public class Roster {
 
   public Roster(HttpServletRequest request) {
 
-//System.out.println("Constructor-MemberData(request)");
+//Log.log("Constructor-MemberData(request)");
     idNum = 0;
     memberData = new String[DB_SIZE];           //data for 'this' member
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
@@ -215,7 +214,7 @@ public class Roster {
           String szMonth = request.getParameter("voucherMonth");
           String szYear = request.getParameter("voucherYear");
           //if values are valid, parse into milliseconds
-//System.out.println("in MemberData constructor, szDay="+szDay+" szMonth="+szMonth+" szYear="+szYear);
+//Log.log("in MemberData constructor, szDay="+szDay+" szMonth="+szMonth+" szYear="+szYear);
           if (szDay != null && szMonth != null && szYear != null) {
             int m, d, y;
             try {
@@ -228,7 +227,7 @@ public class Roster {
               memberData[i] = "" + cal.getTimeInMillis();
             }
             catch (Exception e) {
-              System.out.println("Exception in Memberdata(request): " + e);
+              Logger.logException("Exception in Memberdata(request): ", e);
             }
           }
         }
@@ -247,7 +246,7 @@ public class Roster {
         //replace all " characters with a ' character.  The " character is a delimiter for SQL
         memberData[i] = memberData[i].replace('"', '\'');
       }
-//System.out.println("Constructor-MemberData["+i+"] = ("+memberData[i]+")");
+//Log.log("Constructor-MemberData["+i+"] = ("+memberData[i]+")");
     }
 
   }
@@ -288,11 +287,11 @@ public class Roster {
   }
 
   public static void printMemberListRowHeading(PrintWriter out, String resort) {
-//System.out.println("in printMemberListRowHeading, lastColumn="+lastColumn);
+//Log.log("in printMemberListRowHeading, lastColumn="+lastColumn);
     for (int i = 0; i < lastColumn; ++i) {
       //String title = (String)columns.elementAt(i);
       int idx = columns[i];
-//System.out.println("idx="+idx);
+//Log.log("idx="+idx);
       String title = "Error";
       String wid = "Error";
       if (idx < FULL_DB_SIZE) {
@@ -462,7 +461,7 @@ public class Roster {
       }
       out.print(" <td" + align + ">" + str + "</td>");
     }
-//System.out.println("=======");
+//Log.log("=======");
     out.println("</tr>\n");
   }
 
@@ -479,9 +478,9 @@ public class Roster {
   public static String getInstructorString(String szTmp) {
     String str = Roster.HARD_SPACE_NBSP;
     try {
-//System.out.println("instructor=("+szTmp+")");
+//Log.log("instructor=("+szTmp+")");
       int idx = Integer.parseInt(szTmp);
-//System.out.println("idx="+idx);
+//Log.log("idx="+idx);
       if ((idx & 1) == 1) {
         str += "OEC";
         idx -= 1;
@@ -535,7 +534,7 @@ public class Roster {
     idNum = readInt(rosterResults, dbData[ID_NUM][DB_NAME]);
     for (int i = 0; i < DB_SIZE; ++i) {
       memberData[i] = readString(rosterResults, dbData[i][DB_NAME], defaultString);
-//System.out.println(i+") "+memberData[i]);
+//Log.log(i+") "+memberData[i]);
     }
     return !exceptionError;
   }
@@ -574,7 +573,7 @@ public class Roster {
       classification = lookupClassification.get(getClassification());
     }
     catch (Exception ex) {
-      System.out.println("ERROR, classification not found" + getClassification());
+      Logger.log("ERROR, classification not found" + getClassification());
     }
     return classification;
   }
@@ -588,7 +587,7 @@ public class Roster {
         qryString += "\t";      //tab between fields
       }
     }
-//System.out.println(qryString);
+//Log.log(qryString);
     return qryString;
   }
 
@@ -605,7 +604,7 @@ public class Roster {
         qryString += "\t" + szTmp;
       }
     }
-//System.out.println(qryString);
+//Log.log(qryString);
     return qryString;
   }
 
@@ -633,7 +632,7 @@ public class Roster {
       }
     }
     qryString += ",,,,,,,\"0\",\"Ski Patrol\""; //country,1,2,3,4,note,private,catagory
-//System.out.println(memberData[0]+" = ("+qryString+")");
+//Log.log(memberData[0]+" = ("+qryString+")");
     return qryString;
   }
 
@@ -644,7 +643,7 @@ public class Roster {
     String str;
     Calendar rightNow = Calendar.getInstance();
     //str = rightNow.getTimeInMillis() + "";  //convert long to string
-//System.out.println("in getInsertSQLString, time=(string)"+str+" or (long)"+rightNow.getTimeInMillis());
+//Log.log("in getInsertSQLString, time=(string)"+str+" or (long)"+rightNow.getTimeInMillis());
     int m = rightNow.get(Calendar.MONTH) + 1;
     int d = rightNow.get(Calendar.DATE);
     int y = rightNow.get(Calendar.YEAR);
@@ -699,7 +698,7 @@ public class Roster {
     String str;
     Calendar rightNow = Calendar.getInstance();
     //str = rightNow.getTimeInMillis() + "";  //convert long to string
-//System.out.println("in getUpdateSQLString, time=(string)"+str+" or (long)"+rightNow.getTimeInMillis());
+//Log.log("in getUpdateSQLString, time=(string)"+str+" or (long)"+rightNow.getTimeInMillis());
     int m = rightNow.get(Calendar.MONTH) + 1;
     int d = rightNow.get(Calendar.DATE);
     int y = rightNow.get(Calendar.YEAR);
@@ -721,12 +720,12 @@ public class Roster {
       try {
         //make the ' character an excape sequence
         goodStr = goodStr.replaceAll("'", "\\'");
-//System.out.println("goodStr="+goodStr+" oldString="+memberData[order[i]]);
+//Log.log("goodStr="+goodStr+" oldString="+memberData[order[i]]);
       }
       catch (Exception e) {
         //go back to original
         goodStr = memberData[order[i]];
-//System.out.println("exception="+goodStr);
+//Log.log("exception="+goodStr);
       }
 //            qryString += "'"  + goodStr + "')";
 //zzz
@@ -749,10 +748,10 @@ public class Roster {
 //          double xx = Double.parseDouble(vouchers);
 //        ct = (int)(xx * 2.0);
       credits = Integer.parseInt(vouchers) + "";
-//System.out.println("-------"+ct+" credits="+credits);
+//Log.log("-------"+ct+" credits="+credits);
     }
     catch (Exception e) {
-      System.out.println("Error in vouchersToCredits, parsing voucher count of " + vouchers + ".  Setting Credits to 0");
+      Logger.log("Error in vouchersToCredits, parsing voucher count of " + vouchers + ".  Setting Credits to 0");
       credits = "0";
     }
     return credits;
@@ -763,11 +762,11 @@ public class Roster {
     try {
 //            double xx = (double)Integer.parseInt(szCredits) / 2.0;
       double xx = (double) Integer.parseInt(szCredits);
-//System.out.println("xx="+xx);
+//Log.log("xx="+xx);
       NumberFormat fmtr = NumberFormat.getInstance();
       // fmtr.applyPattern("#,##0.#;(#,##0.#)");
       szVouchers = fmtr.format(xx);
-//System.out.println("yy="+szDefault);
+//Log.log("yy="+szDefault);
     }
     catch (Exception e) {
       //ignore
@@ -779,7 +778,7 @@ public class Roster {
     int i;
     //noinspection UnnecessaryLocalVariable
     String qryString = "DELETE FROM roster WHERE " + dbData[ID_NUM][DB_NAME] + " = '" + memberData[ID_NUM] + "'";
-//System.out.println(qryString);
+//Log.log(qryString);
     return qryString;
   }
 
@@ -1080,13 +1079,13 @@ public class Roster {
     catch (Exception e) {
       //ignore
     }
-//System.out.println("commitment status = "+value);
+//Log.log("commitment status = "+value);
     if (value == 3 || iCommitmentToDisplay == 0 || ((1 << value & iCommitmentToDisplay) == 0)) {
       return false;
     }
 
 //AND 3rd test Everyone/director/cpr/oec/ski/toboggan
-//System.out.println(member.getID()+ ") listDirector = "+listDirector+"  isDirector="+member.isDirector());
+//Log.log(member.getID()+ ") listDirector = "+listDirector+"  isDirector="+member.isDirector());
     if (bListAll) {
       ok = true;
     }
@@ -1116,7 +1115,7 @@ public class Roster {
       for (int j = 0; j < Assignments.MAX_SHIFT_TYPES; ++j) {
         totalDays += AssignmentCount[j];
       }
-//System.out.println("in OKToDisplay, "+getID()+": totalDays="+totalDays+", MinDays="+MinDays);
+//Log.log("in OKToDisplay, "+getID()+": totalDays="+totalDays+", MinDays="+MinDays);
       if (totalDays >= MinDays) {
         return false;
       }

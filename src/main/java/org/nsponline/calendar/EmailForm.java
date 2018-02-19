@@ -20,14 +20,15 @@ import java.util.Vector;
  * @author Steve Gledhill
  */
 public class EmailForm extends HttpServlet {
+  private static Logger LOG = new Logger(EmailForm.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalEmailForm(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalEmailForm(request, response);
   }
 
@@ -647,7 +648,7 @@ public class EmailForm extends HttpServlet {
 
     private void debugOut(String msg) {
       if (DEBUG) {
-        System.out.println("DEBUG-EmailForm(" + resort + "): " + msg);
+        Logger.log("DEBUG-EmailForm resort=" + resort + ", " + msg);
       }
     }
 
@@ -693,10 +694,10 @@ public class EmailForm extends HttpServlet {
             }
           }
         }
-//else System.out.println("NOT OK to display "+member);
+//else Log.log("NOT OK to display "+member);
         memberx = patrol.nextMember("", rosterResults);
       }
-//System.out.println("length of email string = "+ePatrollerList.length());
+//Log.log("length of email string = "+ePatrollerList.length());
       Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
 //      patrol.close(); //must close connection!
       isDirector = editor != null && editor.isDirector();

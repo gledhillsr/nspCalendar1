@@ -4,10 +4,7 @@ package org.nsponline.calendar;
  * @author Steve Gledhill
  */
 
-import org.nsponline.calendar.misc.MailMan;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
@@ -19,24 +16,24 @@ public class DailyReminder {
   final private static boolean DEBUG = true;
 
   public DailyReminder(String resort, SessionData sessionData, MailMan mail) {
-    debugOut("*** Processing email reminders for resort: " + resort);
+    debugOut("*** Processing email reminders for resort=" + resort);
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
     DirectorSettings ds = patrol.readDirectorSettings();
     if (!ds.getSendReminder()) {
-      debugOut("Don't send email reminders for " + resort + ". The director settings denied this...");
+      debugOut("Don't send email reminders for resort=" + resort + ". The director settings denied this...");
       return;
     }
     int daysAhead = ds.getReminderDays();
 
     GregorianCalendar assignmentDate = getRemingerDateToSend(daysAhead);
     checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
-    System.out.println("finished processing ALL reminders");
+    Logger.log("finished processing ALL reminders for resort=" + resort);
     patrol.close();
   }
 
   private static GregorianCalendar getRemingerDateToSend(int daysAhead) {
     GregorianCalendar today = new GregorianCalendar();
-    System.out.println("reminder daysAhead=" + daysAhead);
+    Logger.log("reminder daysAhead=" + daysAhead);
     GregorianCalendar date = new GregorianCalendar();
     long millis = today.getTimeInMillis() + (24 * 3600 * 1000 * daysAhead);
     date.setTimeInMillis(millis);
@@ -65,7 +62,7 @@ public class DailyReminder {
     int month = date.get(Calendar.MONTH);
     int year = date.get(Calendar.YEAR);
     int dayOfMonth = date.get(Calendar.DAY_OF_MONTH);
-//System.out.println("dayOfWeek="+dayOfWeek+" ("+szDay[dayOfWeek]+")");
+//Log.log("dayOfWeek="+dayOfWeek+" ("+szDay[dayOfWeek]+")");
 //    patrol.resetAssignments();
 //    Assignments assignment;
     for (Assignments assignment : patrol.readSortedAssignments(year, month + 1, dayOfMonth)) {
@@ -123,7 +120,7 @@ public class DailyReminder {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      System.out.println("DailyReminder: " + msg);
+      Logger.log("DailyReminder=" + msg);
     }
   }
 
@@ -150,7 +147,7 @@ public class DailyReminder {
     out.println("START RUNNING DAILY REMINDER: " + new Date().toString());
     out.println("******************************************************");
     if (sessionData.getDbPassword() == null) {
-      System.out.println("error session credentials not found");
+      Logger.log("error session credentials not found");
       System.exit(1);
     }
     //setup credentials and connection

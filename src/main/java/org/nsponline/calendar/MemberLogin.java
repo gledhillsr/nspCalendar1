@@ -1,8 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,16 +15,17 @@ import java.io.PrintWriter;
  * login through my web client
  */
 public class MemberLogin extends HttpServlet {
+  private static Logger LOG = new Logger(MemberLogin.class);
 
   private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new MemberLoginInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new MemberLoginInternal(request, response);
   }
 
@@ -141,7 +140,7 @@ public class MemberLogin extends HttpServlet {
     }
 
     private void logger(String str) {
-      Utils.printToLogFile(sessionData.getRequest(), str);
+      Logger.printToLogFile(sessionData.getRequest(), str);
     }
   }
 }

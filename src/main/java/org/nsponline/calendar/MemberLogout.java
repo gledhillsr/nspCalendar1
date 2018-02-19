@@ -1,8 +1,9 @@
 package org.nsponline.calendar;
 
+import org.nsponline.calendar.misc.LogLevel;
+import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,11 +18,12 @@ import java.io.PrintWriter;
  * clear cookies, and push to MonthCalendar (no longer logged in)
  */
 public class MemberLogout extends HttpServlet {
+  private static Logger LOG = new Logger(MemberLogout.class);
 
   static final boolean DEBUG = true;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new InnerLogout(request, response);
   }
 
@@ -47,7 +49,7 @@ public class MemberLogout extends HttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        System.out.println("DEBUG-Logout(" + resort + "): " + str);
+        Logger.log("DEBUG-Logout(" + resort + "): " + str);
       }
     }
   }

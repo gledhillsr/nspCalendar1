@@ -1,11 +1,8 @@
 package org.nsponline.calendar.rest;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.NspSession;
-import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -42,10 +39,10 @@ import java.sql.Connection;
  */
 @SuppressWarnings("JavaDoc")
 public class Resort extends HttpServlet {
+  private static Logger LOG = new Logger(Resort.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    System.out.println("ZZZ new Rest API GET: /resort?resort=" + request.getParameter("resort"));
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new InnerResort(request, response);
   }
 

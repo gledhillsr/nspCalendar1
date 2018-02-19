@@ -2,6 +2,7 @@ package org.nsponline.calendar.store;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
 import org.nsponline.calendar.misc.Utils;
@@ -326,7 +327,7 @@ public class Assignments {
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-    debugOut(qryString);
+    Logger.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -349,13 +350,13 @@ public class Assignments {
     }
     qryString += ")";
 
-    debugOut(qryString);
+    Logger.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-    debugOut(qryString);
+    Logger.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -375,12 +376,12 @@ public class Assignments {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      Utils.printToLogFile(null, "Debug-Assignments: " + msg);
+      Logger.printToLogFile(null, "Debug-Assignments: " + msg);
     }
   }
 
   private static void LOG(SessionData sessionData, String msg) {
-    Utils.printToLogFile(sessionData.getRequest(), msg);
+    Logger.printToLogFile(sessionData.getRequest(), msg);
   }
 
   public boolean includesPatroller(String patrollerId) {

@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 
@@ -20,14 +17,15 @@ import java.util.Calendar;
  * @author Steve Gledhill
  */
 public class PurgeAssignments extends HttpServlet {
+  private static Logger LOG = new Logger(PurgeAssignments.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalPurgeAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalPurgeAssignments(request, response);
   }
 
@@ -93,7 +91,7 @@ public class PurgeAssignments extends HttpServlet {
     private void readParameters(HttpServletRequest request, SessionData sessionData) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData); //when reading members, read minimal data
       DirectorSettings ds = patrol.readDirectorSettings();
-//System.out.println("Original settings: "+ds.toString());
+//Uitls.log("Original settings: "+ds.toString());
       String temp = request.getParameter("XYZ"); //allways a non-null value when returning
       purgeData = (temp != null);
       if (purgeData) {
@@ -128,7 +126,7 @@ public class PurgeAssignments extends HttpServlet {
       Assignments assignment;
       int year, month, day;
 
-      System.out.println("Purgins ALL shifts on and before " + startDay + "/" + startMonth + "/" + startYear);
+      Logger.log("Purging ALL shifts on and before " + startDay + "/" + startMonth + "/" + startYear);
 
       ResultSet assignmentResults= patrol.resetAssignments();
       while ((assignment = patrol.readNextAssignment(assignmentResults)) != null) {

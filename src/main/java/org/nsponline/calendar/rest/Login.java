@@ -3,9 +3,7 @@ package org.nsponline.calendar.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.NspSession;
 import org.nsponline.calendar.store.Roster;
 
@@ -49,12 +47,12 @@ import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
 
 @SuppressWarnings("JavaDoc")
 public class Login extends HttpServlet {
+  private static Logger LOG = new Logger(Login.class);
 
   private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    System.out.println("ZZZ new Rest API POST: /login?resort=" + request.getParameter("resort"));
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     doLogin(request, response);
   }
 
@@ -130,7 +128,7 @@ public class Login extends HttpServlet {
   }
 
   private void logger(SessionData sessionData, String str) {
-    Utils.printToLogFile(sessionData.getRequest(), str);
+    Logger.printToLogFile(sessionData.getRequest(), str);
   }
 }
 

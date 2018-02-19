@@ -7,8 +7,6 @@ import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
-import java.util.List;
 
 /**
  * Main method to track general info about a resort (patrol)  Not backed by a table.  But stores
@@ -20,10 +18,16 @@ public class PatrolData {
   private final static boolean DEBUG = false;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
-private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
+private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
 
-//  private final static String MYSQL_ADDRESS = "172.31.61.145";  //private ip TESTING.  must match /etc/my.cnf
-  public final static Boolean USING_TESTING_ADDRESS = false;   //if TRUE, will add a "TESTING" to the calendar page
+  public final static Boolean USING_TESTING_ADDRESS = true;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
+
+  static {
+    //noinspection ConstantConditions
+    if (USING_TESTING_ADDRESS) {
+      MYSQL_ADDRESS = "172.31.61.145";  //private ip TESTING.  must match /etc/my.cnf
+    }
+  }
 
 //  private final static String MYSQL_ADDRESS = "127.0.0.1";  //local laptop.  must match /etc/my.cnf
 /* ------------------------------------------------------------------------------------------ */
@@ -78,7 +82,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
 //replaced by Hyland hills    resortMap.put("ThreeRivers",    new ResortData("ThreeRivers", "Three Rivers Park", null, "http://www.threeriverspark.com", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
 //uop
     resortMap.put("WelchVillage",   new ResortData("WelchVillage", "Welch Village", null, "http://www.welchvillage.com", "/images/WelchVillage.jpg", IMG_HEIGHT, 80));
-    resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", null, "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
+    resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", "gawilson@wyoming.com", "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
     resortMap.put("WildMountain",     new ResortData("WildMountain", "Wild Mountain", null, "http://www.wildmountain.com/", "/images/WildMountain.jpeg", IMG_HEIGHT, 169));
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", null, "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
@@ -118,8 +122,8 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       Class.forName(JDBC_DRIVER).newInstance();
     }
     catch (Exception e) {
-      errorOut(sessionData, "Cannot load the driver, reason:" + e.toString());
-      errorOut(sessionData, "Most likely the Java class path is incorrect.");
+      logError(sessionData, "Cannot load the driver, reason:" + e.toString());
+      logError(sessionData, "Most likely the Java class path is incorrect.");
       //todo do something here. besides throw a NPE later
       return;
     }
@@ -130,7 +134,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
 //      resetRoster();
     }
     else {
-      errorOut(sessionData,"getConnection(" + localResort + ", sessionData) failed.");
+      logError(sessionData, "getConnection(" + localResort + ", sessionData) failed.");
       //todo do something here. besides throw a NPE later
     }
   } //end PatrolData constructor
@@ -148,7 +152,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       debugOut(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
     }
     catch (Exception e) {
-      errorOut(sessionData,"Error: " + e.getMessage() + " connecting to table:" + resort);
+      logError(sessionData, "Error: " + e.getMessage() + " connecting to table:" + resort);
       java.lang.Thread.currentThread().dumpStack();
     }
     return conn;
@@ -162,7 +166,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       return assignmentsStatement.executeQuery();
     }
     catch (Exception e) {
-      errorOut(sessionData,"(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
       return null;
     } //end try
   }
@@ -201,7 +205,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       return rosterStatement.executeQuery();
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error reseting roster table query:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error reseting roster table ", e);
       return null;
     } //end try
   }
@@ -212,7 +216,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       return rosterStatement.executeQuery();
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error reseting roster table query:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error resetting roster table ", e);
       return null;
     } //end try
   }
@@ -223,7 +227,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       shiftStatement.executeQuery();  //todo ignore return ???
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error reseting Shifts table query:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error resetting Shifts table exception=", e);
     } //end try
   }
 
@@ -234,24 +238,24 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
   public DirectorSettings readDirectorSettings() {
     ResultSet directorResults = DirectorSettings.reset(connection);
     DirectorSettings ds = null;
-//System.out.println("HACK: directorResults starting try");
+//Log.log("HACK: directorResults starting try");
     try {
-//System.out.println("ERROR: directorResults inside try");
+//Log.log("ERROR: directorResults inside try");
       //noinspection ConstantConditions
       if (directorResults.next()) {
         ds = new DirectorSettings(localResort);
         ds.read(directorResults);
       }
       else {
-        System.out.println("ERROR: directorResults.next() failed for resort: ");
+        Logger.printToLogFile(null, "ERROR: directorResults.next() failed for resort: ");
       }
     }
     catch (Exception e) {
       if (ds == null) {
-        System.out.println("Cannot read DirectorSettings for resort (ds=null), reason:" + e.toString());
+        Logger.printToLogFile(null, "Cannot read DirectorSettings for resort (ds=null), reason=" + e.toString());
       }
       else {
-        System.out.println("Cannot read DirectorSettings for resort " + ds.getResort() + ", reason:" + e.toString());
+        Logger.printToLogFile(null, "Cannot read DirectorSettings for resort=" + ds.getResort() + ", reason=" + e.toString());
       }
       return null;
     }
@@ -274,18 +278,18 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       }
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error resetting Assignments table ", e);
     } //end try
     return shiftDefinitions;
   }
 
   public void decrementShift(ShiftDefinitions ns) {
     if (DEBUG) {
-      System.out.println("decrement shift:" + ns);
+      Logger.log("decrement shift:" + ns);
     }
     int i = ns.getEventIndex();
     if (DEBUG) {
-      System.out.println("event index =" + i);
+      Logger.log("event index =" + i);
     }
 
     if (i == 0) {
@@ -305,7 +309,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       ns.setExists(false);
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
+      Logger.log("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
     }
   }
 
@@ -324,7 +328,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       ns.setExists(true);
     }
     catch (SQLException e) {
-      errorOut(sessionData, "(" + localResort + ") failed writeShift, reason:" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") failed writeShift, exception=" + e.getMessage());
       return true;
     }
     return false;
@@ -333,14 +337,14 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
   public void close() {
     try {
       if (DEBUG) {
-        System.out.println("-- close connection (" + localResort + "): " + Utils.getCurrentDateTimeString());
+        Logger.log("-- close connection (" + localResort + "): ");
       }
       if (connection != null) {
         connection.close(); //let it close in finalizer ??
       }
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error closing connection:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error closing connection:", e);
       Thread.currentThread().dumpStack();
     } //end try
   } // end close
@@ -355,7 +359,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
     }
     catch (SQLException e) {
       member = null;
-      System.out.println("(" + localResort + ") Failed nextMember, reason:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Failed nextMember, reason:", e);
       Thread.currentThread().dumpStack();
     } //end try
 
@@ -397,8 +401,8 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       } //end while
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error in getMemberByID(" + szMemberID + "): " + e.getMessage());
-      System.out.println("(" + localResort + ") ERROR in PatrolData:getMemberByID(" + szMemberID + ") maybe a close was already done?");
+      Logger.logException("(" + localResort + ") Error in getMemberByID(" + szMemberID + "): ", e);
+      Logger.log("(" + localResort + ") ERROR in PatrolData:getMemberByID(" + szMemberID + ") maybe a close was already done?");
       //noinspection AccessStaticViaInstance
       Thread.currentThread().dumpStack();
     } //end try
@@ -408,7 +412,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
   public Roster getMemberByEmail(String szEmail) {
     Roster member;
     String str = "SELECT * FROM roster WHERE email =\"" + szEmail + "\"";
-//System.out.println(str);
+//Log.log(str);
     try {
       PreparedStatement rosterStatement = connection.prepareStatement(str);
       ResultSet rosterResults = rosterStatement.executeQuery();
@@ -424,7 +428,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       } //end while
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error in getMemberByEmail(" + szEmail + "): " + e.getMessage());
+      Logger.logException("(" + localResort + ") Error in getMemberByEmail(" + szEmail + "): ", e);
     } //end try
     return null;  //failure
   } //end getMemberByID
@@ -443,7 +447,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
 //                int id = rosterResults.getInt("IDNumber");
         String str1 = rosterResults.getString("LastName").trim() + ", " +
             rosterResults.getString("FirstName").trim();
-//System.out.println("getMemberByLastNameFirstName: (" + szFullName + ") (" + str1 + ") cmp=" + str1.equals(szFullName));
+//Log.log("getMemberByLastNameFirstName: (" + szFullName + ") (" + str1 + ") cmp=" + str1.equals(szFullName));
         //noinspection Duplicates
         if (str1.equals(szFullName)) {
           member = new Roster();  //"&nbsp;" is the default
@@ -458,7 +462,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       } //end while
     }
     catch (SQLException e) {
-      errorOut(sessionData, "(" + localResort + ") failed getMemberByLastNameFirstName(" + szFullName + "):" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") failed getMemberByLastNameFirstName(" + szFullName + "):" + e.getMessage());
       Thread.currentThread().dumpStack();
     }
     return null;  //not found (or error)
@@ -497,12 +501,12 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
         if (assignmentResultsLocal.next()) {
           ns = new Assignments();
           ns.read(sessionData, assignmentResultsLocal);
-//          logger("readAssignment(" + queryString + ")= " + ns.toString());
+          Logger.logSqlStatement(queryString);
           return ns;
         }
     }
     catch (SQLException e) {
-      errorOut(sessionData, "failed readAssignment, reason:" + e.getMessage());
+      logError(sessionData, "failed readAssignment, reason:" + e.getMessage());
       return null;
     }
     return null;
@@ -517,13 +521,13 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
     else {
       qryString = ns.getInsertQueryString(sessionData);
     }
-    logger("writeAssignment: " + qryString);
+    Logger.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
     }
     catch (SQLException e) {
-      errorOut(sessionData, "(" + localResort + ") failed writeAssignment, reason:" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") failed writeAssignment, reason:" + e.getMessage());
       return true;
     }
     return false;
@@ -560,7 +564,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       ns.setExisted(false);
     }
     catch (SQLException e) {
-      errorOut(sessionData, "(" + localResort + ") failed deleteAssignment, reason:" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") failed deleteAssignment, reason:" + e.getMessage());
     }
   }
 
@@ -631,7 +635,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
 //add Day/Seing/Night shift
         out.println("<td>&nbsp;");
         out.println("<select size=1 name='shift_" + validShifts + "'>");
-//System.out.println("in AddShiftsToTable, data.getType()="+data.getType());
+//Log.log("in AddShiftsToTable, data.getType()="+data.getType());
         for (int shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES; ++shiftType) {
           String sel = (data.getType() == shiftType) ? "selected" : "";
           out.println("<option " + sel + ">" + Assignments.getShiftName(shiftType) + "</option>");
@@ -671,7 +675,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
 //add Day/Seing/Night shift
       out.println("<td>&nbsp;&nbsp; ");
       out.println("<select size=1 name='shift_" + validShifts + "'>");
-//System.out.println("in AddAssignmentsToTable, data.getType()="+data.getType());
+//Log.log("in AddAssignmentsToTable, data.getType()="+data.getType());
       for (int shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES; ++shiftType) {
         String sel = (data.getType() == shiftType) ? "selected" : "";
         out.println("<option " + sel + ">" + Assignments.getShiftName(shiftType) + "</option>");
@@ -702,7 +706,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
     if (resortMap.containsKey(resort)) {    //resort string is same as db name, value is full resort string
       return resortMap.get(resort).getResortFullName();
     }
-    System.out.println("**** Error, unknown resort (" + resort + ")");
+    Logger.log("**** Error, unknown resort (" + resort + ")");
     Thread.currentThread().dumpStack();
     return "Error, invalid resort (" + resort + ")";
   }
@@ -726,7 +730,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       sAssign.executeUpdate();
     }
     catch (SQLException e) {
-      System.out.println("Cannot insert newIndividualAssignment, reason:" + e.getMessage());
+      Logger.logException("Cannot insert newIndividualAssignment", e);
       return false;
     }
     return true;
@@ -740,7 +744,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       sAssign.executeUpdate();
     }
     catch (SQLException e) {
-      errorOut(sessionData, "(" + localResort + ") Cannot update newIndividualAssignment, reason:" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") Cannot update newIndividualAssignment, reason:" + e.getMessage());
       return false;
     }
     return true;
@@ -764,7 +768,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       }
     }
     catch (SQLException e) {
-      errorOut(sessionData, "(" + localResort + ") readNewIndividualAssignments" + e.getMessage());
+      logError(sessionData, "(" + localResort + ") readNewIndividualAssignments" + e.getMessage());
       return null;
     }
     return results;
@@ -772,19 +776,19 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
 
   private void logger(String message) {
     if (sessionData != null && sessionData.getRequest() != null) {
-      Utils.printToLogFile(sessionData.getRequest(), localResort, sessionData.getLoggedInUserId(),  message);
+      Logger.printToLogFile(sessionData.getRequest(), localResort, sessionData.getLoggedInUserId(), message);
     }
     else {
-      logger(localResort, message);
+      logger(localResort, "THIS SHOULD NEVER HAPPEN. PatrolData@782, " + message);
     }
   }
 
   public static void logger(String myResort, String message) {
-    Utils.printToLogFile(null, "(" + myResort + ") " + message);
+    Logger.printToLogFile(null, "(" + myResort + ") " + message);
   }
 
   public void deleteNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
-    System.out.println("(" + localResort + ") delete Assignment:" + newIndividualAssignment);
+    Logger.log("(" + localResort + ") delete Assignment:" + newIndividualAssignment);
     String qryString = newIndividualAssignment.getDeleteSQLString(sessionData);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
@@ -792,7 +796,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       newIndividualAssignment.setExisted(false);
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
+      Logger.log("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
     }
   }
 
@@ -816,7 +820,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       }
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error resetting Assignments table", e);
     } //end try
     return monthAssignments;
   }
@@ -859,7 +863,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       }
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error resetting Assignments table", e);
     } //end try
     return monthAssignments;
   }
@@ -882,7 +886,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       }
     }
     catch (Exception e) {
-      System.out.println("(" + localResort + ") Error resetting Assignments table query:" + e.getMessage());
+      Logger.logException("(" + localResort + ") Error resetting Assignments table", e);
     } //end try
     return monthAssignments;
   }
@@ -891,22 +895,22 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
     if (DEBUG) {
       String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
       HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
-      Utils.printToLogFile(request ,"DEBUG-PatrolData(" + localResort + "): " + msg);
+      Logger.printToLogFile(request , "DEBUG-PatrolData(" + localResort + "): " + msg);
     }
   }
 
-  private static void errorOut(SessionData sessionData, String msg) {
+  private static void logError(SessionData sessionData, String msg) {
     String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
     HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
-    Utils.printToLogFile(request ,"ERROR-PatrolData(" + localResort + "): " + msg);
+    Logger.printToLogFile(request , "ERROR-PatrolData(" + localResort + "): " + msg);
   }
 
   public static boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
     boolean validLogin = false;
     ResultSet rs;
-//System.out.println("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
+//Log.log("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
     if (ID == null || pass == null) {
-      Utils.printToLogFile(sessionData.getRequest(), "Login Failed: either ID (" + ID + ") or Password not supplied");
+      Logger.printToLogFile(sessionData.getRequest(), "Login Failed: either ID (" + ID + ") or Password not supplied");
       return false;
     }
 
@@ -915,7 +919,7 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
       Driver drv = (Driver) Class.forName(PatrolData.JDBC_DRIVER).newInstance();
     }
     catch (Exception e) {
-      Utils.printToLogFile(sessionData.getRequest(), "LoginHelp: Cannot find mysql driver, reason:" + e.toString());
+      Logger.printToLogFile(sessionData.getRequest(), "LoginHelp: Cannot find mysql driver, reason:" + e.toString());
       out.println("LoginHelp: Cannot find mysql driver, reason:" + e.toString());
       return false;
     }
@@ -958,21 +962,21 @@ private final static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUC
         }
 
         if (validLogin) {
-          Utils.printToLogFile(sessionData.getRequest(), "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
+          Logger.printToLogFile(sessionData.getRequest(), "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
         }
         else {
-          Utils.printToLogFile(sessionData.getRequest(), "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "]");
+          Logger.printToLogFile(sessionData.getRequest(), "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "]");
         }
       }
       else {
-        Utils.printToLogFile(sessionData.getRequest(), "Login Failed: memberId not found [" + ID + "]");
+        Logger.printToLogFile(sessionData.getRequest(), "Login Failed: memberId not found [" + ID + "]");
       }
 
       c.close();
     }
     catch (Exception e) {
       out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-      Utils.printToLogFile(sessionData.getRequest(), "LoginHelp. Error connecting or reading table:" + e.getMessage());
+      Logger.printToLogFile(sessionData.getRequest(), "LoginHelp. Error connecting or reading table:" + e.getMessage());
     } //end try
 
     return validLogin;

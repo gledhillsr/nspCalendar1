@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
@@ -16,9 +13,10 @@ import javax.servlet.http.*;
 import java.lang.*;
 
 public class Download extends HttpServlet {
+  private static Logger LOG = new Logger(Download.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalDownload(request, response);
   }
 
@@ -122,7 +120,7 @@ public class Download extends HttpServlet {
 
       if(isExcel) {
           response.setContentType("application/vnd.ms-excel");
-//System.out.println("hack hack in download");  //this makes no difference in the download file
+//Log.log("hack hack in download");  //this makes no difference in the download file
 //                response.setContentType("application/txt.ms-excel");
           excelOutput(sessionData);
       }
@@ -198,43 +196,43 @@ public class Download extends HttpServlet {
 
     textFontSize = cvtToInt(request.getParameter("FontSize"));
     if(debug) {
-//System.out.println("Sort1="+Sort1);
-//System.out.println("Sort2="+Sort2);
-//System.out.println("Sort3="+Sort3);
+//Log.log("Sort1="+Sort1);
+//Log.log("Sort2="+Sort2);
+//Log.log("Sort3="+Sort3);
 
-      System.out.println("showClass="+showClass);
-      System.out.println("showID="+showID);
-      System.out.println("showBlank="+showBlank);
-      System.out.println("showBlankWide="+showBlankWide);
-      System.out.println("showSpouse="+showSpouse);
-      System.out.println("showAddr="+showAddr);
-      System.out.println("showCity="+showCity);
-      System.out.println("showState="+showState);
-      System.out.println("showZip="+showZip);
-      System.out.println("showHome="+showHome);
-      System.out.println("showWork="+showWork);
-      System.out.println("showCell="+showCell);
-      System.out.println("showPager="+showPager);
-      System.out.println("showEmail="+showEmail);
-      System.out.println("showEmergency="+showEmergency);
-//System.out.println("showNight="+showNight);
-      System.out.println("showCommit="+showCommit);
-      System.out.println("showInstructor="+showInstructor);
-      System.out.println("showDirector="+showDirector);
-      System.out.println("showLastUpdated="+showLastUpdated);
-      System.out.println("showComments="+showComments);
-//System.out.println("showOldCredits="+showOldCredits);
-      System.out.println("showCreditDate="+showCreditDate);
-      System.out.println("showNightCnt="+showNightCnt);
-      System.out.println("showDayCnt="+showDayCnt);
-      System.out.println("showSwingCnt="+showSwingCnt);
-      System.out.println("showTrainingCnt="+showTrainingCnt);
-      System.out.println("showNightList="+showNightList);
-      System.out.println("showDayList="+showDayList);
-      System.out.println("showSwingList="+showSwingList);
-      System.out.println("showTrainingList="+showTrainingList);
-      System.out.println("useMinDays="+useMinDays);
-      System.out.println("MinDays="+MinDays);
+      Logger.log("showClass="+showClass);
+      Logger.log("showID="+showID);
+      Logger.log("showBlank="+showBlank);
+      Logger.log("showBlankWide="+showBlankWide);
+      Logger.log("showSpouse="+showSpouse);
+      Logger.log("showAddr="+showAddr);
+      Logger.log("showCity="+showCity);
+      Logger.log("showState="+showState);
+      Logger.log("showZip="+showZip);
+      Logger.log("showHome="+showHome);
+      Logger.log("showWork="+showWork);
+      Logger.log("showCell="+showCell);
+      Logger.log("showPager="+showPager);
+      Logger.log("showEmail="+showEmail);
+      Logger.log("showEmergency="+showEmergency);
+//Log.log("showNight="+showNight);
+      Logger.log("showCommit="+showCommit);
+      Logger.log("showInstructor="+showInstructor);
+      Logger.log("showDirector="+showDirector);
+      Logger.log("showLastUpdated="+showLastUpdated);
+      Logger.log("showComments="+showComments);
+//Log.log("showOldCredits="+showOldCredits);
+      Logger.log("showCreditDate="+showCreditDate);
+      Logger.log("showNightCnt="+showNightCnt);
+      Logger.log("showDayCnt="+showDayCnt);
+      Logger.log("showSwingCnt="+showSwingCnt);
+      Logger.log("showTrainingCnt="+showTrainingCnt);
+      Logger.log("showNightList="+showNightList);
+      Logger.log("showDayList="+showDayList);
+      Logger.log("showSwingList="+showSwingList);
+      Logger.log("showTrainingList="+showTrainingList);
+      Logger.log("useMinDays="+useMinDays);
+      Logger.log("MinDays="+MinDays);
     }
     String[] incList= {"BAS","INA","SR","SRA","ALM","PRO","AUX","TRA","CAN","OTH"};
     classificationsToDisplay = new Vector();
@@ -244,17 +242,17 @@ public class Download extends HttpServlet {
       String str = request.getParameter(incList[i]);
       if(str != null) {
         classificationsToDisplay.add(incList[i]);
-//System.out.println(i+") "+incList[i]+" found");
+//Log.log(i+") "+incList[i]+" found");
       }
 //      else {
-////System.out.println(i+") "+incList[i]+" skipped");
+////Log.log(i+") "+incList[i]+" skipped");
 //      }
     }
 //commitment
     if( request.getParameter("FullTime") != null)   commitmentToDisplay += 4;
     if( request.getParameter("PartTime") != null)   commitmentToDisplay += 2;
     if( request.getParameter("Inactive") != null)   commitmentToDisplay += 1;
-//System.out.println("commitment= "+commitmentToDisplay);
+//Log.log("commitment= "+commitmentToDisplay);
 
 //instructor/director flags
     listDirector = false;
@@ -266,9 +264,9 @@ public class Download extends HttpServlet {
     if( request.getParameter("CPR") != null)        instructorFlags += 2;
     if( request.getParameter("Ski") != null)        instructorFlags += 4;
     if( request.getParameter("Toboggan") != null)   instructorFlags += 8;
-//System.out.println("listAll= "+listAll);
-//System.out.println("listDirector= "+listDirector);
-//System.out.println("instructorFlags= "+instructorFlags);
+//Log.log("listAll= "+listAll);
+//Log.log("listDirector= "+listDirector);
+//Log.log("instructorFlags= "+instructorFlags);
 
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData); //when reading members, read full data
 
@@ -283,14 +281,14 @@ public class Download extends HttpServlet {
     String sortString = "LastName,FirstName";
 //end hack
 
-//System.out.println("sortString="+sortString);
+//Log.log("sortString="+sortString);
     ResultSet rosterResults = patrol.resetRoster(sortString);
     ePatrollerList = "";
     Roster member = patrol.nextMember("&nbsp;", rosterResults);
 //      MemberData member = patrol.nextMember("");
 //int xx=0;
     while(member != null) {
-//System.out.println(++xx);
+//Log.log(++xx);
       if(member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
         String em = member.getEmailAddress();
         //check for valid email
@@ -300,10 +298,10 @@ public class Download extends HttpServlet {
           ePatrollerList += em;
         }
       }
-//else System.out.println("NOT OK to display "+member);
+//else Log.log("NOT OK to display "+member);
       member = patrol.nextMember("", rosterResults);
     }
-//System.out.println("length of email string = "+ePatrollerList.length());
+//Log.log("length of email string = "+ePatrollerList.length());
     Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
 //      patrol.close(); //must close connection!
     if(editor != null)
@@ -351,7 +349,7 @@ public class Download extends HttpServlet {
 //      sortString += "";
     else if(Sort3.equals("Updt"))
       sortString += ",lastUpdated";
-//System.out.println("sortString="+sortString);
+//Log.log("sortString="+sortString);
     return sortString;
   }
 
@@ -452,7 +450,7 @@ public class Download extends HttpServlet {
 //	String sortString = getSortString();
     String sortString = "LastName,FirstName";
 //end hack
-//System.out.println("readAssignments-sortString="+sortString);
+//Log.log("readAssignments-sortString="+sortString);
     ResultSet rosterResults = patrol.resetRoster(sortString);
 //      patrol.resetRoster();
     Roster member;
@@ -462,19 +460,19 @@ public class Download extends HttpServlet {
     hash = new Hashtable();
 //int xx = 0;
     while((member = patrol.nextMember("&nbsp;", rosterResults)) != null) {
-//System.out.println(++xx);
+//Log.log(++xx);
       if(member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
 //              ++count;
         members.addElement(member);
         hash.put(member.getID() ,member);
       }
-//else System.out.println("NOT ok to display "+member);
+//else Log.log("NOT ok to display "+member);
     }
 
     ResultSet assignmentResults = patrol.resetAssignments();
 //        SimpleDateFormat normalDateFormatter = new SimpleDateFormat ("MM'/'dd'/'yyyy");
-//System.out.println("StartYear="+StartYear+", StartMonth="+StartMonth+", StartDay="+StartDay);
-//System.out.println("EndYear="+EndYear+", EndMonth="+EndMonth+", StartDay="+StartDay);
+//Log.log("StartYear="+StartYear+", StartMonth="+StartMonth+", StartDay="+StartDay);
+//Log.log("EndYear="+EndYear+", EndMonth="+EndMonth+", StartDay="+StartDay);
     GregorianCalendar date = new GregorianCalendar(StartYear,StartMonth,StartDay);
     long startMillis = 0;
     long endMillis = 99999999999999L;
@@ -490,7 +488,7 @@ public class Download extends HttpServlet {
       currMillis = date.getTimeInMillis();
 //System.out.print("start="+startMillis+"end="+endMillis+" curr="+currMillis+" "+ns.getYear()+" "+ns.getMonth()+" "+ns.getDay());
       if(startMillis <= currMillis && currMillis <= endMillis) {
-//System.out.println(" ok");
+//Log.log(" ok");
         for(i =0; i < Assignments.MAX_ASSIGNMENT_SIZE ; ++i) {
           //              member = patrol.getMemberByID(ns.getPosID(i));
           member = (Roster)hash.get(ns.getPosID(i));
@@ -526,9 +524,9 @@ public class Download extends HttpServlet {
           } //end if okToDisplay
         } //end for loop for shift
       } else { //end test for date
-//System.out.println(" Skipped");
+//Log.log(" Skipped");
       }
-//System.out.println();
+//Log.log();
     } //end while loop (all assignments)
   }
 

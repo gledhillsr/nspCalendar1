@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.Roster;
 
@@ -23,15 +20,16 @@ import java.util.GregorianCalendar;
  *         Brighton patrollers also get a view of the locker room assignments
  */
 public class ListAssignments extends HttpServlet {
+  private static Logger LOG = new Logger(ListAssignments.class);
   private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalListAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalListAssignments(request, response);
   }
 
@@ -133,7 +131,7 @@ public class ListAssignments extends HttpServlet {
             pat0 = Integer.parseInt(ns.getPosID(shiftType));
           }
           catch (Exception e) {
-            System.out.println("error id (" + ns.getPosID(shiftType) + ")");
+            Logger.log("error id (" + ns.getPosID(shiftType) + ")");
             continue;
           }
           if (Math.abs(pat0) == myID) {  //check if 'myID'
@@ -186,7 +184,7 @@ public class ListAssignments extends HttpServlet {
     @SuppressWarnings("SameParameterValue")
     private void debugOut(String msg) {
       if (DEBUG) {
-        System.out.println("DEBUG-ListAssignments(" + resort + "): " + msg);
+        Logger.log("DEBUG-ListAssignments resort=" + resort + ", " + msg);
       }
     }
   }

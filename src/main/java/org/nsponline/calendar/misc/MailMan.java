@@ -37,12 +37,12 @@ public class MailMan {
     }
     if (Utils.isValidEmailAddress(fromAddress)) {
       this.replyToAddress = fromAddress;
-      System.out.println("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
+      Logger.log("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
     }
     else {
       this.replyToAddress = null;
       if (Utils.isNotEmpty(fromAddress)) {
-        System.out.println("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
+        Logger.log("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
       }
     }
     try {
@@ -118,16 +118,16 @@ public class MailMan {
   }
 
   private void logger(SessionData sessionData, Object... msg) {
-    Utils.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), sessionData.getLoggedInUserId(), "MailMan: ");
+    Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), sessionData.getLoggedInUserId(), "MailMan: ");
     for (Object item : msg) {
       System.out.print(item); //keep this here
     }
-    System.out.println(); //keep this here
+    Logger.log(""); //keep this here
   }
 
   private void debugOutDontSend(SessionData sessionData, String msg) {
     if (DEBUG_DONT_SEND) {
-      Utils.printToLogFile(sessionData.getRequest(), "DEBUG_DONT_SEND-Mailman: " + msg);
+      Logger.printToLogFile(sessionData.getRequest(), "DEBUG_DONT_SEND-Mailman: " + msg);
     }
   }
 
@@ -161,17 +161,17 @@ public class MailMan {
       Long startMillis = System.nanoTime() / 1000;
       SendEmailResult result = sesClient.sendEmail(request);
       Long endMillis = System.nanoTime() / 1000;
-      System.out.println("Email sent in " + (endMillis - startMillis) + " milli seconds.  result=" + result.toString());
+      Logger.log("Email sent in " + (endMillis - startMillis) + " milli seconds.  result=" + result.toString());
     }
     catch (Exception ex) {
-      System.out.println("The email was not sent.");
-      System.out.println("Error message: " + ex.getMessage());
+      Logger.log("The email was not sent.");
+      Logger.log("Error message: " + ex.getMessage());
     }
   }
 //  public static void main(String[] args) throws MailManException {
 //    if (args.length < 5) {
-//      System.out.println("Invalid arguments");
-//      System.out.println("java org.nspOnline.MailMan <host> <from address> <subject> <message> <recipient address>");
+//      Log.log("Invalid arguments");
+//      Log.log("java org.nspOnline.MailMan <host> <from address> <subject> <message> <recipient address>");
 //      return;
 //    }
 //    String smtpHost = args[0];      //zimbra.xmission.com

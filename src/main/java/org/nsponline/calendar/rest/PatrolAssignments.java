@@ -2,9 +2,7 @@ package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.NspSession;
@@ -68,10 +66,10 @@ import java.util.Calendar;
  */
 @SuppressWarnings("JavaDoc")
 public class PatrolAssignments extends HttpServlet {
+  private static Logger LOG = new Logger(PatrolAssignments.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    System.out.println("ZZZ new Rest API GET: /patrol/assignments?resort=" + request.getParameter("resort"));
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     getPatrolAssignments(request, response);
   }
 
@@ -83,8 +81,8 @@ public class PatrolAssignments extends HttpServlet {
     String szYear = request.getParameter("year");
     String szMonth = request.getParameter("month");
     String szDay = request.getParameter("day");
-    System.out.println(" --patrol/assignments... resort: [" + resort
-        + "], year: [" + szYear
+    Logger.log(" --patrol/assignments... resort=" + resort
+        + ", year: [" + szYear
         + "], month: [" + szMonth
         + "], day: [" + szDay);
     int year = Utils.convertToInt(szYear);
@@ -110,14 +108,14 @@ public class PatrolAssignments extends HttpServlet {
     Connection connection = patrol.getConnection();
     NspSession nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
-      System.out.println("ERROR:  Invalid Authorization (" + sessionId + ")");
+      Logger.log("ERROR:  Invalid Authorization (" + sessionId + ")");
       Utils.buildErrorResponse(response, 401, "Invalid Authorization (" + sessionId + ")");
       return;
     }
     String authenticatedUserId = nspSession.getAuthenticatedUser();
     Roster patroller = patrol.getMemberByID(authenticatedUserId);
     if (patroller == null) {
-      System.out.println("ERROR:  User not found (" + authenticatedUserId + ")");
+      Logger.log("ERROR:  User not found (" + authenticatedUserId + ")");
       Utils.buildErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
       return;
     }
@@ -150,7 +148,7 @@ public class PatrolAssignments extends HttpServlet {
       int endMonth = directorSettings.getEndMonth();
       int endYear = startYear + 1;
 
-      System.out.println("full season from: "
+      Logger.log("full season from: "
           + startMonth + "/" + startDay + "/" + startYear
           + " to: " + endDay + "/" + endMonth + "/" + endYear);
       for(int mon = startMonth; mon <= 12; mon++) {
@@ -165,7 +163,7 @@ public class PatrolAssignments extends HttpServlet {
       count++;
       assignmentsArrayNode.add(ns.toNode());
     }
-    System.out.println("  -- assignments count = " + count);
+    Logger.log("  -- assignments count = " + count);
     returnNode.set("assignments", assignmentsArrayNode);
     Utils.buildOkResponse(response, returnNode);
 

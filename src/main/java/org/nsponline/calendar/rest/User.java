@@ -1,8 +1,6 @@
 package org.nsponline.calendar.rest;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.NspSession;
 import org.nsponline.calendar.store.Roster;
 
@@ -59,10 +57,10 @@ import java.sql.Connection;
  */
 @SuppressWarnings("JavaDoc")
 public class User extends HttpServlet {
+  private static Logger LOG = new Logger(User.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    System.out.println("ZZZ new Rest API GET: /user?resort=" + request.getParameter("resort"));
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new InnerUser(request, response);
   }
 

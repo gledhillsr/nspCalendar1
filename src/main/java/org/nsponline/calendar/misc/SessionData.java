@@ -206,14 +206,14 @@ public class SessionData {
   private void debugOut(String msg) {
     if (DEBUG) {
       // NOSONAR
-      System.out.println("DEBUG-SessionData: " + msg);
+      Logger.log("DEBUG-SessionData: " + msg);
     }
   }
 
   private void debugVerboseOut(String msg) {
     if (DEBUG_VERBOSE) {
       // NOSONAR
-      System.out.println("DEBUG_VERBOSE-SessionData: " + msg);
+      Logger.log("DEBUG_VERBOSE-SessionData: " + msg);
     }
   }
 

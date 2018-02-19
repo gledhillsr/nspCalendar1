@@ -1,7 +1,7 @@
 package org.nsponline.calendar.store;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.Utils;
 
 import java.lang.*;
@@ -88,7 +88,7 @@ public class DirectorSettings {
       nRemoveAccess = resultSet.getInt(REMOVE_ACCESS_FIELD);
     }
     catch (Exception e) {
-      System.out.println("exception in Shifts:read e=" + e);
+      Logger.log("exception in Shifts:read e=" + e);
       return false;
     } //end try
     return true;
@@ -147,7 +147,7 @@ public class DirectorSettings {
     szYr += yr;
     //szDate dd-mm-yy
     szDate = szDate.substring(0, 6) + szYr;
-//System.out.println("in setYear("+yr+") new ="+szDate);
+//Log.log("in setYear("+yr+") new ="+szDate);
     return szDate;
   }
 
@@ -167,12 +167,12 @@ public class DirectorSettings {
     else {
       szDate = szDate.substring(0, 3) + szMon;
     }
-//System.out.println("in setMonth("+mon+") new ="+szDate);
+//Log.log("in setMonth("+mon+") new ="+szDate);
     return szDate;
   }
 
   public String setDay(String szDate, int day) {  //format dd/mm/yy
-//System.out.println("in setDay("+day+") original date="+szDate);
+//Log.log("in setDay("+day+") original date="+szDate);
     if (day < 1 || day > 31) {
       return szDate;
     }
@@ -181,7 +181,7 @@ public class DirectorSettings {
       str += "0";
     }
     szDate = str + day + szDate.substring(2);
-//System.out.println("   setDay("+day+") new ="+szDate);
+//Log.log("   setDay("+day+") new ="+szDate);
     return szDate;
   }
 
@@ -365,9 +365,9 @@ public class DirectorSettings {
     try {
       tmp = szTime.substring(0, pos);
       seconds = Integer.parseInt(tmp) * 3600;
-//System.out.println("---h="+tmp);
+//Log.log("---h="+tmp);
       tmp = szTime.substring(pos + 1);
-//System.out.println("---m="+tmp);
+//Log.log("---m="+tmp);
       seconds += Integer.parseInt(tmp) * 60;
     }
     catch (Exception e) {
@@ -392,22 +392,22 @@ public class DirectorSettings {
         "', " + END_BLACKOUT_FIELD + "='" + szEndBlackout +
         "', " + REMOVE_ACCESS_FIELD + "='" + nRemoveAccess +
         "' WHERE " + PATROL_NAME_FIELD + "= '" + szPatrolName + "'";
-    System.out.println(qryString);
+    Logger.log(qryString);
     return qryString;
   }
 
   public boolean write(Connection connection) {
     String qryString;
-    System.out.println("write directorsettings for resort(" + resort + "): " + this);
+    Logger.log("write directorsettings for resort(" + resort + "): " + this);
     qryString = getUpdateQueryString();
-    System.out.println(qryString);
+    Logger.log(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
     }
     catch (Exception e) {
-      System.out.println("Cannot load the driver, reason:" + e.toString());
-      System.out.println("Most likely the Java class path is incorrect.");
+      Logger.log("Cannot load the driver, reason=" + e.toString());
+      Logger.log("Most likely the Java class path is incorrect.");
       return true;
     }
     return false;
@@ -420,7 +420,7 @@ public class DirectorSettings {
       return directorStatement.executeQuery();
     }
     catch (Exception e) {
-      System.out.println("Error reseting DirectorSettings table query:" + e.getMessage());
+      Logger.logException("Error resetting DirectorSettings table reason ", e);
     } //end try
     return null;
   }

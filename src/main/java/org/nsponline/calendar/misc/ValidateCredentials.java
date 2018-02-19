@@ -78,13 +78,13 @@ public class ValidateCredentials {
 
   private void errorOut(String msg) {
     // NOSONAR
-    System.out.println("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
+    Logger.log("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
   }
 
   private void debugOut(String msg) {
     if (DEBUG) {
       // NOSONAR
-      System.out.println("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
+      Logger.log("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
     }
   }
 

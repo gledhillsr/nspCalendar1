@@ -1,8 +1,8 @@
 package org.nsponline.calendar.store;
 
+import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
 
 import java.sql.SQLException;
 import java.text.*;
@@ -78,7 +78,7 @@ public class NewIndividualAssignment {
       str = newAssignmentResults.getString(tag);
     }
     catch (SQLException e) {
-      Utils.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readString(" + tag + "), message: " + e.getMessage());
+      Logger.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readString(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
 
@@ -90,7 +90,7 @@ public class NewIndividualAssignment {
       return newAssignmentResults.getInt(tag);
     }
     catch (SQLException e) {
-      Utils.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readInt(" + tag + "), message: " + e.getMessage());
+      Logger.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readInt(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
     return 0;
@@ -101,7 +101,7 @@ public class NewIndividualAssignment {
       return newAssignmentResults.getDate(tag);
     }
     catch (SQLException e) {
-      Utils.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readDate(" + tag + "), message: " + e.getMessage());
+      Logger.printToLogFile(sessionData.getRequest(), "ERROR NewIndividualAssignment.readDate(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
     return null;
@@ -159,7 +159,7 @@ public class NewIndividualAssignment {
         tag[LAST_MODIFIED_DATE_INDEX] + " = '" + szLastModDate + "', " +
         tag[LAST_MODIFIED_BY_INDEX] + " = '" + lastModifiedBy + "'";
     qryString += " WHERE " + tag[DATE_SHIFT_POS_INDEX] + " = '" + dateShiftPos + "'";
-    Utils.printToLogFile(sessionData.getRequest(), qryString);
+    Logger.printToLogFile(sessionData.getRequest(), qryString);
     return qryString;
   }
 
@@ -170,13 +170,13 @@ public class NewIndividualAssignment {
         szScheduleDate + "\", \"" + shiftType + "\", \"" + flags + "\", \"" + patrollerId + "\", \"" +
         szLastModDate + "\", \"" + lastModifiedBy + "\")";
 
-    Utils.printToLogFile(sessionData.getRequest(), qryString);
+    Logger.printToLogFile(sessionData.getRequest(), qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM " + tableName + " WHERE " + tag[DATE_SHIFT_POS_INDEX] + " = '" + dateShiftPos + "'";
-    Utils.printToLogFile(sessionData.getRequest(), qryString);
+    Logger.printToLogFile(sessionData.getRequest(), qryString);
     return qryString;
   }
 

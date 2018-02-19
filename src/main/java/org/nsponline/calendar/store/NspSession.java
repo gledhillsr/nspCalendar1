@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import org.nsponline.calendar.misc.Logger;
 
 /**
  * @author Steve Gledhill
@@ -88,14 +89,14 @@ public class NspSession {
         sessionIpAddress + "\", \"" + (isDirector? 1:0) + "\")";
 
 //    String qryString = newIndividualAssignment.getInsertSQLString(sessionData);
-    System.out.println("insertRow: " + qryString);
+    Logger.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
       return true;
     }
     catch (SQLException e) {
-      System.out.println("Cannot insert session, reason:" + e.getMessage());
+      Logger.logException("Cannot insert session", e);
       return false;
     }
 //    String str = "insert into session (sessionId, authenticatedUserId, resort, sessionCreateTime, lastSessionAccessTime, sessionIpAddress, isDirector) values (?, ?, ?, ?, ?, ?, ?)";
@@ -111,9 +112,9 @@ public class NspSession {
 //      insertStatement.setString(6, sessionIpAddress);
 //      insertStatement.setBoolean(7, isDirector);
 //      Boolean isResultSet = insertStatement.execute();
-//      System.out.println("isResultSet = " + isResultSet);
+//      Log.log("isResultSet = " + isResultSet);
 //      if (isResultSet) {
-//        System.out.println("resultset=" + insertStatement.getResultSet().toString());
+//        Log.log("resultset=" + insertStatement.getResultSet().toString());
 //      }
 //      //todo log something
 //      connection.commit();
@@ -140,14 +141,14 @@ public class NspSession {
   public boolean deleteRow(Connection connection) {
     @SuppressWarnings("SqlNoDataSourceInspection")
     String qryString = "DELETE FROM session WHERE " + SESSION_ID + " = '" + sessionId + "'";
-    System.out.println("deleteRow" + qryString);
+    Logger.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
       return true;
     }
     catch (SQLException e) {
-      System.out.println("Cannot insert session, reason:" + e.getMessage());
+      Logger.logException("Cannot insert session, reason ", e);
       return false;
     }
   }

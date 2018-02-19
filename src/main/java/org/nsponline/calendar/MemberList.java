@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
 
@@ -21,10 +18,11 @@ import java.sql.ResultSet;
  * List all patrollers who are not marked as "inactive"
  */
 public class MemberList extends HttpServlet {
+  private static Logger LOG = new Logger(MemberList.class);
   private static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalMemberList(request, response);
   }
 
@@ -147,7 +145,7 @@ public class MemberList extends HttpServlet {
     @SuppressWarnings("SameParameterValue")
     private void debugOut(String str) {
       if (DEBUG) {
-        System.out.println("DEBUG-SubList(" + resort + "): " + str);
+        Logger.log("DEBUG-SubList(" + resort + "): " + str);
       }
     }
   }

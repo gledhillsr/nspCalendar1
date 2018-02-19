@@ -2,10 +2,7 @@ package org.nsponline.calendar;
 
 
 import com.mysql.jdbc.StringUtils;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
@@ -21,15 +18,16 @@ import java.sql.ResultSet;
 import java.util.*;
 
 public class ChangeShift extends HttpServlet {
+  private static Logger LOG = new Logger(ChangeShift.class);
   boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalChangeShift(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalChangeShift(request, response);
   }
 
@@ -74,7 +72,7 @@ public class ChangeShift extends HttpServlet {
     java.util.Date currTime;
     PrintWriter out;
 
-    private LocalChangeShift(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private LocalChangeShift(HttpServletRequest request, HttpServletResponse response) throws IOException {
       response.setContentType("text/html");
       out = response.getWriter();
 
@@ -549,7 +547,7 @@ debugOut(sessionData, "printBottom, submitterID=");
 
     private void debugOut(SessionData sessionData, String msg) {
       if (DEBUG) {
-        Utils.printToLogFile(sessionData.getRequest() ,resort, sessionData.getLoggedInUserId(),"ChangeShift: " + msg);
+        Logger.printToLogFile(sessionData.getRequest() , resort, sessionData.getLoggedInUserId(), "ChangeShift: " + msg);
       }
     }
   }

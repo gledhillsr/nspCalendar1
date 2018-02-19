@@ -1,5 +1,6 @@
 package org.nsponline.calendar.store;
 
+import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.PatrolData;
 
 import java.sql.ResultSet;
@@ -75,11 +76,11 @@ public class ShiftDefinitions {
       if (type < 0 || type >= Assignments.MAX_SHIFT_TYPES) {
         type = 0;  //reset to default, if invalid
       }
-//System.out.println("read shift: "+toString());
+//Log.log("read shift: "+toString());
       existed = true;
     }
     catch (Exception e) {
-      System.out.println("exception in Shifts:read e=" + e);
+      Logger.log("exception in Shifts:read exception=" + e);
       return false;
     } //end try
     return true;
@@ -133,21 +134,21 @@ public class ShiftDefinitions {
         "', " + tags[COUNT_INDEX] + "='" + count +
         "', " + tags[TYPE_INDEX] + "='" + type +
         "' WHERE " + tags[EVENT_NAME_INDEX] + "= '" + eventName + "'";
-    System.out.println(qryString);
+    Logger.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getInsertShiftDefinitionsQueryString() {
     String qryString = "INSERT INTO shiftdefinitions " +
         " Values('" + eventName + "','" + startTime + "','" + endTime + "','" + count + "'," + type + ")";
-    System.out.println(qryString);
+    Logger.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString() {
     int i;
     String qryString = "DELETE FROM shiftdefinitions WHERE " + tags[EVENT_NAME_INDEX] + " = '" + eventName + "'";
-    System.out.println(qryString);
+    Logger.logSqlStatement(qryString);
     return qryString;
   }
 

@@ -2,9 +2,8 @@ package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.PurgeAssignments;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.NspSession;
 
 import javax.servlet.ServletException;
@@ -41,10 +40,10 @@ import java.util.List;
  */
 @SuppressWarnings("JavaDoc")
 public class ResortList extends HttpServlet {
+  private static Logger LOG = new Logger(ResortList.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    System.out.println("ZZZ new Rest API GET: /resort/list");
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new InnerResortList(request, response);
   }
 
@@ -101,7 +100,7 @@ public class ResortList extends HttpServlet {
         return resorts;
       }
       catch (Exception e) {
-        System.out.println("Error SHOW databases:" + e.getMessage());
+        Logger.log("Error SHOW databases:" + e.getMessage());
       } //end try
       return new ArrayList<String>();
     }

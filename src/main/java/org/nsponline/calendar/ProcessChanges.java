@@ -16,17 +16,18 @@ import java.util.HashMap;
 import java.util.TimeZone;
 
 public class ProcessChanges extends HttpServlet {
+  private static Logger LOG = new Logger(ProcessChanges.class);
 
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean PAUSE_ON_THIS_SCREEN = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalProcessChanges(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalProcessChanges(request, response);
   }
 
@@ -380,9 +381,9 @@ public class ProcessChanges extends HttpServlet {
       int year = Integer.parseInt(szdate1.substring(0, 4));
       int month = Integer.parseInt(szdate1.substring(5, 7));
       int date = Integer.parseInt(szdate1.substring(8, 10));
-//System.out.println("NEEDS_REPLACEMENT debug = key=" + key + " year=" + year + " month=" + month + " date=" + date);
+//Log.log("NEEDS_REPLACEMENT debug = key=" + key + " year=" + year + " month=" + month + " date=" + date);
       monthNewIndividualAssignments = patrolData.readNewIndividualAssignments(year, month, date); //entire day
-//System.out.println("newAssignment=" + monthNewIndividualAssignments.get(key));
+//Log.log("newAssignment=" + monthNewIndividualAssignments.get(key));
 //        }
       return false;
     }
@@ -397,9 +398,9 @@ public class ProcessChanges extends HttpServlet {
       int year = Integer.parseInt(szdate1.substring(0, 4));
       int month = Integer.parseInt(szdate1.substring(5, 7));
       int date = Integer.parseInt(szdate1.substring(8, 10));
-//System.out.println("NO_REPLACEMENT_NEEDED debug = key=" + key + " year=" + year + " month=" + month + " date=" + date);
+//Log.log("NO_REPLACEMENT_NEEDED debug = key=" + key + " year=" + year + " month=" + month + " date=" + date);
       monthNewIndividualAssignments = patrolData.readNewIndividualAssignments(year, month, date); //entire day
-//System.out.println("newAssignment=" + monthNewIndividualAssignments.get(key));
+//Log.log("newAssignment=" + monthNewIndividualAssignments.get(key));
 //        }
       return false;
     }
@@ -451,7 +452,7 @@ public class ProcessChanges extends HttpServlet {
         newIndividualAssignment = monthNewIndividualAssignments.get(key);
       }
       if (newIndividualAssignment == null) {
-        System.out.println("ERROR-ProcessChanges, newIndividualAssignment not found in noReplacementNeeded");
+        Logger.log("ERROR-ProcessChanges, newIndividualAssignment not found in noReplacementNeeded");
       }
       else {
         //UPDATE
@@ -477,7 +478,7 @@ public class ProcessChanges extends HttpServlet {
       if (newIndividualAssignment == null) {
         //INSERT (eventually this should go away) only used when assignments are duplicated
         int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo shiftType is ignored?
-        System.out.println("HACK in needsReplacement, shiftType forced to DAY SHIFT");
+        Logger.log("HACK in needsReplacement, shiftType forced to DAY SHIFT");
         newIndividualAssignment = new NewIndividualAssignment(calendarToday.getTime(), nPos1, nIndex1AsNum, shiftType,
             NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
 
@@ -499,7 +500,7 @@ public class ProcessChanges extends HttpServlet {
 //      newIndividualAssignment  = monthNewIndividualAssignments.get(key);
 //    }
 //    if (transNumber == NEEDS_REPLACEMENT && newIndividualAssignment == null) {
-//System.out.println("xxxx debug process changes. need to create new NewIndividualAssignment");   //todo
+//Log.log("xxxx debug process changes. need to create new NewIndividualAssignment");   //todo
 //    } else {
 //        newIndividualAssignment.setNeedsReplacement(transNumber == NEEDS_REPLACEMENT);
 //        patrolData.updateNewIndividualAssignment(newIndividualAssignment);
@@ -583,7 +584,7 @@ public class ProcessChanges extends HttpServlet {
     private void sendMailNotifications(HttpServletRequest request, DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
       String smtp = sessionData.getSmtpHost(); //"mail.gledhills.com";
       String from = sessionData.getEmailUser(); //"steve@gledhills.com";
-//System.out.println("ds.getNotifyChanges()="+ds.getNotifyChanges());
+//Log.log("ds.getNotifyChanges()="+ds.getNotifyChanges());
       if (!ds.getNotifyChanges()) {
         //director settings say don't email on changes to calendar
         log(request,"debug, no mail sent because notify changes is 'false'");
@@ -649,12 +650,12 @@ public class ProcessChanges extends HttpServlet {
     @SuppressWarnings("unused")
     private void log(String msg) {
       //noinspection ConstantConditions
-      System.out.println("ProcessChanges: " + msg);
+      Logger.log("ProcessChanges: " + msg);
     }
 
     private void log(HttpServletRequest request, String msg) {
       //noinspection ConstantConditions
-      Utils.printToLogFile(request, resort, submitterID, "ProcessChanges: " + msg);
+      Logger.printToLogFile(request, resort, submitterID, "ProcessChanges: " + msg);
     }
   } //end LocalProcessChanges
 }

@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.ServletException;
@@ -21,16 +18,17 @@ import java.sql.ResultSet;
  * With a button to email this entire list, or links on each patrollers email address
  */
 public class SubList extends HttpServlet {
+  private static Logger LOG = new Logger(SubList.class);
 
   static final boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new InnerSubList(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     doGet(request, response);
   }
 
@@ -145,7 +143,7 @@ public class SubList extends HttpServlet {
     @SuppressWarnings("SameParameterValue")
     private void debugOut(String str) {
       if (DEBUG) {
-        System.out.println("DEBUG-SubList(" + resort + "): " + str);
+        Logger.log("DEBUG-SubList(" + resort + "): " + str);
       }
     }
   }

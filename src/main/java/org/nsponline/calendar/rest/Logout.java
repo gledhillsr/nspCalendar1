@@ -1,8 +1,6 @@
 package org.nsponline.calendar.rest;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.NspSession;
 
 import javax.servlet.ServletException;
@@ -31,10 +29,10 @@ import java.sql.Connection;
  */
 @SuppressWarnings("JavaDoc")
 public class Logout extends HttpServlet {
+  private static Logger LOG = new Logger(Logout.class);
 
   public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    System.out.println("ZZZ new Rest API DELETE: /logout?resort=" + request.getParameter("resort"));
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "DELETE", request);
     doLogout(request, response);
   }
 

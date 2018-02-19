@@ -1,10 +1,7 @@
 package org.nsponline.calendar;
 
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.*;
 
 import javax.servlet.ServletException;
@@ -22,18 +19,19 @@ import java.util.*;
  *         display a 1 month calendar
  */
 public class MonthCalendar extends HttpServlet {
+  private static Logger LOG = new Logger(MonthCalendar.class);
 
   private final static boolean DEBUG = false;
 
   private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new MonthCalendarInternal(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new MonthCalendarInternal(request, response);
   }
 
@@ -72,7 +70,7 @@ public class MonthCalendar extends HttpServlet {
     private String resort;
     private SessionData sessionData;
 
-    MonthCalendarInternal(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    MonthCalendarInternal(HttpServletRequest request, HttpServletResponse response) throws IOException {
       String szMonth;
       String szYear;
       PrintWriter out;
@@ -694,7 +692,7 @@ public class MonthCalendar extends HttpServlet {
               printName(out, htmData + ((i + 1) + "&index=" + j), id, time, day, dayOfWeek, posCount++, i + 1, j, resort);
             }
             catch (Exception e) {
-              System.out.println("Error, bad data for data[" + day + "][" + i + "].getPosID(" + j + ") = (" + szTmp + ")");
+              Logger.log("Error, bad data for data[" + day + "][" + i + "].getPosID(" + j + ") = (" + szTmp + ")");
             }
           }
         }
@@ -795,9 +793,9 @@ public class MonthCalendar extends HttpServlet {
           if (newIndividualAssignment != null) {
 //System.out.print("key=" + key + ", needs replacement=" + newIndividualAssignment.getNeedsReplacement());
             int foundId = cvtToInt(newIndividualAssignment.getPatrollerId());
-//System.out.println(" current id=" + id + ", id from new table="+ foundId);
+//Log.log(" current id=" + id + ", id from new table="+ foundId);
             if (foundId != id) {
-//System.out.println("ERROR with newIndividualAssignment id did not match current ID");
+//Log.log("ERROR with newIndividualAssignment id did not match current ID");
             }
             else if (newIndividualAssignment.getNeedsReplacement()) {
               cellBackgroundStart = "<div style='background: #FFFF00'>"; //was FFC8C8
@@ -822,14 +820,14 @@ public class MonthCalendar extends HttpServlet {
         }
       }
       catch (Exception e) {
-        System.out.println("cvtToInt failed to parse: " + strNum);
+        Logger.log("cvtToInt failed to parse: " + strNum);
       }
       return num;
     }
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Utils.printToLogFile(sessionData.getRequest(), "DEBUG-MonthCalendar(" + resort + "): " + str);
+        Logger.printToLogFile(sessionData.getRequest(), "DEBUG-MonthCalendar(" + resort + "): " + str);
       }
     }
   }

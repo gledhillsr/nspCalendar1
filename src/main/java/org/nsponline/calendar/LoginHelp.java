@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.MailMan;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.ServletException;
@@ -12,10 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 /**
  * @author Steve Gledhill
@@ -25,6 +18,7 @@ import java.sql.ResultSet;
  *         3) else display login help screen
  */
 public class LoginHelp extends HttpServlet {
+  private static Logger LOG = new Logger(LoginHelp.class);
 
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG = false;
@@ -32,12 +26,12 @@ public class LoginHelp extends HttpServlet {
   private static boolean DEBUG_SENSITIVE = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName() + "..Get", request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new InternalLoginHelp(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName() + "..Post", request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new InternalLoginHelp(request, response);
   }
 
@@ -118,12 +112,12 @@ public class LoginHelp extends HttpServlet {
         System.out.print("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
 //        try {
           mail.sendMessage(sessionData, subject, message, recipient);
-//          System.out.println("  mail was sucessfull");    //no e-mail, JUST LOG IT
+//          Log.log("  mail was sucessfull");    //no e-mail, JUST LOG IT
           return true;
 //        }
 //        catch (MailManException ex) {
-//          System.out.println("  error " + ex);
-//          System.out.println("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
+//          Log.log("  error " + ex);
+//          Log.log("attempting to send mail to: " + recipient);   //no e-mail, JUST LOG IT
 //        }
       }
       return false;
@@ -254,14 +248,14 @@ public class LoginHelp extends HttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Utils.printToLogFile(sessionData.getRequest(), "DEBUG-LoginHelp(" + resort + "): " + str);
+        Logger.printToLogFile(sessionData.getRequest(), "DEBUG-LoginHelp(" + resort + "): " + str);
       }
     }
 
     @SuppressWarnings("unused")
     private void debugSensitiveOut(String str) {
       if (DEBUG_SENSITIVE) {
-        Utils.printToLogFile(sessionData.getRequest(), "DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);
+        Logger.printToLogFile(sessionData.getRequest(), "DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);
       }
     }
   }

@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.ShiftDefinitions;
 
@@ -17,14 +14,15 @@ import java.util.ArrayList;
 
 
 public class EditShifts extends HttpServlet {
+  private static Logger LOG = new Logger(EditShifts.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalEditShifts(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalEditShifts(request, response);
   }
 
@@ -168,7 +166,7 @@ public class EditShifts extends HttpServlet {
         shiftCount = Integer.parseInt(temp);
       }
       if (displayParameters) {
-        System.out.println("----eventName=(" + eventName + ")  selectedShift=(" + selectedShift + ")-------");
+        Logger.log("----eventName=(" + eventName + ")  selectedShift=(" + selectedShift + ")-------");
       }
 //did the shift name change
       newShift = (eventName != null && selectedShift != null && !eventName.equals(selectedShift));
@@ -176,7 +174,7 @@ public class EditShifts extends HttpServlet {
         selectedShift = eventName;
       }
       if (displayParameters) {
-        System.out.println("newShift=" + newShift + ", addShift=" + addShift + ",  shiftCount=" + shiftCount);
+        Logger.log("newShift=" + newShift + ", addShift=" + addShift + ",  shiftCount=" + shiftCount);
       }
 // delete_1, delete2
 //shiftCount
@@ -190,7 +188,7 @@ public class EditShifts extends HttpServlet {
       shifts = new ArrayList<ShiftDefinitions>();
       patrol.resetShiftDefinitions();  //todo 12/30/15  this does nothing or is broken
       if (displayParameters) {
-        System.out.println("READING (" + shiftCount + ")shifts passed as arguments");
+        Logger.log("READING (" + shiftCount + ")shifts passed as arguments");
       }
       for (int i = 0; i < shiftCount; ++i) {
 //for every shiftCount there should be a startTime_?, endTime_?, count_?
@@ -207,7 +205,7 @@ public class EditShifts extends HttpServlet {
         int tCnt = Integer.parseInt(tCount);
         String tType = request.getParameter("shift_" + i);
         int tTyp = Assignments.DAY_TYPE;
-        System.out.println("shift type read was (" + tType + ")");
+        Logger.log("shift type read was (" + tType + ")");
         for (int shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES && tType != null; ++shiftType) {
           if (tType.equals(Assignments.getShiftName(shiftType))) {
             tTyp = shiftType;
@@ -217,12 +215,12 @@ public class EditShifts extends HttpServlet {
         String tEvent;
         tEvent = ShiftDefinitions.createShiftName(eventName, i);
         if (displayParameters) {
-          System.out.println(tEvent + " " + tStart + ", " + tEnd + ", " + tCount + ", " + tTyp);
+          Logger.log(tEvent + " " + tStart + ", " + tEnd + ", " + tCount + ", " + tTyp);
         }
         todaysData[cnt] = new ShiftDefinitions(tEvent, tStart, tEnd, tCnt, tTyp);
         if (newShift) {
           if (displayParameters) {
-            System.out.println("INSERT this shift: " + todaysData[cnt]);
+            Logger.log("INSERT this shift: " + todaysData[cnt]);
           }
           patrol.writeShift(todaysData[cnt]);
         }
@@ -231,7 +229,7 @@ public class EditShifts extends HttpServlet {
         ++cnt;
       }
       if (displayParameters) {
-        System.out.println("DeleteTemplateBtn=" + DeleteTemplateBtn + ", deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete);
+        Logger.log("DeleteTemplateBtn=" + DeleteTemplateBtn + ", deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete);
       }
 
       // read Shift ski assignments for the specific day
@@ -244,13 +242,13 @@ public class EditShifts extends HttpServlet {
       boolean foundDeleteShift = false;
       for (ShiftDefinitions shiftDefinition : patrol.readShiftDefinitions()) {
         if (displayParameters) {
-          System.out.println("read shift:" + shiftDefinition);
+          Logger.log("read shift:" + shiftDefinition);
         }
         String parsedName = shiftDefinition.parsedEventName();
         if (parsedName.equals(selectedShift)) {
           //check for delete button
           if (displayParameters) {
-            System.out.println("deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete + " selectedSize=" + selectedSize);
+            Logger.log("deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete + " selectedSize=" + selectedSize);
           }
           if ((deleteShift && shiftToDelete == selectedSize) || DeleteTemplateBtn) {
             deleteShift = false;    //don't delete any more (used for single delete's only)
@@ -264,7 +262,7 @@ public class EditShifts extends HttpServlet {
           }
           else if (!newShift && shiftCount > 0 && !shiftDefinition.equals(todaysData[selectedSize])) {
             if (displayParameters) {
-              System.out.println("UPDATE this shift: " + selectedSize);
+              Logger.log("UPDATE this shift: " + selectedSize);
             }
             shiftDefinition = todaysData[selectedSize];
             patrol.writeShift(shiftDefinition);
@@ -279,7 +277,7 @@ public class EditShifts extends HttpServlet {
 //--------------
       if (addShift) {
         if (displayParameters) {
-          System.out.println("--add shift--");
+          Logger.log("--add shift--");
         }
         String start = "8:30";
         String end = "14:00";

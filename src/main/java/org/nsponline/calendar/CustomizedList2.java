@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
@@ -19,14 +16,15 @@ import java.util.*;
 
 
 public class CustomizedList2 extends HttpServlet {
+  private static Logger LOG = new Logger(CustomizedList2.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalCustomizedList2(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalCustomizedList2(request, response);
   }
 
@@ -771,7 +769,7 @@ public class CustomizedList2 extends HttpServlet {
 
     private void debugOut(String msg) {
       if (debug) {
-        Utils.printToLogFile(sessionData.getRequest() ,"DEBUG-CustomizedList2(" + resort + "): " + msg);
+        Logger.printToLogFile(sessionData.getRequest() , "DEBUG-CustomizedList2(" + resort + "): " + msg);
       }
     }
   }

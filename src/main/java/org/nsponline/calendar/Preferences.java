@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.DirectorSettings;
 
 import java.io.*;
@@ -16,14 +13,15 @@ import java.lang.*;
  * @author Steve Gledhill
  */
 public class Preferences extends HttpServlet {
+  private static Logger LOG = new Logger(Preferences.class);
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalPreferences(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalPreferences(request, response);
   }
 
@@ -115,9 +113,9 @@ public class Preferences extends HttpServlet {
     private void readParameters(HttpServletRequest request, SessionData sessionData) {
       PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData); //when reading members, read minimal data
       DirectorSettings ds = patrol.readDirectorSettings();
-//System.out.println("Original settings: "+ds.toString());
+//Log.log("Original settings: "+ds.toString());
       String saveChangesBtn = request.getParameter("SaveChangesBtn");
-      System.out.println("SaveChangesBtn=" + saveChangesBtn);
+      Logger.log("SaveChangesBtn=" + saveChangesBtn);
       String temp = request.getParameter("XYZ"); //allways a non-null value when returning
 
       madeUpdate = (temp != null);
@@ -147,23 +145,23 @@ public class Preferences extends HttpServlet {
 
       }
       else {
-//System.out.println(DirectorSettings.EMAIL_REMINDER_FIELD);
-//System.out.println(request.getParameter(DirectorSettings.EMAIL_REMINDER_FIELD));
-//System.out.println("request="+request.getParameterMap());
+//Log.log(DirectorSettings.EMAIL_REMINDER_FIELD);
+//Log.log(request.getParameter(DirectorSettings.EMAIL_REMINDER_FIELD));
+//Log.log("request="+request.getParameterMap());
         //read data from parameters
         emailReminder = (request.getParameter(DirectorSettings.EMAIL_REMINDER_FIELD) != null);
-//System.out.println("--"+DirectorSettings.REMINDER_DAYS_FIELD+"----"+request.getParameter( DirectorSettings.REMINDER_DAYS_FIELD) );
+//Log.log("--"+DirectorSettings.REMINDER_DAYS_FIELD+"----"+request.getParameter( DirectorSettings.REMINDER_DAYS_FIELD) );
         String foo = request.getParameter(DirectorSettings.REMINDER_DAYS_FIELD);
         reminderDays = Integer.parseInt(foo.trim());
         emailPatrollers = (request.getParameter(DirectorSettings.NOTIFY_CHANGES_FIELD) != null);
 //      useTeams    = (request.getParameter( DirectorSettings.USE_TEAMS_FIELD) != null);
         onlyDirectors = (request.getParameter(DirectorSettings.DIRECTORS_CHANGE_FIELD) != null);
         emailAll = (request.getParameter(DirectorSettings.EMAIL_ALL_FIELD) != null);
-//System.out.println("1) "+request.getParameter( DirectorSettings.NAME_FORMAT_FIELD));
-//System.out.println("2) "+request.getParameter( "startDay"));
-//System.out.println("3) "+request.getParameter( "startMonth"));
-//System.out.println("4) "+request.getParameter( "endDay"));
-//System.out.println("5) "+request.getParameter( "endMonth"));
+//Log.log("1) "+request.getParameter( DirectorSettings.NAME_FORMAT_FIELD));
+//Log.log("2) "+request.getParameter( "startDay"));
+//Log.log("3) "+request.getParameter( "startMonth"));
+//Log.log("4) "+request.getParameter( "endDay"));
+//Log.log("5) "+request.getParameter( "endMonth"));
 
         nameFormat = 0;
 //      String str = request.getParameter( DirectorSettings.NAME_FORMAT_FIELD);
@@ -183,15 +181,15 @@ public class Preferences extends HttpServlet {
           blackOutStartMonth = Integer.parseInt(request.getParameter("blackOutStartMonth"));
           blackOutStartYear = Integer.parseInt(request.getParameter("blackOutStartYear"));
           //blackout ends broken down into dat/month/year
-//System.out.println(":-) "+blackOutStartDay+"/"+blackOutStartMonth+"/"+blackOutStartYear);
+//Log.log(":-) "+blackOutStartDay+"/"+blackOutStartMonth+"/"+blackOutStartYear);
           blackOutEndDay = Integer.parseInt(request.getParameter("blackOutEndDay"));
           blackOutEndMonth = Integer.parseInt(request.getParameter("blackOutEndMonth"));
           blackOutEndYear = Integer.parseInt(request.getParameter("blackOutEndYear"));
-//System.out.println(":-( "+blackOutEndDay+"/"+blackOutEndMonth+"/"+blackOutEndYear);
+//Log.log(":-( "+blackOutEndDay+"/"+blackOutEndMonth+"/"+blackOutEndYear);
           //when can normal patrollers REMOVE a name from the roster
 
-//System.out.println(DirectorSettings.REMOVE_ACCESS_FIELD);
-//System.out.println(request.getParameter(DirectorSettings.REMOVE_ACCESS_FIELD));
+//Log.log(DirectorSettings.REMOVE_ACCESS_FIELD);
+//Log.log(request.getParameter(DirectorSettings.REMOVE_ACCESS_FIELD));
           try {
             removeAccess = Integer.parseInt(request.getParameter(DirectorSettings.REMOVE_ACCESS_FIELD));
           }
@@ -224,7 +222,7 @@ public class Preferences extends HttpServlet {
         ds.setBlackEndDay(blackOutEndDay);
         ds.setBlackEndMonth(blackOutEndMonth);
         ds.setBlackEndYear(blackOutEndYear);
-        System.out.println("call setRemoveAccess(" + removeAccess + ")");
+        Logger.log("call setRemoveAccess(" + removeAccess + ")");
         ds.setRemoveAccess(removeAccess);
 
         patrol.writeDirectorSettings(ds);

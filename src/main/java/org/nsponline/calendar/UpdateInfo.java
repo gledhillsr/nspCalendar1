@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Roster;
 
 import java.io.*;
@@ -18,6 +15,7 @@ import java.sql.*;
  * @author Steve Gledhill
  */
 public class UpdateInfo extends HttpServlet {
+  private static Logger LOG = new Logger(UpdateInfo.class);
 
   final static boolean debug = false;
 
@@ -27,12 +25,12 @@ public class UpdateInfo extends HttpServlet {
   };
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new InternalUpdateInfo(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new InternalUpdateInfo(request, response);
   }
 
@@ -124,7 +122,7 @@ public class UpdateInfo extends HttpServlet {
         user = patrol.getMemberByLastNameFirstName(NameToEdit);
         debugOut("user= (" + user + ")");
         if (user == null) {
-          System.out.println("UpdateInfo - ERROR, member " + NameToEdit + " not found!");
+          Logger.log("UpdateInfo - ERROR, member " + NameToEdit + " not found!");
           out.println("INTERNAL ERROR, member " + NameToEdit + " not found!");
           return 0;
         }
@@ -214,28 +212,22 @@ public class UpdateInfo extends HttpServlet {
       String IDpos[] = {"P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"};
       for (int i = 0; i < 10; ++i) {
         String qryString = "SELECT Date, " + IDpos[i] + " FROM `assignments` WHERE " + IDpos[i] + "=" + oldMemberID;
-//System.out.println(qryString);
+//Log.log(qryString);
         try {
           cs = c.prepareStatement(qryString);
           cr = cs.executeQuery();
           while (cr.next()) {
             PreparedStatement cs1;
-//          ResultSet cr1;
             String szDate = cr.getString("Date");
             qryString = "UPDATE assignments SET " + IDpos[i] + "=\"" + IDToEdit + "\" WHERE Date=\"" + szDate + "\"";
-            if (debug) {
-              System.out.print("  " + qryString);
-            }
+            Logger.logSqlStatement(qryString);
             cs1 = c.prepareStatement(qryString);
             cs1.executeUpdate();
-            if (debug) {
-              System.out.println(" - Complete");
-            }
           }
 
         }
         catch (Exception e) {
-          System.out.println("(" + resort + ") Error reseting Assignments table query:" + e.getMessage());
+          Logger.logException("(" + resort + ") Error resetting Assignments table ", e);
         } //end try
       }
     }
@@ -270,7 +262,7 @@ public class UpdateInfo extends HttpServlet {
 //          md = patrol.getMemberByID(IDToEdit);
           md = user;
           if (debug) {
-            System.out.println("deletePatroller=" + deletePatroller + " finalDelete=" + finalDelete);
+            Logger.log("deletePatroller=" + deletePatroller + " finalDelete=" + finalDelete);
           }
 
         }
@@ -280,7 +272,7 @@ public class UpdateInfo extends HttpServlet {
 //          md.setID(IDToEdit);
         }
         if (debug) {
-          System.out.println("Member: " + md);
+          Logger.log("Member: " + md);
         }
 //      String szFirst = request.getParameter(MemberData.dbData[MemberData.FIRST][MemberData.SERVLET_NAME]);
 //      String szLast  = request.getParameter(MemberData.dbData[MemberData.LAST][MemberData.SERVLET_NAME]);
@@ -308,27 +300,27 @@ public class UpdateInfo extends HttpServlet {
           last -= 3;
         }
         boolean isError = false;
-//System.out.println("-----------************---------------");
+//Log.log("-----------************---------------");
         if (deletePatroller) {
           if (debug) {
-            System.out.println("delete Patroller");
+            Logger.log("delete Patroller");
           }
 //          sz = md.getDeleteSQLString();
           //don't DELETE record here
         }
         else if (finalDelete) {
           if (debug) {
-            System.out.println("Final delete Patroller");
+            Logger.log("Final delete Patroller");
           }
           sz = md.getDeleteSQLString();
           sRost = c.prepareStatement(sz);
           sRost.executeUpdate();
-//System.out.println("executing delete");
+//Log.log("executing delete");
           updateAssignments(IDToEdit, "0", c);    //replace ID with 0 in assignment table
         }
         else if (isNewPatroller) {
           if (debug) {
-            System.out.println("new patroller");
+            Logger.log("new patroller");
           }
           //check for duplicate ID
 //asdfasdfasd7
@@ -348,7 +340,7 @@ public class UpdateInfo extends HttpServlet {
         }
         else if (setNewID) {
           if (debug) {
-            System.out.println("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
+            Logger.log("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
           }
           //test if any ID change was made
           patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData);
@@ -380,7 +372,7 @@ public class UpdateInfo extends HttpServlet {
         }
         else {
           if (debug) {
-            System.out.println("Simple Update");
+            Logger.log("Simple Update");
           }
           sz = md.getUpdateSQLString(resort);
           sRost = c.prepareStatement(sz);
@@ -388,11 +380,11 @@ public class UpdateInfo extends HttpServlet {
         }
 
         c.close();
-        System.out.println("UpdateInfo closed static connection for " + resort + " at " + Utils.getCurrentDateTimeString());
+        Logger.log("UpdateInfo closed static connection for " + resort);
 //      if (finalDelete) {
 //			out.println("Deleted...<br>");
 //        String nextPage = PatrolData.SERVLET_URL + "Directors?resort=" + resort + "&ID+" + IDOfEditor;
-//System.out.println("+++ in finalDelete, nextPage="+nextPage);
+//Log.log("+++ in finalDelete, nextPage="+nextPage);
 //            response.sendRedirect(nextPage);
 //      }
         if (editorIsDirector) {
@@ -453,7 +445,7 @@ public class UpdateInfo extends HttpServlet {
               date = szMonths[cal.get(Calendar.MONTH)] + "-" + cal.get(Calendar.DATE) + "-" + cal.get(Calendar.YEAR);
             }
             catch (Exception e) {
-              System.out.println("Error parsing Long value for: (" + szTmp + ")");
+              Logger.log("Error parsing Long value for: (" + szTmp + ")");
             }
             out.println(date);
           }
@@ -461,7 +453,7 @@ public class UpdateInfo extends HttpServlet {
             out.println(Roster.getCommitmentString(szTmp));
           }
           else if (i == Roster.TEAM_LEAD || i == Roster.MENTORING || i == Roster.CAN_EARN_CREDITS) {
-//System.out.println(i+") = ("+szTmp+")");
+//Log.log(i+") = ("+szTmp+")");
             if (szTmp.equals("1")) {
               out.println("Yes");
             }
@@ -485,7 +477,7 @@ public class UpdateInfo extends HttpServlet {
         if (deletePatroller) {
           out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "UpdateInfo\" method=POST>");
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
-//System.out.println("+++ in deletePatroller, IDOfEditor="+IDOfEditor);
+//Log.log("+++ in deletePatroller, IDOfEditor="+IDOfEditor);
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfEditor + "\">");
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"Purpose\" VALUE=\"FinalDelete\">");
           out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"NameToEdit\" VALUE=\"" + NameToEdit + "\">");
@@ -510,10 +502,10 @@ public class UpdateInfo extends HttpServlet {
         }
       }
       catch (Exception e) {
-        out.println("Error connecting or reading table:" + e.getMessage() + "<br>");
-        System.out.println("UpdateInfo: Error connecting or reading table:" + e.getMessage() + "<br>");
-        System.out.println("in UpdateInfo.  ID of editor:" + IDOfEditor);
-        System.out.println("in UpdateInfo.  ID to edit:" + IDToEdit);
+        out.println("Error connecting or reading table " + e.getMessage() + "<br>");
+        Logger.logException("UpdateInfo: Error connecting or reading exception=", e);
+        Logger.log("in UpdateInfo.  IDOfEditor=" + IDOfEditor);
+        Logger.log("in UpdateInfo.  IDToEdit=" + IDToEdit);
       } //end try
 
     } //end printBodySave
@@ -528,7 +520,7 @@ public class UpdateInfo extends HttpServlet {
         isValidNum = readData(IDToEdit, sessionData);
       }
       if (debug) {
-        System.out.println(" UpdateInfo:printBofyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
+        Logger.log(" UpdateInfo:printBofyForm IDToEdit=" + IDToEdit + ", isValidNum=" + isValidNum);
       }
       if (isValidNum == 1) {
         //valid #
@@ -613,7 +605,7 @@ public class UpdateInfo extends HttpServlet {
         out.println("</form>");
       }
       if (debug) {
-        System.out.println(" UpdateInfo: end of printBofyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
+        Logger.log(" UpdateInfo: end of printBofyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
       }
     }
 
@@ -656,11 +648,11 @@ public class UpdateInfo extends HttpServlet {
       String szField = Roster.dbData[index][Roster.SERVLET_NAME];
       if (!isValidField(index, editorIsDirector)) {
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
-//System.out.println(index+") field "+szField+"=("+szDefault+") is hidden, for resort "+resort);
+//Log.log(index+") field "+szField+"=("+szDefault+") is hidden, for resort "+resort);
         return;
       }
       int len = 30;
-//System.out.println(index+") " + label + ", " + szField);
+//Log.log(index+") " + label + ", " + szField);
       if (index == Roster.CAN_EARN_CREDITS) {
         out.println("<tr>");
         out.println("<td bgcolor=#e1e1e1 valign=center align=right><font size=3><b>Please Note:&nbsp;</b></font></td>");
@@ -712,7 +704,7 @@ public class UpdateInfo extends HttpServlet {
         catch (Exception e) {
           //DO NOTHING
         }
-//System.out.println("idx="+idx);
+//Log.log("idx="+idx);
         if (editorIsDirector) {
           out.println("                        <input type=\"checkbox\" name=\"OEC\"" + ((idx & 1) == 1 ? "checked" : "") + ">OEC");
           out.println("&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"checkbox\" name=\"CPR\"" + ((idx & 2) == 2 ? "checked" : "") + ">CPR");
@@ -854,10 +846,10 @@ public class UpdateInfo extends HttpServlet {
           month = cal.get(Calendar.MONTH);
           day = cal.get(Calendar.DATE);
           date = szMonths[month] + "-" + day + "-" + year;
-//System.out.println("date="+date);
+//Log.log("date="+date);
         }
         catch (Exception e) {
-          System.out.println("Error, exception parsing " + szDefault + " in UpdateInfo: " + e);
+          Logger.log("Error, exception parsing " + szDefault + " in UpdateInfo: " + e);
         }
 
         if (!editorIsDirector) {
@@ -940,7 +932,7 @@ public class UpdateInfo extends HttpServlet {
 
     private void debugOut(String msg) {
       if (debug) {
-        System.out.println("DEBUG-UpdateInfo (" + resort + "): " + msg);
+        Logger.log("DEBUG-UpdateInfo (" + resort + "): " + msg);
       }
     }
   }

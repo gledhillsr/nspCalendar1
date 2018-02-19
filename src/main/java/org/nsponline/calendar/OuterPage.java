@@ -1,6 +1,7 @@
 package org.nsponline.calendar;
 
 import com.mysql.jdbc.StringUtils;
+import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.ResortData;
 
 import java.io.FileInputStream;
@@ -96,13 +97,13 @@ public class OuterPage {
 
   private void errorOut(String msg) {
     // nosonar
-    System.out.println("ERROR: OuterPage: " + msg);
+    Logger.log("ERROR: OuterPage: " + msg);
   }
 
   private void debugOut(String msg) {
     if (DEBUG) {
       // nosonar
-      System.out.println("DEBUG: OuterPage: " + msg);
+      Logger.log("DEBUG: OuterPage: " + msg);
     }
   }
 }

@@ -1,9 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.store.ShiftDefinitions;
@@ -25,16 +22,17 @@ import java.util.*;
  */
 @SuppressWarnings("ConstantConditions")
 public class DayShifts extends HttpServlet {
+  private static Logger LOG = new Logger(DayShifts.class);
 
   private final static boolean DEBUG = false;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "GET", request);
     new LocalDayShifts(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    Utils.printRequestParameters(this.getClass().getSimpleName(), request);
+    LOG.printRequestParameters(LogLevel.INFO, "POST", request);
     new LocalDayShifts(request, response);
   }
 
@@ -188,7 +186,7 @@ public class DayShifts extends HttpServlet {
       Calendar cal = new GregorianCalendar(TimeZone.getDefault());
 ////      debugOut("GetTodaysAssignmentString, date=" + date);
       cal.set(year, month, date);
-      //System.out.println(",,year="+year+" cal="+cal);
+      //Log.log(",,year="+year+" cal="+cal);
       String szAssignmentDate = formatter.format(cal.getTime());
 ////      debugOut("GetTodaysAssignmentString, cal.getTime()=" + cal.getTime());
 ////      debugOut("GetTodaysAssignmentString, szAssignmentDate=" + szAssignmentDate);
@@ -450,7 +448,7 @@ public class DayShifts extends HttpServlet {
       if (selectedShift == null || selectedShift.length() <= 1) {
         selectedShift = Utils.szDays[dayOfWeek];
       }
-//System.out.println("---selectedShift = ("+selectedShift+")");
+//Log.log("---selectedShift = ("+selectedShift+")");
 
       for (ShiftDefinitions sData: shiftsTemplates) {
         if (selectedShift.equals(sData.parsedEventName())) {
@@ -462,7 +460,7 @@ public class DayShifts extends HttpServlet {
           patrol.writeAssignment(assignment);
         }
       }
-//System.out.println("****in insureAssignmentExists, final assignmentSize = ("+assignmentSize+")");
+//Log.log("****in insureAssignmentExists, final assignmentSize = ("+assignmentSize+")");
     }
 
     private void readParameters(SessionData sessionData, PatrolData patrol,
@@ -510,12 +508,12 @@ public class DayShifts extends HttpServlet {
       month = Integer.parseInt(szMonth);  //0 based
       szYear = request.getParameter("year");
 //    String foo = request.getParameter("name0_0");
-//System.out.println("*********** name0_0="+foo);
+//Log.log("*********** name0_0="+foo);
       year = Integer.parseInt(szYear);
       debugOut(request, "dayOfWeek=" + dayOfWeek + " date=" + date + " month=" + month + " szYear=" + szYear + " year=" + year);
 
       szNameComment = request.getParameter("newName");
-//System.out.println("szname=(" + szNameComment + ")");	//hack
+//Log.log("szname=(" + szNameComment + ")");	//hack
       if (szNameComment != null && szNameComment.length() == 0) {
         szNameComment = " ";
       }
@@ -621,13 +619,13 @@ public class DayShifts extends HttpServlet {
         String tEnd = request.getParameter("endTime_" + i);
         String tCount = request.getParameter("count_" + i);
         if (tCount == null) {
-          Utils.printToLogFile(request, "ERROR, reading past assignment data");
+          Logger.printToLogFile(request, "ERROR, reading past assignment data");
           break;
         }
         int tCnt = Integer.parseInt(tCount);
         String tShift = request.getParameter("shift_" + i);
         if (tShift == null) {
-          Utils.printToLogFile(request, "ERROR, reading past assignment data");
+          Logger.printToLogFile(request, "ERROR, reading past assignment data");
           break;
         }
         int tType = Assignments.getTypeID(sessionData, tShift);
@@ -647,7 +645,7 @@ public class DayShifts extends HttpServlet {
 
     private void debugOut(HttpServletRequest request, String msg) {
       if (DEBUG) {
-        Utils.printToLogFile(request, "Debug-DayShifts: " + msg);
+        Logger.printToLogFile(request, "Debug-DayShifts: " + msg);
       }
     }
 
@@ -751,7 +749,7 @@ public class DayShifts extends HttpServlet {
 
     private void showEditShift(HttpServletRequest request, ArrayList<Assignments> assignmentsFromDisk) {
 // Change Today's Shift
-//System.out.println("starting in showEditShift, selectedShift="+selectedShift);
+//Log.log("starting in showEditShift, selectedShift="+selectedShift);
       out.println("<hr>");
       out.println("<div align='center'>");
       out.println("  <table border='3' cellpadding='0' cellspacing='0' width='375' height='281'>");
@@ -847,7 +845,7 @@ public class DayShifts extends HttpServlet {
       out.println("      </tr>");
       out.println("    </table>");
       out.println("</div>");
-//System.out.println("endif in showEditShift, selectedShift="+selectedShift);
+//Log.log("endif in showEditShift, selectedShift="+selectedShift);
     }
 
     private void showEditAssignments(int count, ArrayList<Assignments> assignmentsFromDisk) {
@@ -861,7 +859,7 @@ public class DayShifts extends HttpServlet {
       out.println("<hr>");
       out.println("<table border='1' width='100%'>");
       String action = PatrolData.SERVLET_URL + "DayShifts?resort=" + resort + "&dayOfWeek=" + dayOfWeek + "&date=" + date + "&month=" + month + "&year=" + year + "&ID=" + IDOfEditor;
-//System.out.println("action="+action);
+//Log.log("action="+action);
       out.println("<form target='_self' action='" + action + "' method=POST>");
       out.println("<INPUT TYPE='HIDDEN' NAME='saveAssignmentBtn' VALUE='yes'>");
       out.println("  <tr>");
@@ -914,7 +912,7 @@ public class DayShifts extends HttpServlet {
       int j;
       String time;
       String fieldName;
-//System.out.println("AddBlankAssignments: shift count = "+shifts.size());
+//Log.log("AddBlankAssignments: shift count = "+shifts.size());
       int idx = 0;
       for (ShiftDefinitions shiftData: shiftsTemplates) {
         String parsedName = shiftData.parsedEventName();
@@ -922,7 +920,7 @@ public class DayShifts extends HttpServlet {
           for (j = 0; j < shiftData.getCount(); ++j) {
             time = shiftData.getStartString() + " - " + shiftData.getEndString();
             fieldName = "name" + PatrolData.IndexToString(idx) + "_" + PatrolData.IndexToString(j);
-//System.out.println("fieldName="+fieldName);
+//Log.log("fieldName="+fieldName);
             AddNextAssignment(time, "", fieldName);
           }
           ++idx;
@@ -931,8 +929,8 @@ public class DayShifts extends HttpServlet {
     }
 
     private void AddAllAssignments(ArrayList<Assignments> assignmentsFromDisk) {
-//System.out.println("AddAllAssignments: shift count = "+shifts.size());
-//System.out.println("AddAllAssignments: assignments count = "+assignments.size());
+//Log.log("AddAllAssignments: shift count = "+shifts.size());
+//Log.log("AddAllAssignments: assignments count = "+assignments.size());
       for (int i = 0; i < assignmentsFromDisk.size(); ++i) {
         Assignments assignmentRow = assignmentsFromDisk.get(i);
         int count = assignmentRow.getCount();
@@ -944,7 +942,7 @@ public class DayShifts extends HttpServlet {
           String time = assignmentRow.getStartingTimeString() + " - " + assignmentRow.getEndingTimeString();
           String name = NumToName.get(id);
           String fieldName = "name" + PatrolData.IndexToString(i) + "_" + PatrolData.IndexToString(j);
-//System.out.println("fieldName="+fieldName+", id="+id);
+//Log.log("fieldName="+fieldName+", id="+id);
           AddNextAssignment(time, ((name != null) ? name : ""), fieldName);
         }
       }
