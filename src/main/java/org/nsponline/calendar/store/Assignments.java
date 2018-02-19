@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
  * @author Steve Gledhill
  */
 public class Assignments {
+  private static final Logger LOG = new Logger(Assignments.class);
   private final static boolean DEBUG = false;
   //public fields
   public final static int MAX_ASSIGNMENT_SIZE = 10;          //max number of assignments
@@ -327,7 +328,7 @@ public class Assignments {
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -350,13 +351,13 @@ public class Assignments {
     }
     qryString += ")";
 
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 

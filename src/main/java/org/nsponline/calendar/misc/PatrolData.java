@@ -15,12 +15,13 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance"})
 public class PatrolData {
+  private static final Logger LOG = new Logger(PatrolData.class);
   private final static boolean DEBUG = false;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
 private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
 
-  public final static Boolean USING_TESTING_ADDRESS = true;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
+  public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
   static {
     //noinspection ConstantConditions
@@ -129,11 +130,8 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     }
     connection = getConnection(localResort, sessionData);
 
-    if (connection != null) //error was already displayed, if null
+    if (connection == null) //error was already displayed, if null
     {
-//      resetRoster();
-    }
-    else {
       logError(sessionData, "getConnection(" + localResort + ", sessionData) failed.");
       //todo do something here. besides throw a NPE later
     }
@@ -501,7 +499,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
         if (assignmentResultsLocal.next()) {
           ns = new Assignments();
           ns.read(sessionData, assignmentResultsLocal);
-          Logger.logSqlStatement(queryString);
+          LOG.logSqlStatement(queryString);
           return ns;
         }
     }
@@ -521,7 +519,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     else {
       qryString = ns.getInsertQueryString(sessionData);
     }
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();

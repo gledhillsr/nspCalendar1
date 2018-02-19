@@ -16,13 +16,8 @@ import java.sql.*;
  */
 public class UpdateInfo extends HttpServlet {
   private static Logger LOG = new Logger(UpdateInfo.class);
-
-  final static boolean debug = false;
-
-  final static String szMonths[] = { //0 based
-      "Jan", "Feb", "Mar", "Apr", "May", "June",
-      "July", "Aug", "Sep", "Oct", "Nov", "Dec"
-  };
+  private static final boolean debug = false;
+  private static final String szMonths[] = { "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"}; //0 based months
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     LOG.printRequestParameters(LogLevel.INFO, "GET", request);
@@ -220,7 +215,7 @@ public class UpdateInfo extends HttpServlet {
             PreparedStatement cs1;
             String szDate = cr.getString("Date");
             qryString = "UPDATE assignments SET " + IDpos[i] + "=\"" + IDToEdit + "\" WHERE Date=\"" + szDate + "\"";
-            Logger.logSqlStatement(qryString);
+            LOG.logSqlStatement(qryString);
             cs1 = c.prepareStatement(qryString);
             cs1.executeUpdate();
           }

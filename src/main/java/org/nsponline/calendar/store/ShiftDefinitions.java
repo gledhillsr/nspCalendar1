@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
  */
 @SuppressWarnings("unused")
 public class ShiftDefinitions {
+  private static final Logger LOG = new Logger(ShiftDefinitions.class);
 
   //static data
   //format EventName Saturday_0, Saturday_1, World Cup_0 etc
@@ -134,21 +135,21 @@ public class ShiftDefinitions {
         "', " + tags[COUNT_INDEX] + "='" + count +
         "', " + tags[TYPE_INDEX] + "='" + type +
         "' WHERE " + tags[EVENT_NAME_INDEX] + "= '" + eventName + "'";
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getInsertShiftDefinitionsQueryString() {
     String qryString = "INSERT INTO shiftdefinitions " +
         " Values('" + eventName + "','" + startTime + "','" + endTime + "','" + count + "'," + type + ")";
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString() {
     int i;
     String qryString = "DELETE FROM shiftdefinitions WHERE " + tags[EVENT_NAME_INDEX] + " = '" + eventName + "'";
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 

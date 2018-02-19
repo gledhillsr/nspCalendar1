@@ -14,6 +14,7 @@ import org.nsponline.calendar.misc.Logger;
  */
 public class NspSession {
 
+  private static final Logger LOG = new Logger(NspSession.class);
   private static final String TABLE_NAME = "session";
 
   static final String SESSION_ID = "sessionId";
@@ -89,7 +90,7 @@ public class NspSession {
         sessionIpAddress + "\", \"" + (isDirector? 1:0) + "\")";
 
 //    String qryString = newIndividualAssignment.getInsertSQLString(sessionData);
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -141,7 +142,7 @@ public class NspSession {
   public boolean deleteRow(Connection connection) {
     @SuppressWarnings("SqlNoDataSourceInspection")
     String qryString = "DELETE FROM session WHERE " + SESSION_ID + " = '" + sessionId + "'";
-    Logger.logSqlStatement(qryString);
+    LOG.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
