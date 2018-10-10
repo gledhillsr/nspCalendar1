@@ -24,15 +24,15 @@ public class LoginHelp extends nspHttpServlet {
 
   void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 
-      PrintWriter out;
+//      PrintWriter out;
       String szParent;
 
       String id = request.getParameter("ID");
       String pass = request.getParameter("Password");
-      resort = request.getParameter("resort");
+  //    resort = request.getParameter("resort");
       szParent = request.getParameter("NSPgoto");
-      response.setContentType("text/html");
-      out = response.getWriter();
+//      response.setContentType("text/html");
+//      out = response.getWriter();
 
       sessionData = new SessionData(request, out);
       PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
@@ -85,13 +85,14 @@ public class LoginHelp extends nspHttpServlet {
       return "";
     }
 
+    @SuppressWarnings("SameParameterValue")
     private boolean mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message) {
       if (mbr == null) {
         return false;
       }
       String recipient = mbr.getEmailAddress();
       if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
-        System.out.print("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
+        System.out.print("Sending password email to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
 //        try {
           mail.sendMessage(sessionData, subject, message, recipient);
 //          Log.log("  mail was sucessfull");    //no e-mail, JUST LOG IT
@@ -107,7 +108,7 @@ public class LoginHelp extends nspHttpServlet {
 
 
     @SuppressWarnings("UnusedParameters")
-    int sendPassword(PrintWriter out, String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
+    private int sendPassword(PrintWriter out, String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
       Roster member = null;
       if (ID != null && !ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && ID.length() > 4) {
         member = patrol.getMemberByID(ID); //ID from cookie

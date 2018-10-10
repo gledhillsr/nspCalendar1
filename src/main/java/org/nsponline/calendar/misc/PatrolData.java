@@ -43,7 +43,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
     resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", null, "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
     resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", null, "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
-    resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "wgallagher2308@gmail.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
+    resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "brightonskipatrol@gmail.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
     resortMap.put("CoffeeMill",     new ResortData("CoffeeMill", "CoffeeMill", null, "https://cm-skipatrol.org/", "/images/CoffeeMillLogo.png", IMG_HEIGHT, 87));
     resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", null, "http://detroitmountain.com/", "/images/DetroitMountain.png", 73, 121));

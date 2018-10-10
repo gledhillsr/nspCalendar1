@@ -3,12 +3,9 @@ package org.nsponline.calendar;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.*;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -24,7 +21,7 @@ public class ProcessChanges extends nspHttpServlet {
   @SuppressWarnings("unused")
   private int date2, month2, year2, dayOfWeek2; //date2 etc all have to do with "trade" which is currently disabled
   private PatrolData patrolData;
-  private String strChange3 = "";
+  private String emailMessage = "";
 
   private Assignments night1, night2;
   private String szSubmitterName;
@@ -532,29 +529,29 @@ public class ProcessChanges extends nspHttpServlet {
       }
       else {
 
-        strChange3 = "Schedule Changed:\n\n";
+        emailMessage = "Schedule Changed:\n\n";
 
-//          strChange3 +="On "+szMonths[month1-1]+"/"+date1+"/"+year1+" \n  "+
+//          emailMessage +="On "+szMonths[month1-1]+"/"+date1+"/"+year1+" \n  "+
 //          szTrans[transNumber]+" " + newName;// +" at position: "+ pos1; ???? szDays[dayOfWeek0based]
-        strChange3 += trans[transNumber] + " " + newName + " On " + Utils.szDays[dayOfWeek0based] + ", " + Utils.szMonthsFull[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
+        emailMessage += trans[transNumber] + " " + newName + " On " + Utils.szDays[dayOfWeek0based] + ", " + Utils.szMonthsFull[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
 
         if (transNumber == TRADE) {
-          strChange3 += "\nOn " + Utils.szMonthsFull[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
+          emailMessage += "\nOn " + Utils.szMonthsFull[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
               trans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
         }
         out.println("<h2>Submission Successful</h2>");
-        strChange3 += "\n";
+        emailMessage += "\n";
         //todo Nov 5, change (id) to (from email) for my convenience
         out.println("Submission done by: " + szSubmitterName + " (" + sessionData.getEmailUser() + ")<br>");
-        strChange3 += "Submission done by: " + szSubmitterName + " (" + sessionData.getEmailUser() + ")\n";
+        emailMessage += "Submission done by: " + szSubmitterName + " (" + sessionData.getEmailUser() + ")\n";
 //        out.println("Submission done by: " + szSubmitterName + " (" + submitterID + ")<br>");
-//        strChange3 += "Submission done by: " + szSubmitterName + " (" + submitterID + ")\n";
+//        emailMessage += "Submission done by: " + szSubmitterName + " (" + submitterID + ")\n";
         out.println("Submission time: " + currTime + "<br><br>");
-        strChange3 += "Submission time: " + currTime;
-        out.println("<br>At Ski Resort: " + resort + "<br>");
-        strChange3 += "\nAt Ski Resort: " + resort + "\n";
-        strChange3 += "\nPlease do NOT reply to this automated reminder.\n";
-        strChange3 += "Unless, you are NOT a member of the National Ski Patrol, and received this email accidently.\n";
+        emailMessage += "Submission time: " + currTime;
+        out.println("<br>At Ski Resort: " + resort + " <br>");
+        emailMessage += "\nAt Ski Resort: " + resort + "\n";
+        emailMessage += "\nPlease do NOT reply to this automated reminder.\n";
+        emailMessage += "Unless, you are NOT a member of the National Ski Patrol, and received this email accidently.\n";
         //loop getting all email directors
 
         //add header & body
@@ -596,17 +593,17 @@ public class ProcessChanges extends nspHttpServlet {
         //email all directors in the yesEmail list
         while ((mbr = patrolData.nextMember("", rosterResults)) != null) {
           if (mbr.isDirector() && mbr.getDirector().equalsIgnoreCase("yesEmail")) {
-            mailto(sessionData, mail, mbr, strChange3, true);
+            mailto(sessionData, mail, mbr, emailMessage, true);
           }
 
         } //end while
         //send e-mail to 1st patroller
         if (notifyPatrollers) {
           if (!sentToFirst && member1 != null) {
-            mailto(sessionData, mail, member1, strChange3, false);
+            mailto(sessionData, mail, member1, emailMessage, false);
           }
           if (!sentToSecond && member2 != null) {
-            mailto(sessionData, mail, member2, strChange3, false);
+            mailto(sessionData, mail, member2, emailMessage, false);
           }
         }
       }

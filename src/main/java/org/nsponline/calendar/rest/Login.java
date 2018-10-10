@@ -97,7 +97,7 @@ public class Login extends HttpServlet {
       sessionData.setLoggedInResort(resort);
     }
     else {
-      buildErrorResponse(response, 401, "no matching id/password for resort: " + resort);
+      buildErrorResponse(response, 401, "no matching id/password for resort=" + resort);
       return;
     }
 

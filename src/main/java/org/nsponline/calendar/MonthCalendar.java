@@ -121,7 +121,7 @@ public class MonthCalendar extends nspHttpServlet {
       calendar.set(currYear, currMonth, 1);
 
       if (!PatrolData.isValidResort(resort)) {
-        out.println("ERROR.  Invalid resort: (" +resort + ")");
+        out.println("ERROR.  Invalid resort=" +resort);
         return;
       }
 
