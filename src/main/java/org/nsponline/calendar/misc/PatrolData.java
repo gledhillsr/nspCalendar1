@@ -18,7 +18,7 @@ public class PatrolData {
   private final static boolean DEBUG = false;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
-private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION.  must match /etc/my.cnf
+private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
 
   public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
@@ -62,6 +62,7 @@ private static String MYSQL_ADDRESS = "172.31.0.109";  //private ip PRODUCTION. 
     resortMap.put("LeeCanyon",      new ResortData("LeeCanyon", "Lee Canyon", "schedule@leecanyonskipatrol.org", "http://www.leecanyonskipatrol.org", "/images/LeeCanyon.png", IMG_HEIGHT, 80));
     resortMap.put("MagicMountain",  new ResortData("MagicMountain", "Magic Mountain", null, "http://www.magicmountainresort.com/", "/images/MagicMountain.jpg", IMG_HEIGHT, 145));
     resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", null, "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
+    resortMap.put("MountPleasant",  new ResortData("MountPleasant", "Mount Pleasant", "bruno.nicholas@gmail.com", "http://www.skimountpleasant.com ", "/images/MountPleasant.png", IMG_HEIGHT, 80));
     resortMap.put("NorwayMountain", new ResortData("NorwayMountain", "Norway Mountain", null, "http://www.NorwayMountain.com", "/images/NorwayMountain.jpg", IMG_HEIGHT, 80));
     resortMap.put("PaidSnowCreek",  new ResortData("PaidSnowCreek", "Paid SnowCreek", null, "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
     resortMap.put("ParkCity",       new ResortData("ParkCity", "PCM-Canyons", "dukespeer@gmail.com", "http://www.parkcitymountain.com", "/images/ParkCity.png", 30, 30));

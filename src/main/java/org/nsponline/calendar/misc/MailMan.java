@@ -1,11 +1,16 @@
 package org.nsponline.calendar.misc;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
 import com.mysql.jdbc.StringUtils;
+import com.sun.org.apache.regexp.internal.RE;
 
 import java.util.Collections;
 
@@ -16,10 +21,11 @@ import java.util.Collections;
 public class MailMan {
 
   @SuppressWarnings("unused")
-  private final static boolean DEBUG = false;
+  private final static boolean DEBUG = true;
   private final static boolean DEBUG_DONT_SEND = false;
 
   private AmazonSimpleEmailServiceClient sesClient;
+  private AmazonSimpleEmailService sesClient2;
   private String fromAddress;
   private String replyToAddress;
 
@@ -64,14 +70,37 @@ public class MailMan {
     // using the default credential provider chain. The first place the chain looks for the credentials is in environment variables
     // AWS_ACCESS_KEY_ID and AWS_SECRET_KEY.
     // For more information, see http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/credentials.html
-    if (!StringUtils.isNullOrEmpty(sessionData.getAWSAccessKeyId())) {
-      BasicAWSCredentials awsCredentials = new BasicAWSCredentials(sessionData.getAWSAccessKeyId(), sessionData.getAWSSecretKey());
-      sesClient = new AmazonSimpleEmailServiceClient(awsCredentials);
+    try {
+      logger(sessionData, "AWS_ACCESS_KEY_ID_TAG=" + sessionData.getAWSAccessKeyId().substring(0, 4) + "....");
+      logger(sessionData, "AWS_SECRET_KEY_TAG=" + sessionData.getAWSSecretKey().substring(0, 4) + "....");
+
+      if (!StringUtils.isNullOrEmpty(sessionData.getAWSAccessKeyId())) {
+        logger(sessionData, "1111111111111111");
+        BasicAWSCredentials awsCredentials = new BasicAWSCredentials(sessionData.getAWSAccessKeyId(), sessionData.getAWSSecretKey());
+        logger(sessionData, "2222222");
+//        sesClient = new AmazonSimpleEmailServiceClient(awsCredentials);
+        AWSStaticCredentialsProvider awsCredentialProvider = new AWSStaticCredentialsProvider(awsCredentials);
+        logger(sessionData, "333333");
+        sesClient2 = AmazonSimpleEmailServiceClientBuilder.standard()
+          .withRegion(Regions.US_EAST_1)
+          .withCredentials(awsCredentialProvider)
+          .build();
+//
+//
+//        sesClient2 = AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(awsCredentialProvider).build();
+        logger(sessionData, "4444444");
+      }
+      else {
+        logger(sessionData, "222222222222");
+        //if no access key was found, then use credentials from server.  Usually an instance profile
+        sesClient = new AmazonSimpleEmailServiceClient();
+      }
     }
-    else {
-      //if no access key was found, then use credentials from server.  Usually an instance profile
-      sesClient = new AmazonSimpleEmailServiceClient();
+    catch (Exception e) {
+      logger(sessionData, "66666 Exception=" + e.getMessage());
     }
+    logger(sessionData, "333333 sesClient=" + sesClient);
+    logger(sessionData, "333333 sesClient2=" + sesClient2);
 
     // Choose the AWS region of the Amazon SES endpoint you want to connect to. Note that your sandbox
     // status, sending limits, and Amazon SES identity-related settings are specific to a given AWS
@@ -79,7 +108,10 @@ public class MailMan {
     // the US West (Oregon) region. Examples of other regions that Amazon SES supports are US_EAST_1
     // and EU_WEST_1. For a complete list, see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html
     Region REGION = Region.getRegion(Regions.US_EAST_1);
-    sesClient.setRegion(REGION);
+    logger(sessionData, "444444");
+//    sesClient.setRegion(REGION);
+    sesClient2.setRegion(REGION);
+    logger(sessionData, "5555");
   }
 
   /**
@@ -159,7 +191,8 @@ public class MailMan {
 
       // Send the email.
       Long startMillis = System.nanoTime() / 1000;
-      SendEmailResult result = sesClient.sendEmail(request);
+//      SendEmailResult result = sesClient.sendEmail(request);
+      SendEmailResult result = sesClient2.sendEmail(request);
       Long endMillis = System.nanoTime() / 1000;
       Logger.log("Email sent in " + (endMillis - startMillis) + " milli seconds.  result=" + result.toString());
     }

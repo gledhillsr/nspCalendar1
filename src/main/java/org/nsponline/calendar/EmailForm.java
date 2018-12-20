@@ -263,11 +263,14 @@ public class EmailForm extends nspHttpServlet {
     MailMan mailMan = new MailMan(smtp, fromEmailAddress, fromMember.getFullName(), sessionData);
 //todo srg zzz this is where the main loop is (Oct 28, 2013)
     //loop for each patroller
+    log("44444444444444");
     int currentEmailCount = 0;
     //noinspection PointlessBooleanExpression,ConstantConditions
     if (true || messageIsUnique) {
+      log("5555555  memberIds.length=" + memberIds.length);
       for (String memberId : memberIds) {
         Roster member = patrol.getMemberByID(memberId);
+        log("666666 member=" + member);
         currentEmailCount = logEveryEmailSent(currentEmailCount, member);
         newMessage = getUniqueMessage(member);
         if (DEBUG_NO_SEND) {
@@ -275,6 +278,7 @@ public class EmailForm extends nspHttpServlet {
           out.println(newMessage + "<br>");
         } else {
 //          mailTo2(fromEmailAddress, member, subject, newMessage);
+          log("77777777777");
           mailto(sessionData, mailMan, member, subject, newMessage);
         }
       }
@@ -310,6 +314,7 @@ public class EmailForm extends nspHttpServlet {
   }
 
   private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message) {
+    debugOut("------- mailto -----");
     String recipient = mbr.getEmailAddress();
     if (Utils.isValidEmailAddress(recipient)) {
       debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT

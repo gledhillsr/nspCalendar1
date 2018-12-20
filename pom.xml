@@ -11,7 +11,7 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-core</artifactId>
-      <version>1.10.11</version>
+      <version>1.11.470</version>
     </dependency>
 <!-- cors-filter is for cross-origin support -->
     <!--<dependency>-->
@@ -32,18 +32,25 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ses</artifactId>
-      <version>1.10.11</version>
+      <version>1.11.470</version>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.6</version>
     </dependency>
+    <!--<dependency>-->
+      <!--<groupId>javax.mail</groupId>-->
+      <!--<artifactId>mail</artifactId>-->
+      <!--<version>1.4.7</version>-->
+    <!--</dependency>-->
+    <!-- https://mvnrepository.com/artifact/javax.mail/javax.mail-api -->
     <dependency>
       <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.4.7</version>
+      <artifactId>javax.mail-api</artifactId>
+      <version>1.6.1</version>
     </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

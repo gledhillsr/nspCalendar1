@@ -101,8 +101,8 @@ public class SessionData {
     debugVerboseOut(EMAIL_PASSWORD_TAG + "=" + emailPassword);
     debugVerboseOut(BACK_DOOR_USER_TAG + "=" + backDoorUser);
     debugVerboseOut(BACK_DOOR_PASSWORD_TAG + "=" + backDoorPassword);
-    debugVerboseOut(AWS_ACCESS_KEY_ID_TAG + "=" + AWSAccessKeyId.substring(0, 2) + "....");
-    debugVerboseOut(AWS_SECRET_KEY_TAG + "=" + AWSSecretKey.substring(0, 2) + "....");
+    debugVerboseOut(AWS_ACCESS_KEY_ID_TAG + "=" + AWSAccessKeyId.substring(0, 4) + "....");
+    debugVerboseOut(AWS_SECRET_KEY_TAG + "=" + AWSSecretKey.substring(0, 4) + "....");
   }
 
   public String getDbUser() {
