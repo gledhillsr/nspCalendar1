@@ -7,11 +7,25 @@
   <version>1</version>
   <name>National Ski Patrol online Scheduling</name>
   <url>http://www.nsponline.org/</url>
+
+  <properties>
+  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  <java.compiler.version>1.8</java.compiler.version>
+  <aws-java-sdk.version>1.11.470</aws-java-sdk.version>
+  <fasterxml.jackson.version>2.9.6</fasterxml.jackson.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-core</artifactId>
-      <version>1.11.470</version>
+      <version>${aws-java-sdk.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-ses</artifactId>
+      <version>${aws-java-sdk.version}</version>
     </dependency>
 <!-- cors-filter is for cross-origin support -->
     <!--<dependency>-->
@@ -22,17 +36,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.9.6</version>
+      <version>${fasterxml.jackson.version}</version>
     </dependency>
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>2.6.2</version>
-    </dependency>
-    <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-ses</artifactId>
-      <version>1.11.470</version>
+      <version>${fasterxml.jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>

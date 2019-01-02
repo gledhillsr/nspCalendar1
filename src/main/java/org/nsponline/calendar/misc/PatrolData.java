@@ -25,7 +25,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
   static {
     //noinspection ConstantConditions
     if (USING_TESTING_ADDRESS) {
-      MYSQL_ADDRESS = "172.31.61.145";  //private ip TESTING.  must match /etc/my.cnf
+      MYSQL_ADDRESS = "ip-172-31-62-143.ec2.internal";  //private ip TESTING.  must match /etc/my.cnf
     }
   }
 
