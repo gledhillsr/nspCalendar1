@@ -13,7 +13,7 @@
   <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   <java.compiler.version>1.8</java.compiler.version>
   <aws-java-sdk.version>1.11.470</aws-java-sdk.version>
-  <fasterxml.jackson.version>2.9.6</fasterxml.jackson.version>
+  <fasterxml.jackson.version>2.10.1</fasterxml.jackson.version>
   </properties>
 
   <dependencies>
