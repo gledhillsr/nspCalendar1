@@ -227,7 +227,7 @@ public class Roster {
               memberData[i] = "" + cal.getTimeInMillis();
             }
             catch (Exception e) {
-              Logger.logException("Exception in Memberdata(request): ", e);
+              Logger.logException("???", "Exception in Memberdata(request): ", e);
             }
           }
         }
@@ -688,7 +688,7 @@ public class Roster {
       }
     }
     qryString += " )";
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(resort, qryString);
     return qryString;
   }
 
@@ -738,7 +738,7 @@ public class Roster {
       }
     }
     qryString += " WHERE " + dbData[ID_NUM][DB_NAME] + " =" + memberData[ID_NUM];
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(resort, qryString);
     return qryString;
   }
 
@@ -774,11 +774,11 @@ public class Roster {
     return szVouchers;
   }
 
-  public String getDeleteSQLString() {
+  public String getDeleteSQLString(String resort) {
     int i;
     //noinspection UnnecessaryLocalVariable
     String qryString = "DELETE FROM roster WHERE " + dbData[ID_NUM][DB_NAME] + " = '" + memberData[ID_NUM] + "'";
-    Logger.logSqlStatementStatic(qryString);
+    Logger.logSqlStatementStatic(resort, qryString);
     return qryString;
   }
 

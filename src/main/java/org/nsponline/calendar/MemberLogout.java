@@ -29,7 +29,7 @@ public class MemberLogout extends nspHttpServlet {
   }
 
   private void debugOut(String str) {
-      LOG.info("DEBUG-Logout(" + resort + "): " + str);
+      LOG.info(resort, str);
   }
 }
 

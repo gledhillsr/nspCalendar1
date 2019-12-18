@@ -211,7 +211,7 @@ public class DayShifts extends nspHttpServlet {
         sData = new ShiftDefinitions(szNameComment, " ", " ", 0, Assignments.DAY_TYPE, LOG);    //shift with 0 patrollers
         String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);  //2002-12-31_1  index is 1 based
         Assignments assignment = new Assignments(szAssignmentDate, sData);
-        assignment.setEventName(szNameComment);
+        assignment.setEventName(sessionData, szNameComment);
         debugOut(request, "assignmentsFromDisk.add(" + assignment + ")");
         assignmentsFromDisk.add(assignment);
         patrol.writeAssignment(assignment);
@@ -238,7 +238,7 @@ public class DayShifts extends nspHttpServlet {
     } else {
       name = "";  //name from dropdown
     }
-    assignment.setEventName(name);
+    assignment.setEventName(sessionData, name);
     patrol.writeAssignment(assignment);
   }
 
@@ -278,7 +278,7 @@ public class DayShifts extends nspHttpServlet {
           Assignments assignment = new Assignments(szAssignmentDate, sData);
           debugOut(request, "assignmentsFromDisk.add placeholder(" + assignment + ")");
           assignmentsFromDisk.add(assignment);
-          assignment.setEventName(szNameComment);
+          assignment.setEventName(sessionData, szNameComment);
           patrol.writeAssignment(assignment);
         }
       }
@@ -353,9 +353,9 @@ public class DayShifts extends nspHttpServlet {
         }
 
         if (member != null && member.getID() != null) {
-          data.insertAt(j, member.getID());
+          data.insertAt(sessionData.getLoggedInResort(), j, member.getID());
         } else {
-          data.insertAt(j, "0");  //remove any existing member
+          data.insertAt(sessionData.getLoggedInResort(), j, "0");  //remove any existing member
         }
       }
       patrol.writeAssignment(data);
@@ -385,7 +385,7 @@ public class DayShifts extends nspHttpServlet {
 //          szAssignmentDate = GetTodaysAssignmentString(shiftIndex + 1);
 //        }
       assignment = new Assignments(szAssignmentDate, sh);
-      assignment.setEventName(szNameComment);
+      assignment.setEventName(sessionData, szNameComment);
 //        Assignments old = patrol.readAssignment(assignment.getDate());
 //        debugOut("ZZZZZZZ HACK TO REMOVE, old=" + ((old == null) ? "null" : old.toString()));
       Assignments prevAssignment = patrol.readAssignment(assignment.getDate());
@@ -420,7 +420,7 @@ public class DayShifts extends nspHttpServlet {
       if (selectedShift.equals(sData.parsedEventName())) {
         String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);   //1 based, so increment first
         Assignments assignment = new Assignments(szAssignmentDate, sData);
-        assignment.setEventName(name);
+        assignment.setEventName(sessionData, name);
         debugOut(request, "assignmentsFromDisk.add(" + assignment + ")");
         assignmentsFromDisk.add(assignment);
         patrol.writeAssignment(assignment);
@@ -582,13 +582,13 @@ public class DayShifts extends nspHttpServlet {
       String tEnd = request.getParameter("endTime_" + i);
       String tCount = request.getParameter("count_" + i);
       if (tCount == null) {
-        Logger.printToLogFile(request, "ERROR, reading past assignment data");
+        Logger.printToLogFile(request, resort, "ERROR, reading past assignment data");
         break;
       }
       int tCnt = Integer.parseInt(tCount);
       String tShift = request.getParameter("shift_" + i);
       if (tShift == null) {
-        Logger.printToLogFile(request, "ERROR, reading past assignment data");
+        Logger.printToLogFile(request, resort, "ERROR, reading past assignment data");
         break;
       }
       int tType = Assignments.getTypeID(sessionData, tShift);
@@ -608,7 +608,7 @@ public class DayShifts extends nspHttpServlet {
 
   private void debugOut(HttpServletRequest request, String msg) {
     if (DEBUG) {
-      Logger.printToLogFile(request, "Debug-DayShifts: " + msg);
+      Logger.printToLogFile(request, resort, "Debug-DayShifts: " + msg);
     }
   }
 

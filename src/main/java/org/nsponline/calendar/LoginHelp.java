@@ -45,7 +45,7 @@ public class LoginHelp extends nspHttpServlet {
         }
         // String newLoc = BASE_URL + resort + "/index.php?resort=" + resort + "&NSPgoto=" + szParent + "&ID=" + id;
         String newLoc = PatrolData.SERVLET_URL + szParent + "?resort=" + resort + "&ID=" + id;
-        debugOut("LoginHelp (valid login) sendRedirect to (& return): " + newLoc);
+        debugOut("LoginHelp (valid login) sendRedirect to: " + newLoc);
         response.sendRedirect(newLoc);
         patrolData.close();
         return;
@@ -231,14 +231,14 @@ public class LoginHelp extends nspHttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Logger.printToLogFile(sessionData.getRequest(), "DEBUG-LoginHelp(" + resort + "): " + str);
+        Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
       }
     }
 
     @SuppressWarnings("unused")
     private void debugSensitiveOut(String str) {
       if (DEBUG_SENSITIVE) {
-        Logger.printToLogFile(sessionData.getRequest(), "DEBUG_SENSITIVE-LoginHelp(" + resort + "): " + str);
+        Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
       }
     }
 

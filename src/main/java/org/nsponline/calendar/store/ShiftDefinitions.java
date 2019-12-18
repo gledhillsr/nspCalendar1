@@ -128,28 +128,28 @@ public class ShiftDefinitions {
     return type;
   }
 
-  public String getUpdateShiftDefinitionsQueryString() {
+  public String getUpdateShiftDefinitionsQueryString(String resort) {
     String qryString = "UPDATE shiftdefinitions SET " +
         " " + tags[START_TIME_INDEX] + "='" + startTime +
         "', " + tags[END_TIME_INDEX] + "='" + endTime +
         "', " + tags[COUNT_INDEX] + "='" + count +
         "', " + tags[TYPE_INDEX] + "='" + type +
         "' WHERE " + tags[EVENT_NAME_INDEX] + "= '" + eventName + "'";
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(resort, qryString);
     return qryString;
   }
 
-  public String getInsertShiftDefinitionsQueryString() {
+  public String getInsertShiftDefinitionsQueryString(String resort) {
     String qryString = "INSERT INTO shiftdefinitions " +
         " Values('" + eventName + "','" + startTime + "','" + endTime + "','" + count + "'," + type + ")";
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(resort, qryString);
     return qryString;
   }
 
-  public String getDeleteSQLString() {
+  public String getDeleteSQLString(String resort) {
     int i;
     String qryString = "DELETE FROM shiftdefinitions WHERE " + tags[EVENT_NAME_INDEX] + " = '" + eventName + "'";
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(resort, qryString);
     return qryString;
   }
 

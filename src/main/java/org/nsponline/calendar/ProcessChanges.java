@@ -209,7 +209,7 @@ public class ProcessChanges extends nspHttpServlet {
         }
       }
       else if (transaction.equals("removeName")) {
-        if (setupForRemoveName()) {
+        if (setupForRemoveName(resort)) {
           return; //member not found
         }
       }
@@ -317,7 +317,7 @@ public class ProcessChanges extends nspHttpServlet {
 //        return false;
     }
 
-    private boolean setupForRemoveName() {
+    private boolean setupForRemoveName(String resort) {
       member1 = patrolData.getMemberByID(selectedID);
       if (member1 == null) {
         out.println("<h1>Error: member " + selectedID + " not found!</h1><br>");
@@ -326,7 +326,7 @@ public class ProcessChanges extends nspHttpServlet {
       transNumber = REMOVE;
       newID = selectedID;
       newName = member1.getFullName_lastNameFirst();
-      night1.remove(nIndex1AsNum);
+      night1.remove(resort, nIndex1AsNum);
       return false;
     }
 
@@ -343,7 +343,7 @@ public class ProcessChanges extends nspHttpServlet {
         dupError = true;
       }
       else {
-        night1.insertAt(nIndex1AsNum, newID);
+        night1.insertAt(resort, nIndex1AsNum, newID);
       }
       return false;
     }
@@ -356,7 +356,7 @@ public class ProcessChanges extends nspHttpServlet {
         dupError = true;
       }
       else {
-        night1.insertAt(nIndex1AsNum, newID);
+        night1.insertAt(resort, nIndex1AsNum, newID);
       }
     }
 
@@ -418,7 +418,7 @@ public class ProcessChanges extends nspHttpServlet {
       }
 
       newName = member1.getFullName_lastNameFirst();
-      night1.insertAt(nIndex1AsNum, newID);
+      night1.insertAt(resort, nIndex1AsNum, newID);
       return false;
     }
 
@@ -430,7 +430,7 @@ public class ProcessChanges extends nspHttpServlet {
         dupError = true;
       }
       else {
-        night1.insertAt(nIndex1AsNum, newID);
+        night1.insertAt(resort, nIndex1AsNum, newID);
       }
     }
 

@@ -209,7 +209,7 @@ public class UpdateInfo extends HttpServlet {
       String IDpos[] = {"P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"};
       for (int i = 0; i < 10; ++i) {
         String qryString = "SELECT Date, " + IDpos[i] + " FROM `assignments` WHERE " + IDpos[i] + "=" + oldMemberID;
-        LOG.logSqlStatement(qryString);
+        LOG.logSqlStatement(resort, qryString);
         try {
           cs = c.prepareStatement(qryString);
           cr = cs.executeQuery();
@@ -217,14 +217,14 @@ public class UpdateInfo extends HttpServlet {
             PreparedStatement cs1;
             String szDate = cr.getString("Date");
             qryString = "UPDATE assignments SET " + IDpos[i] + "=\"" + IDToEdit + "\" WHERE Date=\"" + szDate + "\"";
-            LOG.logSqlStatement(qryString);
+            LOG.logSqlStatement(resort, qryString);
             cs1 = c.prepareStatement(qryString);
             cs1.executeUpdate();
           }
 
         }
         catch (Exception e) {
-          LOG.logException("(" + resort + ") Error (line 225) resetting Assignments table ", e);
+          LOG.logException(resort, " Error (line 225) resetting Assignments table ", e);
         } //end try
       }
     }
@@ -309,7 +309,7 @@ public class UpdateInfo extends HttpServlet {
           if (debug) {
             Logger.log("Final delete Patroller");
           }
-          sz = md.getDeleteSQLString();
+          sz = md.getDeleteSQLString(resort);
           sRost = c.prepareStatement(sz);
           sRost.executeUpdate();
 //Log.log("executing delete");
@@ -362,7 +362,7 @@ public class UpdateInfo extends HttpServlet {
             sRost = c.prepareStatement(sz);
             sRost.executeUpdate();
             //remove OLD id
-            sz = oldMemberData.getDeleteSQLString();
+            sz = oldMemberData.getDeleteSQLString(resort);
             sRost = c.prepareStatement(sz);
             sRost.executeUpdate();
           }
@@ -500,7 +500,7 @@ public class UpdateInfo extends HttpServlet {
       }
       catch (Exception e) {
         out.println("Error connecting or reading table " + e.getMessage() + "<br>");
-        Logger.logException("UpdateInfo: Error connecting or reading exception=", e);
+        Logger.logException(resort, "UpdateInfo: Error connecting or reading exception=", e);
         Logger.log("in UpdateInfo.  IDOfEditor=" + IDOfEditor);
         Logger.log("in UpdateInfo.  IDToEdit=" + IDToEdit);
       } //end try

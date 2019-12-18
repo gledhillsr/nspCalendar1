@@ -127,7 +127,7 @@ public class ListAssignments extends HttpServlet {
             pat0 = Integer.parseInt(ns.getPosID(shiftType));
           }
           catch (Exception e) {
-            LOG.error("error id (" + ns.getPosID(shiftType) + ")");
+            LOG.error(resort, "error id (" + ns.getPosID(shiftType) + ")");
             continue;
           }
           if (Math.abs(pat0) == myID) {  //check if 'myID'

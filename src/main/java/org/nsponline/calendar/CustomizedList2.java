@@ -760,7 +760,7 @@ public class CustomizedList2 extends nspHttpServlet {
 
   private void debugOut(String msg) {
     if (debug) {
-      Logger.printToLogFile(sessionData.getRequest() , "DEBUG-CustomizedList2(" + resort + "): " + msg);
+      Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-CustomizedList2(" + resort + "): " + msg);
     }
   }
 }

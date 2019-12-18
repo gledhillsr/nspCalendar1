@@ -413,16 +413,16 @@ public class DirectorSettings {
     return false;
   }
 
-  static public ResultSet reset(Connection connection) {
+  static public ResultSet reset(String resort, Connection connection) {
     PreparedStatement directorStatement;
     try {
       String sqlQuery = "SELECT * FROM directorsettings ORDER BY \"" + PATROL_NAME_FIELD + "\"";
-      Logger.logSqlStatementStatic(sqlQuery);
+      Logger.logSqlStatementStatic(resort, sqlQuery);
       directorStatement = connection.prepareStatement(sqlQuery); //sort by default key
       return directorStatement.executeQuery();
     }
     catch (Exception e) {
-      Logger.logException("Error resetting DirectorSettings table reason ", e);
+      Logger.logException(resort, "Error resetting DirectorSettings table reason ", e);
     } //end try
     return null;
   }

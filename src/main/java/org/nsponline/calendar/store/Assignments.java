@@ -106,7 +106,7 @@ public class Assignments {
     szStartTime = readString(sessionData, assignmentResults, tag[START_INDEX]);
     szEndTime = readString(sessionData, assignmentResults, tag[END_INDEX]);
     szEventName = readString(sessionData, assignmentResults, tag[EVENT_INDEX]);
-    debugOut("szEventName=(" + szEventName + ")");
+    debugOut(sessionData.getLoggedInResort(), "szEventName=(" + szEventName + ")");
     if (szEventName == null || szEventName.equals("null")) {
       szEventName = " ";
     }
@@ -118,7 +118,7 @@ public class Assignments {
       patrollerID[i] = readString(sessionData, assignmentResults, ("P" + i));
     }
     existed = true;
-    debugOut("Assignment.read=" + this);
+    debugOut(sessionData.getLoggedInResort(), "Assignment.read=" + this);
     return !exceptionError;
   }
 
@@ -194,14 +194,14 @@ public class Assignments {
     return name + "_" + PatrolData.IndexToString(i);
   }
 
-  public int getUseCount() {
-    debugOut("Assignments.getUseCount() for " + szDate + ", fullCount=" + count);
+  public int getUseCount(String resort) {
+    debugOut(resort, "Assignments.getUseCount() for " + szDate + ", fullCount=" + count);
     int cnt = 0;
     int i;
     for (i = 0; i < count; ++i) {
       if (patrollerID[i] != null && !patrollerID[i].equals("0") && !patrollerID[i].equals("")) {
         ++cnt;
-        debugOut("Found " + cnt + ") patroller=(" + patrollerID[i] + ")");
+        debugOut(resort, "Found " + cnt + ") patroller=(" + patrollerID[i] + ")");
       }
     }
     return cnt;
@@ -219,9 +219,9 @@ public class Assignments {
 //    szEndTime = str;
 //  }
 
-  public void setEventName(String str) {
+  public void setEventName(SessionData sessionData, String str) {
     szEventName = str;
-    debugOut("1 szEventName=(" + szEventName + ")");
+    debugOut(sessionData.getLoggedInResort(), "1 szEventName=(" + szEventName + ")");
   }
 
   public void setType(int cnt) {
@@ -290,19 +290,19 @@ public class Assignments {
     return "0";                 //invalid pos
   }
 
-  public void remove(int nPos) {
+  public void remove(String resort, int nPos) {
     if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {     //validate pos
-      debugOut("Assignment: remove(nPos=" + nPos + ", ID was " + patrollerID[nPos] + ")");
+      debugOut(resort, "Assignment: remove(nPos=" + nPos + ", ID was " + patrollerID[nPos] + ")");
       patrollerID[nPos] = "0";    //no patroller assigned
     }
   }
 
-  public void insertAt(int nPos, String ID) {
-    debugOut("Assignment: insertAt(nPos=" + nPos + ", ID=" + ID + ")");
+  public void insertAt(String resort, int nPos, String ID) {
+    debugOut(resort, "Assignment: insertAt(nPos=" + nPos + ", ID=" + ID + ")");
     if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {
       patrollerID[nPos] = ID;
     }
-    debugOut(toString());
+    debugOut(resort, toString());
   }
 
   public String getUpdateQueryString(SessionData sessionData) {
@@ -322,13 +322,13 @@ public class Assignments {
     // +
     for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       if (i >= count) {
-        debugOut("setting position " + i + " to 0");
-        insertAt(i, "0");
+        debugOut(sessionData.getLoggedInResort(), "setting position " + i + " to 0");
+        insertAt(sessionData.getLoggedInResort(), i, "0");
       }
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(sessionData.getLoggedInResort(), qryString);
     return qryString;
   }
 
@@ -351,19 +351,19 @@ public class Assignments {
     }
     qryString += ")";
 
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(sessionData.getLoggedInResort(),qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-    LOG.logSqlStatement(qryString);
+    LOG.logSqlStatement(sessionData.getLoggedInResort(),qryString);
     return qryString;
   }
 
-  public static String getSelectAllAssignmentsByDateSQLString() {
+  public static String getSelectAllAssignmentsByDateSQLString(String resort) {
     String sqlQuery = "SELECT * FROM assignments ORDER BY \"" + getDateSqlTag() + "\"";
-    LOG.logSqlStatement(sqlQuery);
+    LOG.logSqlStatement(resort, sqlQuery);
     return sqlQuery;
   }
 
@@ -377,14 +377,14 @@ public class Assignments {
     return ret;
   }
 
-  private void debugOut(String msg) {
+  private void debugOut(String resort, String msg) {
     if (DEBUG) {
-      Logger.printToLogFile(null, "Debug-Assignments: " + msg);
+      Logger.printToLogFile(null, resort, "Debug-Assignments: " + msg);
     }
   }
 
   private static void LOG(SessionData sessionData, String msg) {
-    Logger.printToLogFile(sessionData.getRequest(), msg);
+    Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), msg);
   }
 
   public boolean includesPatroller(String patrollerId) {

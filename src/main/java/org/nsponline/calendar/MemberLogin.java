@@ -115,6 +115,6 @@ public class MemberLogin extends nspHttpServlet {
   }
 
   private void debugOut(String str) {
-      LOG.debug("DEBUG-MemberLogin(" + resort + "): " + str);
+      LOG.debug(resort, str);
   }
 }

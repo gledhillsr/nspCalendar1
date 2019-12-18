@@ -115,7 +115,7 @@ public class MailMan {
 
   private void debugOutDontSend(SessionData sessionData, String msg) {
     if (DEBUG_DONT_SEND) {
-      Logger.printToLogFile(sessionData.getRequest(), "DEBUG_DONT_SEND-Mailman: " + msg);
+      Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG_DONT_SEND-Mailman: " + msg);
     }
   }
 

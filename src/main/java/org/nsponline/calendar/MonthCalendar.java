@@ -813,7 +813,7 @@ public class MonthCalendar extends nspHttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Logger.printToLogFile(sessionData.getRequest(), "DEBUG-MonthCalendar(" + resort + "): " + str);
+        Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-MonthCalendar(" + resort + "): " + str);
       }
     }
   }
