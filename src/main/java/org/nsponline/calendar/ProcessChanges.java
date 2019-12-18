@@ -66,14 +66,14 @@ public class ProcessChanges extends nspHttpServlet {
   private final int NO_REPLACEMENT_NEEDED = 7;
 
   private static final String trans[] = {
-    "Error",
-    "Insert Patroller",
-    "Replace Patroller",
-    "Remove Patroller",
-    "Trade Days with Patroller",
-    "Missed Shift",
-    "Needs a Replacement",
-    "No Replacement Needed"
+    "Error",                // ERROR
+    "Insert Patroller",     // INSERT
+    "Replace Patroller",    // REPLACE
+    "Remove Patroller",     // REMOVE
+    "Trade Days with Patroller",  // TRADE
+    "Missed Shift",         // MISSED_SHIFT
+    "Needs a Replacement",  // NEEDS_REPLACEMENT
+    "No Replacement Needed" //
   };
 
   @Override
@@ -536,6 +536,8 @@ public class ProcessChanges extends nspHttpServlet {
         emailMessage += trans[transNumber] + " " + newName + " On " + Utils.szDays[dayOfWeek0based] + ", " + Utils.szMonthsFull[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
 
         if (transNumber == TRADE) {
+//todo 10/2/2019, refactor to look like
+// <first> <last> was inserted into the calendar for Wednesday, April/1/2020 (6:30 pm - 9:30 pm).  Replacing patroller <first> <last>.
           emailMessage += "\nOn " + Utils.szMonthsFull[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
               trans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
         }

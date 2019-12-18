@@ -18,9 +18,9 @@ import java.io.PrintWriter;
 public class LoginHelp extends nspHttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG = false;
+  private static boolean DEBUG = true;
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG_SENSITIVE = false;
+  private static boolean DEBUG_SENSITIVE = true;
 
   void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 

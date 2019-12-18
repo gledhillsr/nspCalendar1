@@ -43,6 +43,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
     resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", null, "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
     resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", null, "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
+    resortMap.put("BigHorn",        new ResortData("BigHorn", "Big Horn", "BigHornSkiPatrolDirector@gmail.com", "https://www.lodgesofthebighorns.com/", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
     resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "brightonskipatrol@gmail.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
     resortMap.put("CoffeeMill",     new ResortData("CoffeeMill", "CoffeeMill", null, "https://cm-skipatrol.org/", "/images/CoffeeMillLogo.png", IMG_HEIGHT, 87));
@@ -76,6 +77,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", null, "http://www.nspOnline.org", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
 //snobowl
 //snowbird (hosts)
+    resortMap.put("Snowbowl",      new ResortData("Snowbowl", "Snowbowl", null, "http://www.snowbowlskipatrol.org", "/images/SnowBowlLogo.jpg", 80, 80));
     resortMap.put("SnowCreek",      new ResortData("SnowCreek", "SnowCreek", null, "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
     resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", null, "http://www.SnowKing.com", "/images/SnowKing.jpg", IMG_HEIGHT, 80));
     resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", null, "http://utaholympiclegacy.org/soldier-hollow/", "/images/SOHO_II.jpg", IMG_HEIGHT, 60));
