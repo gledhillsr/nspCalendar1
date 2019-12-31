@@ -48,7 +48,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
     resortMap.put("CoffeeMill",     new ResortData("CoffeeMill", "CoffeeMill", null, "https://cm-skipatrol.org/", "/images/CoffeeMillLogo.png", IMG_HEIGHT, 87));
     resortMap.put("DetroitMountain",new ResortData("DetroitMountain", "Detroit Mountain", null, "http://detroitmountain.com/", "/images/DetroitMountain.png", 73, 121));
-    resortMap.put("DevilsHead",     new ResortData("DevilsHead", "Devil's Head", null, "https://www.devilsheadresort.com/", "/images/DevilsHeadSkiPatrol.png", IMG_HEIGHT, 160));
+    resortMap.put("DevilsHead",     new ResortData("DevilsHead", "Devil's Head", "tim.theisen@ieee.org", "https://www.devilsheadresort.com/", "/images/DevilsHeadSkiPatrol.png", IMG_HEIGHT, 160));
     resortMap.put("ElmCreek",       new ResortData("ElmCreek", "Elm Creek Park", null, "https://www.threeriversparks.org/parks/elm-creek-park.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
     resortMap.put("GrandTarghee",   new ResortData("GrandTarghee", "Grand Targhee", null, "http://www.GrandTarghee.com", "/images/GrandTarghee.jpg", IMG_HEIGHT, 80));
     resortMap.put("GreatDivide",    new ResortData("GreatDivide", "Great Divide", null, "http://www.skigd.com", "/images/GreatDivide.jpg", IMG_HEIGHT, 274));
@@ -64,7 +64,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     resortMap.put("LeeCanyon",      new ResortData("LeeCanyon", "Lee Canyon", "schedule@leecanyonskipatrol.org", "http://www.leecanyonskipatrol.org", "/images/LeeCanyon.png", IMG_HEIGHT, 80));
     resortMap.put("MagicMountain",  new ResortData("MagicMountain", "Magic Mountain", null, "http://www.magicmountainresort.com/", "/images/MagicMountain.jpg", IMG_HEIGHT, 145));
     resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", null, "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
-    resortMap.put("MountPleasant",  new ResortData("MountPleasant", "Mount Pleasant", "bruno.nicholas@gmail.com", "http://www.skimountpleasant.com ", "/images/MountPleasant.png", IMG_HEIGHT, 80));
+    resortMap.put("MountPleasant",  new ResortData("MountPleasant", "Mount Pleasant", "dfarbotnik@gmail.com", "http://www.skimountpleasant.com ", "/images/MountPleasant.png", IMG_HEIGHT, 80));
     resortMap.put("NorwayMountain", new ResortData("NorwayMountain", "Norway Mountain", null, "http://www.NorwayMountain.com", "/images/NorwayMountain.jpg", IMG_HEIGHT, 80));
     resortMap.put("PaidSnowCreek",  new ResortData("PaidSnowCreek", "Paid SnowCreek", null, "http://www.skisnowcreek.com", "/images/SnowCreek.jpg", IMG_HEIGHT, 80));
     resortMap.put("ParkCity",       new ResortData("ParkCity", "PCM-Canyons", "dukespeer@gmail.com", "http://www.parkcitymountain.com", "/images/ParkCity.png", 30, 30));
