@@ -14,7 +14,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  private static final boolean DEBUG = false;
+  private static final int LOG_LEVEL = Logger.INFO;
+
   @SuppressWarnings("FieldCanBeLocal")
   private String resortParameter;
   private Logger LOG;
@@ -24,7 +25,7 @@ public class ValidateCredentials {
   @SuppressWarnings("UnusedParameters")
   public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
     this.resortParameter = request.getParameter("resort");
-    LOG = new Logger(this.getClass(), parentLogger, resortParameter);
+    LOG = new Logger(this.getClass(), parentLogger, resortParameter, LOG_LEVEL);
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
     init(sessionData, response, parent, idParameter, idLoggedIn);
@@ -79,14 +80,12 @@ public class ValidateCredentials {
 
   private void errorOut(String msg) {
     // NOSONAR
-    Logger.logStatic("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
+    LOG.error("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
   }
 
   private void debugOut(String msg) {
-    if (DEBUG) {
-      // NOSONAR
-      Logger.logStatic("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
-    }
+    // NOSONAR
+    LOG.debug("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
   }
 
   public boolean hasInvalidCredentials() {

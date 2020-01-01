@@ -15,8 +15,7 @@ import java.text.SimpleDateFormat;
  * @author Steve Gledhill
  */
 public class Assignments {
-  private static final Logger LOG = new Logger(Assignments.class);
-  private final static boolean DEBUG = false;
+  private final static int MIN_LOG_LEVEL = Logger.INFO;
   //public fields
   public final static int MAX_ASSIGNMENT_SIZE = 10;          //max number of assignments
   public final static int DAY_TYPE = 0;
@@ -51,13 +50,15 @@ public class Assignments {
   private String patrollerID[];           //patroller ID for each assignment
   private boolean existed;                //did this date already exist in the database
   private boolean exceptionError;
+  private Logger LOG;
 
-  public Assignments() {
-    initData();
+
+  public Assignments(Logger parentLogger) {
+    initData(parentLogger);
   }
 
-  public Assignments(String myDate, ShiftDefinitions shift) {
-    initData();
+  public Assignments(String myDate, ShiftDefinitions shift, Logger parentLogger) {
+    initData(parentLogger);
     szEventName = " ";   //shift.getEventName();
     szDate = myDate;        //date of this shift
     szStartTime = shift.getStartString();
@@ -66,7 +67,9 @@ public class Assignments {
     count = shift.getCount();
   }
 
-  private void initData() {
+  private void initData(Logger parentLogger) {
+    LOG = new Logger(Assignments.class, parentLogger, null, MIN_LOG_LEVEL);
+
     int i;
     exceptionError = false;
     existed = false;    //not real data
@@ -106,7 +109,7 @@ public class Assignments {
     szStartTime = readString(sessionData, assignmentResults, tag[START_INDEX]);
     szEndTime = readString(sessionData, assignmentResults, tag[END_INDEX]);
     szEventName = readString(sessionData, assignmentResults, tag[EVENT_INDEX]);
-    debugOut(sessionData.getLoggedInResort(), "szEventName=(" + szEventName + ")");
+    debugOut("szEventName=(" + szEventName + ")");
     if (szEventName == null || szEventName.equals("null")) {
       szEventName = " ";
     }
@@ -118,7 +121,7 @@ public class Assignments {
       patrollerID[i] = readString(sessionData, assignmentResults, ("P" + i));
     }
     existed = true;
-    debugOut(sessionData.getLoggedInResort(), "Assignment.read=" + this);
+    debugOut("Assignment.read=" + this);
     return !exceptionError;
   }
 
@@ -195,13 +198,13 @@ public class Assignments {
   }
 
   public int getUseCount(String resort) {
-    debugOut(resort, "Assignments.getUseCount() for " + szDate + ", fullCount=" + count);
+    debugOut("Assignments.getUseCount() for " + szDate + ", fullCount=" + count);
     int cnt = 0;
     int i;
     for (i = 0; i < count; ++i) {
       if (patrollerID[i] != null && !patrollerID[i].equals("0") && !patrollerID[i].equals("")) {
         ++cnt;
-        debugOut(resort, "Found " + cnt + ") patroller=(" + patrollerID[i] + ")");
+        debugOut("Found " + cnt + ") patroller=(" + patrollerID[i] + ")");
       }
     }
     return cnt;
@@ -221,7 +224,7 @@ public class Assignments {
 
   public void setEventName(SessionData sessionData, String str) {
     szEventName = str;
-    debugOut(sessionData.getLoggedInResort(), "1 szEventName=(" + szEventName + ")");
+    debugOut("1 szEventName=(" + szEventName + ")");
   }
 
   public void setType(int cnt) {
@@ -292,17 +295,17 @@ public class Assignments {
 
   public void remove(String resort, int nPos) {
     if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {     //validate pos
-      debugOut(resort, "Assignment: remove(nPos=" + nPos + ", ID was " + patrollerID[nPos] + ")");
+      debugOut("Assignment: remove(nPos=" + nPos + ", ID was " + patrollerID[nPos] + ")");
       patrollerID[nPos] = "0";    //no patroller assigned
     }
   }
 
   public void insertAt(String resort, int nPos, String ID) {
-    debugOut(resort, "Assignment: insertAt(nPos=" + nPos + ", ID=" + ID + ")");
+    debugOut("Assignment: insertAt(nPos=" + nPos + ", ID=" + ID + ")");
     if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {
       patrollerID[nPos] = ID;
     }
-    debugOut(resort, toString());
+    debugOut(toString());
   }
 
   public String getUpdateQueryString(SessionData sessionData) {
@@ -322,7 +325,7 @@ public class Assignments {
     // +
     for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       if (i >= count) {
-        debugOut(sessionData.getLoggedInResort(), "setting position " + i + " to 0");
+        debugOut("setting position " + i + " to 0");
         insertAt(sessionData.getLoggedInResort(), i, "0");
       }
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
@@ -363,7 +366,7 @@ public class Assignments {
 
   public static String getSelectAllAssignmentsByDateSQLString(String resort) {
     String sqlQuery = "SELECT * FROM assignments ORDER BY \"" + getDateSqlTag() + "\"";
-    LOG.logSqlStatement(sqlQuery);
+//    LOG.logSqlStatement(sqlQuery);
     return sqlQuery;
   }
 
@@ -377,10 +380,8 @@ public class Assignments {
     return ret;
   }
 
-  private void debugOut(String resort, String msg) {
-    if (DEBUG) {
-      Logger.printToLogFileStatic(null, resort, "Debug-Assignments: " + msg);
-    }
+  private void debugOut(String msg) {
+    LOG.debug("Assignments: " + msg);
   }
 
   private static void LOG(SessionData sessionData, String msg) {

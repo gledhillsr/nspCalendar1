@@ -157,7 +157,7 @@ public class Roster {
   public String[] szAssignments = new String[Assignments.MAX_SHIFT_TYPES];
 
   public Roster(Logger parentLogger) {
-    LOG = new Logger(Roster.class, parentLogger, null);
+    LOG = new Logger(Roster.class, parentLogger, null, Logger.INFO);
     idNum = 0;
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
       AssignmentCount[i] = 0;
@@ -179,7 +179,7 @@ public class Roster {
   }
 
   public Roster(HttpServletRequest request) {
-    LOG = new Logger(Roster.class, request, null, null);
+    LOG = new Logger(Roster.class, request, null, null, Logger.INFO);
     idNum = 0;
     memberData = new String[DB_SIZE];           //data for 'this' member
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {

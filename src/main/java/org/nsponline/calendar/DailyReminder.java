@@ -13,7 +13,7 @@ public class DailyReminder {
   private Logger LOG;
 
   public DailyReminder(String resort, SessionData sessionData, MailMan mail) {
-    LOG = new Logger(this.getClass(), null, "DailyReminder");
+    LOG = new Logger(this.getClass(), null, "DailyReminder", Logger.INFO);
     debugOut("*** Processing email reminders for resort=" + resort);
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     DirectorSettings ds = patrol.readDirectorSettings();

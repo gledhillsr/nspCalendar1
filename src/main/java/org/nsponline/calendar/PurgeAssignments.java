@@ -17,21 +17,23 @@ import java.util.Calendar;
  * @author Steve Gledhill
  */
 public class PurgeAssignments extends HttpServlet {
-  private static Logger LOG = new Logger(PurgeAssignments.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(PurgeAssignments.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     new LocalPurgeAssignments(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("POST", request);
+    LOG = new Logger(PurgeAssignments.class, request, "POST", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     new LocalPurgeAssignments(request, response);
   }
 
   private class LocalPurgeAssignments {
-    private Logger LOG;
-
     String szMyID;
     PrintWriter out;
     boolean purgeData;

@@ -17,7 +17,7 @@ abstract public class nspHttpServlet extends HttpServlet {
   public String resort;
   public SessionData sessionData;
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     nspInit(request, response, "GET");
     servletBody(request, response);
   }
@@ -46,7 +46,7 @@ abstract public class nspHttpServlet extends HttpServlet {
     out = response.getWriter();
     sessionData = new SessionData(request, out);
     resort = request.getParameter("resort");
-    LOG = new Logger(getServletClass(), request, methodType, resort);
+    LOG = new Logger(getServletClass(), request, methodType, resort, Logger.INFO);
     credentials = new ValidateCredentials(sessionData, request, response, getParentIfBadCredentials(), LOG);
     response.setContentType("text/html");
 

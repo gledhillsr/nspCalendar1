@@ -65,10 +65,13 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("JavaDoc")
 public class UserAssignments extends HttpServlet {
-  private static Logger LOG = new Logger(UserAssignments.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(UserAssignments.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     getUserAssignments(request, response);
   }
 

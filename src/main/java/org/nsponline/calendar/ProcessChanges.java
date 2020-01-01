@@ -141,7 +141,7 @@ public class ProcessChanges extends nspHttpServlet {
         out.println("<h1>Error: member " + submitterID + " not found!</h1><br>");
         return;
       }
-      log(request, "submitter=" + submitter.getFullName() + " selectedID=" + selectedID  + " resort=" + resort + " trans=" + transaction +
+      LOG.info("submitter=" + submitter.getFullName() + " selectedID=" + selectedID  + " resort=" + resort + " trans=" + transaction +
           " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old_name=" + listName);
       szSubmitterName = submitter.getFullName();
 
@@ -169,7 +169,7 @@ public class ProcessChanges extends nspHttpServlet {
         String today = szdate1.substring(0, szdate1.indexOf("_") + 1);
         for (ShiftDefinitions shift : patrolData.readShiftDefinitions()) {
           if (shift.parsedEventName().equals(Utils.szDays[dayOfWeek0based])) {
-            Assignments assign = new Assignments((today + cnt), shift);
+            Assignments assign = new Assignments((today + cnt), shift, LOG);
             patrolData.writeAssignment(assign);
             if (cnt == nPos1) {
               night1 = assign;
@@ -578,13 +578,13 @@ public class ProcessChanges extends nspHttpServlet {
 //Log.log("ds.getNotifyChanges()="+ds.getNotifyChanges());
       if (!ds.getNotifyChanges()) {
         //director settings say don't email on changes to calendar
-        log(request,"debug, no mail sent because notify changes is 'false'");
+        LOG.debug("no mail sent because notify changes is 'false'");
       }
       else if (submitterID.equals(sessionData.getBackDoorUser())) { //using back door login, don't send emails
-        log(request,"debug, no mail being sent by the System Administrator");
+        LOG.debug("no mail being sent by the System Administrator");
       }
       else if (resort.equalsIgnoreCase("Sample")) {
-        log(request,"debug, no mail being sent for Sample resort");
+        LOG.debug("no mail being sent for Sample resort");
       }
       else {    //hack to stop email
         MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
@@ -644,9 +644,9 @@ public class ProcessChanges extends nspHttpServlet {
 //      Logger.log("ProcessChanges: " + msg);
 //    }
 
-    private void log(HttpServletRequest request, String msg) {
-      //noinspection ConstantConditions
-      Logger.printToLogFileStatic(request, resort, submitterID, "ProcessChanges: " + msg);
-    }
+//    private void log(HttpServletRequest request, String msg) {
+//      //noinspection ConstantConditions
+//      LOG.info( "ProcessChanges: submitter=" + submitterID + ", " + msg);
+//    }
   }
 

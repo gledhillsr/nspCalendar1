@@ -43,9 +43,9 @@ public class ChangeShift extends nspHttpServlet {
   private int visibleRadioButtons = 0;
 
   @Override
-    Class getServletClass() {
-      return this.getClass();
-    }
+  Class getServletClass() {
+    return this.getClass();
+  }
 
   String getParentIfBadCredentials() {
     return "MonthCalendar";
@@ -97,7 +97,7 @@ public class ChangeShift extends nspHttpServlet {
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        debugOut(sessionData, "dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
+        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
 //        calendar = new GregorianCalendar(TimeZone.getDefault());
 //        //noinspection MagicConstant
 //        calendar.set(year, month, date);   //remember, month is 0-based
@@ -109,7 +109,7 @@ public class ChangeShift extends nspHttpServlet {
         month = 1;
         year = 1;
         pos = 1;
-        debugOut(sessionData, "ERROR, numeric processing exception, using default values");
+        debugOut("ERROR, numeric processing exception, using default values");
       }   //err
     } //end readParameterDate
 
@@ -244,7 +244,7 @@ public class ChangeShift extends nspHttpServlet {
             id = id.substring(1);
           }
           if ((assignmentGroup + 1) == pos && offsetWithinGroup == index) {
-            debugOut(sessionData, "look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
+            debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
             posWasEmpty = isThisPositionEmpty(id, patrol);
           }
         }
@@ -276,7 +276,7 @@ public class ChangeShift extends nspHttpServlet {
 //start of selection table
       out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
       boolean editingMyself = (newName != null && newName.equals(myName));
-      debugOut(sessionData, "CALLING ProcessChanges with: szMyID=" + szMyID
+      debugOut("CALLING ProcessChanges with: szMyID=" + szMyID
           + ", newName=" + newName
           + ", myName=" + myName
           + ", posWasEmpty=" + posWasEmpty
@@ -399,7 +399,7 @@ public class ChangeShift extends nspHttpServlet {
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + pos + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"index1\" VALUE=\"" + index + "\">");
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + newIdNumber + "\">");
-debugOut(sessionData, "printBottom, submitterID=");
+debugOut("printBottom, submitterID=");
       String strDate = year + "-";
       if (month + 1 < 10) {
         strDate += "0";
@@ -498,14 +498,14 @@ debugOut(sessionData, "printBottom, submitterID=");
       totalAssignmentGroupsForToday = 0;
       assignmentGroups = new Assignments[50];
       for (Assignments shiftAssignments : patrol.readSortedAssignments(year, month + 1, dayOfMonth)) {
-        debugOut(sessionData, "readData-asignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
+        debugOut("readData-asignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
         assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
       } //end while Shift ski assignments
     } //end of readdata
 
-    private void debugOut(SessionData sessionData, String msg) {
+    private void debugOut(String msg) {
       if (DEBUG) {
-        Logger.printToLogFileStatic(sessionData.getRequest() , resort, sessionData.getLoggedInUserId(), "ChangeShift: " + msg);
+        LOG.debug("ChangeShift: " + msg);
       }
     }
 } //end class ChangeShift

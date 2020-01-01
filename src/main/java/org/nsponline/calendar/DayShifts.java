@@ -210,7 +210,7 @@ public class DayShifts extends nspHttpServlet {
         debugOut(request, "Adding a Comment ONLY assignment (" + szNameComment + ")");
         sData = new ShiftDefinitions(szNameComment, " ", " ", 0, Assignments.DAY_TYPE, LOG);    //shift with 0 patrollers
         String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);  //2002-12-31_1  index is 1 based
-        Assignments assignment = new Assignments(szAssignmentDate, sData);
+        Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
         assignment.setEventName(sessionData, szNameComment);
         debugOut(request, "assignmentsFromDisk.add(" + assignment + ")");
         assignmentsFromDisk.add(assignment);
@@ -228,7 +228,7 @@ public class DayShifts extends nspHttpServlet {
     //real assignmentsFromDisk existed, so add one more
     //make date field yyy-mm-dd_#
     String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1); //YYYY-MM-DD_p  where p is 1 based
-    Assignments assignment = new Assignments(szAssignmentDate, sData);
+    Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
     debugOut(request, "adding assignment: " + assignment.toString());
     assignmentsFromDisk.add(assignment);
 
@@ -275,7 +275,7 @@ public class DayShifts extends nspHttpServlet {
           //real assignmentsFromDisk existed, so add one more
           //make date field yyy-mm-dd_#
           String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);   //YYYY-MM-DD_p  where p is 1 based
-          Assignments assignment = new Assignments(szAssignmentDate, sData);
+          Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
           debugOut(request, "assignmentsFromDisk.add placeholder(" + assignment + ")");
           assignmentsFromDisk.add(assignment);
           assignment.setEventName(sessionData, szNameComment);
@@ -384,7 +384,7 @@ public class DayShifts extends nspHttpServlet {
 //        else {
 //          szAssignmentDate = GetTodaysAssignmentString(shiftIndex + 1);
 //        }
-      assignment = new Assignments(szAssignmentDate, sh);
+      assignment = new Assignments(szAssignmentDate, sh, LOG);
       assignment.setEventName(sessionData, szNameComment);
 //        Assignments old = patrol.readAssignment(assignment.getDate());
 //        debugOut("ZZZZZZZ HACK TO REMOVE, old=" + ((old == null) ? "null" : old.toString()));
@@ -419,7 +419,7 @@ public class DayShifts extends nspHttpServlet {
     for (ShiftDefinitions sData : shiftsTemplates) {
       if (selectedShift.equals(sData.parsedEventName())) {
         String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);   //1 based, so increment first
-        Assignments assignment = new Assignments(szAssignmentDate, sData);
+        Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
         assignment.setEventName(sessionData, name);
         debugOut(request, "assignmentsFromDisk.add(" + assignment + ")");
         assignmentsFromDisk.add(assignment);

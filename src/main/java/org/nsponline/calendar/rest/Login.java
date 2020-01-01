@@ -47,12 +47,14 @@ import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
 
 @SuppressWarnings("JavaDoc")
 public class Login extends HttpServlet {
-  private static Logger LOG = new Logger(Login.class);
-
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
   private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
+  private Logger LOG;
+
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("POST", request);
+    LOG = new Logger(Login.class, request, "POST", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     doLogin(request, response);
   }
 

@@ -18,13 +18,13 @@ import java.util.Vector;
  */
 public class EmailForm extends nspHttpServlet {
 
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
   private final static String fallback_from = "steve@gledhills.com";
 
   private Vector<String> emaiPatrollerList;
   private Vector<String> invalidEmailPatrollerList;
 
   private final static boolean DEBUG_NO_SEND = false;
-  private final static boolean DEBUG = true;
 
   private Vector<String> classificationsToDisplay = null;
   private int commitmentToDisplay = 0;
@@ -62,8 +62,9 @@ public class EmailForm extends nspHttpServlet {
   private boolean messageIsUnique;
   private String fullPatrolName;
 
+  @Override
   Class getServletClass() {
-    return null;
+    return this.getClass();
   }
 
   String getParentIfBadCredentials() {
@@ -91,7 +92,7 @@ public class EmailForm extends nspHttpServlet {
     outerPage.printResortHeader(out);
     printTop(out, Submit);
     if (Submit != null) {
-      debugOut("resort " + resort + ", sending emails");
+      LOG.debug("resort " + resort + ", sending emails");
       SendEmails(request, szMyID, sessionData);
     } else {
       printMiddle(out, resort, szMyID);
@@ -314,10 +315,9 @@ public class EmailForm extends nspHttpServlet {
   }
 
   private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message) {
-    debugOut("------- mailto -----");
     String recipient = mbr.getEmailAddress();
     if (Utils.isValidEmailAddress(recipient)) {
-      debugOut("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
+      LOG.debug("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
       mail.sendMessage(sessionData, subject, message, recipient);
     }
   } //end mailto
@@ -522,7 +522,7 @@ public class EmailForm extends nspHttpServlet {
     if (request.getParameter("Inactive") != null) {
       commitmentToDisplay += 1;
     }
-    debugOut("commitmentToDisplay= " + commitmentToDisplay);
+    LOG.debug("commitmentToDisplay= " + commitmentToDisplay);
 
 //instructor/director flags
     listDirector = false;
@@ -546,9 +546,7 @@ public class EmailForm extends nspHttpServlet {
     if (request.getParameter("Toboggan") != null) {
       instructorFlags += 8;
     }
-    debugOut("listAll= " + listAll);
-    debugOut("ListDirector= " + listDirector);
-    debugOut("instructorFlags= " + instructorFlags);
+    LOG.debug("listAll= " + listAll + ", ListDirector= " + listDirector + ", instructorFlags= " + instructorFlags);
 
   }
 
@@ -566,7 +564,6 @@ public class EmailForm extends nspHttpServlet {
 //        maxShiftCount = 0;
 //    final Vector<Roster> members = new Vector<Roster>(PatrolData.MAX_PATROLLERS);
     mapId2MemberData = new Hashtable<String, Roster>();
-    debugOut("====== entering readAssignments ===========");
     while ((member = patrol.nextMember("&nbsp;", rosterResults)) != null) {
 //System.out.print(member);
       if (member.okToDisplay(EveryBody, SubList, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
@@ -613,12 +610,6 @@ public class EmailForm extends nspHttpServlet {
       } //end test for date
     } //end while loop (all assignments)
   } //readAssignments
-
-  private void debugOut(String msg) {
-    if (DEBUG) {
-      LOG.debug("DEBUG-EmailForm resort=" + resort + ", " + msg);
-    }
-  }
 
   private int cvtToInt(String strNum) {
     int num = 0;

@@ -39,10 +39,13 @@ import java.util.List;
  */
 @SuppressWarnings("JavaDoc")
 public class ResortList extends HttpServlet {
-  private static Logger LOG = new Logger(ResortList.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(ResortList.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     new InnerResortList(request, response);
   }
 

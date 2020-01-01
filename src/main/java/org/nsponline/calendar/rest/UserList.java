@@ -62,10 +62,13 @@ import java.sql.ResultSet;
  */
 @SuppressWarnings("JavaDoc")
 public class UserList extends HttpServlet {
-  private static Logger LOG = new Logger(UserList.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(UserList.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     new InnerUserList(request, response);
   }
 

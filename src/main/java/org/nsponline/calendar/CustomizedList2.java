@@ -82,8 +82,9 @@ public class CustomizedList2 extends nspHttpServlet {
   private String sort2;
   private String sort3;
 
+  @Override
   Class getServletClass() {
-    return null;
+    return this.getClass();
   }
 
   String getParentIfBadCredentials() {
@@ -396,7 +397,7 @@ public class CustomizedList2 extends nspHttpServlet {
 
     out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(resort) + " Ski Patrol</h2></Center></p>");
 
-    PatrolData.logger(resort, " CustomizedList2, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
+    LOG.info("CustomizedList2, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
     if (isDirector || (directorSettings != null && directorSettings.getEmailAll())) {
       showButtonsAtTop();
     } //end email patrollers...

@@ -37,7 +37,7 @@ public class ShiftDefinitions {
   private boolean existed;
 
   public ShiftDefinitions(Logger parentLogger) {
-    LOG = new Logger(this.getClass(), parentLogger, null);
+    LOG = new Logger(this.getClass(), parentLogger, null, Logger.INFO);
     eventName = null;
     startTime = null;
     endTime = null;
@@ -47,7 +47,7 @@ public class ShiftDefinitions {
   }
 
   public ShiftDefinitions(String name, String start, String end, int cnt, int typ, Logger parentLogger) {
-    LOG = new Logger(this.getClass(), parentLogger, null);
+    LOG = new Logger(this.getClass(), parentLogger, null, Logger.INFO);
     eventName = name;
     startTime = start;
     endTime = end;

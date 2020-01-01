@@ -1,5 +1,6 @@
 package org.nsponline.calendar.rest;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.NspSession;
 
@@ -29,10 +30,13 @@ import java.sql.Connection;
  */
 @SuppressWarnings("JavaDoc")
 public class Logout extends HttpServlet {
-  private static Logger LOG = new Logger(Logout.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+  private Logger LOG;
+
 
   public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    LOG.logRequestParameters("DELETE", request);
+    LOG = new Logger(Logout.class, request, "DELETE", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     doLogout(request, response);
   }
 

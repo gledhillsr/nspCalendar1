@@ -34,7 +34,7 @@ public class ListAssignments extends HttpServlet {
     private String resort;
 
     private LocalListAssignments(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException, ServletException {
-      LOG = new Logger(ListAssignments.class, request, methodType, null);
+      LOG = new Logger(ListAssignments.class, request, methodType, null, Logger.INFO);
       LOG.logRequestParameters();
       String patrollerId;
       PrintWriter out;

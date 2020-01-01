@@ -71,7 +71,7 @@ public class NewIndividualAssignment {
     this.lastModifiedDate = null;
     this.lastModifiedBy = "";
     existed = false;
-    LOG = new Logger(NewIndividualAssignment.class);
+    LOG = new Logger(NewIndividualAssignment.class, Logger.DEBUG);
   }
 
   private String readString(SessionData sessionData, ResultSet newAssignmentResults, String tag) {

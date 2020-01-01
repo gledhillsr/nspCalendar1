@@ -17,6 +17,7 @@ public class CustomizedList extends nspHttpServlet {
   private boolean isDirector;
   private String IDOfPatroller;
 
+  @Override
   Class getServletClass() {
     return this.getClass();
   }

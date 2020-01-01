@@ -57,10 +57,13 @@ import java.sql.Connection;
  */
 @SuppressWarnings("JavaDoc")
 public class User extends HttpServlet {
-  private static Logger LOG = new Logger(User.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(User.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     new InnerUser(request, response);
   }
 

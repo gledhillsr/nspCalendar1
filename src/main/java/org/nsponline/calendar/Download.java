@@ -1,6 +1,7 @@
 package org.nsponline.calendar;
 
 import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.rest.Login;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
@@ -13,10 +14,13 @@ import javax.servlet.http.*;
 import java.lang.*;
 
 public class Download extends HttpServlet {
-  private static Logger LOG = new Logger(Download.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(Download.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     new LocalDownload(request, response);
   }
 

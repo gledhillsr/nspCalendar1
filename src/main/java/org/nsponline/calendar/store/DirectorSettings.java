@@ -56,7 +56,7 @@ public class DirectorSettings {
 // constructor - store bogus patroller ID in each field
 //-----------------------------------------------------
   public DirectorSettings(String myResort, final Logger parentLogger) {
-    LOG = new Logger(PatrolData.class, parentLogger, myResort);
+    LOG = new Logger(PatrolData.class, parentLogger, myResort, Logger.INFO);
     szPatrolName = null;
     szEmailReminder = null;
     nReminderDays = 0;

@@ -17,17 +17,19 @@ import java.sql.ResultSet;
  * With a button to email this entire list, or links on each patrollers email address
  */
 public class SubList extends HttpServlet {
-  private static Logger LOG = new Logger(SubList.class);
+  private final static int MIN_LOG_LEVEL = Logger.INFO;
 
-  static final boolean DEBUG = false;
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(SubList.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     new InnerSubList(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    LOG.logRequestParameters("POST", request);
+    LOG = new Logger(SubList.class, request, "POST", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     doGet(request, response);
   }
 
@@ -62,7 +64,7 @@ public class SubList extends HttpServlet {
       printBody();
       printEndOfTable();
       patrol.close(); //must close connection!
-      debugOut("ending SubList");
+      LOG.debug("ending SubList");
       outerPage.printResortFooter(out);
     }
 
@@ -139,12 +141,6 @@ public class SubList extends HttpServlet {
       }
     }
 
-    @SuppressWarnings("SameParameterValue")
-    private void debugOut(String str) {
-      if (DEBUG) {
-        LOG.debug("DEBUG-SubList(" + resort + "): " + str);
-      }
-    }
   }
 }
 

@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance", "SqlDialectInspection"})
 public class PatrolData {
-  private final static boolean DEBUG = false;
+  private static final int MIN_LOG_LEVEL = Logger.INFO;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
 private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
@@ -116,7 +116,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
   private Logger LOG;
 
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData, final Logger parentLogger) {
-    LOG = new Logger(PatrolData.class, parentLogger, myResort);
+    LOG = new Logger(PatrolData.class, parentLogger, myResort, MIN_LOG_LEVEL);
     this.sessionData = sessionData;
 //    rosterResults = null;
 //    assignmentResults = null;
@@ -128,8 +128,8 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       Class.forName(JDBC_DRIVER).newInstance();
     }
     catch (Exception e) {
-      logError(sessionData, "Cannot load the driver, reason:" + e.toString());
-      logError(sessionData, "Most likely the Java class path is incorrect.");
+      logError("Cannot load the driver, reason:" + e.toString());
+      logError("Most likely the Java class path is incorrect.");
       //todo do something here. besides throw a NPE later
       return;
     }
@@ -137,7 +137,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
 
     if (connection == null) //error was already displayed, if null
     {
-      logError(sessionData, "getConnection(" + localResort + ", sessionData) failed.");
+      logError("getConnection(" + localResort + ", sessionData) failed.");
       //todo do something here. besides throw a NPE later
     }
   } //end PatrolData constructor
@@ -149,13 +149,13 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
   public static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
     Connection conn = null;
     try {
-      debugOut(sessionData, "-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
+      debugOutStatic(sessionData, "-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
 //      debugOut(sessionData, "-----" + sessionData.getDbUser() + ", " + sessionData.getDbPassword());
       conn = java.sql.DriverManager.getConnection(getJDBC_URL(resort), sessionData.getDbUser(), sessionData.getDbPassword());
-      debugOut(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
+      debugOutStatic(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
     }
     catch (Exception e) {
-      logError(sessionData, "Error: " + e.getMessage() + " connecting to table:" + resort);
+      logErrorStatic(sessionData, "Error: " + e.getMessage() + " connecting to table:" + resort);
       java.lang.Thread.currentThread().dumpStack();
     }
     return conn;
@@ -169,7 +169,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       return assignmentsStatement.executeQuery();
     }
     catch (Exception e) {
-      logError(sessionData, " Error (line 167) resetting Assignments table query:" + e.getMessage());
+      logError(" Error (line 167) resetting Assignments table query:" + e.getMessage());
       return null;
     } //end try
   }
@@ -191,7 +191,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     Assignments ns = null;
     try {
       if (assignmentResults.next()) {    //todo uses global :-(
-        ns = new Assignments();
+        ns = new Assignments(LOG);
         ns.read(sessionData, assignmentResults);
       }
     }
@@ -280,13 +280,9 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
   }
 
   public void decrementShift(ShiftDefinitions ns) {
-    if (DEBUG) {
-      LOG.debug("decrement shift:" + ns);
-    }
+    LOG.debug("decrement shift:" + ns);
     int i = ns.getEventIndex();
-    if (DEBUG) {
-      LOG.debug("event index =" + i);
-    }
+    LOG.debug("event index =" + i);
 
     if (i == 0) {
       return;
@@ -324,7 +320,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       ns.setExists(true);
     }
     catch (SQLException e) {
-      logError(sessionData, " failed writeShift, exception=" + e.getMessage());
+      logError( " failed writeShift, exception=" + e.getMessage());
       return true;
     }
     return false;
@@ -332,9 +328,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
 
   public void close() {
     try {
-      if (DEBUG) {
-        LOG.debug("-- close connection");
-      }
+      LOG.debug("-- close connection");
       if (connection != null) {
         connection.close(); //let it close in finalizer ??
       }
@@ -459,7 +453,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       } //end while
     }
     catch (SQLException e) {
-      logError(sessionData, "(" + localResort + ") failed getMemberByLastNameFirstName(" + szFullName + "):" + e.getMessage());
+      logError("(" + localResort + ") failed getMemberByLastNameFirstName(" + szFullName + "):" + e.getMessage());
       Thread.currentThread().dumpStack();
     }
     return null;  //not found (or error)
@@ -497,14 +491,14 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       ResultSet assignmentResultsLocal = assignmentsStatementLocal.executeQuery();
 
         if (assignmentResultsLocal.next()) {
-          ns = new Assignments();
+          ns = new Assignments(LOG);
           ns.read(sessionData, assignmentResultsLocal);
           LOG.logSqlStatement(queryString);
           return ns;
         }
     }
     catch (SQLException e) {
-      logError(sessionData, "failed readAssignment, reason:" + e.getMessage());
+      logError("failed readAssignment, reason:" + e.getMessage());
       return null;
     }
     return null;
@@ -524,7 +518,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       sAssign.executeUpdate();
     }
     catch (SQLException e) {
-      logError(sessionData, "(" + localResort + ") failed writeAssignment, reason:" + e.getMessage());
+      logError("(" + localResort + ") failed writeAssignment, reason:" + e.getMessage());
       return true;
     }
     return false;
@@ -561,7 +555,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       ns.setExisted(false);
     }
     catch (SQLException e) {
-      logError(sessionData, "(" + localResort + ") failed deleteAssignment, reason:" + e.getMessage());
+      logError("(" + localResort + ") failed deleteAssignment, reason:" + e.getMessage());
     }
   }
 
@@ -741,7 +735,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       sAssign.executeUpdate();
     }
     catch (SQLException e) {
-      logError(sessionData, "(" + localResort + ") Cannot update newIndividualAssignment, reason:" + e.getMessage());
+      logError("(" + localResort + ") Cannot update newIndividualAssignment, reason:" + e.getMessage());
       return false;
     }
     return true;
@@ -754,18 +748,18 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     //SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE "2009-02-07%"
     try {
       String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE \'" + key + "\'";
-      debugOut(null, "readNewIndividualAssignments: " + queryString);
+      debugOut("readNewIndividualAssignments: " + queryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(queryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
       while (assignmentResults.next()) {
         NewIndividualAssignment newIndividualAssignment = new NewIndividualAssignment();
         newIndividualAssignment.read(sessionData, assignmentResults);
-        debugOut(null, newIndividualAssignment.toString());
+        debugOut(newIndividualAssignment.toString());
         results.put(newIndividualAssignment.getDateShiftPos(), newIndividualAssignment);
       }
     }
     catch (SQLException e) {
-      logError(sessionData, "(" + localResort + ") readNewIndividualAssignments" + e.getMessage());
+      logError("(" + localResort + ") readNewIndividualAssignments" + e.getMessage());
       return null;
     }
     return results;
@@ -808,7 +802,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 //      int cnt = 1;
       while (assignmentResults.next()) {
-        Assignments assignments = new Assignments();
+        Assignments assignments = new Assignments(LOG);
         assignments.read(sessionData, assignmentResults);
         if (assignments.includesPatroller(patrollerId)) {
 //          logger("(" + (cnt++) + ") NextAssignment-" + ns.toString());
@@ -853,7 +847,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
       while (assignmentResults.next()) {
-        Assignments ns = new Assignments();
+        Assignments ns = new Assignments(LOG);
         ns.read(sessionData, assignmentResults);
 //        logger(".. NextAssignment-" + ns.toString());
         monthAssignments.add(ns);
@@ -876,7 +870,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
 
       while (assignmentResults.next()) {
-        Assignments ns = new Assignments();
+        Assignments ns = new Assignments(LOG);
         ns.read(sessionData, assignmentResults);
 //        logger(".. NextAssignment-" + ns.toString());
         monthAssignments.add(ns);
@@ -888,22 +882,29 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     return monthAssignments;
   }
 
-  private static void debugOut(SessionData sessionData, String msg) {
-    if (DEBUG) {
+  private void debugOut(String msg) {
+    LOG.debug(msg);
+  }
+
+  private void logError(String msg) {
+    LOG.error(msg);
+  }
+
+  private static void debugOutStatic(SessionData sessionData, String msg) {
+    if (MIN_LOG_LEVEL == Logger.DEBUG) {
       String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
       HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
-      Logger.printToLogFileStatic(request , localResort, msg);
+      Logger.printToLogFileStatic(request, localResort, msg);
     }
   }
 
-  private static void logError(SessionData sessionData, String msg) {
+  private static void logErrorStatic(SessionData sessionData, String msg) {
     String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
     HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
-    Logger.printToLogFileStatic(request , localResort, msg);
+    Logger.printToLogFileStatic(request, localResort, msg);
   }
-
   public static boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
-    Logger logErr = new Logger(PatrolData.class, sessionData.getRequest(), "???", resort);
+    Logger logErr = new Logger(PatrolData.class, sessionData.getRequest(), "???", resort, MIN_LOG_LEVEL);
     boolean validLogin = false;
     ResultSet rs;
 //Log.log("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");

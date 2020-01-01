@@ -55,7 +55,7 @@ public class LoginHelp extends nspHttpServlet {
       outerPage.printResortHeader(out);
 
       String emailme = request.getParameter("emailme");
-      debugOut("LoginHelp emailme: " + emailme);
+//      debugOut("LoginHelp emailme: " + emailme);
       if (emailme != null) {
         String ID2 = request.getParameter("ID2");
         String email = request.getParameter("email");
@@ -242,6 +242,7 @@ public class LoginHelp extends nspHttpServlet {
       }
     }
 
+  @Override
   Class getServletClass() {
     return this.getClass();
   }

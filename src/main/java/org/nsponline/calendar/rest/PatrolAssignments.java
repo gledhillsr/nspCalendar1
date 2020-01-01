@@ -1,6 +1,7 @@
 package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
@@ -66,10 +67,13 @@ import java.util.Calendar;
  */
 @SuppressWarnings("JavaDoc")
 public class PatrolAssignments extends HttpServlet {
-  private static Logger LOG = new Logger(PatrolAssignments.class);
+  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+
+  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG.logRequestParameters("GET", request);
+    LOG = new Logger(PatrolAssignments.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG.logRequestParameters();
     getPatrolAssignments(request, response);
   }
 
