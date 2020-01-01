@@ -41,6 +41,7 @@ public class NewIndividualAssignment {
   private String lastModifiedBy;
   private boolean exceptionError;
   private boolean existed;
+  private Logger LOG;
 
   public final static int FLAG_BIT_NEEDS_REPLACEMENT = 2;
 
@@ -70,6 +71,7 @@ public class NewIndividualAssignment {
     this.lastModifiedDate = null;
     this.lastModifiedBy = "";
     existed = false;
+    LOG = new Logger(NewIndividualAssignment.class);
   }
 
   private String readString(SessionData sessionData, ResultSet newAssignmentResults, String tag) {
@@ -78,7 +80,7 @@ public class NewIndividualAssignment {
       str = newAssignmentResults.getString(tag);
     }
     catch (SQLException e) {
-      Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "ERROR NewIndividualAssignment.readString(" + tag + "), message: " + e.getMessage());
+      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "ERROR NewIndividualAssignment.readString(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
 
@@ -90,7 +92,7 @@ public class NewIndividualAssignment {
       return newAssignmentResults.getInt(tag);
     }
     catch (SQLException e) {
-      Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "ERROR NewIndividualAssignment.readInt(" + tag + "), message: " + e.getMessage());
+      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "ERROR NewIndividualAssignment.readInt(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
     return 0;
@@ -101,7 +103,7 @@ public class NewIndividualAssignment {
       return newAssignmentResults.getDate(tag);
     }
     catch (SQLException e) {
-      Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "ERROR NewIndividualAssignment.readDate(" + tag + "), message: " + e.getMessage());
+      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "ERROR NewIndividualAssignment.readDate(" + tag + "), message: " + e.getMessage());
       exceptionError = true;
     } //end try
     return null;
@@ -159,7 +161,7 @@ public class NewIndividualAssignment {
         tag[LAST_MODIFIED_DATE_INDEX] + " = '" + szLastModDate + "', " +
         tag[LAST_MODIFIED_BY_INDEX] + " = '" + lastModifiedBy + "'";
     qryString += " WHERE " + tag[DATE_SHIFT_POS_INDEX] + " = '" + dateShiftPos + "'";
-    Logger.logSqlStatementStatic(sessionData.getLoggedInResort(), qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -170,13 +172,13 @@ public class NewIndividualAssignment {
         szScheduleDate + "\", \"" + shiftType + "\", \"" + flags + "\", \"" + patrollerId + "\", \"" +
         szLastModDate + "\", \"" + lastModifiedBy + "\")";
 
-    Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), qryString);
+    Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM " + tableName + " WHERE " + tag[DATE_SHIFT_POS_INDEX] + " = '" + dateShiftPos + "'";
-    Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), qryString);
+//    Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), qryString);
     return qryString;
   }
 

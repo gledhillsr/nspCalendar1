@@ -3,7 +3,6 @@ package org.nsponline.calendar;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Roster;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,24 +21,23 @@ public class SubList extends HttpServlet {
 
   static final boolean DEBUG = false;
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     LOG.logRequestParameters("GET", request);
     new InnerSubList(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     LOG.logRequestParameters("POST", request);
     doGet(request, response);
   }
 
   private class InnerSubList {
-    private Logger LOG;
     PrintWriter out;
     private String resort;
     PatrolData patrol;
     boolean isDirector;
 
-    InnerSubList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    InnerSubList(HttpServletRequest request, HttpServletResponse response) throws IOException {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
@@ -144,7 +142,7 @@ public class SubList extends HttpServlet {
     @SuppressWarnings("SameParameterValue")
     private void debugOut(String str) {
       if (DEBUG) {
-        Logger.log("DEBUG-SubList(" + resort + "): " + str);
+        LOG.debug("DEBUG-SubList(" + resort + "): " + str);
       }
     }
   }

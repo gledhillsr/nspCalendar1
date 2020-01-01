@@ -37,7 +37,7 @@ public class ShiftDefinitions {
   private boolean existed;
 
   public ShiftDefinitions(Logger parentLogger) {
-    LOG = new Logger(this.getClass(), parentLogger);
+    LOG = new Logger(this.getClass(), parentLogger, null);
     eventName = null;
     startTime = null;
     endTime = null;
@@ -47,7 +47,7 @@ public class ShiftDefinitions {
   }
 
   public ShiftDefinitions(String name, String start, String end, int cnt, int typ, Logger parentLogger) {
-    LOG = new Logger(this.getClass(), parentLogger);
+    LOG = new Logger(this.getClass(), parentLogger, null);
     eventName = name;
     startTime = start;
     endTime = end;
@@ -81,7 +81,7 @@ public class ShiftDefinitions {
       existed = true;
     }
     catch (Exception e) {
-      Logger.log("exception in Shifts:read exception=" + e);
+      LOG.logException("exception in Shifts:read", e);
       return false;
     } //end try
     return true;
@@ -135,21 +135,21 @@ public class ShiftDefinitions {
         "', " + tags[COUNT_INDEX] + "='" + count +
         "', " + tags[TYPE_INDEX] + "='" + type +
         "' WHERE " + tags[EVENT_NAME_INDEX] + "= '" + eventName + "'";
-    LOG.logSqlStatement(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getInsertShiftDefinitionsQueryString(String resort) {
     String qryString = "INSERT INTO shiftdefinitions " +
         " Values('" + eventName + "','" + startTime + "','" + endTime + "','" + count + "'," + type + ")";
-    LOG.logSqlStatement(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(String resort) {
     int i;
     String qryString = "DELETE FROM shiftdefinitions WHERE " + tags[EVENT_NAME_INDEX] + " = '" + eventName + "'";
-    LOG.logSqlStatement(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 

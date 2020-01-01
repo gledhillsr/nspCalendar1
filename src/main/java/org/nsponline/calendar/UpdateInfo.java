@@ -48,7 +48,7 @@ public class UpdateInfo extends HttpServlet {
     private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException, ServletException {
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out);
-      LOG = new Logger(UpdateInfo.class, request, methodType);
+      LOG = new Logger(UpdateInfo.class, request, methodType, null);
       LOG.logRequestParameters();
 
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "UpdateInfo", LOG);
@@ -119,7 +119,7 @@ public class UpdateInfo extends HttpServlet {
         user = patrol.getMemberByLastNameFirstName(NameToEdit);
         debugOut("user= (" + user + ")");
         if (user == null) {
-          Logger.log("UpdateInfo - ERROR, member " + NameToEdit + " not found!");
+          LOG.info("UpdateInfo - ERROR, member " + NameToEdit + " not found!");
           out.println("INTERNAL ERROR, member " + NameToEdit + " not found!");
           return 0;
         }
@@ -209,7 +209,7 @@ public class UpdateInfo extends HttpServlet {
       String IDpos[] = {"P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"};
       for (int i = 0; i < 10; ++i) {
         String qryString = "SELECT Date, " + IDpos[i] + " FROM `assignments` WHERE " + IDpos[i] + "=" + oldMemberID;
-        LOG.logSqlStatement(resort, qryString);
+        LOG.logSqlStatement(qryString);
         try {
           cs = c.prepareStatement(qryString);
           cr = cs.executeQuery();
@@ -217,14 +217,14 @@ public class UpdateInfo extends HttpServlet {
             PreparedStatement cs1;
             String szDate = cr.getString("Date");
             qryString = "UPDATE assignments SET " + IDpos[i] + "=\"" + IDToEdit + "\" WHERE Date=\"" + szDate + "\"";
-            LOG.logSqlStatement(resort, qryString);
+            LOG.logSqlStatement(qryString);
             cs1 = c.prepareStatement(qryString);
             cs1.executeUpdate();
           }
 
         }
         catch (Exception e) {
-          LOG.logException(resort, " Error (line 225) resetting Assignments table ", e);
+          LOG.logException("Error (line 225) resetting Assignments table ", e);
         } //end try
       }
     }
@@ -259,7 +259,7 @@ public class UpdateInfo extends HttpServlet {
 //          md = patrol.getMemberByID(IDToEdit);
           md = user;
           if (debug) {
-            Logger.log("deletePatroller=" + deletePatroller + " finalDelete=" + finalDelete);
+            LOG.debug("deletePatroller=" + deletePatroller + " finalDelete=" + finalDelete);
           }
 
         }
@@ -269,7 +269,7 @@ public class UpdateInfo extends HttpServlet {
 //          md.setID(IDToEdit);
         }
         if (debug) {
-          Logger.log("Member: " + md);
+          LOG.debug("Member: " + md);
         }
 //      String szFirst = request.getParameter(MemberData.dbData[MemberData.FIRST][MemberData.SERVLET_NAME]);
 //      String szLast  = request.getParameter(MemberData.dbData[MemberData.LAST][MemberData.SERVLET_NAME]);
@@ -300,14 +300,14 @@ public class UpdateInfo extends HttpServlet {
 //Log.log("-----------************---------------");
         if (deletePatroller) {
           if (debug) {
-            Logger.log("delete Patroller");
+            LOG.debug("delete Patroller");
           }
 //          sz = md.getDeleteSQLString();
           //don't DELETE record here
         }
         else if (finalDelete) {
           if (debug) {
-            Logger.log("Final delete Patroller");
+            LOG.debug("Final delete Patroller");
           }
           sz = md.getDeleteSQLString(resort);
           sRost = c.prepareStatement(sz);
@@ -317,7 +317,7 @@ public class UpdateInfo extends HttpServlet {
         }
         else if (isNewPatroller) {
           if (debug) {
-            Logger.log("new patroller");
+            LOG.debug("new patroller");
           }
           //check for duplicate ID
 //asdfasdfasd7
@@ -337,7 +337,7 @@ public class UpdateInfo extends HttpServlet {
         }
         else if (setNewID) {
           if (debug) {
-            Logger.log("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
+            LOG.debug("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
           }
           //test if any ID change was made
           patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
@@ -369,7 +369,7 @@ public class UpdateInfo extends HttpServlet {
         }
         else {
           if (debug) {
-            Logger.log("Simple Update");
+            LOG.debug("Simple Update");
           }
           sz = md.getUpdateSQLString(resort);
           sRost = c.prepareStatement(sz);
@@ -377,7 +377,7 @@ public class UpdateInfo extends HttpServlet {
         }
 
         c.close();
-        Logger.log("UpdateInfo closed static connection for " + resort);
+        LOG.info("UpdateInfo closed static connection for " + resort);
 //      if (finalDelete) {
 //			out.println("Deleted...<br>");
 //        String nextPage = PatrolData.SERVLET_URL + "Directors?resort=" + resort + "&ID+" + IDOfEditor;
@@ -442,7 +442,7 @@ public class UpdateInfo extends HttpServlet {
               date = szMonths[cal.get(Calendar.MONTH)] + "-" + cal.get(Calendar.DATE) + "-" + cal.get(Calendar.YEAR);
             }
             catch (Exception e) {
-              Logger.log("Error parsing Long value for: (" + szTmp + ")");
+              Logger.logStatic("Error parsing Long value for: (" + szTmp + ")");
             }
             out.println(date);
           }
@@ -500,9 +500,9 @@ public class UpdateInfo extends HttpServlet {
       }
       catch (Exception e) {
         out.println("Error connecting or reading table " + e.getMessage() + "<br>");
-        Logger.logException(resort, "UpdateInfo: Error connecting or reading exception=", e);
-        Logger.log("in UpdateInfo.  IDOfEditor=" + IDOfEditor);
-        Logger.log("in UpdateInfo.  IDToEdit=" + IDToEdit);
+        LOG.logException("UpdateInfo: Error connecting or reading exception=", e);
+        LOG.error("in UpdateInfo.  IDOfEditor=" + IDOfEditor);
+        LOG.error("in UpdateInfo.  IDToEdit=" + IDToEdit);
       } //end try
 
     } //end printBodySave
@@ -517,13 +517,13 @@ public class UpdateInfo extends HttpServlet {
         isValidNum = readData(IDToEdit, sessionData);
       }
       if (debug) {
-        Logger.log(" UpdateInfo:printBofyForm IDToEdit=" + IDToEdit + ", isValidNum=" + isValidNum);
+        LOG.debug(" UpdateInfo:printBofyForm IDToEdit=" + IDToEdit + ", isValidNum=" + isValidNum);
       }
       if (isValidNum == 1) {
         //valid #
         String fullName;
         if (isNewPatroller) {
-          user = new Roster();
+          user = new Roster(LOG);
           fullName = "NEW PATROLLER";
           IDToEdit = "";
         }
@@ -602,7 +602,7 @@ public class UpdateInfo extends HttpServlet {
         out.println("</form>");
       }
       if (debug) {
-        Logger.log(" UpdateInfo: end of printBofyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
+        LOG.debug(" UpdateInfo: end of printBofyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
       }
     }
 
@@ -846,7 +846,7 @@ public class UpdateInfo extends HttpServlet {
 //Log.log("date="+date);
         }
         catch (Exception e) {
-          Logger.log("Error, exception parsing " + szDefault + " in UpdateInfo: " + e);
+          Logger.logStatic("Error, exception parsing " + szDefault + " in UpdateInfo: " + e);
         }
 
         if (!editorIsDirector) {
@@ -929,7 +929,7 @@ public class UpdateInfo extends HttpServlet {
 
     private void debugOut(String msg) {
       if (debug) {
-        Logger.log("DEBUG-UpdateInfo (" + resort + "): " + msg);
+        LOG.debug("DEBUG-UpdateInfo (" + resort + "): " + msg);
       }
     }
   }

@@ -97,13 +97,13 @@ public class OuterPage {
 
   private void errorOut(String msg) {
     // nosonar
-    Logger.log("ERROR: OuterPage: " + msg);
+    Logger.logStatic("ERROR: OuterPage: " + msg);
   }
 
   private void debugOut(String msg) {
     if (DEBUG) {
       // nosonar
-      Logger.log("DEBUG: OuterPage: " + msg);
+      Logger.logStatic("DEBUG: OuterPage: " + msg);
     }
   }
 }

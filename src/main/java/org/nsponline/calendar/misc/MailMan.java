@@ -37,12 +37,12 @@ public class MailMan {
     }
     if (Utils.isValidEmailAddress(fromAddress)) {
       this.replyToAddress = fromAddress;
-      Logger.log("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
+      Logger.logStatic("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
     }
     else {
       this.replyToAddress = null;
       if (Utils.isNotEmpty(fromAddress)) {
-        Logger.log("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
+        Logger.logStatic("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
       }
     }
     try {
@@ -98,24 +98,24 @@ public class MailMan {
       Long startMillis = System.nanoTime() / 1000;
       SendEmailResult result = sesClient.sendEmail(request);
       Long endMillis = System.nanoTime() / 1000;
-      Logger.log("Email sent in " + (endMillis - startMillis) + " milli seconds.  result=" + result.toString());
+      Logger.logStatic("Email sent in " + (endMillis - startMillis) + " milli seconds.  result=" + result.toString());
     }
     catch (Exception ex) {
-      Logger.log("The email was not sent.  Exception message: " + ex.getMessage());
+      Logger.logStatic("The email was not sent.  Exception message: " + ex.getMessage());
     }
   }
 
   private void logger(SessionData sessionData, Object... msg) {
-    Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), sessionData.getLoggedInUserId(), "MailMan: ");
+    Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), sessionData.getLoggedInUserId(), "MailMan: ");
     for (Object item : msg) {
       System.out.print(item); //keep this here
     }
-    Logger.log(""); //keep this here
+    Logger.logStatic(""); //keep this here
   }
 
   private void debugOutDontSend(SessionData sessionData, String msg) {
     if (DEBUG_DONT_SEND) {
-      Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG_DONT_SEND-Mailman: " + msg);
+      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG_DONT_SEND-Mailman: " + msg);
     }
   }
 

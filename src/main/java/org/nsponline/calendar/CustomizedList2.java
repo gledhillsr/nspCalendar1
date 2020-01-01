@@ -5,12 +5,8 @@ import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -18,7 +14,7 @@ import java.util.*;
 public class CustomizedList2 extends nspHttpServlet {
 
 
-    private boolean debug = false;    //-----------
+  private boolean debug = false;    //-----------
 
   private String szMyID;
   private boolean isDirector = false;
@@ -760,7 +756,7 @@ public class CustomizedList2 extends nspHttpServlet {
 
   private void debugOut(String msg) {
     if (debug) {
-      Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-CustomizedList2(" + resort + "): " + msg);
+      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-CustomizedList2(" + resort + "): " + msg);
     }
   }
 }

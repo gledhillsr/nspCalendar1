@@ -164,7 +164,7 @@ public class EditShifts extends HttpServlet {
         shiftCount = Integer.parseInt(temp);
       }
       if (displayParameters) {
-        Logger.log("----eventName=(" + eventName + ")  selectedShift=(" + selectedShift + ")-------");
+        LOG.info("----eventName=(" + eventName + ")  selectedShift=(" + selectedShift + ")-------");
       }
 //did the shift name change
       newShift = (eventName != null && selectedShift != null && !eventName.equals(selectedShift));
@@ -172,7 +172,7 @@ public class EditShifts extends HttpServlet {
         selectedShift = eventName;
       }
       if (displayParameters) {
-        Logger.log("newShift=" + newShift + ", addShift=" + addShift + ",  shiftCount=" + shiftCount);
+        LOG.info("newShift=" + newShift + ", addShift=" + addShift + ",  shiftCount=" + shiftCount);
       }
 // delete_1, delete2
 //shiftCount
@@ -186,7 +186,7 @@ public class EditShifts extends HttpServlet {
       shifts = new ArrayList<ShiftDefinitions>();
       patrol.resetShiftDefinitions();  //todo 12/30/15  this does nothing or is broken
       if (displayParameters) {
-        Logger.log("READING (" + shiftCount + ")shifts passed as arguments");
+        LOG.info("READING (" + shiftCount + ")shifts passed as arguments");
       }
       for (int i = 0; i < shiftCount; ++i) {
 //for every shiftCount there should be a startTime_?, endTime_?, count_?
@@ -203,7 +203,7 @@ public class EditShifts extends HttpServlet {
         int tCnt = Integer.parseInt(tCount);
         String tType = request.getParameter("shift_" + i);
         int tTyp = Assignments.DAY_TYPE;
-        Logger.log("shift type read was (" + tType + ")");
+        LOG.info("shift type read was (" + tType + ")");
         for (int shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES && tType != null; ++shiftType) {
           if (tType.equals(Assignments.getShiftName(shiftType))) {
             tTyp = shiftType;
@@ -213,12 +213,12 @@ public class EditShifts extends HttpServlet {
         String tEvent;
         tEvent = ShiftDefinitions.createShiftName(eventName, i);
         if (displayParameters) {
-          Logger.log(tEvent + " " + tStart + ", " + tEnd + ", " + tCount + ", " + tTyp);
+          LOG.info(tEvent + " " + tStart + ", " + tEnd + ", " + tCount + ", " + tTyp);
         }
         todaysData[cnt] = new ShiftDefinitions(tEvent, tStart, tEnd, tCnt, tTyp, LOG);
         if (newShift) {
           if (displayParameters) {
-            Logger.log("INSERT this shift: " + todaysData[cnt]);
+            LOG.info("INSERT this shift: " + todaysData[cnt]);
           }
           patrol.writeShift(todaysData[cnt]);
         }
@@ -227,7 +227,7 @@ public class EditShifts extends HttpServlet {
         ++cnt;
       }
       if (displayParameters) {
-        Logger.log("DeleteTemplateBtn=" + DeleteTemplateBtn + ", deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete);
+        LOG.info("DeleteTemplateBtn=" + DeleteTemplateBtn + ", deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete);
       }
 
       // read Shift ski assignments for the specific day
@@ -240,13 +240,13 @@ public class EditShifts extends HttpServlet {
       boolean foundDeleteShift = false;
       for (ShiftDefinitions shiftDefinition : patrol.readShiftDefinitions()) {
         if (displayParameters) {
-          Logger.log("read shift:" + shiftDefinition);
+          LOG.info("read shift:" + shiftDefinition);
         }
         String parsedName = shiftDefinition.parsedEventName();
         if (parsedName.equals(selectedShift)) {
           //check for delete button
           if (displayParameters) {
-            Logger.log("deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete + " selectedSize=" + selectedSize);
+            LOG.info("deleteShift=" + deleteShift + " shiftToDelete=" + shiftToDelete + " selectedSize=" + selectedSize);
           }
           if ((deleteShift && shiftToDelete == selectedSize) || DeleteTemplateBtn) {
             deleteShift = false;    //don't delete any more (used for single delete's only)
@@ -260,7 +260,7 @@ public class EditShifts extends HttpServlet {
           }
           else if (!newShift && shiftCount > 0 && !shiftDefinition.equals(todaysData[selectedSize])) {
             if (displayParameters) {
-              Logger.log("update this shift: " + selectedSize);
+              LOG.info("update this shift: " + selectedSize);
             }
             shiftDefinition = todaysData[selectedSize];
             patrol.writeShift(shiftDefinition);
@@ -275,7 +275,7 @@ public class EditShifts extends HttpServlet {
 //--------------
       if (addShift) {
         if (displayParameters) {
-          Logger.log("--add shift--");
+          LOG.info("--add shift--");
         }
         String start = "8:30";
         String end = "14:00";

@@ -127,7 +127,7 @@ public class PurgeAssignments extends HttpServlet {
       Assignments assignment;
       int year, month, day;
 
-      Logger.log("Purging ALL shifts on and before " + startDay + "/" + startMonth + "/" + startYear);
+      LOG.info("Purging ALL shifts on and before " + startDay + "/" + startMonth + "/" + startYear);
 
       ResultSet assignmentResults= patrol.resetAssignments();
       while ((assignment = patrol.readNextAssignment(assignmentResults)) != null) {

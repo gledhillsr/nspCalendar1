@@ -5,32 +5,35 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 
 public class Logger {
+  private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+
   private String className;
   @SuppressWarnings("unused")
   private String ip;
   private String agent;
   private String methodType;
-  //  private String resort = "und";
-  private HttpServletRequest tempRequest; //temporary, just save elements to display
-
-  public Logger() {
-    //don't ever use this
-  }
+  private String resort;
+  private HttpServletRequest request; //temporary, just save elements to display
 
   public Logger(Class<?> clazz) {  //todo get rid of this
-    this.className = clazz.getName();
+    this.className = clazz.getSimpleName();
     ip = "";
     agent = "";
   }
 
-  public Logger(final Class aClass, Logger parentLogger) {
-    this(aClass, parentLogger != null ? parentLogger.getRequest() : null, "");
+  public Logger(final Class<?> aClass, Logger parentLogger, String resort) {
+    this(aClass,
+         parentLogger != null ? parentLogger.getRequest() : null,
+         "",
+         (resort == null && parentLogger != null) ? parentLogger.getResort() : resort);
   }
 
-  public Logger(final Class aClass, final HttpServletRequest request, final String methodType) {
-    this.tempRequest = request;
+  public Logger(final Class<?> aClass, final HttpServletRequest request, final String methodType, String resort) {
+    this.request = request;
     this.methodType = methodType;
-    this.className = aClass != null ? aClass.getName() : "WIP - ERROR: Class was null in Logger constructor";
+    this.className = aClass != null ? aClass.getSimpleName() : "WIP - ERROR: Class was null in Logger constructor";
+
+    this.resort = resort == null ? request.getParameter("resort") : resort;
     if (request == null) {
       if (!"DailyReminder".equals(methodType)) {
         System.out.println("Null request in Logger, parent NotYetImplemented. calling dumpStack. methodType=" + methodType);
@@ -42,7 +45,7 @@ public class Logger {
       ip = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
       agent = request.getHeader("user-agent");//user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1)
       //get 'resort' the hard way
-      String referer = request.getHeader("referer");
+//      String referer = request.getHeader("referer");
 //todo, fails of logout
 //      if (referer != null) {
 //        int startIndex = referer.indexOf("resort=");
@@ -63,10 +66,14 @@ public class Logger {
     }
   }
 
+  public String getResort() {
+    return resort == null ? "undefined" : resort;
+  }
+
   public void logRequestParameters() {
     StringBuilder uriRequestMsg = new StringBuilder("logLevel=" + LogLevel.INFO + " class=" + className + " method=" + methodType + " ");
     try {
-      String uri = tempRequest.getHeader("referer"); //referer: http://52.3.5.75/calendar-1/MemberLogin?resort=Afton
+      String uri = request.getHeader("referer"); //referer: http://52.3.5.75/calendar-1/MemberLogin?resort=Afton
       if (uri != null) {
         //noinspection StringConcatenationInsideStringBufferAppend
         uriRequestMsg.append(" path=\"" + uri + "\" (");
@@ -74,13 +81,13 @@ public class Logger {
         uriRequestMsg.append(" missingPath (");
       }
       @SuppressWarnings("unchecked")
-      Enumeration<String> parameterNames = tempRequest.getParameterNames();
+      Enumeration<String> parameterNames = request.getParameterNames();
       while (parameterNames.hasMoreElements()) {
         Set<String> foundParam = new HashSet<String>();
         String paramName = parameterNames.nextElement();
         //noinspection StringConcatenationInsideStringBufferAppend
         uriRequestMsg.append(" " + paramName + "=");
-        String[] paramValues = tempRequest.getParameterValues(paramName);
+        String[] paramValues = request.getParameterValues(paramName);
         String delimiter = paramValues.length > 1 ? ":" : "";
         for (String paramValue : paramValues) {
           if (!foundParam.contains(paramName)) {
@@ -103,79 +110,84 @@ public class Logger {
       //noinspection StringConcatenationInsideStringBufferAppend
       uriRequestMsg.append(" exception=\"" + e.getMessage() + "\"");
     }
-    writeToLogFile(tempRequest, "undefined", uriRequestMsg.toString());
+    writeToLogFile(request, uriRequestMsg.toString());
   }
 
   public HttpServletRequest getRequest() {
-    return tempRequest;
+    return request;
   }
 
-  public void debug(String resort, String msg) {
-    writeToLogFile(tempRequest, resort, "DEBUG: " + msg);
-  }
-
-  @SuppressWarnings("unused")
-  public void info(String resort, String msg) {
-    writeToLogFile(tempRequest, resort, "INFO: " + msg);
+  public void debug(String msg) {
+    writeToLogFile(request, "DEBUG: " + msg);
   }
 
   @SuppressWarnings("unused")
-  public void warn(String resort, String msg) {
-    writeToLogFile(tempRequest, resort, "WARN: " + msg);
+  public void info(String msg) {
+    writeToLogFile(request, "INFO: " + msg);
   }
 
-  public void error(String resort, String msg) {
-    writeToLogFile(tempRequest, resort, "ERROR: " + msg);
+  @SuppressWarnings("unused")
+  public void warn(String msg) {
+    writeToLogFile(request, "WARN: " + msg);
   }
 
-  public void logSqlStatement(String resort, String qryString) {
-    printCommonHeader(resort, ip);
+  public void error(String msg) {
+    writeToLogFile(request, "ERROR: " + msg);
+  }
+
+  public void logSqlStatement(String qryString) {
+    printCommonHeader(ip);
     System.out.println(" sql=\"" + qryString + "\"");
   }
 
-
-  //todo ---------- make these NOT static -----------------
-  public static void logSqlStatementStatic(String resort, String qryString) { //todo hack
-    printCommonHeader(resort, "ipString");
-    System.out.println(" sql=\"" + qryString + "\"");
+  private void writeToLogFile(HttpServletRequest request, String msg) {
+    printCommonHeader(request);
+    System.out.println(msg);
   }
 
-  private static void printCommonHeader(String resort, String ip) {
+  private void printCommonHeader(String ip) {
     System.out.print("[" + getCurrentDateTimeString() + "] " + " ip=" + ip + ", resort=" + resort + " ");
   }
 
-  private static void writeToLogFile(HttpServletRequest request, String resort, String msg) {
-    printCommonHeader(request, resort);
-    System.out.println(msg);
-  }
-
-
-  public static void log(String msg) { //todo hack, use printToLogFile(request, msg)
-    System.out.println(msg);
-  }
-
-  public static void printToLogFile(HttpServletRequest request, String resort, String msg) {
-    writeToLogFile(request, resort, " - " + msg);
-  }
-
-  public static void printToLogFile(HttpServletRequest request, String resort, String user, String msg) {
-    writeToLogFile(request, resort, ", user=" + user + ", message=\"" + msg + "\"");
+  private void printCommonHeader(HttpServletRequest request) {
+    String fromIp = "";
+    if (request != null) {
+      fromIp = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
+    }
+    System.out.print("[" + getCurrentDateTimeString() + "] " + " ip=" + fromIp + ", resort=" + resort + " ");
   }
 
   public void logRequestParameters(String method, HttpServletRequest request) { //todo hack get rid of this
     this.methodType = method;
-    this.tempRequest = request;
+    this.request = request;
     logRequestParameters();
   }
 
-  //------ these are OK for static (used by exception processing)
-  public static void logException(String resort, String msg, Exception e) {
-    printCommonHeader((HttpServletRequest)null, resort);
+  public void logException(String msg, Exception e) {
+    printCommonHeader("ipAddress");
     System.out.println(msg + "exceptionCause=\"" + e.getCause() + "\", exceptionMessage=\"" + e.getMessage() + "\" " + e.toString());
   }
 
-  private static void printCommonHeader(HttpServletRequest request, String resort) {
-    String fromIp = "";
+  //todo ---------- make these NOT static -----------------
+  public static void printToLogFileStatic(HttpServletRequest request, String resort, String msg) {
+    writeToLogFileStatic(request, resort, " - " + msg);
+  }
+
+  public static void printToLogFileStatic(HttpServletRequest request, String resort, String user, String msg) {
+    writeToLogFileStatic(request, resort, ", user=" + user + ", message=\"" + msg + "\"");
+  }
+
+  private static void writeToLogFileStatic(HttpServletRequest request, String resort, String msg) {
+    printCommonHeaderStatic(request, resort);
+    System.out.println(msg);
+  }
+
+  public static void logStatic(String msg) { //todo hack, use printToLogFile(request, msg)
+    System.out.println(msg);
+  }
+
+  private static void printCommonHeaderStatic(HttpServletRequest request, String resort) {
+    String fromIp = "undef";
     if (request != null) {
       fromIp = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
     }
@@ -184,9 +196,8 @@ public class Logger {
 
   private static String getCurrentDateTimeString() {
     //format: 2018-02-18 20:35:41,712
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
     // java.util.Date currentTime = new java.util.Date(year,month,date);
-    Calendar cal = new GregorianCalendar(TimeZone.getDefault());
-    return formatter.format(cal.getTime());
+    Calendar gregorianCalendar = new GregorianCalendar(TimeZone.getDefault());
+    return formatter.format(gregorianCalendar.getTime());
   }
 }

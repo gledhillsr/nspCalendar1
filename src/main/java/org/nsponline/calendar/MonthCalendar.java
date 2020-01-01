@@ -678,7 +678,7 @@ public class MonthCalendar extends nspHttpServlet {
               printName(out, htmData + ((i + 1) + "&index=" + j), id, time, day, dayOfWeek, posCount++, i + 1, j, resort);
             }
             catch (Exception e) {
-              Logger.log("Error, bad data for data[" + day + "][" + i + "].getPosID(" + j + ") = (" + szTmp + ")");
+              LOG.logException("Error, bad data for data[" + day + "][" + i + "].getPosID(" + j + ") = (" + szTmp + ")", e);
             }
           }
         }
@@ -806,14 +806,14 @@ public class MonthCalendar extends nspHttpServlet {
         }
       }
       catch (Exception e) {
-        Logger.log("cvtToInt failed to parse: " + strNum);
+        LOG.logException("cvtToInt failed to parse: " + strNum, e);
       }
       return num;
     }
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-MonthCalendar(" + resort + "): " + str);
+        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-MonthCalendar(" + resort + "): " + str);
       }
     }
   }

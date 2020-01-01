@@ -231,14 +231,14 @@ public class LoginHelp extends nspHttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
+        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
       }
     }
 
     @SuppressWarnings("unused")
     private void debugSensitiveOut(String str) {
       if (DEBUG_SENSITIVE) {
-        Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
+        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
       }
     }
 

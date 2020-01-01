@@ -81,7 +81,7 @@ public class PatrolAssignments extends HttpServlet {
     String szYear = request.getParameter("year");
     String szMonth = request.getParameter("month");
     String szDay = request.getParameter("day");
-    Logger.log(" --patrol/assignments... resort=" + resort
+    Logger.logStatic(" --patrol/assignments... resort=" + resort
         + ", year: [" + szYear
         + "], month: [" + szMonth
         + "], day: [" + szDay);
@@ -108,14 +108,14 @@ public class PatrolAssignments extends HttpServlet {
     Connection connection = patrol.getConnection();
     NspSession nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
-      Logger.log("ERROR:  Invalid Authorization (" + sessionId + ")");
+      Logger.logStatic("ERROR:  Invalid Authorization (" + sessionId + ")");
       Utils.buildErrorResponse(response, 401, "Invalid Authorization (" + sessionId + ")");
       return;
     }
     String authenticatedUserId = nspSession.getAuthenticatedUser();
     Roster patroller = patrol.getMemberByID(authenticatedUserId);
     if (patroller == null) {
-      Logger.log("ERROR:  User not found (" + authenticatedUserId + ")");
+      Logger.logStatic("ERROR:  User not found (" + authenticatedUserId + ")");
       Utils.buildErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
       return;
     }
@@ -148,7 +148,7 @@ public class PatrolAssignments extends HttpServlet {
       int endMonth = directorSettings.getEndMonth();
       int endYear = startYear + 1;
 
-      Logger.log("full season from: "
+      Logger.logStatic("full season from: "
           + startMonth + "/" + startDay + "/" + startYear
           + " to: " + endDay + "/" + endMonth + "/" + endYear);
       for(int mon = startMonth; mon <= 12; mon++) {
@@ -163,7 +163,7 @@ public class PatrolAssignments extends HttpServlet {
       count++;
       assignmentsArrayNode.add(ns.toNode());
     }
-    Logger.log("  -- assignments count = " + count);
+    Logger.logStatic("  -- assignments count = " + count);
     returnNode.set("assignments", assignmentsArrayNode);
     Utils.buildOkResponse(response, returnNode);
 

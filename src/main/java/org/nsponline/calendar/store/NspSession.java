@@ -50,7 +50,7 @@ public class NspSession {
     PreparedStatement sessionStatement = null;
     @SuppressWarnings("SqlNoDataSourceInspection")
     String str = "SELECT * FROM " + TABLE_NAME + " WHERE " + SESSION_ID + " = ?" ;
-    LOG.logSqlStatement("???", str);
+    LOG.logSqlStatement(str);
     try {
       sessionStatement = connection.prepareStatement(str);
       sessionStatement.setString(1, sessionId);
@@ -90,14 +90,14 @@ public class NspSession {
         authenticatedUser + "\", \"" + resort + "\", \"" + sessionCreateTime + "\", \"" + lastSessionAccessTime + "\", \"" +
         sessionIpAddress + "\", \"" + (isDirector? 1:0) + "\")";
 
-    LOG.logSqlStatement(resort, qryString);
+    LOG.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
       return true;
     }
     catch (SQLException e) {
-      Logger.logException(resort, "Cannot insert session", e);
+      LOG.logException("Cannot insert session", e);
       return false;
     }
 //    String str = "insert into session (sessionId, authenticatedUserId, resort, sessionCreateTime, lastSessionAccessTime, sessionIpAddress, isDirector) values (?, ?, ?, ?, ?, ?, ?)";
@@ -142,14 +142,14 @@ public class NspSession {
   public boolean deleteRow(Connection connection) {
     @SuppressWarnings("SqlNoDataSourceInspection")
     String qryString = "DELETE FROM session WHERE " + SESSION_ID + " = '" + sessionId + "'";
-    LOG.logSqlStatement(resort, qryString);
+    LOG.logSqlStatement(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
       return true;
     }
     catch (SQLException e) {
-      Logger.logException("???", "Cannot insert session, reason ", e);
+      LOG.logException("Cannot insert session, reason ", e);
       return false;
     }
   }

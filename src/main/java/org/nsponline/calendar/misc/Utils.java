@@ -5,10 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,15 +51,15 @@ public final class Utils {
   }
 
   public static void buildOkResponse(HttpServletResponse response, ObjectNode returnNode) throws IOException {
-    Logger.log("Response OK: " + returnNode.toString());
+    Logger.logStatic("Response OK: " + returnNode.toString());
     response.setStatus(200);
     response.setContentType("application/json");
-    Logger.log(returnNode.toString());
+    Logger.logStatic(returnNode.toString());
     response.getWriter().write(returnNode.toString());
   }
 
   public static void buildErrorResponse(HttpServletResponse response, int status, String errString) {
-    Logger.log("Response Error: " + status + ": " + errString);
+    Logger.logStatic("Response Error: " + status + ": " + errString);
     response.setStatus(status);
     response.addHeader("X-Reason", errString);
   }

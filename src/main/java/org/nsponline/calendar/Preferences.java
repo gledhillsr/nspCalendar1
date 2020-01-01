@@ -116,7 +116,7 @@ public class Preferences extends HttpServlet {
       DirectorSettings ds = patrol.readDirectorSettings();
 //Log.log("Original settings: "+ds.toString());
       String saveChangesBtn = request.getParameter("SaveChangesBtn");
-      Logger.log("SaveChangesBtn=" + saveChangesBtn);
+      LOG.info("SaveChangesBtn=" + saveChangesBtn);
       String temp = request.getParameter("XYZ"); //allways a non-null value when returning
 
       madeUpdate = (temp != null);
@@ -223,7 +223,7 @@ public class Preferences extends HttpServlet {
         ds.setBlackEndDay(blackOutEndDay);
         ds.setBlackEndMonth(blackOutEndMonth);
         ds.setBlackEndYear(blackOutEndYear);
-        Logger.log("call setRemoveAccess(" + removeAccess + ")");
+        LOG.info("call setRemoveAccess(" + removeAccess + ")");
         ds.setRemoveAccess(removeAccess);
 
         patrol.writeDirectorSettings(ds);

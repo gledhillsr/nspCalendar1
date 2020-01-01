@@ -7,7 +7,6 @@ import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.GregorianCalendar;
@@ -617,7 +616,7 @@ public class EmailForm extends nspHttpServlet {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      Logger.log("DEBUG-EmailForm resort=" + resort + ", " + msg);
+      LOG.debug("DEBUG-EmailForm resort=" + resort + ", " + msg);
     }
   }
 

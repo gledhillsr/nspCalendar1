@@ -582,13 +582,13 @@ public class DayShifts extends nspHttpServlet {
       String tEnd = request.getParameter("endTime_" + i);
       String tCount = request.getParameter("count_" + i);
       if (tCount == null) {
-        Logger.printToLogFile(request, resort, "ERROR, reading past assignment data");
+        Logger.printToLogFileStatic(request, resort, "ERROR, reading past assignment data");
         break;
       }
       int tCnt = Integer.parseInt(tCount);
       String tShift = request.getParameter("shift_" + i);
       if (tShift == null) {
-        Logger.printToLogFile(request, resort, "ERROR, reading past assignment data");
+        Logger.printToLogFileStatic(request, resort, "ERROR, reading past assignment data");
         break;
       }
       int tType = Assignments.getTypeID(sessionData, tShift);
@@ -608,7 +608,7 @@ public class DayShifts extends nspHttpServlet {
 
   private void debugOut(HttpServletRequest request, String msg) {
     if (DEBUG) {
-      Logger.printToLogFile(request, resort, "Debug-DayShifts: " + msg);
+      Logger.printToLogFileStatic(request, resort, "Debug-DayShifts: " + msg);
     }
   }
 

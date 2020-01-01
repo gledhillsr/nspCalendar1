@@ -23,8 +23,8 @@ public class ValidateCredentials {
 
   @SuppressWarnings("UnusedParameters")
   public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
-    LOG = new Logger(this.getClass(), parentLogger);
     this.resortParameter = request.getParameter("resort");
+    LOG = new Logger(this.getClass(), parentLogger, resortParameter);
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
     init(sessionData, response, parent, idParameter, idLoggedIn);
@@ -79,13 +79,13 @@ public class ValidateCredentials {
 
   private void errorOut(String msg) {
     // NOSONAR
-    Logger.log("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
+    Logger.logStatic("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
   }
 
   private void debugOut(String msg) {
     if (DEBUG) {
       // NOSONAR
-      Logger.log("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
+      Logger.logStatic("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
     }
   }
 

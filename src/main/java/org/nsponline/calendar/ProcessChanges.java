@@ -441,7 +441,7 @@ public class ProcessChanges extends nspHttpServlet {
         newIndividualAssignment = monthNewIndividualAssignments.get(key);
       }
       if (newIndividualAssignment == null) {
-        Logger.log("ERROR-ProcessChanges, newIndividualAssignment not found in noReplacementNeeded");
+        LOG.error("ERROR-ProcessChanges, newIndividualAssignment not found in noReplacementNeeded");
       }
       else {
         //UPDATE
@@ -467,7 +467,7 @@ public class ProcessChanges extends nspHttpServlet {
       if (newIndividualAssignment == null) {
         //INSERT (eventually this should go away) only used when assignments are duplicated
         int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo shiftType is ignored?
-        Logger.log("HACK in needsReplacement, shiftType forced to DAY SHIFT");
+        LOG.error("HACK in needsReplacement, shiftType forced to DAY SHIFT");
         newIndividualAssignment = new NewIndividualAssignment(calendarToday.getTime(), nPos1, nIndex1AsNum, shiftType,
             NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
 
@@ -646,7 +646,7 @@ public class ProcessChanges extends nspHttpServlet {
 
     private void log(HttpServletRequest request, String msg) {
       //noinspection ConstantConditions
-      Logger.printToLogFile(request, resort, submitterID, "ProcessChanges: " + msg);
+      Logger.printToLogFileStatic(request, resort, submitterID, "ProcessChanges: " + msg);
     }
   }
 

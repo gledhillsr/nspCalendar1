@@ -99,7 +99,7 @@ public class ResortList extends HttpServlet {
         return resorts;
       }
       catch (Exception e) {
-        Logger.log("Error SHOW databases:" + e.getMessage());
+        LOG.logException("Error SHOW databases:", e);
       } //end try
       return new ArrayList<String>();
     }

@@ -128,7 +128,7 @@ public class Login extends HttpServlet {
   }
 
   private void logger(SessionData sessionData, String str) {
-    Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
+    Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
   }
 }
 

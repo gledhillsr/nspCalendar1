@@ -3,7 +3,6 @@ package org.nsponline.calendar.store;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.Utils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +18,7 @@ import java.util.Vector;
  */
 @SuppressWarnings("unused")
 public class Roster {
-  private static Logger LOG = new Logger(Roster.class);
+  private Logger LOG;
 
   public static final String HARD_SPACE_NBSP = "&nbsp;";
   //static data
@@ -157,7 +156,8 @@ public class Roster {
   public int[] AssignmentCount = new int[Assignments.MAX_SHIFT_TYPES];
   public String[] szAssignments = new String[Assignments.MAX_SHIFT_TYPES];
 
-  public Roster() {
+  public Roster(Logger parentLogger) {
+    LOG = new Logger(Roster.class, parentLogger, null);
     idNum = 0;
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
       AssignmentCount[i] = 0;
@@ -179,8 +179,7 @@ public class Roster {
   }
 
   public Roster(HttpServletRequest request) {
-
-//Log.log("Constructor-MemberData(request)");
+    LOG = new Logger(Roster.class, request, null, null);
     idNum = 0;
     memberData = new String[DB_SIZE];           //data for 'this' member
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
@@ -227,7 +226,7 @@ public class Roster {
               memberData[i] = "" + cal.getTimeInMillis();
             }
             catch (Exception e) {
-              Logger.logException("???", "Exception in Memberdata(request): ", e);
+              LOG.logException("Exception in Roster(request): ", e);
             }
           }
         }
@@ -573,7 +572,7 @@ public class Roster {
       classification = lookupClassification.get(getClassification());
     }
     catch (Exception ex) {
-      Logger.log("ERROR, classification not found" + getClassification());
+      Logger.logStatic("ERROR, classification not found" + getClassification());
     }
     return classification;
   }
@@ -688,7 +687,7 @@ public class Roster {
       }
     }
     qryString += " )";
-    LOG.logSqlStatement(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -738,7 +737,7 @@ public class Roster {
       }
     }
     qryString += " WHERE " + dbData[ID_NUM][DB_NAME] + " =" + memberData[ID_NUM];
-    LOG.logSqlStatement(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -751,7 +750,7 @@ public class Roster {
 //Log.log("-------"+ct+" credits="+credits);
     }
     catch (Exception e) {
-      Logger.log("Error in vouchersToCredits, parsing voucher count of " + vouchers + ".  Setting Credits to 0");
+      Logger.logStatic("Error in vouchersToCredits, parsing voucher count of " + vouchers + ".  Setting Credits to 0");
       credits = "0";
     }
     return credits;
@@ -778,7 +777,7 @@ public class Roster {
     int i;
     //noinspection UnnecessaryLocalVariable
     String qryString = "DELETE FROM roster WHERE " + dbData[ID_NUM][DB_NAME] + " = '" + memberData[ID_NUM] + "'";
-    Logger.logSqlStatementStatic(resort, qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 

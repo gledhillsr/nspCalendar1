@@ -2,6 +2,7 @@ package org.nsponline.calendar.store;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.Logger;
+import org.nsponline.calendar.misc.PatrolData;
 import org.nsponline.calendar.misc.Utils;
 
 import java.lang.*;
@@ -11,11 +12,13 @@ import java.sql.*;
 /**
  * @author Steve Gledhill
  */
+@SuppressWarnings("SqlDialectInspection")
 public class DirectorSettings {
 
   /*****
    * CAUTION: THESE FIELDS MUST EXACTLY MATCH THE SQL DATABASE
    *****/
+  @SuppressWarnings("SqlNoDataSourceInspection")
   final static String PATROL_NAME_FIELD = "PatrolName";
   public final static String EMAIL_REMINDER_FIELD = "emailReminder";
   public final static String REMINDER_DAYS_FIELD = "reminderDays";
@@ -47,11 +50,13 @@ public class DirectorSettings {
   private String szEndBlackout;           //12
   private int nRemoveAccess;              //13
   private String resort;                  //variable
+  private Logger LOG;
 
   //-----------------------------------------------------
 // constructor - store bogus patroller ID in each field
 //-----------------------------------------------------
-  public DirectorSettings(String myResort) {
+  public DirectorSettings(String myResort, final Logger parentLogger) {
+    LOG = new Logger(PatrolData.class, parentLogger, myResort);
     szPatrolName = null;
     szEmailReminder = null;
     nReminderDays = 0;
@@ -88,7 +93,7 @@ public class DirectorSettings {
       nRemoveAccess = resultSet.getInt(REMOVE_ACCESS_FIELD);
     }
     catch (Exception e) {
-      Logger.log("exception in Shifts:read e=" + e);
+      LOG.error("exception in Shifts:read e=" + e);
       return false;
     } //end try
     return true;
@@ -198,10 +203,6 @@ public class DirectorSettings {
     return szNotifyChanges.equals("1");
   }
 
-  public boolean getUseTeams() {
-    return szUseTeams.equals("1");
-  }
-
   public boolean getDirectorsOnlyChange() {
     return szDirectorsOnlyChange.equals("1");
   }
@@ -266,6 +267,7 @@ public class DirectorSettings {
     return resort;
   }
 
+  @SuppressWarnings("unused")
   public String secondsToTime(int sec) {
     int min = ((sec % 3600) / 60);
     return (sec / 3600) + ":" + ((min < 10) ? "0" : "") + min;
@@ -284,10 +286,6 @@ public class DirectorSettings {
 
   public void setNotifyChanges(boolean flag) {
     szNotifyChanges = (flag ? "1" : "0");
-  }
-
-  public void setUseTeams(boolean flag) {
-    szUseTeams = (flag ? "1" : "0");
   }
 
   public void setDirectorsOnlyChange(boolean flag) {
@@ -350,6 +348,7 @@ public class DirectorSettings {
     nRemoveAccess = access;
   }
 
+  @SuppressWarnings("unused")
   public int timeToSeconds(String szTime) {
     int pos;
     int seconds = 28800; //default of 8:00
@@ -392,37 +391,37 @@ public class DirectorSettings {
         "', " + END_BLACKOUT_FIELD + "='" + szEndBlackout +
         "', " + REMOVE_ACCESS_FIELD + "='" + nRemoveAccess +
         "' WHERE " + PATROL_NAME_FIELD + "= '" + szPatrolName + "'";
-    Logger.log(qryString);
+    LOG.info(qryString);
     return qryString;
   }
 
   public boolean write(Connection connection) {
     String qryString;
-    Logger.log("write directorsettings for resort(" + resort + "): " + this);
     qryString = getUpdateQueryString();
-    Logger.log(qryString);
+    LOG.info(qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
     }
     catch (Exception e) {
-      Logger.log("Cannot load the driver, reason=" + e.toString());
-      Logger.log("Most likely the Java class path is incorrect.");
+      LOG.logException("Cannot load the driver: ", e);
+//      Logger.logStatic("Most likely the Java class path is incorrect.");
       return true;
     }
     return false;
   }
 
-  static public ResultSet reset(String resort, Connection connection) {
+  public ResultSet reset(Connection connection) {
     PreparedStatement directorStatement;
     try {
+      @SuppressWarnings("SqlNoDataSourceInspection")
       String sqlQuery = "SELECT * FROM directorsettings ORDER BY \"" + PATROL_NAME_FIELD + "\"";
-      Logger.logSqlStatementStatic(resort, sqlQuery);
+      LOG.logSqlStatement(sqlQuery);
       directorStatement = connection.prepareStatement(sqlQuery); //sort by default key
       return directorStatement.executeQuery();
     }
     catch (Exception e) {
-      Logger.logException(resort, "Error resetting DirectorSettings table reason ", e);
+      LOG.logException("Error resetting DirectorSettings table reason ", e);
     } //end try
     return null;
   }

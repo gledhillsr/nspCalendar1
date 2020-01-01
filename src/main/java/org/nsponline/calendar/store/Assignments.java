@@ -328,7 +328,7 @@ public class Assignments {
       qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
-    LOG.logSqlStatement(sessionData.getLoggedInResort(), qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
@@ -351,19 +351,19 @@ public class Assignments {
     }
     qryString += ")";
 
-    LOG.logSqlStatement(sessionData.getLoggedInResort(),qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
     String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
-    LOG.logSqlStatement(sessionData.getLoggedInResort(),qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 
   public static String getSelectAllAssignmentsByDateSQLString(String resort) {
     String sqlQuery = "SELECT * FROM assignments ORDER BY \"" + getDateSqlTag() + "\"";
-    LOG.logSqlStatement(resort, sqlQuery);
+    LOG.logSqlStatement(sqlQuery);
     return sqlQuery;
   }
 
@@ -379,12 +379,12 @@ public class Assignments {
 
   private void debugOut(String resort, String msg) {
     if (DEBUG) {
-      Logger.printToLogFile(null, resort, "Debug-Assignments: " + msg);
+      Logger.printToLogFileStatic(null, resort, "Debug-Assignments: " + msg);
     }
   }
 
   private static void LOG(SessionData sessionData, String msg) {
-    Logger.printToLogFile(sessionData.getRequest(), sessionData.getLoggedInResort(), msg);
+    Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), msg);
   }
 
   public boolean includesPatroller(String patrollerId) {

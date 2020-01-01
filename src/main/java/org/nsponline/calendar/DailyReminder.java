@@ -1,9 +1,5 @@
 package org.nsponline.calendar;
 
-/**
- * @author Steve Gledhill
- */
-
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
@@ -27,15 +23,15 @@ public class DailyReminder {
     }
     int daysAhead = ds.getReminderDays();
 
-    GregorianCalendar assignmentDate = getRemingerDateToSend(daysAhead);
+    GregorianCalendar assignmentDate = getReminderDateToSend(daysAhead);
     checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
-    Logger.log("finished processing ALL reminders for resort=" + resort);
+    LOG.info("finished processing ALL reminders for resort=" + resort);
     patrol.close();
   }
 
-  private static GregorianCalendar getRemingerDateToSend(int daysAhead) {
+  private GregorianCalendar getReminderDateToSend(int daysAhead) {
     GregorianCalendar today = new GregorianCalendar();
-    Logger.log("reminder daysAhead=" + daysAhead);
+    LOG.info("reminder daysAhead=" + daysAhead);
     GregorianCalendar date = new GregorianCalendar();
     long millis = today.getTimeInMillis() + (24 * 3600 * 1000 * daysAhead);
     date.setTimeInMillis(millis);
@@ -122,7 +118,7 @@ public class DailyReminder {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      Logger.log("DailyReminder=" + msg);
+      LOG.debug("DailyReminder=" + msg);
     }
   }
 
@@ -140,7 +136,7 @@ public class DailyReminder {
   /**
    * @param args the command line arguments (none, send to all resorts)
    */
-  public static void main(String[] args) {
+  public void main(String[] args) {
     Properties properties = System.getProperties();
     PrintWriter out = new PrintWriter(System.out);
     SessionData sessionData = new SessionData(properties, out);
@@ -149,7 +145,7 @@ public class DailyReminder {
     out.println("START RUNNING DAILY REMINDER: " + new Date().toString());
     out.println("******************************************************");
     if (sessionData.getDbPassword() == null) {
-      Logger.log("error session credentials not found");
+      LOG.error("error session credentials not found");
       System.exit(1);
     }
     //setup credentials and connection

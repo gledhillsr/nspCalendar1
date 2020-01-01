@@ -45,8 +45,8 @@ abstract public class nspHttpServlet extends HttpServlet {
   private void nspInit(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException{
     out = response.getWriter();
     sessionData = new SessionData(request, out);
-    LOG = new Logger(getServletClass(), request, methodType);
     resort = request.getParameter("resort");
+    LOG = new Logger(getServletClass(), request, methodType, resort);
     credentials = new ValidateCredentials(sessionData, request, response, getParentIfBadCredentials(), LOG);
     response.setContentType("text/html");
 

@@ -34,7 +34,7 @@ public class ListAssignments extends HttpServlet {
     private String resort;
 
     private LocalListAssignments(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException, ServletException {
-      LOG = new Logger(ListAssignments.class, request, methodType);
+      LOG = new Logger(ListAssignments.class, request, methodType, null);
       LOG.logRequestParameters();
       String patrollerId;
       PrintWriter out;
@@ -127,7 +127,7 @@ public class ListAssignments extends HttpServlet {
             pat0 = Integer.parseInt(ns.getPosID(shiftType));
           }
           catch (Exception e) {
-            LOG.error(resort, "error id (" + ns.getPosID(shiftType) + ")");
+            LOG.error("error id (" + ns.getPosID(shiftType) + ")");
             continue;
           }
           if (Math.abs(pat0) == myID) {  //check if 'myID'
@@ -179,7 +179,7 @@ public class ListAssignments extends HttpServlet {
 
     @SuppressWarnings("SameParameterValue")
     private void debugOut(String msg) {
-      Logger.log("DEBUG-ListAssignments resort=" + resort + ", " + msg);
+      LOG.debug("DEBUG-ListAssignments resort=" + resort + ", " + msg);
     }
   }
 }
