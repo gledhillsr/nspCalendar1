@@ -26,6 +26,7 @@ public class ValidateCredentials {
   public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
     this.resortParameter = request.getParameter("resort");
     LOG = new Logger(this.getClass(), parentLogger, resortParameter, LOG_LEVEL);
+    //  public Logger(final Class<?> aClass, final HttpServletRequest request, final String methodType, String resort, int minLogLevel) //todo 1/1/2020 srg, consider using something like
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
     init(sessionData, response, parent, idParameter, idLoggedIn);
@@ -73,6 +74,8 @@ public class ValidateCredentials {
     }
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData, parentLog); //when reading members, read full data
     boolean validId = patrol.getMemberByID(idParameter) != null;
+    //todo 1/1/2020, put try/catch around getMemberByID, and dump all parameters on error
+    //seen this error when idParameter was not a number
     patrol.close();
     debugOut("cheated login, validId (" + idParameter + ") = " + validId);
     return validId;

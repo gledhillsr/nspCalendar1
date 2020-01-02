@@ -15,7 +15,7 @@ import java.sql.*;
  * @author Steve Gledhill
  */
 public class UpdateInfo extends HttpServlet {
-  private static final boolean debug = false;
+  private static final boolean debug = true;
   private static final String szMonths[] = { "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"}; //0 based months
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {

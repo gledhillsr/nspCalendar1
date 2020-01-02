@@ -43,16 +43,22 @@ public class Logger {
     this.className = aClass != null ? aClass.getSimpleName() : "WIP - ERROR: Class was null in Logger constructor";
 
     if (aClass == null) {
-      System.err.println("Class was null in Logger constructor");
-      Thread.dumpStack();
+      error("Class was 'null' in Logger constructor");
+//      Thread.dumpStack();
     }
 
     this.resort = resort == null ? request.getParameter("resort") : resort;
     if (request == null) {
       if (!"DailyReminder".equals(methodType)) {
-        System.out.println("Null request in Logger, parent NotYetImplemented. calling dumpStack. methodType=" + methodType);
-        Thread.dumpStack();
-      }
+        error("Null request in Logger, parent NotYetImplemented.");  //todo 1/1/2020
+////        Thread.dumpStack();  //usually called
+//        at java.lang.Thread.dumpStack(Thread.java:1336)
+//        at org.nsponline.calendar.misc.Logger.<init>(Logger.java:37)
+//        at org.nsponline.calendar.misc.Logger.<init>(Logger.java:27)
+//        at org.nsponline.calendar.misc.ValidateCredentials.<init>(ValidateCredentials.java:26)
+//        at org.nsponline.calendar.SubList$InnerSubList.<init>(SubList.java:46)
+//        at org.nsponline.calendar.SubList.doGet(SubList.java:27)
+        }
       ip = "<<null request>>";
       agent = "";
     } else {
