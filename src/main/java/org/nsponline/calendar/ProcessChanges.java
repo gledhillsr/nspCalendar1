@@ -56,14 +56,14 @@ public class ProcessChanges extends nspHttpServlet {
   private boolean err;
 
   private int transNumber;
-  private final int ERROR = 0;
-  private final int INSERT = 1;
-  private final int REPLACE = 2;
-  private final int REMOVE = 3;
-  private final int TRADE = 4;
-  private final int MISSED_SHIFT = 5;
-  private final int NEEDS_REPLACEMENT = 6;
-  private final int NO_REPLACEMENT_NEEDED = 7;
+  private static final int ERROR = 0;
+  private static final int INSERT = 1;
+  private static final int REPLACE = 2;
+  private static final int REMOVE = 3;
+  private static final int TRADE = 4;
+  private static final int MISSED_SHIFT = 5;
+  private static final int NEEDS_REPLACEMENT = 6;
+  private static final int NO_REPLACEMENT_NEEDED = 7;
 
   private static final String trans[] = {
     "Error",                // ERROR

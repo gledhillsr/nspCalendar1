@@ -34,7 +34,7 @@ public class Download extends HttpServlet {
   private String resort;
   String szMyID;
 
-  boolean isDirector = false;
+//  boolean isDirector = false;
   String ePatrollerList = "";
   private DirectorSettings ds;
   Vector classificationsToDisplay = null;
@@ -42,7 +42,7 @@ public class Download extends HttpServlet {
   boolean listDirector = false;
   boolean listAll = false;
   int instructorFlags = 0;
-  PatrolData patrol = null;
+//  PatrolData patrol = null;
   int totalCount = 0;
   int actualCount = 0;
   int textFontSize = 14;
@@ -75,7 +75,7 @@ public class Download extends HttpServlet {
   boolean showPager;
   boolean showEmail;
   boolean showEmergency;
-  boolean showSubsitute;
+//  boolean showSubsitute;
   boolean showCommit;
   boolean showInstructor;
   boolean showDirector;
@@ -91,9 +91,9 @@ public class Download extends HttpServlet {
   boolean showDayList;
   boolean showSwingList;
   boolean showTrainingList;
-  boolean showTeamLead;
-  boolean showMentoring;
-  boolean showCreditsEarned;
+//  boolean showTeamLead;
+//  boolean showMentoring;
+//  boolean showCreditsEarned;
   //    boolean showCreditsUsed;
   boolean showCanEarnCredits;
   String Sort1;
@@ -162,7 +162,7 @@ public class Download extends HttpServlet {
     showPager       = request.getParameter("PAGER") != null;
     showEmail       = request.getParameter("EMAIL") != null;
     showEmergency   = request.getParameter("EMERGENCY") != null;
-    showSubsitute   = request.getParameter("SUBSITUTE") != null;
+//    showSubsitute   = request.getParameter("SUBSITUTE") != null;
     showCommit      = request.getParameter("COMMIT") != null;
     showInstructor  = request.getParameter("INSTRUCTOR") != null;
     showDirector    = request.getParameter("DIRECTOR") != null;
@@ -178,9 +178,9 @@ public class Download extends HttpServlet {
     showSwingList   = request.getParameter("SWING_DETAILS") != null;
     showDayList     = request.getParameter("DAY_DETAILS") != null;
     showTrainingList     = request.getParameter("TRAINING_DETAILS") != null;
-    showTeamLead        = request.getParameter("TEAM_LEAD") != null;
-    showMentoring       = request.getParameter("MENTORING") != null;
-    showCreditsEarned   = request.getParameter("CREDITS_EARNED") != null;
+//    showTeamLead        = request.getParameter("TEAM_LEAD") != null;
+//    showMentoring       = request.getParameter("MENTORING") != null;
+//    showCreditsEarned   = request.getParameter("CREDITS_EARNED") != null;
 //    showCreditsUsed     = request.getParameter("CREDITS_USED") != null;
     showCanEarnCredits  = request.getParameter("CAN_EARN_CREDITS") != null;
 
@@ -278,7 +278,7 @@ public class Download extends HttpServlet {
     readAssignments(patrol); //must read for other code to work
 
 
-    ds = patrol.readDirectorSettings();
+//    ds = patrol.readDirectorSettings();
 
 //hack 8/31/07 "sort1", etc was not set
 //	String sortString = getSortString();
@@ -306,56 +306,56 @@ public class Download extends HttpServlet {
       member = patrol.nextMember("", rosterResults);
     }
 //Log.log("length of email string = "+ePatrollerList.length());
-    Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
+//    Roster editor = patrol.getMemberByID(IDOfEditor); //ID from cookie
 //      patrol.close(); //must close connection!
-    if(editor != null)
-      isDirector=editor.isDirector();
-    else
-      isDirector = false;
+//    if(editor != null)
+//      isDirector=editor.isDirector();
+//    else
+//      isDirector = false;
   }
 
 
-  public String getSortString() {
-    String sortString = "";
-    if(Sort1.equals("Name") || Sort1.equals("shiftCnt"))
-      sortString = firstNameFirst ? "FirstName,LastName" : "LastName,FirstName";
-    else if(Sort1.equals("Class"))
-      sortString = "ClassificationCode";
-    else if(Sort1.equals("Comm"))
-      sortString = "Commitment";
-    else if(Sort1.equals("Updt"))
-      sortString = "lastUpdated";
-    else
-      sortString = "FirstName,LastName";  //should not get hit
-
-    if(Sort2.equals("Name") && !Sort1.equals("shiftCnt"))
-      sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
-    else if(Sort2.equals("Class"))
-      sortString += ",ClassificationCode";
-    else if(Sort2.equals("Comm"))
-      sortString += ",Commitment";
-//  else if(Sort1.equals("shiftCnt"))
-//      sortString += "";
-//  else if(Sort1.equals("DCnt"))
-//      sortString += "";
-    else if(Sort2.equals("Updt"))
-      sortString += ",lastUpdated";
-
-    if(Sort3.equals("Name"))
-      sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
-    else if(Sort3.equals("Class"))
-      sortString += ",ClassificationCode";
-    else if(Sort3.equals("Comm"))
-      sortString += ",Commitment";
-//  else if(Sort1.equals("shiftCnt"))
-//      sortString += "";
-//  else if(Sort1.equals("DCnt"))
-//      sortString += "";
-    else if(Sort3.equals("Updt"))
-      sortString += ",lastUpdated";
-//Log.log("sortString="+sortString);
-    return sortString;
-  }
+//  public String getSortString() {
+//    String sortString = "";
+//    if(Sort1.equals("Name") || Sort1.equals("shiftCnt"))
+//      sortString = firstNameFirst ? "FirstName,LastName" : "LastName,FirstName";
+//    else if(Sort1.equals("Class"))
+//      sortString = "ClassificationCode";
+//    else if(Sort1.equals("Comm"))
+//      sortString = "Commitment";
+//    else if(Sort1.equals("Updt"))
+//      sortString = "lastUpdated";
+//    else
+//      sortString = "FirstName,LastName";  //should not get hit
+//
+//    if(Sort2.equals("Name") && !Sort1.equals("shiftCnt"))
+//      sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
+//    else if(Sort2.equals("Class"))
+//      sortString += ",ClassificationCode";
+//    else if(Sort2.equals("Comm"))
+//      sortString += ",Commitment";
+////  else if(Sort1.equals("shiftCnt"))
+////      sortString += "";
+////  else if(Sort1.equals("DCnt"))
+////      sortString += "";
+//    else if(Sort2.equals("Updt"))
+//      sortString += ",lastUpdated";
+//
+//    if(Sort3.equals("Name"))
+//      sortString += firstNameFirst ? ",FirstName,LastName" : ",LastName,FirstName";
+//    else if(Sort3.equals("Class"))
+//      sortString += ",ClassificationCode";
+//    else if(Sort3.equals("Comm"))
+//      sortString += ",Commitment";
+////  else if(Sort1.equals("shiftCnt"))
+////      sortString += "";
+////  else if(Sort1.equals("DCnt"))
+////      sortString += "";
+//    else if(Sort3.equals("Updt"))
+//      sortString += ",lastUpdated";
+////Log.log("sortString="+sortString);
+//    return sortString;
+//  }
 
 
   public void excelOutput(SessionData sessionData) {

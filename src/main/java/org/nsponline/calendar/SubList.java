@@ -37,7 +37,7 @@ public class SubList extends HttpServlet {
     PrintWriter out;
     private String resort;
     PatrolData patrol;
-    boolean isDirector;
+//    boolean isDirector;
 
     InnerSubList(HttpServletRequest request, HttpServletResponse response) throws IOException {
       response.setContentType("text/html");
@@ -50,13 +50,13 @@ public class SubList extends HttpServlet {
       //by now, sessionData.getLoggedInUserId and sessionData.getLoggedInResort are valid
       resort = sessionData.getLoggedInResort();
       String IDOfEditor = sessionData.getLoggedInUserId();
-      isDirector = false;
+//      isDirector = false;
       patrol = null;
       patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       Roster editor = patrol.getMemberByID(IDOfEditor);
-      if (editor != null) {
-        isDirector = editor.isDirector();
-      }
+//      if (editor != null) {
+//        isDirector = editor.isDirector();
+//      }
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);

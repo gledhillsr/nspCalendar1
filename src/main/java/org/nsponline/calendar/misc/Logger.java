@@ -14,7 +14,7 @@ public class Logger {
 
   private String className;
   @SuppressWarnings("unused")
-  private String ip;
+//  private String ip;
   private String agent;
   private String methodType;
   private String resort;
@@ -23,7 +23,7 @@ public class Logger {
 
   public Logger(Class<?> clazz, int minLogLevel) {  //todo get rid of this
     this.className = clazz.getSimpleName();
-    ip = "";
+//    ip = "";
     agent = "";
     this.minLogLevel = minLogLevel;
   }
@@ -59,10 +59,10 @@ public class Logger {
 //        at org.nsponline.calendar.SubList$InnerSubList.<init>(SubList.java:46)
 //        at org.nsponline.calendar.SubList.doGet(SubList.java:27)
         }
-      ip = "<<null request>>";
+//      ip = "<<null request>>";
       agent = "";
     } else {
-      ip = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
+//      ip = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
       agent = request.getHeader("user-agent");//user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1)
       //get 'resort' the hard way
 //      String referer = request.getHeader("referer");

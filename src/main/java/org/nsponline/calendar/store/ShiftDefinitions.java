@@ -18,7 +18,7 @@ public class ShiftDefinitions {
   //format StartTime 08:00 (text format)
   //format EndTime 08:00 (text format)
   //format Count (int)
-  public final static String tags[] = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
+  public static final String tags[] = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
   private final static int EVENT_NAME_INDEX = 0;
   private final static int START_TIME_INDEX = 1;
   private final static int END_TIME_INDEX = 2;

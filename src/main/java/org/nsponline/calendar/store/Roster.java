@@ -47,7 +47,7 @@ public class Roster {
   //note, the values in dbData and the following defines MUST match
 //      they are in the ORDER THEY APPEAR ON THE DIALOG
 //      not in the order in the actual database
-  public final static String dbData[][] = {
+  public static final String dbData[][] = {
 //DB_NAME,              DLG_NAME,                SERVLET_NAME    EDIT_BY_DIRECTOR   Column Heading    Column width
 //(name in database)  (displayed on dialog)  (passed arg name) (who can edit) (name on printout) (width on printout)
       {"IDNumber", "ID Number:&nbsp;", "IDToEdit", "y", "ID", "40"},      //0
