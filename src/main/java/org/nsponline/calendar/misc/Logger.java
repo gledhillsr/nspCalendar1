@@ -112,7 +112,7 @@ public class Logger {
         String[] paramValues = request.getParameterValues(paramName);
         String delimiter = paramValues.length > 1 ? ":" : "";
         for (String paramValue : paramValues) {
-          if (!foundParam.contains(paramName)) {
+          if (!foundParam.contains(paramName)) { //exists in
             uriRequestMsg.append("Password".equals(paramName) ? "ZZZZ" : (paramValue + delimiter));
           }
           foundParam.add(paramValue);
@@ -232,7 +232,7 @@ public class Logger {
     logStatic(msg);
   }
 
-  public static void logStatic(String msg) { //todo hack, use printToLogFile(request, msg)
+  public static void logStatic(String msg) { //keep this for DailyReminder
     System.out.println(msg);
   }
 }

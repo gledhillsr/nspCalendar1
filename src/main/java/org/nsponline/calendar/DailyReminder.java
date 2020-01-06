@@ -13,19 +13,19 @@ public class DailyReminder {
   private Logger LOG;
 
   public DailyReminder(String resort, SessionData sessionData, MailMan mail) {
-    LOG = new Logger(this.getClass(), null, "DailyReminder", Logger.INFO);
-    debugOut("*** Processing email reminders for resort=" + resort);
+    LOG = new Logger(this.getClass(), null, "DailyReminder", "DailyReminder", Logger.INFO);
+    LOG.info("*** Processing email reminders for resort=" + resort);
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     DirectorSettings ds = patrol.readDirectorSettings();
     if (!ds.getSendReminder()) {
-      debugOut("Don't send email reminders for resort=" + resort + ". The director settings denied this...");
+      LOG.info("Don't send email reminders for resort=" + resort + ". The director settings denied this...");
       return;
     }
     int daysAhead = ds.getReminderDays();
 
     GregorianCalendar assignmentDate = getReminderDateToSend(daysAhead);
-    checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
-    LOG.info("finished processing ALL reminders for resort=" + resort);
+    int messagesSent = checkAndSend(sessionData, assignmentDate, mail, resort, patrol);
+    LOG.info("finished processing ALL reminders for resort=" + resort + ", messagesSent=" + messagesSent);
     patrol.close();
   }
 
@@ -53,8 +53,9 @@ public class DailyReminder {
     return testDate;
   }
 
-  private void checkAndSend(SessionData sessionData, GregorianCalendar date, MailMan mail, String resort, PatrolData patrol) {
+  private int checkAndSend(SessionData sessionData, GregorianCalendar date, MailMan mail, String resort, PatrolData patrol) {
     Set<String> emailTo;
+    int messagesSent = 0;
     String formattedDateString = getAssignmentDateString(date);
     int dayOfWeek = date.get(Calendar.DAY_OF_WEEK) - 1;  //String stored 0 based, this API is 1 based
     int month = date.get(Calendar.MONTH);
@@ -80,11 +81,13 @@ public class DailyReminder {
       emailTo = getMemberEmailsWhoHaveAssignment(assignment, patrol);
       if (!emailTo.isEmpty()) {
         sendEmail(sessionData, emailTo, mail, message);
+        ++messagesSent;
       }
       else {
         debugOut("Warning: there were no patrollers signed up for this shift");
       }
     } //end loop for assignments
+    return messagesSent;
   }
 
   private Set<String> getMemberEmailsWhoHaveAssignment(Assignments assignment, PatrolData patrol) {
@@ -118,7 +121,7 @@ public class DailyReminder {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      LOG.debug("DailyReminder=" + msg);
+      Logger.logStatic("DailyReminder=" + msg);
     }
   }
 
@@ -136,7 +139,7 @@ public class DailyReminder {
   /**
    * @param args the command line arguments (none, send to all resorts)
    */
-  public void main(String[] args) {
+  public static void main(String[] args) {    //this NEEDS to be static
     Properties properties = System.getProperties();
     PrintWriter out = new PrintWriter(System.out);
     SessionData sessionData = new SessionData(properties, out);
@@ -145,7 +148,7 @@ public class DailyReminder {
     out.println("START RUNNING DAILY REMINDER: " + new Date().toString());
     out.println("******************************************************");
     if (sessionData.getDbPassword() == null) {
-      LOG.error("error session credentials not found");
+      Logger.logStatic("error session credentials not found");
       System.exit(1);
     }
     //setup credentials and connection

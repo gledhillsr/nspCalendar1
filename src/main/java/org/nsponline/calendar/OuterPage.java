@@ -24,6 +24,10 @@ public class OuterPage {
 
   public OuterPage(ResortData resort, String javaScriptAndStyles, String loggedInUserId) {
     resortData = resort;
+    if (resortData == null) {
+      System.out.println("MAJOR ERROR, resortData is null.  This should not happen here");
+      Thread.dumpStack();
+    }
     this.javaScript = javaScriptAndStyles;
     this.loggedInUserId = loggedInUserId;
   }

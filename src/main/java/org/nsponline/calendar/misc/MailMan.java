@@ -95,9 +95,9 @@ public class MailMan {
         request.setReplyToAddresses(Collections.singletonList(replyToAddress));
       }
 
-      Long startMillis = System.nanoTime() / 1000;
+      Long startMillis = System.nanoTime() / 1000000L;
       SendEmailResult result = sesClient.sendEmail(request);
-      Long endMillis = System.nanoTime() / 1000;
+      Long endMillis = System.nanoTime() / 1000000L;
       Logger.logStatic("Email sent in " + (endMillis - startMillis) + " milli seconds.  result=" + result.toString());
     }
     catch (Exception ex) {

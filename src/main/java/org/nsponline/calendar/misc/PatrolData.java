@@ -18,7 +18,7 @@ public class PatrolData {
   private static final int MIN_LOG_LEVEL = Logger.INFO;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
-private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
+private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
 
   public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
@@ -364,6 +364,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
     String str = "SELECT * FROM roster WHERE IDNumber =" + szMemberID;
     LOG.logSqlStatement(str);
     if (szMemberID == null || szMemberID.length() <= 3) {
+      LOG.error("called getMemberByID with invalid memberID=[" + szMemberID + "]");
       return null;
     }
     else if (szMemberID.equals(sessionData.getBackDoorUser())) {
@@ -395,7 +396,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-53-48.ec2.internal";  //private
       } //end while
     }
     catch (Exception e) {
-      LOG.logException("Error in getMemberByID(" + szMemberID + "): ", e);
+      LOG.logException("Error in getMemberByID memberID=[" + szMemberID + "] ", e);
       //noinspection AccessStaticViaInstance
       Thread.currentThread().dumpStack();
     } //end try

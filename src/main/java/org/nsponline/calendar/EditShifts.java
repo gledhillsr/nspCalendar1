@@ -16,11 +16,11 @@ import java.util.ArrayList;
 public class EditShifts extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    new LocalEditShifts(request, response);
+    new LocalEditShifts(request, response, "GET");
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    new LocalEditShifts(request, response);
+    new LocalEditShifts(request, response, "POST");
   }
 
   private class LocalEditShifts {
@@ -38,16 +38,22 @@ public class EditShifts extends HttpServlet {
     boolean DeleteTemplateBtn;
     private String resort;
 
-    private LocalEditShifts(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private LocalEditShifts(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
+      LOG = new Logger(EditShifts.class, request, methodType, null, Logger.INFO);
+      LOG.logRequestParameters();
       response.setContentType("text/html");
       out = response.getWriter();
+//      System.out.println("srgDebug: EditShifts");
       SessionData sessionData = new SessionData(request, out);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar", LOG);
+//      System.out.println("srgDebug: EditShifts credentials.hasInvalidCredentials()=" + credentials.hasInvalidCredentials());
       if (credentials.hasInvalidCredentials()) {
         return;
       }
       resort = request.getParameter("resort");
+//      System.out.println("srgDebug: EditShifts, resort=" + resort);
       szMyID = sessionData.getLoggedInUserId();
+//      System.out.println("srgDebug: EditShifts, szMyID=" + szMyID);
       SaveChangesBtn = (request.getParameter("SaveChangesBtn") != null);
       DeleteTemplateBtn = (request.getParameter("DeleteTemplateBtn") != null);
       readParameters(request, sessionData);
@@ -144,7 +150,7 @@ public class EditShifts extends HttpServlet {
     @SuppressWarnings("ConstantConditions")
     private void readParameters(HttpServletRequest request, SessionData sessionData) {
       //-----
-      final boolean displayParameters = false;
+      final boolean displayParameters = true;
       //-----
 //event name text field
       eventName = request.getParameter("eventName");

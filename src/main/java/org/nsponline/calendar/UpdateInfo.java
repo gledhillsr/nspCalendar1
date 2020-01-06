@@ -47,9 +47,9 @@ public class UpdateInfo extends HttpServlet {
 
     private InternalUpdateInfo(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException, ServletException {
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request, out);
       LOG = new Logger(UpdateInfo.class, request, methodType, null, Logger.INFO);
       LOG.logRequestParameters();
+      SessionData sessionData = new SessionData(request, out);
 
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "UpdateInfo", LOG);
       if (credentials.hasInvalidCredentials()) {
