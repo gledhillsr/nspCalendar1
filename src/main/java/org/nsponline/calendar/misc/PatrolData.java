@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance", "SqlDialectInspection"})
 public class PatrolData {
-  private static final int MIN_LOG_LEVEL = Logger.INFO;
+  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
 private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
@@ -63,6 +63,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
     resortMap.put("LonesomePine",   new ResortData("LonesomePine", "Lonesome Pine Trails", null, "http://www.lonesomepines.org", "/images/lonesomepines.gif", IMG_HEIGHT, 80));
     resortMap.put("LeeCanyon",      new ResortData("LeeCanyon", "Lee Canyon", "schedule@leecanyonskipatrol.org", "http://www.leecanyonskipatrol.org", "/images/LeeCanyon.png", IMG_HEIGHT, 80));
     resortMap.put("MagicMountain",  new ResortData("MagicMountain", "Magic Mountain", null, "http://www.magicmountainresort.com/", "/images/MagicMountain.jpg", IMG_HEIGHT, 145));
+    resortMap.put("psiaMagicMountain",  new ResortData("psiaMagicMountain", "Magic Mountain Snowsports School", null, "http://www.magicmountainresort.com/", "/images/psia.png", IMG_HEIGHT, 80));
     resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", null, "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
     resortMap.put("MountPleasant",  new ResortData("MountPleasant", "Mount Pleasant", "dfarbotnik@gmail.com", "http://www.skimountpleasant.com ", "/images/MountPleasant.png", IMG_HEIGHT, 80));
     resortMap.put("NorwayMountain", new ResortData("NorwayMountain", "Norway Mountain", null, "http://www.NorwayMountain.com", "/images/NorwayMountain.jpg", IMG_HEIGHT, 80));
@@ -152,7 +153,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
   public static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
     Connection conn = null;
     try {
-      debugOutStatic(sessionData, "-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
+//      debugOutStatic(sessionData, "-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
 //      debugOut(sessionData, "-----" + sessionData.getDbUser() + ", " + sessionData.getDbPassword());
       conn = java.sql.DriverManager.getConnection(getJDBC_URL(resort), sessionData.getDbUser(), sessionData.getDbPassword());
       debugOutStatic(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
@@ -895,11 +896,11 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
   }
 
   private static void debugOutStatic(SessionData sessionData, String msg) {
-    if (MIN_LOG_LEVEL == Logger.DEBUG) {
+//    if (MIN_LOG_LEVEL == Logger.DEBUG) {
       String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
       HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
       Logger.printToLogFileStatic(request, localResort, msg);
-    }
+//    }
   }
 
   private static void logErrorStatic(SessionData sessionData, String msg) {

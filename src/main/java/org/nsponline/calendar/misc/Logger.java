@@ -160,14 +160,14 @@ public class Logger {
   }
 
   public void info(String msg) {
-    if (minLogLevel <= INFO) {
+    if (minLogLevel == INFO || minLogLevel == DEBUG) {
       writeToLogFile(request, "logLevel=INFO    " + msg);
     }
   }
 
   @SuppressWarnings("unused")
   public void warn(String msg) {
-    if (minLogLevel <= WARN) {
+    if (minLogLevel == INFO || minLogLevel == DEBUG || minLogLevel == WARN) {
       writeToLogFile(request, "logLevel=WARN " + msg);
     }
   }
