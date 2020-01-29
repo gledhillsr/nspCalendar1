@@ -18,7 +18,7 @@ public class PatrolData {
   private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
-private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
+  private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
 
   public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
@@ -33,11 +33,11 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
 /* ------------------------------------------------------------------------------------------ */
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****
-  private final static String backDoorFakeFirstName = "System";
-  private final static String backDoorFakeLastName = "Administrator";
-  private final static String backDoorEmail = "Steve@Gledhills.com";
+  private static final String backDoorFakeFirstName = "System";
+  private static final String backDoorFakeLastName = "Administrator";
+  private static final String backDoorEmail = "Steve@Gledhills.com";
 
-  static public HashMap<String, ResortData> resortMap = new HashMap<String, ResortData>();
+  public static final HashMap<String, ResortData> resortMap = new HashMap<String, ResortData>();
   static private final int IMG_HEIGHT = 80;
   static {
     resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
@@ -95,18 +95,17 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", null, "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
 
-  //  final static String JDBC_DRIVER = "org.gjt.mm.mysql.Driver"; //todo change July 32 2015
-  private final static String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-  public final static String newShiftStyle = "--New Shift Style--";
+  private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+  public static final String newShiftStyle = "--New Shift Style--";
 
   // create a Mountain Standard Time time zone
-  public final static String NEW_SHIFT_STYLE = "--New Shift Style--";
+  public static final String NEW_SHIFT_STYLE = "--New Shift Style--";
 
-  public final static int MAX_PATROLLERS = 400; //todo hack fix me
-  public final static String SERVLET_URL = "/calendar-1/";
+  public static final int MAX_PATROLLERS = 400; //todo hack fix me
+  public static final String SERVLET_URL = "/calendar-1/";
 
-  public final static boolean FETCH_MIN_DATA = false;
-  public final static boolean FETCH_ALL_DATA = true;
+  public static final boolean FETCH_MIN_DATA = false;
+  public static final boolean FETCH_ALL_DATA = true;
 
   //all the folowing instance variables must be initialized in the constructor
   //  private Connection connection;
@@ -153,10 +152,8 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
   public static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
     Connection conn = null;
     try {
-//      debugOutStatic(sessionData, "-----getJDBC_URL(" + resort + ")=" + getJDBC_URL(resort));
-//      debugOut(sessionData, "-----" + sessionData.getDbUser() + ", " + sessionData.getDbPassword());
       conn = java.sql.DriverManager.getConnection(getJDBC_URL(resort), sessionData.getDbUser(), sessionData.getDbPassword());
-      debugOutStatic(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
+//      debugOutStatic(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
     }
     catch (Exception e) {
       logErrorStatic(sessionData, "Error: " + e.getMessage() + " connecting to table:" + resort);
@@ -332,7 +329,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
 
   public void close() {
     try {
-      LOG.debug("-- close connection");
+//      LOG.debug("-- close connection");
       if (connection != null) {
         connection.close(); //let it close in finalizer ??
       }

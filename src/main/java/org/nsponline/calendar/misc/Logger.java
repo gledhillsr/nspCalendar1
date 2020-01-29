@@ -10,7 +10,7 @@ public class Logger {
   public static final int WARN = 2;
   public static final int ERROR = 3;
 
-  private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
+  private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
 
   private String className;
   @SuppressWarnings("unused")

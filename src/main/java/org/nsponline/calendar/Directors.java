@@ -19,7 +19,7 @@ public class Directors extends nspHttpServlet {
   private String MyName;
   private int rosterSize;
 
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

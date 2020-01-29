@@ -3,7 +3,6 @@ package org.nsponline.calendar;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Roster;
 
-import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
 import java.lang.*;
@@ -13,12 +12,10 @@ import java.lang.*;
  */
 public class CustomizedList extends nspHttpServlet {
 
-  private static final String szMonths[] = {"Error", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-  private boolean isDirector;
-  private String IDOfPatroller;
+  private static final String[] szMonths = {"Error", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
   @Override
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 
@@ -26,7 +23,9 @@ public class CustomizedList extends nspHttpServlet {
     return "MonthCalendar";
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response)  {
+    boolean isDirector;
+    String IDOfPatroller;
 
     if (credentials.hasInvalidCredentials()) {
       return;
@@ -47,7 +46,7 @@ public class CustomizedList extends nspHttpServlet {
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
     outerPage.printResortHeader(out);
     printTop();
-    printBody();
+    printBody(isDirector, IDOfPatroller);
     outerPage.printResortFooter(out);
   }
 
@@ -128,7 +127,7 @@ public class CustomizedList extends nspHttpServlet {
     out.println("  </table>");
   }
 
-  private void printStep2InstructionsAsTable() {
+  private void printStep2InstructionsAsTable(boolean isDirector) {
     out.println("    <table border=\"0\" width=\"100%\">");
     out.println("      <tr>");
     out.println("        <td width=\"20%\" bgcolor=\"#E5E5E5\">");
@@ -290,13 +289,8 @@ public class CustomizedList extends nspHttpServlet {
     out.println("      </tr>");
     out.println("    </table>");
   }
-  /*************/
-  /* printBody */
 
-  /**
-   * *********
-   */
-  public void printBody() {
+  public void printBody(boolean isDirector, String IDOfPatroller) {
     out.println("<h1 align=\"center\">Customized Patrol List</h1>");
 
     out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "CustomizedList2\" method=POST>");
@@ -315,7 +309,7 @@ public class CustomizedList extends nspHttpServlet {
 //step 2
     out.println("  <div align=\"center\">");
     out.println("    <center>");
-    printStep2InstructionsAsTable();
+    printStep2InstructionsAsTable(isDirector);
     out.println("    </center>");
     out.println("  </div>");
 //step 3

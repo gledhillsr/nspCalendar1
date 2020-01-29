@@ -63,7 +63,7 @@ public class EmailForm extends nspHttpServlet {
   private String fullPatrolName;
 
   @Override
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

@@ -52,7 +52,7 @@ public class MonthCalendar extends nspHttpServlet {
   private String patrollerIdTag;
 
   @Override
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

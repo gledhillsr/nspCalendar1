@@ -113,7 +113,7 @@ public class MemberList extends nspHttpServlet {
     return count;
   }
 
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

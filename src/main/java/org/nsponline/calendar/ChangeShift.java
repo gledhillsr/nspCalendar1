@@ -43,7 +43,7 @@ public class ChangeShift extends nspHttpServlet {
   private int visibleRadioButtons = 0;
 
   @Override
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

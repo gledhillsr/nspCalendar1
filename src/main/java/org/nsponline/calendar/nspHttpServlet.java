@@ -38,7 +38,7 @@ abstract public class nspHttpServlet extends HttpServlet {
 
   abstract void servletBody(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-  abstract Class getServletClass();
+  abstract Class<?> getServletClass();
 
   abstract String getParentIfBadCredentials();
 

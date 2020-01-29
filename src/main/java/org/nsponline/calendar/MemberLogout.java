@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public class MemberLogout extends nspHttpServlet {
 
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

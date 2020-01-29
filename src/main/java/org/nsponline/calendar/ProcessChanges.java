@@ -36,8 +36,6 @@ public class ProcessChanges extends nspHttpServlet {
   private String transaction;
   private String selectedID;
   private String szdate1;
-  private String pos1;
-  private String szPos2;
   private String index1AsString;
   private String listName;
   private String newID;
@@ -46,14 +44,12 @@ public class ProcessChanges extends nspHttpServlet {
 
   @SuppressWarnings("unused")
   private String secondName;  //secondName etc all have to do with "trade" which is currently disabled
-  private Roster submitter;
   private Roster member1;
   private Roster member2;     //replaced member
   private Calendar calendarToday;
 
   private boolean dupError;
   private int nPos1;
-  private boolean err;
 
   private int transNumber;
   private static final int ERROR = 0;
@@ -65,7 +61,7 @@ public class ProcessChanges extends nspHttpServlet {
   private static final int NEEDS_REPLACEMENT = 6;
   private static final int NO_REPLACEMENT_NEEDED = 7;
 
-  private static final String trans[] = {
+  private static final String[] trans = {
     "Error",                // ERROR
     "Insert Patroller",     // INSERT
     "Replace Patroller",    // REPLACE
@@ -77,7 +73,7 @@ public class ProcessChanges extends nspHttpServlet {
   };
 
   @Override
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 
@@ -100,7 +96,7 @@ public class ProcessChanges extends nspHttpServlet {
       readParameters(request);
       OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
-      printBody(request, sessionData);
+      printBody(sessionData);
       outerPage.printResortFooter(out);
       if (!PAUSE_ON_THIS_SCREEN) {
         response.sendRedirect(PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&resort=" + resort + "&ID=" + szMyID);
@@ -119,7 +115,7 @@ public class ProcessChanges extends nspHttpServlet {
       transaction = request.getParameter("transaction");  //required
       selectedID = request.getParameter("selectedID");    //required
       szdate1 = request.getParameter("date1");            //required
-      pos1 = request.getParameter("pos1");                //required 1-based
+      final String pos1 = request.getParameter("pos1");                //required 1-based
       index1AsString = request.getParameter("index1");    //required 0-based
       listName = request.getParameter("listName");        //name 'selected' by radio button (can be null if 'remove' existing name)
 
@@ -136,7 +132,7 @@ public class ProcessChanges extends nspHttpServlet {
       night1 = null;
       night2 = null;
       secondID = null;
-      submitter = patrolData.getMemberByID(submitterID);
+      final Roster submitter = patrolData.getMemberByID(submitterID);
       if (submitter == null) {
         out.println("<h1>Error: member " + submitterID + " not found!</h1><br>");
         return;
@@ -182,7 +178,7 @@ public class ProcessChanges extends nspHttpServlet {
     }
 
     private void DisplayTransactionInformation() {
-      szPos2 = null;
+      final String szPos2 = null;
       if (night1 == null) {
         out.println("<h1>Error: Assignment data for " + szdate1 + " not found!</h1><br>");
         return;
@@ -499,12 +495,12 @@ public class ProcessChanges extends nspHttpServlet {
     /**
      * printBody
      */
-    public void printBody(HttpServletRequest request, SessionData sessionData) {
+    public void printBody(SessionData sessionData) {
 
       DisplayTransactionInformation();
       DirectorSettings ds = patrolData.readDirectorSettings();
       boolean notifyPatrollers = ds.getNotifyChanges();
-      err = true;
+      boolean err = true;
       if (transNumber == NO_REPLACEMENT_NEEDED) {
 //        out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
         //todo
@@ -561,7 +557,7 @@ public class ProcessChanges extends nspHttpServlet {
 //          String from="SGledhill@Novell.com" ;
 //          if(!submitter.isDirector()) {
 
-        sendMailNotifications(request, ds, notifyPatrollers, sessionData);
+        sendMailNotifications(ds, notifyPatrollers, sessionData);
 
       } // not err in writing assignment data
 //Return to Calendar
@@ -572,7 +568,7 @@ public class ProcessChanges extends nspHttpServlet {
       out.println("<br/><br/>");
     }
 
-    private void sendMailNotifications(HttpServletRequest request, DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
+    private void sendMailNotifications(DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
       String smtp = sessionData.getSmtpHost(); //"mail.gledhills.com";
       String from = sessionData.getEmailUser(); //"steve@gledhills.com";
 //Log.log("ds.getNotifyChanges()="+ds.getNotifyChanges());

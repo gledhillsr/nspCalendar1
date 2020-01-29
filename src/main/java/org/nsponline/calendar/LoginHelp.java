@@ -243,7 +243,7 @@ public class LoginHelp extends nspHttpServlet {
     }
 
   @Override
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

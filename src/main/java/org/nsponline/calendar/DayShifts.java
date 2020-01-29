@@ -48,7 +48,7 @@ public class DayShifts extends nspHttpServlet {
   private int rosterSize;
   private String IDOfEditor;
 
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

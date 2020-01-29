@@ -13,7 +13,7 @@ import java.io.PrintWriter;
  */
 public class MemberLogin extends nspHttpServlet {
 
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 

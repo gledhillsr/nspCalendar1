@@ -29,7 +29,6 @@ public class CustomizedList2 extends nspHttpServlet {
     //  int memberIndex = 0;
     private int patrollersListed = 0;
   private int textFontSize = 14;
-  private Hashtable<String, Roster> hash;
   private Vector<Roster> members;
   private int maxShiftCount;
   private int StartDay;
@@ -77,13 +76,13 @@ public class CustomizedList2 extends nspHttpServlet {
   private boolean showMentoring;
   private boolean showCreditsEarned;
     //    boolean showCreditsUsed;
-    private boolean showCanEarnCredits;
+  private boolean showCanEarnCredits;
   private String sort1;
   private String sort2;
   private String sort3;
 
   @Override
-  Class getServletClass() {
+  Class<?> getServletClass() {
     return this.getClass();
   }
 
@@ -401,7 +400,7 @@ public class CustomizedList2 extends nspHttpServlet {
     if (isDirector || (directorSettings != null && directorSettings.getEmailAll())) {
       showButtonsAtTop();
     } //end email patrollers...
-    out.println("<table class='list' style=\"font-size: 10pt; face=\'Verdana, Arial, Helvetica\' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
+    out.println("<table class='list' style=\"font-size: 10pt; face='Verdana, Arial, Helvetica' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
     out.println(" <tr>");
 
     Roster.addColumn(-1);
@@ -675,7 +674,7 @@ public class CustomizedList2 extends nspHttpServlet {
 
     maxShiftCount = 0;
     members = new Vector<Roster>(PatrolData.MAX_PATROLLERS);
-    hash = new Hashtable<String, Roster>();
+    final Hashtable<String, Roster> hash = new Hashtable<String, Roster>();
 //int xx = 0;
     while ((member = patrol.nextMember("&nbsp;", rosterResults)) != null) {
       if (member.okToDisplay(false, false, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, 0)) {
@@ -700,6 +699,7 @@ public class CustomizedList2 extends nspHttpServlet {
     }
 
     while ((ns = patrol.readNextAssignment(assignmentResults)) != null) {
+      //noinspection MagicConstant
       date = new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay());
       currMillis = date.getTimeInMillis();
       if (startMillis <= currMillis && currMillis <= endMillis) {
