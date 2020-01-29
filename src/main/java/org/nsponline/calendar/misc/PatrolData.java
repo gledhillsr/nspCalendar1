@@ -73,7 +73,7 @@ private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //privat
     resortMap.put("PineCreek",      new ResortData("PineCreek", "Pine Creek", null, "http://www.pinecreekskiresort.com", "/images/pinecreek.gif", IMG_HEIGHT, 80));
 
     resortMap.put("PineMountain",   new ResortData("PineMountain", "Pine Mountain", "schedule@PineMountainSkiPatrol.com", "http://www.PineMountainResort.com", "/images/PineMtnLogo.png", IMG_HEIGHT, 80));
-    resortMap.put("psiaPineMountain",new ResortData("psiaPineMountain", "Pine Mountain (Ski Instructors)", "schedule@PineMountainSkiPatrol.com", "http://www.PineMountainResort.com", "/images/psiaPineMountain.png", IMG_HEIGHT, 80));
+    resortMap.put("psiaPineMountain",new ResortData("psiaPineMountain", "Pine Mountain (Ski Instructors)", "jwkluth@gmail.com", "http://www.PineMountainResort.com", "/images/psiaPineMountain.png", IMG_HEIGHT, 80));
 
     resortMap.put("Plattekill",     new ResortData("Plattekill", "Plattekill Mountain", null, "http://plattekill.com/", "/images/PlattekillLogo.png", IMG_HEIGHT, 147));
     resortMap.put("Pomerelle",      new ResortData("Pomerelle", "Pomerelle", null, "http://www.pomerelle-mtn.com", "/images/PomerelleLogo.gif", IMG_HEIGHT, 80));
