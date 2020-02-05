@@ -16,42 +16,6 @@ public class ProcessChanges extends nspHttpServlet {
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean PAUSE_ON_THIS_SCREEN = false;
 
-  private int date1, month1, year1, dayOfWeek0based;
-
-  @SuppressWarnings("unused")
-  private int date2, month2, year2, dayOfWeek2; //date2 etc all have to do with "trade" which is currently disabled
-  private PatrolData patrolData;
-  private String emailMessage = "";
-
-  private Assignments night1, night2;
-  private String szSubmitterName;
-  private java.util.Date currTime;
-  private int nIndex1AsNum;
-  private String szMyID;
-  private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
-
-  private boolean sentToFirst;
-  private boolean sentToSecond;
-  private String submitterID;
-  private String transaction;
-  private String selectedID;
-  private String szdate1;
-  private String index1AsString;
-  private String listName;
-  private String newID;
-  private String newName;
-  private String secondID;
-
-  @SuppressWarnings("unused")
-  private String secondName;  //secondName etc all have to do with "trade" which is currently disabled
-  private Roster member1;
-  private Roster member2;     //replaced member
-  private Calendar calendarToday;
-
-  private boolean dupError;
-  private int nPos1;
-
-  private int transNumber;
   private static final int ERROR = 0;
   private static final int INSERT = 1;
   private static final int REPLACE = 2;
@@ -84,6 +48,49 @@ public class ProcessChanges extends nspHttpServlet {
 
   @Override
   void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    new InnerProcessChanges().runner(request, response);
+    }
+
+  private class InnerProcessChanges {
+    private int date1, month1, year1, dayOfWeek0based;
+
+    @SuppressWarnings("unused")
+    private int date2, month2, year2, dayOfWeek2; //date2 etc all have to do with "trade" which is currently disabled
+    private PatrolData patrolData;
+    private String emailMessage = "";
+
+    private Assignments night1, night2;
+    private String szSubmitterName;
+    private java.util.Date currTime;
+    private int nIndex1AsNum;
+    private String szMyID;
+    private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
+
+    private boolean sentToFirst;
+    private boolean sentToSecond;
+    private String submitterID;
+    private String transaction;
+    private String selectedID;
+    private String szdate1;
+    private String index1AsString;
+    private String listName;
+    private String newID;
+    private String newName;
+    private String secondID;
+
+    @SuppressWarnings("unused")
+    private String secondName;  //secondName etc all have to do with "trade" which is currently disabled
+    private Roster member1;
+    private Roster member2;     //replaced member
+    private Calendar calendarToday;
+
+    private boolean dupError;
+    private int nPos1;
+
+    private int transNumber;
+
+    public void runner(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -102,6 +109,7 @@ public class ProcessChanges extends nspHttpServlet {
         response.sendRedirect(PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&resort=" + resort + "&ID=" + szMyID);
       }
       patrolData.close();
+
     }
 
     private void readParameters(HttpServletRequest request) {
@@ -138,7 +146,7 @@ public class ProcessChanges extends nspHttpServlet {
         return;
       }
       LOG.info("submitter=" + submitter.getFullName() + " selectedID=" + selectedID  + " resort=" + resort + " trans=" + transaction +
-          " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old_name=" + listName);
+                 " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old_name=" + listName);
       szSubmitterName = submitter.getFullName();
 
       nPos1 = Integer.parseInt(pos1);
@@ -465,7 +473,7 @@ public class ProcessChanges extends nspHttpServlet {
         int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo shiftType is ignored?
         LOG.error("HACK in needsReplacement, shiftType forced to DAY SHIFT");
         newIndividualAssignment = new NewIndividualAssignment(calendarToday.getTime(), nPos1, nIndex1AsNum, shiftType,
-            NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
+                                                              NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
 
         patrolData.insertNewIndividualAssignment(newIndividualAssignment);
       }
@@ -535,7 +543,7 @@ public class ProcessChanges extends nspHttpServlet {
 //todo 10/2/2019, refactor to look like
 // <first> <last> was inserted into the calendar for Wednesday, April/1/2020 (6:30 pm - 9:30 pm).  Replacing patroller <first> <last>.
           emailMessage += "\nOn " + Utils.szMonthsFull[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
-              trans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
+            trans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
         }
         out.println("<h2>Submission Successful</h2>");
         emailMessage += "\n";
@@ -633,16 +641,7 @@ public class ProcessChanges extends nspHttpServlet {
         mail.sendMessage(sessionData, "Patrol Roster Changed (" + resort + ")", strChange3, recipient);
       }
     }
+  } //end InnerProcessChanges
 
-//    @SuppressWarnings("unused")
-//    private void log(String msg) {
-//      //noinspection ConstantConditions
-//      Logger.log("ProcessChanges: " + msg);
-//    }
-
-//    private void log(HttpServletRequest request, String msg) {
-//      //noinspection ConstantConditions
-//      LOG.info( "ProcessChanges: submitter=" + submitterID + ", " + msg);
-//    }
   }
 
