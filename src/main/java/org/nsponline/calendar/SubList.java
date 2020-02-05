@@ -30,7 +30,12 @@ public class SubList extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     LOG = new Logger(SubList.class, request, "POST", null, MIN_LOG_LEVEL);
     LOG.logRequestParameters();
-    doGet(request, response);
+    try {
+      doGet(request, response);
+    }
+    catch (Exception e) {
+      LOG.error(e.getMessage());
+    }
   }
 
   private class InnerSubList {
