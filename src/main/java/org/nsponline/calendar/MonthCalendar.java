@@ -17,39 +17,7 @@ import java.util.*;
  */
 public class MonthCalendar extends nspHttpServlet {
   private final static boolean DEBUG = false;
-  private final static int iDaysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-  private Calendar calendar;
-  private java.util.Date trialTime;
-  private Assignments monthData[][];
-  private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
-  private ShiftDefinitions WeeklyShifts[][];
-  private int currYear = 0;   //not initialized
-  private int currMonth = 0; //0 based month
-  private int realCurrMonth = 0;
-  private int realCurrYear = 0;
-  private int realCurrDate = 0;
-  private int seasonStartDay;
-  private int seasonStartMonth;
-  private int seasonEndDay;
-  private int seasonEndMonth;
-  private int textFontSize;
-
-  private int nextMonth, nextYear;
-  private int prevMonth, prevYear;
-
-  private String patrollerId;
-  private Hashtable<Integer, String> names;
-  private boolean isDirector;
-  private DirectorSettings directorSettings;
-  private boolean denseFormat;
-  private int maxAssignmentCnt;
-  private int maxNameLen;
-  private int textLen;
-  private int dayWidth;   //normal is 14 and 14 (100/7 = 14) ps need to FIX is other spots also
-  private int wkEndWidth; //big weekend is 11 and 22 (100/9)
-  private boolean notLoggedIn;
-  private String patrollerIdTag;
+  private final static int[] iDaysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   @Override
   Class<?> getServletClass() {
@@ -62,6 +30,44 @@ public class MonthCalendar extends nspHttpServlet {
 
   @Override
   void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
+    new InnerMonthCalendar().runner(request, response);
+    }
+
+  private class InnerMonthCalendar {
+    private Calendar calendar;
+    private java.util.Date trialTime;
+    private Assignments[][] monthData;
+    private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
+    private ShiftDefinitions[][] WeeklyShifts;
+    private int currYear = 0;   //not initialized
+    private int currMonth = 0; //0 based month
+    private int realCurrMonth = 0;
+    private int realCurrYear = 0;
+    private int realCurrDate = 0;
+    private int seasonStartDay;
+    private int seasonStartMonth;
+    private int seasonEndDay;
+    private int seasonEndMonth;
+    private int textFontSize;
+
+    private int nextMonth, nextYear;
+    private int prevMonth, prevYear;
+
+    private String patrollerId;
+    private Hashtable<Integer, String> names;
+    private boolean isDirector;
+    private DirectorSettings directorSettings;
+    private boolean denseFormat;
+    private int maxAssignmentCnt;
+    private int maxNameLen;
+    private int textLen;
+    private int dayWidth;   //normal is 14 and 14 (100/7 = 14) ps need to FIX is other spots also
+    private int wkEndWidth; //big weekend is 11 and 22 (100/9)
+    private boolean notLoggedIn;
+    private String patrollerIdTag;
+
+
+    public void runner(final HttpServletRequest request, final HttpServletResponse response) {
 
       String szMonth;
       String szYear;
@@ -332,9 +338,9 @@ public class MonthCalendar extends nspHttpServlet {
 
     public String getJavaScriptAndStyles() {
       return "<style type='text/css'>\n" +
-          ".calendar td    {font-size:" + textFontSize + "pt; font-family:arial,helvetica; padding:1px}\n" +
-          ".calendar a    {target:_self}\n" +
-          "</style>";
+        ".calendar td    {font-size:" + textFontSize + "pt; font-family:arial,helvetica; padding:1px}\n" +
+        ".calendar a    {target:_self}\n" +
+        "</style>";
     }
 
     public void printTopOfPage(PrintWriter out, String resort) {
@@ -362,16 +368,16 @@ public class MonthCalendar extends nspHttpServlet {
       out.println("}");
 
       out.println(
-          "function goDayShifts(dayOfWeek, date) {\n" +
-              //resort, ID, month and year are constant
-              "window.location('/calendar-1/DayShifts" +
-              "?resort=" + resort +
-              "&ID=" + patrollerId +
-              "&month=" + currMonth +
-              "&year=" + currYear +
-              "&dayOfWeek=' + dayOfWeek + '" +
-              "&date=' + date );\n" +
-              "}\n");
+        "function goDayShifts(dayOfWeek, date) {\n" +
+          //resort, ID, month and year are constant
+          "window.location('/calendar-1/DayShifts" +
+          "?resort=" + resort +
+          "&ID=" + patrollerId +
+          "&month=" + currMonth +
+          "&year=" + currYear +
+          "&dayOfWeek=' + dayOfWeek + '" +
+          "&date=' + date );\n" +
+          "}\n");
 //      out.println("function dispEvent(url,wname) {");
 //      out.println("    window.open(url, wname, 'scrollbars=yes,toolbar=no,status=no,location=no,menubar=no,resizable=yes,height=450,width=620,left=10,top=10')");
 //      out.println("}");
@@ -587,11 +593,11 @@ public class MonthCalendar extends nspHttpServlet {
 //        int indx = 0;
 //build hyperlink tags
       String htmData = "ChangeShift?resort=" + resort + patrollerIdTag + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day +
-          "&month=" + currMonth + "&year=" + currYear + "&pos=";
+        "&month=" + currMonth + "&year=" + currYear + "&pos=";
       String htmDisplayData = "<a target='_self' href='DayShifts?resort=" + resort + "&dayOfWeek=" + (dayOfWeek - 1) +
-          "&date=" + day + "&month=" + currMonth + "&year=" + currYear + patrollerIdTag +
-          "' Title='Shift Details..'><B><font face='arial,helvetica' color='#0000FF' size=4>" +
-          Integer.toString(day) + "</font></B></a>";
+        "&date=" + day + "&month=" + currMonth + "&year=" + currYear + patrollerIdTag +
+        "' Title='Shift Details..'><B><font face='arial,helvetica' color='#0000FF' size=4>" +
+        Integer.toString(day) + "</font></B></a>";
       if (notLoggedIn) {
         htmDisplayData = "<B><font face='arial,helvetica' color='#0000FF' size=4>" + Integer.toString(day) + "</font></B>";
       }
@@ -607,7 +613,7 @@ public class MonthCalendar extends nspHttpServlet {
         }
       }
       if ((currMon < seasonStartMonth || (currMon == seasonStartMonth && day < seasonStartDay)) &&
-          (currMon > seasonEndMonth || (currMon == seasonEndMonth && day > seasonEndDay))) {
+        (currMon > seasonEndMonth || (currMon == seasonEndMonth && day > seasonEndDay))) {
         inSeason = false;
       }
 
@@ -708,12 +714,12 @@ public class MonthCalendar extends nspHttpServlet {
           szName = "Err id (" + id + ")";
         }
         else if (missed) {
-/*full name*/
+          /*full name*/
           szName = time + "<strike>" + QuickTip.substring(0, QuickTip.lastIndexOf(',')) + "</strike>";
 // first name     szName = time+"<strike>" + QuickTip.substring(0, QuickTip.indexOf(' ')) + "</strike>";
         }
         else {
-/*full name*/
+          /*full name*/
           szName = time + QuickTip.substring(0, QuickTip.lastIndexOf(','));
 // first name szName = time+QuickTip.substring(0, QuickTip.indexOf(' '));
         }
@@ -791,7 +797,7 @@ public class MonthCalendar extends nspHttpServlet {
         }
 // end highlight ------------------------------------------
         out.println(szRowStart + "<a target='_self' href='" + html + "' Title='" + QuickTip + "'>" + cellBackgroundStart +
-            szName + cellBackgroundEnd + "</a>" + szRowEnd);
+                      szName + cellBackgroundEnd + "</a>" + szRowEnd);
       }
       else {
         out.println(szRowStart + "<font face='arial,helvetica' color='#000000'>" + szName + "</font>" + szRowEnd);
@@ -817,3 +823,4 @@ public class MonthCalendar extends nspHttpServlet {
       }
     }
   }
+}
