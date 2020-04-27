@@ -47,7 +47,7 @@ import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
 
 @SuppressWarnings("JavaDoc")
 public class Login extends HttpServlet {
-  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
   private static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
   private Logger LOG;

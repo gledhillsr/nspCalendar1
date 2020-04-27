@@ -14,8 +14,8 @@ import java.util.Collections;
 public class MailMan {
 
   @SuppressWarnings("unused")
-  private final static boolean DEBUG = true;
-  private final static boolean DEBUG_DONT_SEND = false;
+  private static final boolean DEBUG = true;
+  private static final boolean DEBUG_DONT_SEND = false;
   @SuppressWarnings("WeakerAccess")
   static final String CONFIGSET = "nspMail";
 

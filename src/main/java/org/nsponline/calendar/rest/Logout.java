@@ -30,7 +30,7 @@ import java.sql.Connection;
  */
 @SuppressWarnings("JavaDoc")
 public class Logout extends HttpServlet {
-  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
   private Logger LOG;
 
 

@@ -23,7 +23,7 @@ public class Roster {
   public static final String HARD_SPACE_NBSP = "&nbsp;";
   //static data
   final static Hashtable<String, String> lookupClassification = new Hashtable<String, String>(10);
-  final static String month[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  final static String[] month = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
   static {
     lookupClassification.put("BAS", "Basic");
@@ -47,7 +47,7 @@ public class Roster {
   //note, the values in dbData and the following defines MUST match
 //      they are in the ORDER THEY APPEAR ON THE DIALOG
 //      not in the order in the actual database
-  public static final String dbData[][] = {
+  public static final String[][] dbData = {
 //DB_NAME,              DLG_NAME,                SERVLET_NAME    EDIT_BY_DIRECTOR   Column Heading    Column width
 //(name in database)  (displayed on dialog)  (passed arg name) (who can edit) (name on printout) (width on printout)
       {"IDNumber", "ID Number:&nbsp;", "IDToEdit", "y", "ID", "40"},      //0
@@ -142,7 +142,7 @@ public class Roster {
   static int lastColumn = 0;
 
   //order is the defined sequence in the database
-  static int order[] = {
+  static int[] order = {
       ID_NUM, CLASSIFICATION, LAST, FIRST, SPOUSE,
       ADDRESS, CITY, STATE, ZIPCODE,
       HOMEPHONE, WORKPHONE, CELLPHONE, PAGER,
@@ -609,7 +609,7 @@ public class Roster {
 
   public String getPalmString() {
     int i;
-    int palmOrder[] = {LAST, FIRST, CLASSIFICATION, SPOUSE,
+    int[] palmOrder = {LAST, FIRST, CLASSIFICATION, SPOUSE,
         WORKPHONE, HOMEPHONE, PAGER, CELLPHONE, EMAIL, ADDRESS, CITY, STATE, ZIPCODE};
     String qryString = "";
     String szTmp;

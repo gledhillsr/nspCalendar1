@@ -13,7 +13,7 @@ import java.util.*;
 
 public class CustomizedList2 extends nspHttpServlet {
 
-  private final static boolean DEBUG = false;    //-----------
+  private static final boolean DEBUG = false;    //-----------
 
 
   @Override

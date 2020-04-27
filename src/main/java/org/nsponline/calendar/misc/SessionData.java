@@ -13,23 +13,23 @@ import java.util.Properties;
 
 public class SessionData {
 
-  private final static Boolean DEBUG = false;
-  private final static Boolean DEBUG_VERBOSE = false;
+  private static final Boolean DEBUG = false;
+  private static final Boolean DEBUG_VERBOSE = false;
 
-  private final static String PROPERTIES_FILE = "/var/lib/tomcat7/webapps/credentials.properties";
+  private static final String PROPERTIES_FILE = "/var/lib/tomcat7/webapps/credentials.properties";
   //these fields should be defined in credentials.properties
-  private final static String DB_USER_TAG = "dbUser";
-  private final static String DB_PASSWORD_TAG = "dbPassword";
-  private final static String SMTP_HOST_TAG = "smtpHost";
-  private final static String POP_HOST_TAG = "popHost";
-  private final static String EMAIL_USER_TAG = "emailUser";
-  private final static String EMAIL_PASSWORD_TAG = "emailPassword";
-  private final static String BACK_DOOR_USER_TAG = "backDoorUser";
-  private final static String BACK_DOOR_PASSWORD_TAG = "backDoorPassword";
-  private final static String LOGGED_IN_USER_ID_TAG = "loggedInUserId";
-  private final static String LOGGED_IN_RESORT_TAG = "loggedInResort";
-  private final static String AWS_ACCESS_KEY_ID_TAG = "AWSAccessKeyId";
-  private final static String AWS_SECRET_KEY_TAG = "AWSSecretKey";
+  private static final String DB_USER_TAG = "dbUser";
+  private static final String DB_PASSWORD_TAG = "dbPassword";
+  private static final String SMTP_HOST_TAG = "smtpHost";
+  private static final String POP_HOST_TAG = "popHost";
+  private static final String EMAIL_USER_TAG = "emailUser";
+  private static final String EMAIL_PASSWORD_TAG = "emailPassword";
+  private static final String BACK_DOOR_USER_TAG = "backDoorUser";
+  private static final String BACK_DOOR_PASSWORD_TAG = "backDoorPassword";
+  private static final String LOGGED_IN_USER_ID_TAG = "loggedInUserId";
+  private static final String LOGGED_IN_RESORT_TAG = "loggedInResort";
+  private static final String AWS_ACCESS_KEY_ID_TAG = "AWSAccessKeyId";
+  private static final String AWS_SECRET_KEY_TAG = "AWSSecretKey";
 
   //don't store in session.  Afraid user may be able to see session data
   private String dbUser;

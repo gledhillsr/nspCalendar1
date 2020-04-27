@@ -50,6 +50,7 @@ public class MemberLogin extends nspHttpServlet {
     return "";
   }
 
+  @SuppressWarnings("squid:S2068") // ignore hard coded password violation - needed for Sample resort
   private void printTop(PrintWriter out, String resort) {
     out.println("<p><H2>" + PatrolData.getResortFullName(resort) + " Ski Patrol Login</H2></p>");
     out.println("<p>");

@@ -21,7 +21,7 @@ import java.util.*;
 @SuppressWarnings("ConstantConditions")
 public class DayShifts extends nspHttpServlet {
 
-  private final static boolean DEBUG = false;
+  private static final boolean DEBUG = false;
 
 
   Class<?> getServletClass() {

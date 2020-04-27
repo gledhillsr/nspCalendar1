@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
  * @author Steve Gledhill
  */
 public class Assignments {
-  private final static int MIN_LOG_LEVEL = Logger.INFO;
+  private static final int MIN_LOG_LEVEL = Logger.INFO;
   //public fields
   public final static int MAX_ASSIGNMENT_SIZE = 10;          //max number of assignments
   public final static int DAY_TYPE = 0;
@@ -25,8 +25,8 @@ public class Assignments {
   public final static int MAX_SHIFT_TYPES = 4;
 
   //private fields
-  final private static String szShiftTypes[] = {"Day Shift", "Swing Shift", "Night Shift", "Training Shift"};
-  final private static String tag[] = {"Date", "StartTime", "EndTime", "EventName", "ShiftType",
+  final private static String[] szShiftTypes = {"Day Shift", "Swing Shift", "Night Shift", "Training Shift"};
+  final private static String[] tag = {"Date", "StartTime", "EndTime", "EventName", "ShiftType",
       "Count", "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"}; //string on form
   //NOTE: the Date string is in this format "2001-11-03_1"  where _1 is the FIRST record
   final private static int DATE_INDEX = 0;

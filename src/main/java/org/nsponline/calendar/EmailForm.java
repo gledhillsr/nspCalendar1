@@ -18,7 +18,7 @@ import java.util.Vector;
  */
 public class EmailForm extends nspHttpServlet {
 
-  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
 
   @Override
@@ -36,12 +36,12 @@ public class EmailForm extends nspHttpServlet {
 
   private class InnerEmailForm {
 
-    private final static String fallback_from = "steve@gledhills.com";
+    private static final String fallback_from = "steve@gledhills.com";
 
     private Vector<String> emaiPatrollerList;
     private Vector<String> invalidEmailPatrollerList;
 
-    private final static boolean DEBUG_NO_SEND = false;
+    private static final boolean DEBUG_NO_SEND = false;
 
     private Vector<String> classificationsToDisplay = null;
     private int commitmentToDisplay = 0;

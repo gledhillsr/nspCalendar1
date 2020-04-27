@@ -14,7 +14,7 @@ import javax.servlet.http.*;
 import java.lang.*;
 
 public class Download extends HttpServlet {
-  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
   private Logger LOG;
 

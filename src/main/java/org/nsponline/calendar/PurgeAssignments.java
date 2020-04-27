@@ -17,7 +17,7 @@ import java.util.Calendar;
  * @author Steve Gledhill
  */
 public class PurgeAssignments extends HttpServlet {
-  private final static int MIN_LOG_LEVEL = Logger.DEBUG;
+  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
   private Logger LOG;
 

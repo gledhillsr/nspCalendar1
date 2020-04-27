@@ -16,8 +16,8 @@ import java.util.*;
  *         display a 1 month calendar
  */
 public class MonthCalendar extends nspHttpServlet {
-  private final static boolean DEBUG = false;
-  private final static int[] iDaysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  private static final boolean DEBUG = false;
+  private static final int[] iDaysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
   @Override
   Class<?> getServletClass() {

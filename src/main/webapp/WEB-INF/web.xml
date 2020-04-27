@@ -86,6 +86,20 @@
         <servlet-name>UpdateInfoServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.UpdateInfo</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>RssAddItemServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.rest.RssAddItem</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RssInitServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.rest.RssInit</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RssTerminateServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.rest.RssTerminate</servlet-class>
+    </servlet>
+
     <servlet>
         <servlet-name>ListAssignmentsServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.ListAssignments</servlet-class>
@@ -232,6 +246,20 @@
         <servlet-name>UpdateInfoServlet</servlet-name>
         <url-pattern>/UpdateInfo</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>RssInitServlet</servlet-name>
+        <url-pattern>/rssInit</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RssAddItemServlet</servlet-name>
+        <url-pattern>/rssAddItem</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RssTerminateServlet</servlet-name>
+        <url-pattern>/rssTerminate</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>ListAssignmentsServlet</servlet-name>
         <url-pattern>/ListAssignments</url-pattern>

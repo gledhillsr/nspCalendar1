@@ -29,7 +29,7 @@ public class PatrolData {
     }
   }
 
-//  private final static String MYSQL_ADDRESS = "127.0.0.1";  //local laptop.  must match /etc/my.cnf
+//  private static final String MYSQL_ADDRESS = "127.0.0.1";  //local laptop.  must match /etc/my.cnf
 /* ------------------------------------------------------------------------------------------ */
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****

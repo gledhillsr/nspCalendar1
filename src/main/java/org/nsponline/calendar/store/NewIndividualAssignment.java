@@ -16,7 +16,7 @@ import java.sql.ResultSet;
 public class NewIndividualAssignment {
 
   final static String tableName = "newindividualassignment";
-  final static String tag[] = {"date_shift_pos", "scheduleDate", "shifttype", "flags",
+  final static String[] tag = {"date_shift_pos", "scheduleDate", "shifttype", "flags",
       "patrollerId", "lastModifiedDate", "lastModifiedBy"}; //string on form
   // the Date string is in this format "2001-11-03_1"  where _1 is the FIRST record
   final static int DATE_SHIFT_POS_INDEX = 0;

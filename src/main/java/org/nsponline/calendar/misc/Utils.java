@@ -18,11 +18,11 @@ public final class Utils {
       "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
           + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
-  public static final String szMonthsFull[] = {
+  public static final String[] szMonthsFull = {
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
   };
-  public static final String szDays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "error"};
+  public static final String[] szDays = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "error"};
   public static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
 

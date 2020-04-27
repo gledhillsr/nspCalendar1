@@ -4,7 +4,6 @@ import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.Roster;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,19 +20,20 @@ import java.util.GregorianCalendar;
  */
 public class ListAssignments extends HttpServlet {
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     new LocalListAssignments(request, response, "GET");
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     new LocalListAssignments(request, response, "POST");
   }
 
-  private final class LocalListAssignments {
+  @SuppressWarnings("InnerClassMayBeStatic")
+  private class LocalListAssignments {
     private Logger LOG;
     private String resort;
 
-    private LocalListAssignments(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException, ServletException {
+    private LocalListAssignments(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
       LOG = new Logger(ListAssignments.class, request, methodType, null, Logger.INFO);
       LOG.logRequestParameters();
       String patrollerId;
@@ -87,18 +87,24 @@ public class ListAssignments extends HttpServlet {
       myID = Integer.parseInt(szMyID);
       myName = member.getFullName();
 
-//????      patrol.resetRoster();
+      Calendar calendarStart = new GregorianCalendar();
+      int currentYear = calendarStart.get(Calendar.YEAR);
+      int currentMonth = calendarStart.get(Calendar.MONTH);
+      int startYear = 2002;
+      int startMonth = Calendar.JULY;
+
       if (resort.equals("Brighton")) {
-        Calendar calendar = new GregorianCalendar();
-
-        //noinspection MagicConstant
-        calendar.set(2013, 3, 1);  //(yyyy,mm,dd) Month is 0 based
-
+        if (currentMonth < Calendar.JULY){
+          startYear = currentYear - 1;
+        }
         out.println("Display your: <a target='main' href=\"/screenshots/history.php?ID=" + szMyID + "\"><b>check-in history</b></a>");
-        out.println(" or <a target='main' href=\"screenshots/ski_credits.php?ID=" + szMyID + "\"><b>Ski Credits Earnigs report</b></a>");
+        out.println(" or <a target='main' href=\"screenshots/ski_credits.php?ID=" + szMyID + "\"><b>Ski Credits Earnings report</b></a>");
 
         out.println(" (Ski History & Credits are updated at different times, so may not appear in sync.)<br>");
       }
+
+      calendarStart.set(startYear, startMonth, 1);  //(yyyy,mm,dd) Month is 0 based
+      LOG.debug("zzzz calendar start " + calendarStart.toString());
       out.println("<p><font size=5>" + myName + "'s Assignment Schedule for " + PatrolData.getResortFullName(resort) + "</font>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 //      out.println("<a href=\"javascript:printWindow()\">Print This Page</a>");
@@ -109,13 +115,25 @@ public class ListAssignments extends HttpServlet {
       for (shiftType = 0; shiftType < Assignments.MAX_SHIFT_TYPES; ++shiftType) {
         shiftCounts[shiftType] = 0;
       }
+      String LT_GREEN_BG_COLOR = "bgcolor=\"#D7F5ED\"";
+      String WHITE_BG_COLOR = "bgcolor=\"#FFFFFF\"";
+      String bgColor = WHITE_BG_COLOR;
       int totalShifts = 0;
  //     patrol.resetAssignments();
  //     Assignments ns;
+      int lastMonth = 0;
       for (Assignments ns : patrol.readAllSortedAssignments(szMyID)) {
+        Calendar assignmentDate = new GregorianCalendar(ns.getYear(), ns.getMonth(), ns.getDay());
+        if (assignmentDate.before(calendarStart)) {
+          continue;
+        }
         String szDate = ns.getExpandedDateAndTimeString();
         String szStartTime = ns.getStartingTimeString();
         String szEndTime = ns.getEndingTimeString();
+        if (lastMonth != ns.getMonth()) {
+          lastMonth = ns.getMonth();
+          bgColor = (bgColor.equals(WHITE_BG_COLOR)) ? LT_GREEN_BG_COLOR : WHITE_BG_COLOR;
+        }
         int pat0;
         //loop through all patrollers on this assignment
 //        boolean isWeekendDay = false;
@@ -133,13 +151,13 @@ public class ListAssignments extends HttpServlet {
           if (Math.abs(pat0) == myID) {  //check if 'myID'
             ++shiftCounts[ns.getType()];
             ++totalShifts;
-            showNight(out, szDate + " (" + szStartTime + " - " + szEndTime + ")", (pat0 > 0), ns.getType());
+            showNight(out, szDate + " (" + szStartTime + " - " + szEndTime + ")", (pat0 > 0), ns.getType(), bgColor);
           }
         }
       }
       if (totalShifts == 0)   //did I have any assignments
       {
-        showNight(out, "No shifts were scheduled", true, -1);
+        showNight(out, "No shifts were scheduled", true, -1, WHITE_BG_COLOR);
       }
 
       patrol.close();
@@ -156,8 +174,8 @@ public class ListAssignments extends HttpServlet {
 
     }
 
-    private void showNight(PrintWriter out, String fullString, boolean ok, int shiftType) {
-      out.println("<tr><td>");
+    private void showNight(PrintWriter out, String fullString, boolean ok, int shiftType, String bgColor) {
+      out.println("<tr " + bgColor + "><td>");
       if (!ok) {
         fullString += " &lt;Shift Missed&gt;";
         out.println("  <td valign=\"middle\" BGCOLOR=\"#80ffff\" align=\"left\">");

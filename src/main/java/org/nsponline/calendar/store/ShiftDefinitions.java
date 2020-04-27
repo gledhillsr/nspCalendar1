@@ -18,14 +18,14 @@ public class ShiftDefinitions {
   //format StartTime 08:00 (text format)
   //format EndTime 08:00 (text format)
   //format Count (int)
-  public static final String tags[] = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
-  private final static int EVENT_NAME_INDEX = 0;
-  private final static int START_TIME_INDEX = 1;
-  private final static int END_TIME_INDEX = 2;
-  private final static int COUNT_INDEX = 3;
-  private final static int TYPE_INDEX = 4;
+  public static final String[] tags = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
+  private static final int EVENT_NAME_INDEX = 0;
+  private static final int START_TIME_INDEX = 1;
+  private static final int END_TIME_INDEX = 2;
+  private static final int COUNT_INDEX = 3;
+  private static final int TYPE_INDEX = 4;
 
-  private final static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+  private static final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
   public final static int MAX = 35;  //maximum # of different shifts on any single day
 
   //instance data

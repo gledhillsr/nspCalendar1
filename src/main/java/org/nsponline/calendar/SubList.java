@@ -17,7 +17,7 @@ import java.sql.ResultSet;
  * With a button to email this entire list, or links on each patrollers email address
  */
 public class SubList extends HttpServlet {
-  private final static int MIN_LOG_LEVEL = Logger.INFO;
+  private static final int MIN_LOG_LEVEL = Logger.INFO;
 
   private Logger LOG;
 
