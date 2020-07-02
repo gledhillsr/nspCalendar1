@@ -1,7 +1,6 @@
 package org.nsponline.calendar;
 
 
-import com.mysql.jdbc.StringUtils;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
@@ -12,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.ResultSet;
 import java.util.*;
+
+import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
 public class ChangeShift extends nspHttpServlet {
   private static final boolean DEBUG = false;
@@ -97,7 +98,7 @@ public class ChangeShift extends nspHttpServlet {
     } else {
       shiftInfo.newName1 = shiftInfo.newIdNumber;  //could not find name, so use number as name
     }
-    return StringUtils.isNullOrEmpty(name);
+    return isNullOrEmpty(name);
   }
 
   private void addNames(String name, ShiftInfo shiftInfo) {

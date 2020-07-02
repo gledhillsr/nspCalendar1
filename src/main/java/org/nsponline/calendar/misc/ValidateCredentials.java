@@ -1,9 +1,9 @@
 package org.nsponline.calendar.misc;
 
-import com.mysql.jdbc.StringUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
 /**
  * Look at QueryParameters 'ID', and 'resort'
@@ -67,8 +67,8 @@ public class ValidateCredentials {
   }
 
   private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData, Logger parentLog) {
-    if (StringUtils.isNullOrEmpty(resortParameter) ||
-        StringUtils.isNullOrEmpty(idParameter) ||
+    if (isNullOrEmpty(resortParameter) ||
+        isNullOrEmpty(idParameter) ||
         !PatrolData.isValidResort(resortParameter)) {
       return false;
     }

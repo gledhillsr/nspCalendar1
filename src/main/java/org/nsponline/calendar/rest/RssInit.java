@@ -193,20 +193,20 @@ public class RssInit extends HttpServlet {
 //            <enclosure url="https://sg31b0.familysearch.org/service/records/storage/das-mem/patron/v2/TH-303-38090-73-8/dist.jpg" length="1062139" type="image/jpeg" />
 //            <pubDate>Thu, 23 April 2020 12:45:32 -0600</pubDate>
 //        </item>
-        System.out.println("items=" + rssNode.path("rss").path("channel").path("items"));
+        System.out.println("new xml items=" + rssNode.path("rss").path("channel").path("items"));
         if (rssNode.path("rss").path("channel").path("items").isArray()) {
           for (JsonNode itemNode : (ArrayNode)rssNode.path("rss").path("channel").path("items")) {
-            System.out.println("item=" + itemNode.toPrettyString());
-//            Element itemElement = document.createElement("item");
-//            addElementIfExists(itemNode.path("title").asText(), "title", document, itemElement);
-//            addElementIfExists(date, "pubDate", document, itemElement);
-////            addElementIfExists(itemNode, "type", itemElement);
-////            addElementIfExists(itemNode, "size", itemElement);
-//            addElementIfExists(itemNode.path("height").asText(), "height", document, itemElement);
-//            addElementIfExists(itemNode.path("width").asText(), "width", document, itemElement);
-//            addEnclosure(document, itemElement, itemNode.path("url"), itemNode.path("size"), itemNode.path("type"));
+            System.out.println("new xml item=" + itemNode.toPrettyString());
+            Element itemElement = document.createElement("item");
+            addElementIfExists(itemNode.path("title").asText(), "title", document, itemElement);
+            addElementIfExists(date, "pubDate", document, itemElement);
+//            addElementIfExists(itemNode, "type", itemElement);
+//            addElementIfExists(itemNode, "size", itemElement);
+            addElementIfExists(itemNode.path("height").asText(), "height", document, itemElement);
+            addElementIfExists(itemNode.path("width").asText(), "width", document, itemElement);
+            addEnclosure(document, itemElement, itemNode.path("url"), itemNode.path("size"), itemNode.path("type"));
 //            itemElement.appendChild(document.createTextNode("Ancestor images from FamilySearch for " + fullName + " - " + pid));
-//            channel.appendChild(description);
+            channel.appendChild(itemElement);
           }
         }
       }
@@ -236,6 +236,7 @@ public class RssInit extends HttpServlet {
 
   private static void addEnclosure(final Document document, final Element itemElement, final JsonNode url, final JsonNode length, final JsonNode type) {
 //            <enclosure url="https://sg31b0.familysearch.org/service/records/storage/das-mem/patron/v2/TH-303-38090-73-8/dist.jpg" length="1062139" type="image/jpeg" />
+    System.out.println("addEnclosure=" + url.asText() + "  as " + "enclosure");
     Element enclosure = document.createElement("enclosure");
     Attr attr = document.createAttribute("url");
     attr.setValue(url.asText());
@@ -254,6 +255,7 @@ public class RssInit extends HttpServlet {
   }
 
   private static void addElementIfExists(String itemText, String elementName, Document document, final Element itemElement) {
+    System.out.println("addElementIfExists=" + itemText + "  as " + elementName);
     if (itemText != null && !itemText.trim().equals("")) {
       Element element = document.createElement(elementName);
       element.appendChild(document.createTextNode(itemText));

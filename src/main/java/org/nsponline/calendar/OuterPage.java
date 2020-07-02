@@ -1,6 +1,5 @@
 package org.nsponline.calendar;
 
-import com.mysql.jdbc.StringUtils;
 import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.ResortData;
 
@@ -9,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+
+import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
 /**
  * @author Steve Gledhill
@@ -40,7 +41,7 @@ public class OuterPage {
     else {
       header = readFile("resortHeader1.html");
     }
-    String userIdTag = StringUtils.isNullOrEmpty(loggedInUserId) ? "" : "&ID=" + loggedInUserId;
+    String userIdTag = isNullOrEmpty(loggedInUserId) ? "" : "&ID=" + loggedInUserId;
     String str1 = header.
         replaceAll("__RESORT_SHORT", resortData.getResortShortName()).
         replaceAll("__RESORT_LONG", resortData.getResortFullName()).
@@ -49,7 +50,7 @@ public class OuterPage {
         replaceAll("__RESORT_IMG_HEIGHT", "" + resortData.getImageHeight()).
         replaceAll("__RESORT_IMAGE", resortData.getResortImage()).
         replaceAll("__JAVA_SCRIPT", javaScript);
-    if (!StringUtils.isNullOrEmpty(loggedInUserId)) {
+    if (!isNullOrEmpty(loggedInUserId)) {
       String buttonClass = "Brighton".equals(resortData.getResortShortName()) ? "class='button'" : "";
       String logout = "<a " + buttonClass + " href='/calendar-1/Logout?resort=" + resortData.getResortShortName() + "' "
           + "target='_self'>Logout</a>";
