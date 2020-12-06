@@ -38,7 +38,7 @@ public class MonthCalendar extends nspHttpServlet {
     private java.util.Date trialTime;
     private Assignments[][] monthData;
     private HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = new HashMap<String, NewIndividualAssignment>();
-    private ShiftDefinitions[][] WeeklyShifts;
+    private ShiftDefinitions[][] PredefinedDayShifts;
     private int currYear = 0;   //not initialized
     private int currMonth = 0; //0 based month
     private int realCurrMonth = 0;
@@ -236,7 +236,7 @@ public class MonthCalendar extends nspHttpServlet {
         dayWidth = 14;
         wkEndWidth = 14;
       }
-      WeeklyShifts = new ShiftDefinitions[8][ShiftDefinitions.MAX]; //all daily shifts 1-7, 0 is not used in Calendar.Sunday
+      PredefinedDayShifts = new ShiftDefinitions[8][ShiftDefinitions.MAX]; //all daily shifts 1-7, 0 is not used in Calendar.Sunday
 //      patrol.resetShiftDefinitions();
       int lastDayOfWeekIndex = -1;
       int pos = 0;
@@ -253,7 +253,7 @@ public class MonthCalendar extends nspHttpServlet {
         lastDayOfWeekIndex = currDayOfWeekIndex;
 
         if (lastDayOfWeekIndex >= 0) {
-          WeeklyShifts[lastDayOfWeekIndex][pos] = shift;
+          PredefinedDayShifts[lastDayOfWeekIndex][pos] = shift;
         }
       }
 
@@ -425,31 +425,9 @@ public class MonthCalendar extends nspHttpServlet {
 
       out.println("</TD><TD VALIGN='Bottom' ALIGN='RIGHT'>");
       out.println("");
-      out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='1' WIDTH='100%' height='38'><TR><TD VALIGN='Bottom' ALIGN='RIGHT' NOWRAP height='34'><FONT SIZE='2' FACE='Arial, Helvetica'>");
-//insert page for previous button
-      String szPrevHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + prevMonth + "&year=" + prevYear;
-      if (notLoggedIn) {
-        szPrevHTML += "&noLogin=1";
+      if (!notLoggedIn) {
+        showPrevNextAndHomeButtons(out, resort);
       }
-      out.println("<a target='_self' href='" + szPrevHTML + "'><IMG SRC='/images/ncvwprev.gif' BORDER='0' ALT='Previous month' ALIGN='MIDDLE' width='32' height='23'></a>");
-//insert page for next button
-      String szNextHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + nextMonth + "&year=" + nextYear;
-      if (notLoggedIn) {
-        szNextHTML += "&noLogin=1";
-      }
-//    szNextHTML += idParameter;
-      out.println("<a target='_self' href='" + szNextHTML + "'><IMG SRC='/images/ncvwnext.gif' BORDER='0' ALT='Next month' ALIGN='MIDDLE' width='32' height='23'></a>");
-//home month button
-      String szCurrHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + realCurrMonth + "&year=" + realCurrYear;
-      if (notLoggedIn) {
-        szCurrHTML += "&noLogin=1";
-      }
-      out.println("<a href='" + szCurrHTML + "' Target='_self'><IMG SRC='/images/ncgohome.gif' BORDER='0' ALT='Return to " + Utils.szMonthsFull[realCurrMonth] + " " + realCurrYear + "' ALIGN='MIDDLE' width='32' height='32'></a>");
-      out.println("</FONT></TD></TR>");
-      out.println("<TR><TD VALIGN='Bottom' ALIGN='RIGHT' height='21'>");
-      out.println("");
-      out.println("</TD></TR></table>");
-      out.println("");
       out.println("</TD></TR></table>");
       out.println("");
       out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'><TR><TD><img src='/images/ncclear.gif' width='3' height='3'></TD></TR></table>");
@@ -477,6 +455,34 @@ public class MonthCalendar extends nspHttpServlet {
       out.println("<TD WIDTH='" + wkEndWidth + "%' VALIGN='TOP' HEIGHT='15' BGCOLOR='#800000'>");
       out.println("<CENTER><B><FONT face='arial,helvetica' SIZE='2' COLOR='#FFFFFF'>Saturday</FONT></B></CENTER></TD>");
       out.println("</TR>");
+    }
+
+    private void showPrevNextAndHomeButtons(PrintWriter out, String resort) {
+      out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='1' WIDTH='100%' height='38'><TR><TD VALIGN='Bottom' ALIGN='RIGHT' NOWRAP height='34'><FONT SIZE='2' FACE='Arial, Helvetica'>");
+//insert page for previous button
+      String szPrevHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + prevMonth + "&year=" + prevYear;
+      if (notLoggedIn) {
+        szPrevHTML += "&noLogin=1";
+      }
+      out.println("<a target='_self' href='" + szPrevHTML + "'><IMG SRC='/images/ncvwprev.gif' BORDER='0' ALT='Previous month' ALIGN='MIDDLE' width='32' height='23'></a>");
+//insert page for next button
+      String szNextHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + nextMonth + "&year=" + nextYear;
+      if (notLoggedIn) {
+        szNextHTML += "&noLogin=1";
+      }
+//    szNextHTML += idParameter;
+      out.println("<a target='_self' href='" + szNextHTML + "'><IMG SRC='/images/ncvwnext.gif' BORDER='0' ALT='Next month' ALIGN='MIDDLE' width='32' height='23'></a>");
+//home month button
+      String szCurrHTML = "MonthCalendar?resort=" + resort + patrollerIdTag + "&month=" + realCurrMonth + "&year=" + realCurrYear;
+      if (notLoggedIn) {
+        szCurrHTML += "&noLogin=1";
+      }
+      out.println("<a href='" + szCurrHTML + "' Target='_self'><IMG SRC='/images/ncgohome.gif' BORDER='0' ALT='Return to " + Utils.szMonthsFull[realCurrMonth] + " " + realCurrYear + "' ALIGN='MIDDLE' width='32' height='32'></a>");
+      out.println(" </FONT></TD></TR>");
+      out.println("<TR><TD VALIGN='Bottom' ALIGN='RIGHT' height='21'>");
+      out.println("");
+      out.println("</TD></TR></table>");
+      out.println("");
     }
 
     public void printEndOfPage(PrintWriter out, String resort) {
@@ -568,29 +574,22 @@ public class MonthCalendar extends nspHttpServlet {
     @SuppressWarnings({"deprecation", "Since15"})
     private void printCell(PrintWriter out, String resort, Assignments[][] data, int day, int dayOfWeek, int wid, int currMon) {
       //output DATE
-      int assignmentCount = 0;
-      int posIndex;
       dayOfWeek++; //convert to 1 based
       String eventName = null;
-      for (posIndex = 0; posIndex < ShiftDefinitions.MAX; ++posIndex) {
-        if (data[day][posIndex] == null) {
-          break;
-        }
-        ++assignmentCount;
-      }
-
+      int assignmentCount = getAssignmentCountFotTheDay(data, day);
       if (assignmentCount > 0 && data[day][0] != null) {
         eventName = data[day][0].getEventName();
       }
+// System.out.println("debug: resort=" + resort + ", day=" + day + ", dayOfWeek=" + dayOfWeek + ", eventName=[" + (eventName == null ? "" : eventName) + "], assignmentCount=" + assignmentCount);
 //define cell properties
-      if (eventName != null && eventName.length() > 1 && !eventName.equalsIgnoreCase("Closed")) {
+      if (eventName != null && eventName.length() > 1 && !"Closed".equalsIgnoreCase(eventName)) {
         out.println("<TD WIDTH='" + wid + "%' VALIGN='TOP' HEIGHT='64' BGCOLOR='#00e1e1'>");
       }
       else {
         out.println("<TD WIDTH='" + wid + "%' VALIGN='TOP' HEIGHT='64' BGCOLOR='#FFFFFF'>");
       }
 
-//        int indx = 0;
+//    int indx = 0;
 //build hyperlink tags
       String htmData = "ChangeShift?resort=" + resort + patrollerIdTag + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day +
         "&month=" + currMonth + "&year=" + currYear + "&pos=";
@@ -616,26 +615,31 @@ public class MonthCalendar extends nspHttpServlet {
         (currMon > seasonEndMonth || (currMon == seasonEndMonth && day > seasonEndDay))) {
         inSeason = false;
       }
-
+//System.out.println("  data[day][0]=" + data[day][0] + "\n  PredefinedDayShifts[dayOfWeek][0]=" + PredefinedDayShifts[dayOfWeek][0]);
       if (data[day][0] == null) {
 //no data for this day, put in a blank cells
 //System.err.println("day="+day+" htmDisplayData="+htmDisplayData);
         out.println(htmDisplayData);
-        if (WeeklyShifts[dayOfWeek][0] != null) {
-          //
-          //no data for this day, FILL OUT BLANK FORM
-          //
+        if (PredefinedDayShifts[dayOfWeek][0] != null) {
+          //does a shift exist on the calendar for today?
           if (!inSeason) {
             out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;CLOSED</font>");
+          }
+          else if ("closed".equalsIgnoreCase(eventName)) {
+//System.out.println("***** Closed ***");
+            out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;Closed</font>");
           }
           else if (blackoutDate) {
             out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;Not Yet Available</font>");
           }
           else {
+            //
+            //no data for this day, FILL OUT BLANK FORM
+            //
             out.println("<TABLE WIDTH='100%' Border='0' CELLPADDING='0' CellSpacing='0'>");
             int count = 0;
             for (int i = 0; i < ShiftDefinitions.MAX; ++i) {
-              ShiftDefinitions shift = WeeklyShifts[dayOfWeek][i];
+              ShiftDefinitions shift = PredefinedDayShifts[dayOfWeek][i];
               if (shift == null) {
                 break;
               }
@@ -651,11 +655,11 @@ public class MonthCalendar extends nspHttpServlet {
         }
 
       }
-      else if (data[day][0].getPosID(0).equals("1")) {
+      else if (data[day][0].getPosID(0).equals("1") || "Closed".equalsIgnoreCase(eventName)) {
 //special flag, we are closed this day (patroller[0] ID = 1)
         out.println(htmDisplayData);
         out.println("<font color='#FF0000' size='4'>&nbsp;&nbsp;CLOSED</font>");
-        if (eventName != null && !eventName.trim().isEmpty()) {
+        if (eventName != null && !eventName.trim().isEmpty() && !"Closed".equalsIgnoreCase(eventName)) {
           out.println("<BR><font size='2'>" + eventName + "</font>");
         }
 
@@ -693,7 +697,18 @@ public class MonthCalendar extends nspHttpServlet {
       out.println("</TD>");
     } //end printCell
 
-    //------------
+    private int getAssignmentCountFotTheDay(Assignments[][] data, int day) {
+      int assignmentCount = 0;
+      for (int posIndex = 0; posIndex < ShiftDefinitions.MAX; ++posIndex) {
+        if (data[day][posIndex] == null) {
+          break;
+        }
+        ++assignmentCount;
+      }
+      return assignmentCount;
+    }
+
+//------------
 // printName
 //------------
     public void printName(PrintWriter out, String html, int id, String time, int day,

@@ -119,7 +119,7 @@ public class MailMan {
     }
   }
 
-  //  public static void main(String[] args) throws MailManException {
+//  public static void main(String[] args) throws MailManException {
 //    if (args.length < 5) {
 //      Log.log("Invalid arguments");
 //      Log.log("java org.nspOnline.MailMan <host> <from address> <subject> <message> <recipient address>");

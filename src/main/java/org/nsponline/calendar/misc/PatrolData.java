@@ -18,18 +18,17 @@ public class PatrolData {
   private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
-  private static String MYSQL_ADDRESS = "ip-172-31-62-158.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
+  private static String MYSQL_ADDRESS = "ip-172-31-59-191.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
 
   public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
   static {
     //noinspection ConstantConditions
     if (USING_TESTING_ADDRESS) {
-      MYSQL_ADDRESS = "ip-172-31-62-143.ec2.internal";  //private ip TESTING.  must match /etc/my.cnf
+      MYSQL_ADDRESS = "ip-172-31-91-14.ec2.internal";  //private ip TESTING.  must match /etc/my.cnf
     }
   }
 
-//  private static final String MYSQL_ADDRESS = "127.0.0.1";  //local laptop.  must match /etc/my.cnf
 /* ------------------------------------------------------------------------------------------ */
 
   // ***** start back door login stuff (works with ANY resort, and does NOT send any email confirmations)*****
@@ -85,7 +84,7 @@ public class PatrolData {
     resortMap.put("Pomerelle",      new ResortData("Pomerelle", "Pomerelle", null, "http://www.pomerelle-mtn.com", "/images/PomerelleLogo.gif", IMG_HEIGHT, 80));
 //got new software    resortMap.put("PowderRidge",    new ResortData("PowderRidge", "Powder Ridge", null, "http://www.powderridgeskipatrol.com", "/images/PowderRidge.png", IMG_HEIGHT, 80));
     resortMap.put("RMSP",           new ResortData("RMSP", "Ragged Mountain", null, "http://www.rmskipatrol.com", "/images/RMSP_logo.JPG", IMG_HEIGHT, 80));
-    resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", null, "http://www.nspOnline.org", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
+ //todo   resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", null, "http://www.nspOnline.org", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
 //snobowl
 //snowbird (hosts)
     resortMap.put("Snowbowl",      new ResortData("Snowbowl", "Snowbowl", null, "http://www.snowbowlskipatrol.org", "/images/SnowBowlLogo.jpg", 80, 80));
@@ -101,7 +100,7 @@ public class PatrolData {
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", null, "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
 
-  private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+  private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
   public static final String newShiftStyle = "--New Shift Style--";
 
   // create a Mountain Standard Time time zone

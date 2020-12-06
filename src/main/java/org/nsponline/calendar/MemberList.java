@@ -6,6 +6,7 @@ import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 
 /**
@@ -35,6 +36,11 @@ public class MemberList extends nspHttpServlet {
 
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response) {
+      LOG = new Logger(MemberList.class, request, null, null, Logger.INFO);
+      LOG.logRequestParameters();
+      SessionData sessionData = new SessionData(request, out);
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList", LOG);
+
       if (credentials.hasInvalidCredentials()) {
         return;
       }
