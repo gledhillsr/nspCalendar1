@@ -127,9 +127,10 @@ public class LoginHelp extends nspHttpServlet {
       if (member != null) {
         String password = member.getPassword();
         String fullName = member.getFullName();
-        String message = fullName + "\n\nYou have requested your login information for your patrol web site.\n\n" +
+        String message = fullName + "\n\nYou have requested your login information for your resort " + resort + " on the online scheduling web site.\n\n" +
             "Your patrol ID is: " + ID + "\n" +
             "Your password is: " + password + "\n\n" +
+            "Please change this password ASAP (since it was sent in an email).\n\n" +
             "If you continue to have problems, please contact your director.\n\nThanks.";
         MailMan mail = new MailMan(sessionData.getSmtpHost(), emailAddress, fullName, sessionData);
         if (mailto(sessionData, mail, member, "Here is your password you requested", message)) {

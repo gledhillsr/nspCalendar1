@@ -83,7 +83,7 @@
         <servlet-class>org.nsponline.calendar.Directors</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>LiftEvacServlet</servlet-name>
+        <servlet-name>RefresherTrainingServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.RefresherTraining</servlet-class>
     </servlet>
     <servlet>
@@ -247,8 +247,8 @@
         <url-pattern>/Directors</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>LiftEvacServlet</servlet-name>
-        <url-pattern>/LiftEvac</url-pattern>
+        <servlet-name>RefresherTrainingServlet</servlet-name>
+        <url-pattern>/RefresherTraining</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UpdateInfoServlet</servlet-name>

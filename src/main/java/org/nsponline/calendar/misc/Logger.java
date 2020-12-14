@@ -177,12 +177,7 @@ public class Logger {
   }
 
   public void logSqlStatement(String qryString) {
-    if (qryString.contains("SELECT")) {
-      debug("sql=\"" + qryString + "\"");
-    }
-    else {
-      info("sql=\"" + qryString + "\"");
-    }
+    info("sql=\"" + qryString + "\"");
   }
 
   private void writeToLogFile(HttpServletRequest request, String msg) {

@@ -42,10 +42,11 @@ public class PatrolData {
     resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
     resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", null, "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
     resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", null, "http://www.andestowerhills.com", "/images/andes_logo.jpg", IMG_HEIGHT, 80));
+
+    resortMap.put("AntelopeButte",  new ResortData("AntelopeButte", "Antelope Butte", null, "http://www.antelopebuttefoundation.org", "/images/AntelopeButte.png", IMG_HEIGHT, 80));
+
     resortMap.put("BigHorn",        new ResortData("BigHorn", "Big Horn", "BigHornSkiPatrolDirector@gmail.com", "https://www.lodgesofthebighorns.com/", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
-
-    resortMap.put("BlackjackMountain",        new ResortData("BlackjackMountain", "Blackjack Mountain", "Skipatrol@bigsnow.com", "http://www.bigsnow.com/blackjack-mountain-snow-report", "/images/BlackjackLogo.jpg", IMG_HEIGHT, 80));
-
+    resortMap.put("BlackjackMountain", new ResortData("BlackjackMountain", "Blackjack Mountain", "Skipatrol@bigsnow.com", "http://www.bigsnow.com/blackjack-mountain-snow-report", "/images/BlackjackLogo.jpg", IMG_HEIGHT, 80));
     resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "brightonskipatrol@gmail.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
     resortMap.put("CoffeeMill",     new ResortData("CoffeeMill", "CoffeeMill", null, "https://cm-skipatrol.org/", "/images/CoffeeMillLogo.png", IMG_HEIGHT, 87));
@@ -60,7 +61,7 @@ public class PatrolData {
     resortMap.put("HylandHills",    new ResortData("HylandHills", "Hyland Hills Park", null, " https://threeriversparks.org/parks/hyland-lake-park/hyland-hills-ski-area.aspx", "/images/ThreeRivers.jpg", IMG_HEIGHT, 80));
     resortMap.put("IFNordic",       new ResortData("IFNordic", "IF Nordic", null, "", "/images/IFNordic.gif", IMG_HEIGHT, 80));
 
-    resortMap.put("IndianHeadMountain",       new ResortData("IndianHeadMountain", "IndianHead Mountain", "Skipatrol@bigsnow.com", "http://www.bigsnow.com/indianhead-mountain-snow-report", "/images/IndianHeadLogo.jpg", IMG_HEIGHT, 80));
+    resortMap.put("IndianHeadMountain", new ResortData("IndianHeadMountain", "IndianHead Mountain", "Skipatrol@bigsnow.com", "http://www.bigsnow.com/indianhead-mountain-snow-report", "/images/IndianHeadLogo.jpg", IMG_HEIGHT, 80));
 
 // EMS   resortMap.put("JacksonHole",    new ResortData("JacksonHole", "Jackson Hole Fire/EMS", null, "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
 // EMS   resortMap.put("JacksonSpecialEvents", new ResortData("JacksonSpecialEvents", "Jackson Hole Fire/EMS Special Events", null, "http://tetonwyo.org/AgencyHome.asp?dept_id=fire", "/images/JacksonHole.jpg", IMG_HEIGHT, 80));
@@ -85,6 +86,8 @@ public class PatrolData {
 //got new software    resortMap.put("PowderRidge",    new ResortData("PowderRidge", "Powder Ridge", null, "http://www.powderridgeskipatrol.com", "/images/PowderRidge.png", IMG_HEIGHT, 80));
     resortMap.put("RMSP",           new ResortData("RMSP", "Ragged Mountain", null, "http://www.rmskipatrol.com", "/images/RMSP_logo.JPG", IMG_HEIGHT, 80));
  //todo   resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", null, "http://www.nspOnline.org", "/images/NSP_logo.gif", IMG_HEIGHT, 80));
+    //fix password
+
 //snobowl
 //snowbird (hosts)
     resortMap.put("Snowbowl",      new ResortData("Snowbowl", "Snowbowl", null, "http://www.snowbowlskipatrol.org", "/images/SnowBowlLogo.jpg", 80, 80));
@@ -264,23 +267,31 @@ public class PatrolData {
     return ds;
   }
 
+  final static String READ_SHIFT_DEFINITIONS_QUERY = "SELECT * FROM `shiftdefinitions` ORDER BY `shiftdefinitions`.`EventName` ASC";
+
   public ArrayList<ShiftDefinitions> readShiftDefinitions() {
     ArrayList<ShiftDefinitions> shiftDefinitions = new ArrayList<ShiftDefinitions>();
+    StringBuilder strBuilder = new StringBuilder();
     try {
-      String qryString = "SELECT * FROM `shiftdefinitions` ORDER BY `shiftdefinitions`.`EventName` ASC";
-      LOG.logSqlStatement(qryString);
-      PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
+      strBuilder.append(".");
+      LOG.logSqlStatement(READ_SHIFT_DEFINITIONS_QUERY);
+      strBuilder.append("a");
+      PreparedStatement assignmentsStatement = connection.prepareStatement(READ_SHIFT_DEFINITIONS_QUERY);
+      strBuilder.append("b");
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
+      strBuilder.append("c");
 
       while (assignmentResults.next()) {
+        strBuilder.append("e");
         ShiftDefinitions ns = new ShiftDefinitions(LOG);
+        strBuilder.append("f");
         ns.read(assignmentResults);
-//        logger(".. NextShifts-" + ns.toString());
+        strBuilder.append("g");
         shiftDefinitions.add(ns);
       }
     }
     catch (Exception e) {
-      LOG.logException(" Error (line 279) resetting Assignments table ", e);
+      LOG.logException(" Error (PatrolData line 283 strBuilder=" + strBuilder.toString() + ") resetting Assignments table ", e);
     } //end try
     return shiftDefinitions;
   }
@@ -366,7 +377,7 @@ public class PatrolData {
     Roster member;
     String str = "SELECT * FROM roster WHERE IDNumber =" + szMemberID;
     LOG.logSqlStatement(str);
-    if (szMemberID == null || szMemberID.length() <= 3) {
+    if (szMemberID == null || !szMemberID.matches("[0-9a-z]{5,7}")) {
       LOG.error("called getMemberByID with invalid memberID=[" + szMemberID + "]");
       return null;
     }
@@ -379,30 +390,33 @@ public class PatrolData {
       member.setDirector("yes");
       return member;
     }
-    try {
-      PreparedStatement rosterStatement = connection.prepareStatement(str);
-      ResultSet rosterResults = rosterStatement.executeQuery();
-      while (rosterResults.next()) {
-        int id = rosterResults.getInt("IDNumber");
-        String str1 = id + "";
-        //noinspection Duplicates
-        if (str1.equals(szMemberID)) {
-          member = new Roster(LOG);  //"&nbsp;" is the default
-          if (fetchFullData) {
-            member.readFullFromRoster(rosterResults, "");
+    if (szMemberID.matches("[0-9]{5,6}")) {
+      try {
+        PreparedStatement rosterStatement = connection.prepareStatement(str);
+        ResultSet rosterResults = rosterStatement.executeQuery();
+        while (rosterResults.next()) {
+          int id = rosterResults.getInt("IDNumber");
+          String str1 = id + "";
+          //noinspection Duplicates
+          if (str1.equals(szMemberID)) {
+            member = new Roster(LOG);  //"&nbsp;" is the default
+            if (fetchFullData) {
+              member.readFullFromRoster(rosterResults, "");
+            }
+            else {
+              member.readPartialFromRoster(rosterResults, "");
+            }
+            return member;
           }
-          else {
-            member.readPartialFromRoster(rosterResults, "");
-          }
-          return member;
-        }
-      } //end while
+        } //end while
+      }
+      catch (Exception e) {
+        LOG.logException("caught Error in getMemberByID memberID=[" + szMemberID + "] ", e);
+        //noinspection AccessStaticViaInstance
+        Thread.currentThread().dumpStack();
+      } //end try
     }
-    catch (Exception e) {
-      LOG.logException("Error in getMemberByID memberID=[" + szMemberID + "] ", e);
-      //noinspection AccessStaticViaInstance
-      Thread.currentThread().dumpStack();
-    } //end try
+    LOG.error("called getMemberByID with invalid memberID=[" + szMemberID + "]");
     return null; //failed
   } //end getMemberByID
 
@@ -755,13 +769,13 @@ public class PatrolData {
     //SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE "2009-02-07%"
     try {
       String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE \'" + key + "\'";
-      debugOut("readNewIndividualAssignments: " + queryString);
+      infoOut("readNewIndividualAssignments: " + queryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(queryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
       while (assignmentResults.next()) {
         NewIndividualAssignment newIndividualAssignment = new NewIndividualAssignment();
         newIndividualAssignment.read(sessionData, assignmentResults);
-        debugOut(newIndividualAssignment.toString());
+//        debugOut(newIndividualAssignment.toString());
         results.put(newIndividualAssignment.getDateShiftPos(), newIndividualAssignment);
       }
     }
@@ -818,7 +832,7 @@ public class PatrolData {
       }
     }
     catch (Exception e) {
-      LOG.logException(" Error (line 821) resetting Assignments table", e);
+      LOG.logException(" Error (PatrolData line 821) resetting Assignments table", e);
     } //end try
     return monthAssignments;
   }
@@ -893,16 +907,12 @@ public class PatrolData {
     LOG.debug(msg);
   }
 
-  private void logError(String msg) {
-    LOG.error(msg);
+  private void infoOut(String msg) {
+    LOG.info(msg);
   }
 
-  private static void debugOutStatic(SessionData sessionData, String msg) {
-//    if (MIN_LOG_LEVEL == Logger.DEBUG) {
-      String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
-      HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
-      Logger.printToLogFileStatic(request, localResort, msg);
-//    }
+  private void logError(String msg) {
+    LOG.error(msg);
   }
 
   private static void logErrorStatic(SessionData sessionData, String msg) {
@@ -969,21 +979,21 @@ public class PatrolData {
         }
 
         if (validLogin) {
-          Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
+          Logger.printToLogFileStatic(sessionData.getRequest(), resort, "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
         }
         else {
-          Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "] dbPass[" + originalPassword + "]");
+          Logger.printToLogFileStatic(sessionData.getRequest(), resort, "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "]");
         }
       }
       else {
-        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "Login Failed: memberId not found [" + ID + "]");
+        Logger.printToLogFileStatic(sessionData.getRequest(), resort, "Login Failed: memberId not found [" + ID + "]");
       }
 
       c.close();
     }
     catch (Exception e) {
       out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "LoginHelp. Error connecting or reading table:" + e.getMessage());
+      Logger.printToLogFileStatic(sessionData.getRequest(), resort, "LoginHelp. Error connecting or reading table:" + e.getMessage());
     } //end try
 
     return validLogin;

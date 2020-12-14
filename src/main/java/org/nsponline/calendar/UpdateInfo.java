@@ -224,7 +224,7 @@ public class UpdateInfo extends HttpServlet {
 
         }
         catch (Exception e) {
-          LOG.logException("Error (line 225) resetting Assignments table ", e);
+          LOG.logException("Error (UpdateInfo line 227) resetting Assignments table ", e);
         } //end try
       }
     }
