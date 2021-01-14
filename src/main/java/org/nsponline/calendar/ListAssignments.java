@@ -40,7 +40,7 @@ public class ListAssignments extends HttpServlet {
       PrintWriter out;
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "ListAssignments", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;

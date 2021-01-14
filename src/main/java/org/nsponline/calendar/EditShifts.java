@@ -44,7 +44,7 @@ public class EditShifts extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
 //      System.out.println("srgDebug: EditShifts");
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar", LOG);
 //      System.out.println("srgDebug: EditShifts credentials.hasInvalidCredentials()=" + credentials.hasInvalidCredentials());
       if (credentials.hasInvalidCredentials()) {

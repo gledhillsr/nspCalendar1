@@ -1,7 +1,6 @@
 package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.nsponline.calendar.misc.*;
 import org.nsponline.calendar.store.Assignments;
@@ -95,32 +94,32 @@ public class PatrolAssignments extends HttpServlet {
 
     String sessionId = request.getHeader("Authorization");
     if (Utils.isEmpty(sessionId)) {
-      Utils.buildErrorResponse(response, 400, "Authorization header not found");
+      Utils.buildAndLogErrorResponse(response, 400, "Authorization header not found");
       return;
     }
     if (!PatrolData.isValidResort(resort)) {
-      Utils.buildErrorResponse(response, 400, "Resort not found (" + resort + ")");
+      Utils.buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + ")");
       return;
     }
     if ((year == 0) != (month == 0)) {
-      Utils.buildErrorResponse(response, 400, "Invalid 'year' (" + szYear + "), 'month' (" + szMonth+ ")");
+      Utils.buildAndLogErrorResponse(response, 400, "Invalid 'year' (" + szYear + "), 'month' (" + szMonth+ ")");
       return;
     }
 
-    SessionData sessionData = new SessionData(request, out);
+    SessionData sessionData = new SessionData(request, out, LOG);
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     Connection connection = patrol.getConnection();
     NspSession nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
       Logger.logStatic("ERROR:  Invalid Authorization (" + sessionId + ")");
-      Utils.buildErrorResponse(response, 401, "Invalid Authorization (" + sessionId + ")");
+      Utils.buildAndLogErrorResponse(response, 401, "Invalid Authorization (" + sessionId + ")");
       return;
     }
     String authenticatedUserId = nspSession.getAuthenticatedUser();
     Roster patroller = patrol.getMemberByID(authenticatedUserId);
     if (patroller == null) {
       Logger.logStatic("ERROR:  User not found (" + authenticatedUserId + ")");
-      Utils.buildErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
+      Utils.buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
       return;
     }
 

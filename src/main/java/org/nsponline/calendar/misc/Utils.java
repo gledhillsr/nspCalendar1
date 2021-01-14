@@ -3,6 +3,7 @@ package org.nsponline.calendar.misc;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -58,7 +59,15 @@ public final class Utils {
     response.getWriter().write(returnNode.toString());
   }
 
-  public static void buildErrorResponse(HttpServletResponse response, int status, String errString) {
+  public static boolean isRequestFromBot(String userAgent) {
+
+    if (!Utils.isEmpty(userAgent)) {
+      String upperUserAgent = userAgent.toUpperCase();
+      return upperUserAgent.contains("BOT") || upperUserAgent.contains("SPIDER") || upperUserAgent.contains("CRAWLER");
+    }
+    return false;  //cannot tell
+  }
+  public static void buildAndLogErrorResponse(HttpServletResponse response, int status, String errString) {
     Logger.logStatic("Response Error: " + status + ": " + errString);
     response.setStatus(status);
     response.addHeader("X-Reason", errString);

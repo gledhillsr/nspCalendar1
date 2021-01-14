@@ -34,10 +34,12 @@ public class LoginHelp extends nspHttpServlet {
 //      response.setContentType("text/html");
 //      out = response.getWriter();
 
-      sessionData = new SessionData(request, out);
+      sessionData = new SessionData(request, out, LOG);
       PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+      sessionData.clearLoggedInResort();
+      sessionData.clearLoggedInUserId();
 
-      if (PatrolData.isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
+      if (patrolData.isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
         sessionData.setLoggedInUserId(id);
         sessionData.setLoggedInResort(resort);
         if (Utils.isEmpty(szParent)) {

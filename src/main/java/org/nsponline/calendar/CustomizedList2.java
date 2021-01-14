@@ -102,7 +102,7 @@ public class CustomizedList2 extends nspHttpServlet {
     public void runner(final HttpServletRequest request, final HttpServletResponse response) {
       LOG = new Logger(CustomizedList2.class, request, null, null, Logger.INFO);
       LOG.logRequestParameters();
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;

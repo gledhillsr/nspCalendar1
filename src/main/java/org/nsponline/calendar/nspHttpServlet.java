@@ -2,13 +2,10 @@ package org.nsponline.calendar;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.ValidateCredentials;
+import org.nsponline.calendar.misc.*;
 
 abstract public class nspHttpServlet extends HttpServlet {
   public Logger LOG;
@@ -19,11 +16,25 @@ abstract public class nspHttpServlet extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     nspInit(request, response, "GET");
+    if (!PatrolData.isValidResort(resort)) {
+      Utils.buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + "). Class=" + getServletClass().getSimpleName());
+
+      return;
+    }
+    String userAgent = request.getHeader("user-agent");
+    if (Utils.isRequestFromBot(userAgent)) {
+      Utils.buildAndLogErrorResponse(response, 401, "Unauthorized agent (" + userAgent + "). Class=" + getServletClass().getSimpleName());
+      return;
+    }
     servletBody(request, response);
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     nspInit(request, response, "POST");
+    if (!PatrolData.isValidResort(resort)) {
+      Utils.buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + "). Class=" + getServletClass().getSimpleName());
+      return;
+    }
     servletBody(request, response);
   }
 
@@ -44,11 +55,16 @@ abstract public class nspHttpServlet extends HttpServlet {
 
   private void nspInit(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException{
     out = response.getWriter();
-    sessionData = new SessionData(request, out);
     resort = request.getParameter("resort");
     LOG = new Logger(getServletClass(), request, methodType, resort, Logger.INFO);
+    sessionData = new SessionData(request, out, LOG);
     credentials = new ValidateCredentials(sessionData, request, response, getParentIfBadCredentials(), LOG);
     response.setContentType("text/html");
+//    String sessionId = request.getHeader("Authorization");
+//    if (Utils.isEmpty(sessionId)) {
+//      Utils.buildErrorResponse(response, 400, "Authorization header not found");
+//      return;
+//    }
 
     LOG.logRequestParameters();
   }

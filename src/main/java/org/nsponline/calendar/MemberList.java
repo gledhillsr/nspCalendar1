@@ -38,7 +38,7 @@ public class MemberList extends nspHttpServlet {
     public void runner(final HttpServletRequest request, final HttpServletResponse response) {
       LOG = new Logger(MemberList.class, request, null, null, Logger.INFO);
       LOG.logRequestParameters();
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList", LOG);
 
       if (credentials.hasInvalidCredentials()) {

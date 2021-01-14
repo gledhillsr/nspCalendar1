@@ -59,11 +59,11 @@ public class RssInit extends HttpServlet {
       fullName = node.path("fullName").asText();
       nameCache.put(pid, fullName);
       if(Utils.isEmpty(pid)) {
-        Utils.buildErrorResponse(response, 400, "missing required field 'pid'");
+        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
         return;
       }
       if(Utils.isEmpty(fullName)) {
-        Utils.buildErrorResponse(response, 400, "missing required field 'fullName'");
+        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'fullName'");
         return;
       }
 
@@ -73,7 +73,7 @@ public class RssInit extends HttpServlet {
       File fileJson = new File(rssFeedNameJson);
       if (fileJson.exists()) {
         System.out.println("RSS feed exists for " + pid);
-        Utils.buildErrorResponse(response, 304, "RSS feed exists for " + pid);
+        Utils.buildAndLogErrorResponse(response, 304, "RSS feed exists for " + pid);
         return;
       }
       ObjectNode initNode = constructInitNode(pid, fullName);
@@ -86,7 +86,7 @@ public class RssInit extends HttpServlet {
         Utils.buildOkResponse(response, toNode(pid, fullName));
       } catch (IOException e) {
         System.out.println("An error occurred. e.getMessage=" + e.getMessage());
-        Utils.buildErrorResponse(response, 400, "Failed to create RSS feed.  Exception " + e.getMessage());
+        Utils.buildAndLogErrorResponse(response, 400, "Failed to create RSS feed.  Exception " + e.getMessage());
       }
       writeXml(pid, fullName, null);
     }

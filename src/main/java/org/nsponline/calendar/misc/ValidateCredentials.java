@@ -18,6 +18,7 @@ public class ValidateCredentials {
 
   @SuppressWarnings("FieldCanBeLocal")
   private String resortParameter;
+  private String token;
   private Logger LOG;
 
   private boolean hasInvalidCredentials;
@@ -25,6 +26,7 @@ public class ValidateCredentials {
   @SuppressWarnings("UnusedParameters")
   public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
     this.resortParameter = request.getParameter("resort");
+    this.token = request.getParameter("token");
     LOG = new Logger(this.getClass(), parentLogger, resortParameter, LOG_LEVEL);
     //  public Logger(final Class<?> aClass, final HttpServletRequest request, final String methodType, String resort, int minLogLevel) //todo 1/1/2020 srg, consider using something like
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
@@ -47,6 +49,10 @@ public class ValidateCredentials {
 
     hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resortParameter) || Utils.isEmpty(sessionData.getLoggedInUserId());
     if (hasInvalidCredentials) {
+//      if (token != null && token.isEmpty()) {
+//        LOG.error("token is empty, loggedInUserId is NOT" + parent);
+//        //todo do fix this (1/1/2021)
+//      }
       try {
         sessionData.setLoggedInResort(null);
         sessionData.setLoggedInUserId(null);

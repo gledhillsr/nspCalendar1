@@ -43,6 +43,8 @@ public class NspSession {
     this.isDirector = isDirector;
   }
 
+  final static String regexSessionId = "[0-9a-z\\-]{36}"; //todo
+
   public static NspSession read(Connection connection, String sessionId) {
     if (sessionId == null || sessionId.length() != 36) {
       return null;

@@ -2,7 +2,6 @@ package org.nsponline.calendar.rest;
 
 import java.io.*;
 import java.util.Date;
-import java.util.Scanner;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
-import org.nsponline.calendar.Download;
 import org.nsponline.calendar.misc.Logger;
 import org.nsponline.calendar.misc.Utils;
 
@@ -61,15 +59,15 @@ public class RssAddItem extends HttpServlet {
       title = node.path("title").asText();
       description = node.path("description").asText();
       if(Utils.isEmpty(pid)) {
-        Utils.buildErrorResponse(response, 400, "missing required field 'pid'");
+        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
         return;
       }
       if(Utils.isEmpty(url)) {
-        Utils.buildErrorResponse(response, 400, "missing required field 'url'");
+        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'url'");
         return;
       }
       if(Utils.isEmpty(mimeType)) {
-        Utils.buildErrorResponse(response, 400, "missing required field 'mimeType'");
+        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'mimeType'");
         return;
       }
 
@@ -80,7 +78,7 @@ public class RssAddItem extends HttpServlet {
       File rssFile = new File(rssFeedName);
       if (!rssFile.exists()) {
         System.out.println("RSS feed not found for " + pid);
-        Utils.buildErrorResponse(response, 400, "RSS feed not found for " + pid);
+        Utils.buildAndLogErrorResponse(response, 400, "RSS feed not found for " + pid);
         return;
       }
 
@@ -102,11 +100,11 @@ public class RssAddItem extends HttpServlet {
         RssInit.writeXml(pid, null, rssNode);
       } catch (FileNotFoundException e) {
         System.out.println("FileNotFoundException: " + e.getMessage());
-        Utils.buildErrorResponse(response, 400, "Error reading RSS feed for " + pid + " err=" + e.getMessage());
+        Utils.buildAndLogErrorResponse(response, 400, "Error reading RSS feed for " + pid + " err=" + e.getMessage());
         return;
       } catch (Exception e) {
         System.out.println("Exception: " + e.getMessage());
-        Utils.buildErrorResponse(response, 400, "Error writing RSS feed for " + pid + " err=" + e.getMessage());
+        Utils.buildAndLogErrorResponse(response, 400, "Error writing RSS feed for " + pid + " err=" + e.getMessage());
         return;
       }
     }

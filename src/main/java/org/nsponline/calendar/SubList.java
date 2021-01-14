@@ -19,35 +19,28 @@ import java.sql.ResultSet;
 public class SubList extends HttpServlet {
   private static final int MIN_LOG_LEVEL = Logger.INFO;
 
-  private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    LOG = new Logger(SubList.class, request, "GET", null, MIN_LOG_LEVEL);
-    LOG.logRequestParameters();
-    new InnerSubList(request, response);
+    new InnerSubList(request, response, "GET");
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    LOG = new Logger(SubList.class, request, "POST", null, MIN_LOG_LEVEL);
-    LOG.logRequestParameters();
-    try {
-      doGet(request, response);
-    }
-    catch (Exception e) {
-      LOG.error(e.getMessage());
-    }
+    new InnerSubList(request, response, "POST");
   }
 
   private class InnerSubList {
+    private Logger LOG;
     PrintWriter out;
     private String resort;
     PatrolData patrol;
-//    boolean isDirector;
 
-    InnerSubList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    InnerSubList(HttpServletRequest request, HttpServletResponse response, String requestType) throws IOException {
+      LOG = new Logger(SubList.class, request, requestType, null, MIN_LOG_LEVEL);
+      LOG.logRequestParameters();
+
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "SubList", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
@@ -55,13 +48,10 @@ public class SubList extends HttpServlet {
       //by now, sessionData.getLoggedInUserId and sessionData.getLoggedInResort are valid
       resort = sessionData.getLoggedInResort();
       String IDOfEditor = sessionData.getLoggedInUserId();
-//      isDirector = false;
+
       patrol = null;
       patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       Roster editor = patrol.getMemberByID(IDOfEditor);
-//      if (editor != null) {
-//        isDirector = editor.isDirector();
-//      }
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);

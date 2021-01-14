@@ -81,19 +81,19 @@ public class UserList extends HttpServlet {
       resort = request.getParameter("resort");
       String sessionId = request.getHeader("Authorization");
       if(Utils.isEmpty(sessionId)) {
-        Utils.buildErrorResponse(response, 400, "Authorization header not found");
+        Utils.buildAndLogErrorResponse(response, 400, "Authorization header not found");
         return;
       }
       if (!PatrolData.isValidResort(resort)) {
-        Utils.buildErrorResponse(response, 400, "Resort not found: (" + resort + ")");
+        Utils.buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
         return;
       }
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
       Connection connection = patrol.getConnection();
       NspSession nspSession = NspSession.read(connection, sessionId);
       if (nspSession == null) {
-        Utils.buildErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
+        Utils.buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
         return;
       }
 

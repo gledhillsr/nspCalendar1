@@ -11,6 +11,7 @@ import java.util.Properties;
  * @author Steve Gledhill
  */
 
+@SuppressWarnings("Since15")
 public class SessionData {
 
   private static final Boolean DEBUG = false;
@@ -44,15 +45,18 @@ public class SessionData {
   private String AWSSecretKey;
   private HttpSession session;
   private HttpServletRequest request;
+  private Logger LOG;
 
 
-  public SessionData(HttpServletRequest request, PrintWriter out) {
+  public SessionData(HttpServletRequest request, PrintWriter out, Logger LOG) {
     this.request = request;
     this.session = request.getSession();
+    this.LOG = LOG;
+    getLoggedInUserId(); //todo hack just to dump loggedInUserId
     readCredentialPropertiesFile(new Properties(), out);
   }
 
-  public SessionData(Properties properties, PrintWriter out) {  //called by DailyReminder
+  public SessionData(Properties properties, PrintWriter out) {  //called ONLY by DailyReminder (there is no http request)
     this.session = null;
     this.request = null;
     readCredentialPropertiesFile(properties, out);
@@ -170,6 +174,7 @@ public class SessionData {
 
   public String getLoggedInUserId() {
     if (session == null) {
+      debugOut("SessionData.getLoggedInUserId failed, session = null");
       return null;
     }
     String userId = (String) session.getAttribute(LOGGED_IN_USER_ID_TAG);
@@ -206,14 +211,24 @@ public class SessionData {
   private void debugOut(String msg) {
     if (DEBUG) {
       // NOSONAR
-      Logger.logStatic("DEBUG-SessionData: " + msg);
+      if (LOG != null) {
+        LOG.info("DEBUG-SessionData: " + msg);
+      }
+      else {
+        Logger.logStatic("DEBUG-SessionData: " + msg);
+      }
     }
   }
 
   private void debugVerboseOut(String msg) {
     if (DEBUG_VERBOSE) {
       // NOSONAR
-      Logger.logStatic("DEBUG_VERBOSE-SessionData: " + msg);
+      if (LOG != null) {
+        LOG.info("DEBUG_VERBOSE-SessionData: " + msg);
+      }
+      else {
+        Logger.logStatic("DEBUG_VERBOSE-SessionData: " + msg);
+      }
     }
   }
 

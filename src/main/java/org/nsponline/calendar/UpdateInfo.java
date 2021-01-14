@@ -49,7 +49,7 @@ public class UpdateInfo extends HttpServlet {
       out = response.getWriter();
       LOG = new Logger(UpdateInfo.class, request, methodType, null, Logger.INFO);
       LOG.logRequestParameters();
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
 
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "UpdateInfo", LOG);
       if (credentials.hasInvalidCredentials()) {

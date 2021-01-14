@@ -43,7 +43,7 @@ public class RefresherTraining extends nspHttpServlet {
       catch (IOException e) {
         return;
       }
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "LiftEvac", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
@@ -76,7 +76,9 @@ public class RefresherTraining extends nspHttpServlet {
       out.println("<br><br><br>Please do NOT share this link.  IT IS NOT PUBLIC INFORMATION. <br><br>Also, this link is specific to you, it will be how we track your progress!<br><br><br>");
       //Training
       out.println("<h3>Ongoing Training</h3><br>");
-      out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/0g5ap1xCpS8' target='_blank'><b>November 2020 Brighton Ski Patrol Meeting</b></a></font>");
+      out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/0g5ap1xCpS8' target='_blank'><b>November 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
+      out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/1p6wa02OVGQ' target='_blank'><b>December 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
+      out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/Vf2PrelElxY' target='_blank'><b>January 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
 
     }
   }

@@ -17,7 +17,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Date;
 
-import static org.nsponline.calendar.misc.Utils.buildErrorResponse;
+import static org.nsponline.calendar.misc.Utils.buildAndLogErrorResponse;
 
 /**
  * get an Authorization Token for the specified resort.  Given a valid userId/password
@@ -60,7 +60,7 @@ public class Login extends HttpServlet {
 
   private void doLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     PrintWriter out = response.getWriter();
-    SessionData sessionData = new SessionData(request, out);
+    SessionData sessionData = new SessionData(request, out, LOG);
     response.setContentType("application/json");
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -79,7 +79,7 @@ public class Login extends HttpServlet {
 
     String resort = request.getParameter("resort");
     if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
-      buildErrorResponse(response, 400, "Resort not found (" + resort + ")");
+      buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + ")");
       return;
     }
 
@@ -90,20 +90,20 @@ public class Login extends HttpServlet {
     String patrollerId = payload.getId();
 
     if (Utils.isEmpty(patrollerId) || Utils.isEmpty(password)) {
-      buildErrorResponse(response, 400, "Missing id or password");
-      return;
-    }
-
-    if (PatrolData.isValidLogin(out, resort, patrollerId, password, sessionData)) {   //does password match?
-      sessionData.setLoggedInUserId(patrollerId);
-      sessionData.setLoggedInResort(resort);
-    }
-    else {
-      buildErrorResponse(response, 401, "no matching id/password for resort=" + resort);
+      buildAndLogErrorResponse(response, 400, "Missing id or password");
       return;
     }
 
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    if (patrol.isValidLogin(out, resort, patrollerId, password, sessionData)) {   //does password match?
+      sessionData.setLoggedInUserId(patrollerId);
+      sessionData.setLoggedInResort(resort);
+    }
+    else {
+      buildAndLogErrorResponse(response, 401, "no matching id/password for resort=" + resort);
+      return;
+    }
+
     Roster patroller = patrol.getMemberByID(patrollerId); //ID from cookie
     boolean isDirector = patroller.isDirector();
 
@@ -124,7 +124,7 @@ public class Login extends HttpServlet {
     }
     else {
       String errMsg = (connection == null) ? "Could not get DB connection" : "Row insertion failed";
-      Utils.buildErrorResponse(response, 500, "Internal error: " + errMsg);
+      Utils.buildAndLogErrorResponse(response, 500, "Internal error: " + errMsg);
     }
     patrol.close();
   }

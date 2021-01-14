@@ -103,7 +103,7 @@ public class Download extends HttpServlet {
     private LocalDownload(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       response.setContentType("text/html");
       out = response.getWriter();
-      SessionData sessionData = new SessionData(request, out);
+      SessionData sessionData = new SessionData(request, out, LOG);
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;

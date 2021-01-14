@@ -120,16 +120,16 @@ public class Logger {
         uriRequestMsg.append(parameterNames.hasMoreElements() ? ", " : " ");
       }
       //noinspection StatementWithEmptyBody
-      if (!pathFound) {
-//        String headers = " --Headers: ";
-//        @SuppressWarnings("unchecked")
-//        Enumeration<String> headerNames = request.getHeaderNames();
-//        while (headerNames.hasMoreElements()) {
-//          String headerName = headerNames.nextElement();
-//          headers += (" " + headerName + "=\"" + request.getHeader(headerName) + "\"");
-//        }
-//        uriRequestMsg.append(headers);
-      }
+//      if (!pathFound) {
+        String headers = " --Headers: ";
+        @SuppressWarnings("unchecked")
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+          String headerName = headerNames.nextElement();
+          headers += (" " + headerName + "=\"" + request.getHeader(headerName) + "\"");
+        }
+        uriRequestMsg.append(headers);
+//      }
       uriRequestMsg.append(") ");
 //      System.out.flush();
     } catch (Exception e) {
