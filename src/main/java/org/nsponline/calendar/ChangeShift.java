@@ -15,7 +15,7 @@ import java.util.*;
 import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
 public class ChangeShift extends nspHttpServlet {
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
 
   @Override
   Class<?> getServletClass() {
@@ -370,7 +370,7 @@ public class ChangeShift extends nspHttpServlet {
       totalAssignmentGroupsForToday = 0;
       assignmentGroups = new Assignments[200];
       for (Assignments shiftAssignments : patrol.readSortedAssignments(parameters.year, parameters.month + 1, parameters.dayOfMonth)) {
-        debugOut("readData-asignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
+        debugOut("readData-assignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
         assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
       } //end while Shift ski assignments
 

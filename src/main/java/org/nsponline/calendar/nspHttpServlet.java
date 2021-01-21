@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.nsponline.calendar.misc.*;
 
 abstract public class nspHttpServlet extends HttpServlet {
+  //todo ******
+  //todo 1/20/2021  I think this routine has collision problems.  2 concurrent calls to ChangeShift could init wrong credentials
+  //todo ******
   public Logger LOG;
   public PrintWriter out;
   public ValidateCredentials credentials;
@@ -15,10 +18,10 @@ abstract public class nspHttpServlet extends HttpServlet {
   public SessionData sessionData;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
     nspInit(request, response, "GET");
     if (!PatrolData.isValidResort(resort)) {
       Utils.buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + "). Class=" + getServletClass().getSimpleName());
-
       return;
     }
     String userAgent = request.getHeader("user-agent");

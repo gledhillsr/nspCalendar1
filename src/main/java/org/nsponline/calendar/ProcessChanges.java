@@ -127,14 +127,6 @@ public class ProcessChanges extends nspHttpServlet {
       index1AsString = request.getParameter("index1");    //required 0-based
       listName = request.getParameter("listName");        //name 'selected' by radio button (can be null if 'remove' existing name)
 
-//      log(request, "ProcessChanges: submitterID=" + submitterID
-//          + ", transaction=" + transaction
-//          + ", selectedID=" + selectedID
-//          + ", szdate1=" + szdate1
-//          + ", pos1=" + pos1
-//          + ", index1=" + index1AsString
-//          + ", listName=" + listName);
-
       member1 = null;
       member2 = null;
       night1 = null;
