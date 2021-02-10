@@ -79,7 +79,10 @@ public class RefresherTraining extends nspHttpServlet {
       out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/0g5ap1xCpS8' target='_blank'><b>November 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
       out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/1p6wa02OVGQ' target='_blank'><b>December 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
       out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/Vf2PrelElxY' target='_blank'><b>January 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
+      out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/ESc3fHzvm2A' target='_blank'><b>February 2020 Brighton Ski Patrol Meeting (15 min)</b></a></font><br>");
 
+      out.println("<br>");
+      out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://www.youtube.com/watch?v=xvVSpyec5LM&feature=youtu.be' target='_blank'><b>Know Before You Go avalanche awareness refresher presented by Peter Tucker (27 min), Joey Manship (30 min), and Craig Gordon (55 min)</b></a></font><br>");
     }
   }
 }
