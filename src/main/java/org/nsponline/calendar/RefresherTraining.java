@@ -12,10 +12,7 @@ import org.nsponline.calendar.store.Roster;
  *
  *
  */
-public class RefresherTraining extends nspHttpServlet {
-  private static final int MIN_LOG_LEVEL = Logger.INFO;
-
-  private Logger LOG;
+public class RefresherTraining extends NspHttpServlet {
 
   Class<?> getServletClass() {
     return this.getClass();
@@ -25,8 +22,8 @@ public class RefresherTraining extends nspHttpServlet {
     return "LiftEvac";
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
-    new InnerRefresherTraining().runner(request, response);
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+    new InnerRefresherTraining().runner(request, response, servletData);
   }
 
   private class InnerRefresherTraining {
@@ -34,7 +31,7 @@ public class RefresherTraining extends nspHttpServlet {
     private String resort;
     PatrolData patrol;
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) {
+    public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
 
       response.setContentType("text/html");
       try {
@@ -43,8 +40,8 @@ public class RefresherTraining extends nspHttpServlet {
       catch (IOException e) {
         return;
       }
-      SessionData sessionData = new SessionData(request, out, LOG);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "LiftEvac", LOG);
+      SessionData sessionData = new SessionData(request, out, servletData.getLOG());
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "LiftEvac", servletData.getLOG());
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -53,14 +50,14 @@ public class RefresherTraining extends nspHttpServlet {
       String IDOfEditor = sessionData.getLoggedInUserId();
 
       patrol = null;
-      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
       Roster editor = patrol.getMemberByID(IDOfEditor);
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printBody(IDOfEditor);
       patrol.close(); //must close connection!
-      LOG.debug("ending LiftEvac");
+      servletData.getLOG().debug("ending LiftEvac");
       outerPage.printResortFooter(out);
     }
 

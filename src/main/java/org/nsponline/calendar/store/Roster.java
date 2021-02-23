@@ -157,7 +157,7 @@ public class Roster {
   public String[] szAssignments = new String[Assignments.MAX_SHIFT_TYPES];
 
   public Roster(Logger parentLogger) {
-    LOG = new Logger(Roster.class, parentLogger, null, Logger.INFO);
+    LOG = parentLogger; //new Logger(Roster.class, parentLogger, null, Logger.INFO);
     idNum = 0;
     for (int i = 0; i < Assignments.MAX_SHIFT_TYPES; ++i) {
       AssignmentCount[i] = 0;

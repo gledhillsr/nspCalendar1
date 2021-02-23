@@ -14,11 +14,10 @@ import static com.amazonaws.util.StringUtils.isNullOrEmpty;
  * @author Steve Gledhill
  */
 public class ValidateCredentials {
-  private static final int LOG_LEVEL = Logger.INFO;
 
   @SuppressWarnings("FieldCanBeLocal")
   private String resortParameter;
-  private String token;
+  private String token;  //new todo implement
   private Logger LOG;
 
   private boolean hasInvalidCredentials;
@@ -27,7 +26,8 @@ public class ValidateCredentials {
   public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
     this.resortParameter = request.getParameter("resort");
     this.token = request.getParameter("token");
-    LOG = new Logger(this.getClass(), parentLogger, resortParameter, LOG_LEVEL);
+//    LOG = new Logger(this.getClass(), parentLogger, resortParameter, LOG_LEVEL);
+    LOG = parentLogger;
     //  public Logger(final Class<?> aClass, final HttpServletRequest request, final String methodType, String resort, int minLogLevel) //todo 1/1/2020 srg, consider using something like
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();

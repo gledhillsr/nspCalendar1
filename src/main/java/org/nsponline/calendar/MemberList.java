@@ -6,7 +6,6 @@ import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 import java.sql.ResultSet;
 
 /**
@@ -14,10 +13,10 @@ import java.sql.ResultSet;
  * <p>
  * List all patrollers who are not marked as "inactive"
  */
-public class MemberList extends nspHttpServlet {
+public class MemberList extends NspHttpServlet {
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
-    new InnerMemberList().runner(request, response);
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+    new InnerMemberList().runner(request, response, servletData);
   }
 
   Class<?> getServletClass() {
@@ -35,11 +34,11 @@ public class MemberList extends nspHttpServlet {
     private DirectorSettings ds;
 
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) {
-      LOG = new Logger(MemberList.class, request, null, null, Logger.INFO);
-      LOG.logRequestParameters();
-      SessionData sessionData = new SessionData(request, out, LOG);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList", LOG);
+    public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+//      LOG = new Logger(MemberList.class, request, null, null, Logger.INFO);
+//      LOG.logRequestParameters();
+      SessionData sessionData = new SessionData(request, out, servletData.getLOG());
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList", servletData.getLOG());
 
       if (credentials.hasInvalidCredentials()) {
         return;
@@ -47,20 +46,20 @@ public class MemberList extends nspHttpServlet {
       //by now, sessionData.getID and sessionData.getLoggedInResort are valid
       ds = null;
       patrollerId = sessionData.getLoggedInUserId();
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-      readData(sessionData, patrollerId);
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      readData(sessionData, patrollerId, servletData);
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop();
-      int count = printBody(sessionData);
+      int count = printBody(sessionData, servletData);
       printBottom(count);
       outerPage.printResortFooter(out);
     }
 
     @SuppressWarnings("StringConcatenationInLoop")
-    private void readData(SessionData sessionData, String iDOfEditor) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    private void readData(SessionData sessionData, String iDOfEditor, ServletData servletData) {
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
       ResultSet rosterResults = patrol.resetRoster();
       ds = patrol.readDirectorSettings();
 
@@ -117,8 +116,8 @@ public class MemberList extends nspHttpServlet {
       out.println("<br>As of: " + new java.util.Date() + ",  <b>" + count + " members listed.</b>");
     }
 
-    private int printBody(SessionData sessionData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    private int printBody(SessionData sessionData, ServletData servletData) {
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
       ResultSet rosterResults = patrol.resetRoster();
       Roster member = patrol.nextMember("&nbsp;", rosterResults);
       int count = 0;

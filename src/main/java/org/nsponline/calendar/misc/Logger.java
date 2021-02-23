@@ -28,13 +28,13 @@ public class Logger {
     this.minLogLevel = minLogLevel;
   }
 
-  public Logger(final Class<?> aClass, Logger parentLogger, String resort, int minLogLevel) {
-    this(aClass,
-         parentLogger != null ? parentLogger.getRequest() : null,
-         "",
-         (resort == null && parentLogger != null) ? parentLogger.getResort() : resort,
-         minLogLevel);
-  }
+//  public Logger(final Class<?> aClass, Logger parentLogger, String resort, int minLogLevel) {
+//    this(aClass,
+//         parentLogger != null ? parentLogger.getRequest() : null,
+//         "",
+//         (resort == null && parentLogger != null) ? parentLogger.getResort() : resort,
+//         minLogLevel);
+//  }
 
   public Logger(final Class<?> aClass, final HttpServletRequest request, final String methodType, String resort, int minLogLevel) {
     this.request = request;
@@ -51,7 +51,7 @@ public class Logger {
     if (request == null) {
       if (!"DailyReminder".equals(methodType)) {
         error("Null request in Logger, parent NotYetImplemented.");  //todo 1/1/2020
-////        Thread.dumpStack();  //usually called
+        Thread.dumpStack();  //usually called
 //        at java.lang.Thread.dumpStack(Thread.java:1336)
 //        at org.nsponline.calendar.misc.Logger.<init>(Logger.java:37)
 //        at org.nsponline.calendar.misc.Logger.<init>(Logger.java:27)

@@ -10,7 +10,7 @@ import java.lang.*;
 /**
  * @author Steve Gledhill
  */
-public class CustomizedList extends nspHttpServlet {
+public class CustomizedList extends NspHttpServlet {
 
   private static final String[] szMonths = {"Error", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
@@ -23,7 +23,7 @@ public class CustomizedList extends nspHttpServlet {
     return "MonthCalendar";
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response)  {
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData)  {
     boolean isDirector;
     String IDOfPatroller;
 
@@ -34,7 +34,7 @@ public class CustomizedList extends nspHttpServlet {
 
     isDirector = false;
     IDOfPatroller = sessionData.getLoggedInUserId();
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, LOG); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
     if (IDOfPatroller != null) {
       Roster patroller = patrol.getMemberByID(IDOfPatroller); //ID from cookie
       isDirector = patroller.isDirector();

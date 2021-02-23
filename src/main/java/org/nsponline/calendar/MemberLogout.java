@@ -10,7 +10,7 @@ import java.io.IOException;
  * <p>
  * clear cookies, and push to MonthCalendar (no longer logged in)
  */
-public class MemberLogout extends nspHttpServlet {
+public class MemberLogout extends NspHttpServlet {
 
   Class<?> getServletClass() {
     return this.getClass();
@@ -20,16 +20,12 @@ public class MemberLogout extends nspHttpServlet {
     return null;
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
     sessionData.clearLoggedInResort();
     sessionData.clearLoggedInUserId();
     String newLoc = PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort;
-    debugOut("Logout sendRedirect to: " + newLoc);
+    servletData.getLOG().info("Logout sendRedirect to: " + newLoc);
     response.sendRedirect(newLoc);
-  }
-
-  private void debugOut(String str) {
-      LOG.info(str);
   }
 }
 

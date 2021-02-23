@@ -12,9 +12,10 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.TimeZone;
 
-public class ProcessChanges extends nspHttpServlet {
+@SuppressWarnings("SpellCheckingInspection")
+public class ProcessChanges extends NspHttpServlet {
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean PAUSE_ON_THIS_SCREEN = false;
+  private static final boolean PAUSE_ON_THIS_SCREEN = false;
 
   private static final int ERROR = 0;
   private static final int INSERT = 1;
@@ -47,10 +48,11 @@ public class ProcessChanges extends nspHttpServlet {
   }
 
   @Override
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-    new InnerProcessChanges().runner(request, response);
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
+    new InnerProcessChanges().runner(request, response, servletData);
     }
 
+  @SuppressWarnings("CommentedOutCode")
   private class InnerProcessChanges {
     private int date1, month1, year1, dayOfWeek0based;
 
@@ -89,7 +91,7 @@ public class ProcessChanges extends nspHttpServlet {
 
     private int transNumber;
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
 
       if (credentials.hasInvalidCredentials()) {
         return;
@@ -99,11 +101,11 @@ public class ProcessChanges extends nspHttpServlet {
 
       response.setContentType("text/html");
 
-      patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-      readParameters(request);
+      patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      readParameters(request, servletData);
       OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
-      printBody(sessionData);
+      printBody(sessionData, servletData);
       outerPage.printResortFooter(out);
       if (!PAUSE_ON_THIS_SCREEN) {
         response.sendRedirect(PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort + "&month=" + (month1 - 1) + "&year=" + year1 + "&resort=" + resort + "&ID=" + szMyID);
@@ -112,7 +114,7 @@ public class ProcessChanges extends nspHttpServlet {
 
     }
 
-    private void readParameters(HttpServletRequest request) {
+    private void readParameters(HttpServletRequest request, ServletData servletData) {
 
       // create a GregorianCalendar with the Pacific Daylight time zone
       // and the current date and time
@@ -137,7 +139,7 @@ public class ProcessChanges extends nspHttpServlet {
         out.println("<h1>Error: member " + submitterID + " not found!</h1><br>");
         return;
       }
-      LOG.info("submitter=" + submitter.getFullName() + " selectedID=" + selectedID  + " resort=" + resort + " trans=" + transaction +
+      servletData.getLOG().info("submitter=" + submitter.getFullName() + " selectedID=" + selectedID  + " resort=" + resort + " trans=" + transaction +
                  " date1=" + szdate1 + " pos1=" + pos1 + " index1=" + index1AsString + " old_name=" + listName);
       szSubmitterName = submitter.getFullName();
 
@@ -165,7 +167,7 @@ public class ProcessChanges extends nspHttpServlet {
         String today = szdate1.substring(0, szdate1.indexOf("_") + 1);
         for (ShiftDefinitions shift : patrolData.readShiftDefinitions()) {
           if (shift.parsedEventName().equals(Utils.szDays[dayOfWeek0based])) {
-            Assignments assign = new Assignments((today + cnt), shift, LOG);
+            Assignments assign = new Assignments((today + cnt), shift, servletData.getLOG());
             patrolData.writeAssignment(assign);
             if (cnt == nPos1) {
               night1 = assign;
@@ -264,7 +266,7 @@ public class ProcessChanges extends nspHttpServlet {
       out.println("on: " + Utils.szDays[dayOfWeek0based] + " " + Utils.szMonthsFull[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
 //at position: Auxiliary Patroller"
       out.println("at shift: " + szPos + "<br>");
-
+//todo this is always false
       if (transNumber == TRADE && szPos2 != null) {
         out.println("<br><br>INSERT <B>" + secondName + "</B> (" + secondID + ")<br><br>");
         out.println("on: " + Utils.szDays[dayOfWeek2] + " " + Utils.szMonthsFull[month2 - 1] + " " + date2 + ", " + year2 + "<br>");
@@ -430,14 +432,14 @@ public class ProcessChanges extends nspHttpServlet {
       }
     }
 
-    private boolean noReplacementNeeded() {
+    private boolean noReplacementNeeded(ServletData servletData) {
       String key = szdate1 + "_" + index1AsString;
       NewIndividualAssignment newIndividualAssignment = null;
       if (monthNewIndividualAssignments != null) {
         newIndividualAssignment = monthNewIndividualAssignments.get(key);
       }
       if (newIndividualAssignment == null) {
-        LOG.error("ERROR-ProcessChanges, newIndividualAssignment not found in noReplacementNeeded");
+        servletData.getLOG().error("ERROR-ProcessChanges, newIndividualAssignment not found in noReplacementNeeded");
       }
       else {
         //UPDATE
@@ -449,12 +451,7 @@ public class ProcessChanges extends nspHttpServlet {
       return false; //successful
     }
 
-    /**
-     * insert NewIndividualAssignment into table
-     *
-     * @return true if error occured
-     */
-    private boolean needsReplacement() {
+    private boolean needsReplacement(ServletData servletData) {
       String key = szdate1 + "_" + index1AsString;
       NewIndividualAssignment newIndividualAssignment = null;
       if (monthNewIndividualAssignments != null) {
@@ -463,7 +460,7 @@ public class ProcessChanges extends nspHttpServlet {
       if (newIndividualAssignment == null) {
         //INSERT (eventually this should go away) only used when assignments are duplicated
         int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo shiftType is ignored?
-        LOG.error("HACK in needsReplacement, shiftType forced to DAY SHIFT");
+        servletData.getLOG().error("HACK in needsReplacement, shiftType forced to DAY SHIFT");
         newIndividualAssignment = new NewIndividualAssignment(calendarToday.getTime(), nPos1, nIndex1AsNum, shiftType,
                                                               NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
 
@@ -495,7 +492,7 @@ public class ProcessChanges extends nspHttpServlet {
     /**
      * printBody
      */
-    public void printBody(SessionData sessionData) {
+    public void printBody(SessionData sessionData, ServletData servletData) {
 
       DisplayTransactionInformation();
       DirectorSettings ds = patrolData.readDirectorSettings();
@@ -504,11 +501,11 @@ public class ProcessChanges extends nspHttpServlet {
       if (transNumber == NO_REPLACEMENT_NEEDED) {
 //        out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
         //todo
-        err = noReplacementNeeded();
+        err = noReplacementNeeded(servletData);
       }
       else if (transNumber == NEEDS_REPLACEMENT) {
 //        out.println("<h2>Submission Failed.  This feature is Under Construction</h2>");
-        err = needsReplacement();
+        err = needsReplacement(servletData);
       }
       else if (night1 != null) {
         err = patrolData.writeAssignment(night1);
@@ -557,7 +554,7 @@ public class ProcessChanges extends nspHttpServlet {
 //          String from="SGledhill@Novell.com" ;
 //          if(!submitter.isDirector()) {
 
-        sendMailNotifications(ds, notifyPatrollers, sessionData);
+        sendMailNotifications(ds, notifyPatrollers, sessionData, servletData);
 
       } // not err in writing assignment data
 //Return to Calendar
@@ -568,19 +565,19 @@ public class ProcessChanges extends nspHttpServlet {
       out.println("<br/><br/>");
     }
 
-    private void sendMailNotifications(DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData) {
+    private void sendMailNotifications(DirectorSettings ds, boolean notifyPatrollers, SessionData sessionData, ServletData servletData) {
       String smtp = sessionData.getSmtpHost(); //"mail.gledhills.com";
       String from = sessionData.getEmailUser(); //"steve@gledhills.com";
 //Log.log("ds.getNotifyChanges()="+ds.getNotifyChanges());
       if (!ds.getNotifyChanges()) {
         //director settings say don't email on changes to calendar
-        LOG.debug("no mail sent because notify changes is 'false'");
+        servletData.getLOG().debug("no mail sent because notify changes is 'false'");
       }
       else if (submitterID.equals(sessionData.getBackDoorUser())) { //using back door login, don't send emails
-        LOG.debug("no mail being sent by the System Administrator");
+        servletData.getLOG().debug("no mail being sent by the System Administrator");
       }
       else if (resort.equalsIgnoreCase("Sample")) {
-        LOG.debug("no mail being sent for Sample resort");
+        servletData.getLOG().debug("no mail being sent for Sample resort");
       }
       else {    //hack to stop email
         MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);

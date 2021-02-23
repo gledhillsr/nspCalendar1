@@ -19,7 +19,7 @@ import java.util.*;
  * @author Steve Gledhill
  */
 @SuppressWarnings("ConstantConditions")
-public class DayShifts extends nspHttpServlet {
+public class DayShifts extends NspHttpServlet {
 
   private static final boolean DEBUG = false;
 
@@ -32,10 +32,11 @@ public class DayShifts extends nspHttpServlet {
     return null;
   }
 
-  void servletBody( HttpServletRequest request,  HttpServletResponse response) throws IOException {
-    new InnerDayShift().runner(request, response);
+  void servletBody(HttpServletRequest request, HttpServletResponse response, ServletData servletData) throws IOException {
+    new InnerDayShift().runner(request, response, servletData);
   }
 
+  @SuppressWarnings("SpellCheckingInspection")
   private class InnerDayShift {
     //ALL the following data MUST be initialized in the constructor
     private boolean isDirector;
@@ -62,7 +63,7 @@ public class DayShifts extends nspHttpServlet {
     private int rosterSize;
     private String IDOfEditor;
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+    public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -70,7 +71,7 @@ public class DayShifts extends nspHttpServlet {
       Roster editorsMemberData;
       IDOfEditor = sessionData.getLoggedInUserId();
       doAssignments = request.getParameter("doAssignments") != null;
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
       editorsMemberData = patrol.getMemberByID(IDOfEditor); //ID from cookie
 
       //noinspection SimplifiableIfStatement
@@ -81,8 +82,8 @@ public class DayShifts extends nspHttpServlet {
       }
       ArrayList<Assignments> assignmentsFromDisk = new ArrayList<Assignments>();  //INCLUDES scheduled patrollers
       ArrayList<ShiftDefinitions> parameterShifts = new ArrayList<ShiftDefinitions>();  //does not include scheduled patrollers
-      readParameters(sessionData, patrol, assignmentsFromDisk, parameterShifts);
-      processChangeRequest(request, patrol, assignmentsFromDisk, parameterShifts);
+      readParameters(sessionData, patrol, assignmentsFromDisk, parameterShifts, servletData);
+      processChangeRequest(request, patrol, assignmentsFromDisk, parameterShifts, servletData);
 
 
       if (saveShiftBtn || saveAssignmentBtn || deleteAllShiftsBtn) {
@@ -123,8 +124,6 @@ public class DayShifts extends nspHttpServlet {
 //        out.println("var idx = form.NameList.selectedIndex");
       out.println("if(count == 0) return true;");
       out.println(" return confirm('This shift has patrollers assigned to it. \\nAre you sure you want to DELETE it?')");
-//        out.println("else");
-//        out.println(" where.value=form.NameList.options[idx].text");
       out.println("}");
 
 //Insert/Replace patroller assignment
@@ -182,41 +181,41 @@ public class DayShifts extends nspHttpServlet {
       return szAssignmentDate;
     }
 
-    private void processChangeRequest(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<ShiftDefinitions> parameterShifts) {
+    private void processChangeRequest(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<ShiftDefinitions> parameterShifts, ServletData servletData) {
 //write out changes
       patrol.resetAssignments();
 //      int assignmentSize = assignmentsFromDisk.size();
       if (saveAssignmentBtn) {
-        doSaveAssignments(request, patrol, assignmentsFromDisk);
+        doSaveAssignments(request, patrol, assignmentsFromDisk, servletData);
       } else if (deleteAllShiftsBtn) {
         doDeleteAllShifts(request, patrol, assignmentsFromDisk);
       } else if (dropdownShift2 != null && !dropdownShift2.equals("") && !dropdownShift2.equals("--New Shift Style--")) {
         doInsertNewShiftFromDropDown(request, assignmentsFromDisk);
       } else if (deleteShift) {
-        doDelete1ShiftAssignment(request, patrol, assignmentsFromDisk);
+        doDelete1ShiftAssignment(request, patrol, assignmentsFromDisk, servletData);
       } else if (newShift) {
-        doAdd1NewShift(request, patrol, assignmentsFromDisk, parameterShifts);
+        doAdd1NewShift(request, patrol, assignmentsFromDisk, parameterShifts, servletData);
       } else if (saveShiftBtn) {  //pressed button at bottom on "Change Today's Shift" page, labeled "Save Shift Changes"
-        doSaveShiftAssignments(request, patrol, assignmentsFromDisk, parameterShifts);
+        doSaveShiftAssignments(request, patrol, assignmentsFromDisk, parameterShifts, servletData);
       }
       //note, nothing to process on 1st pass
     } //end processChangeRequest
 
-    private void doSaveShiftAssignments(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<ShiftDefinitions> parameterShifts) {
+    private void doSaveShiftAssignments(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<ShiftDefinitions> parameterShifts, ServletData servletData) {
       ShiftDefinitions sData;
       int assignmentSize = assignmentsFromDisk.size();
       if (parameterShifts.size() > 0) {
         //data was modified
-        saveShiftInfo(request, patrol, assignmentsFromDisk, parameterShifts);
+        saveShiftInfo(request, patrol, assignmentsFromDisk, parameterShifts, servletData);
         szOriginalName = szNameComment;
       } else {
         if (szNameComment.trim().length() == 0) {
           debugOut(request, "saveShiftBtn with no nameComment.  NOTHING to do");
         } else {
           debugOut(request, "Adding a Comment ONLY assignment (" + szNameComment + ")");
-          sData = new ShiftDefinitions(szNameComment, " ", " ", 0, Assignments.DAY_TYPE, LOG);    //shift with 0 patrollers
+          sData = new ShiftDefinitions(szNameComment, " ", " ", 0, Assignments.DAY_TYPE, servletData.getLOG());    //shift with 0 patrollers
           String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);  //2002-12-31_1  index is 1 based
-          Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
+          Assignments assignment = new Assignments(szAssignmentDate, sData, servletData.getLOG());
           assignment.setEventName(sessionData, szNameComment);
           debugOut(request, "assignmentsFromDisk.add(" + assignment + ")");
           assignmentsFromDisk.add(assignment);
@@ -225,16 +224,16 @@ public class DayShifts extends nspHttpServlet {
       }
     }
 
-    private void doAdd1NewShift(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<ShiftDefinitions> parameterShifts) {
-      insureAssignmentExists(request, patrol, assignmentsFromDisk);
+    private void doAdd1NewShift(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ArrayList<ShiftDefinitions> parameterShifts, ServletData servletData) {
+      insureAssignmentExists(request, patrol, assignmentsFromDisk, servletData);
       int assignmentSize = assignmentsFromDisk.size(); //may have changed above
-      saveShiftInfo(request, patrol, assignmentsFromDisk, parameterShifts); //????
+      saveShiftInfo(request, patrol, assignmentsFromDisk, parameterShifts, servletData); //????
       debugOut(request, "--add shift--");
-      ShiftDefinitions sData = new ShiftDefinitions(szNameComment, "start time", "end time", 1, Assignments.DAY_TYPE, LOG);
+      ShiftDefinitions sData = new ShiftDefinitions(szNameComment, "start time", "end time", 1, Assignments.DAY_TYPE, servletData.getLOG());
       //real assignmentsFromDisk existed, so add one more
       //make date field yyy-mm-dd_#
       String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1); //YYYY-MM-DD_p  where p is 1 based
-      Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
+      Assignments assignment = new Assignments(szAssignmentDate, sData, servletData.getLOG());
       debugOut(request, "adding assignment: " + assignment.toString());
       assignmentsFromDisk.add(assignment);
 
@@ -248,10 +247,10 @@ public class DayShifts extends nspHttpServlet {
       patrol.writeAssignment(assignment);
     }
 
-    private void doDelete1ShiftAssignment(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk) {
+    private void doDelete1ShiftAssignment(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ServletData servletData) {
       Assignments data;
       ShiftDefinitions sData;//DELETE
-      insureAssignmentExists(request, patrol, assignmentsFromDisk);
+      insureAssignmentExists(request, patrol, assignmentsFromDisk, servletData);
       int assignmentSize = assignmentsFromDisk.size(); //assignmentsFromDisk may have changed above
       debugOut(request, "--deleteShift:  assignmentSize(current assignmentsFromDisk on disk)=" + assignmentSize + " shiftToDelete=" + shiftToDelete);
       //note: assignmentSize is 0 if editing from template
@@ -277,11 +276,11 @@ public class DayShifts extends nspHttpServlet {
           }
           if (assignmentSize == 0) {
             //nothing left, add a place holder
-            sData = new ShiftDefinitions(szNameComment, "", "<empty>", 0, Assignments.DAY_TYPE, LOG);
+            sData = new ShiftDefinitions(szNameComment, "", "<empty>", 0, Assignments.DAY_TYPE, servletData.getLOG());
             //real assignmentsFromDisk existed, so add one more
             //make date field yyy-mm-dd_#
             String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);   //YYYY-MM-DD_p  where p is 1 based
-            Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
+            Assignments assignment = new Assignments(szAssignmentDate, sData, servletData.getLOG());
             debugOut(request, "assignmentsFromDisk.add placeholder(" + assignment + ")");
             assignmentsFromDisk.add(assignment);
             assignment.setEventName(sessionData, szNameComment);
@@ -326,12 +325,12 @@ public class DayShifts extends nspHttpServlet {
 //          response.sendRedirect(PatrolData.SERVLET_URL+"MonthCalendar?month="+month+"&year="+year+"&resort="+resort+"&ID="+IDOfEditor);
     }
 
-    private void doSaveAssignments(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> paramaterAssignments) {
+    private void doSaveAssignments(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> paramaterAssignments, ServletData servletData) {
       int i;
       Assignments data;//-----Save Mass Assignments Changes ----------------------------------------
       String param, name;
       int j;
-      insureAssignmentExists(request, patrol, paramaterAssignments);
+      insureAssignmentExists(request, patrol, paramaterAssignments, servletData);
       int assignmentSize = paramaterAssignments.size(); //may have changed above
       debugOut(request, "===assignmentSize = (" + assignmentSize + ")");
       //get shift=i,pos=j, and name=name
@@ -374,7 +373,7 @@ public class DayShifts extends nspHttpServlet {
 
     private void saveShiftInfo(HttpServletRequest request, PatrolData patrol,
                                @SuppressWarnings("UnusedParameters") ArrayList<Assignments> assignmentsFromDisk, //includes scheduled patrollers
-                               ArrayList<ShiftDefinitions> parameterShifts) {  //does not include scheduled patrollers
+                               ArrayList<ShiftDefinitions> parameterShifts, ServletData servletData) {  //does not include scheduled patrollers
       int assignmentSize = assignmentsFromDisk.size();
       debugOut(request, "---- DayShifts.saveShiftInfo(assignmentSize(fromDisk)=" + assignmentSize + ", shiftCount(fromArgs)=" + parameterShifts.size() + ")-Data was modified, selectedShift=" + selectedShift + ", szNameComment=(" + szNameComment + ")");
       int shiftIndex;
@@ -390,7 +389,7 @@ public class DayShifts extends nspHttpServlet {
 //        else {
 //          szAssignmentDate = GetTodaysAssignmentString(shiftIndex + 1);
 //        }
-        assignment = new Assignments(szAssignmentDate, sh, LOG);
+        assignment = new Assignments(szAssignmentDate, sh, servletData.getLOG());
         assignment.setEventName(sessionData, szNameComment);
 //        Assignments old = patrol.readAssignment(assignment.getDate());
 //        debugOut("ZZZZZZZ HACK TO REMOVE, old=" + ((old == null) ? "null" : old.toString()));
@@ -404,7 +403,7 @@ public class DayShifts extends nspHttpServlet {
       }
     }
 
-    private void insureAssignmentExists(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk) {
+    private void insureAssignmentExists(HttpServletRequest request, PatrolData patrol, ArrayList<Assignments> assignmentsFromDisk, ServletData servletData) {
       int assignmentSize = assignmentsFromDisk.size();
       debugOut(request, "****in insureAssignmentExists, initial assignmentSize = (" + assignmentSize + ")");
       if (assignmentSize > 0) {
@@ -425,7 +424,7 @@ public class DayShifts extends nspHttpServlet {
       for (ShiftDefinitions sData : shiftsTemplates) {
         if (selectedShift.equals(sData.parsedEventName())) {
           String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);   //1 based, so increment first
-          Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
+          Assignments assignment = new Assignments(szAssignmentDate, sData, servletData.getLOG());
           assignment.setEventName(sessionData, name);
           debugOut(request, "assignmentsFromDisk.add(" + assignment + ")");
           assignmentsFromDisk.add(assignment);
@@ -437,7 +436,7 @@ public class DayShifts extends nspHttpServlet {
 
     private void readParameters(SessionData sessionData, PatrolData patrol,
                                 ArrayList<Assignments> assignmentsFromDisk,
-                                ArrayList<ShiftDefinitions> parameterShifts) {
+                                ArrayList<ShiftDefinitions> parameterShifts, ServletData servletData) {
       int i;
       HttpServletRequest request = sessionData.getRequest();
 //this is a little complicated, but there are 5 states we can enter into
@@ -600,7 +599,7 @@ public class DayShifts extends nspHttpServlet {
         int tType = Assignments.getTypeID(sessionData, tShift);
 
         debugOut(request, "shift(" + i + ") '" + tStart + "', '" + tEnd + "', cnt=" + tCount + ", " + Assignments.getShiftName(tType));
-        parameterShifts.add(new ShiftDefinitions(szNameComment, tStart, tEnd, tCnt, tType, LOG));
+        parameterShifts.add(new ShiftDefinitions(szNameComment, tStart, tEnd, tCnt, tType, servletData.getLOG()));
       } //end shifts from arguments
 
       debugOut(request, "deleteShift=" + deleteShift + ", shiftToDelete=" + shiftToDelete);

@@ -15,14 +15,14 @@ import java.io.PrintWriter;
  *         2) if valid, go to parent page
  *         3) else display login help screen
  */
-public class LoginHelp extends nspHttpServlet {
+public class LoginHelp extends NspHttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG = true;
   @SuppressWarnings("FieldCanBeLocal")
   private static boolean DEBUG_SENSITIVE = true;
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
 
 //      PrintWriter out;
       String szParent;
@@ -34,8 +34,8 @@ public class LoginHelp extends nspHttpServlet {
 //      response.setContentType("text/html");
 //      out = response.getWriter();
 
-      sessionData = new SessionData(request, out, LOG);
-      PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+      sessionData = new SessionData(request, out, servletData.getLOG());
+      PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
       sessionData.clearLoggedInResort();
       sessionData.clearLoggedInUserId();
 

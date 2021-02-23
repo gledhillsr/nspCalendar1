@@ -14,7 +14,7 @@ import java.util.*;
 
 import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
-public class ChangeShift extends nspHttpServlet {
+public class ChangeShift extends NspHttpServlet {
   private static final boolean DEBUG = true;
 
   @Override
@@ -30,23 +30,22 @@ public class ChangeShift extends nspHttpServlet {
   }
 
   @Override
-  public void servletBody(HttpServletRequest request, HttpServletResponse response) {
-
+  public void servletBody(HttpServletRequest request, HttpServletResponse response, ServletData servletData) {
     if (credentials.hasInvalidCredentials()) {
       return;
     }
 
 
-    Parameters parameters = new Parameters(request);
+    Parameters parameters = new Parameters(request, servletData);
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
-    ShiftInfo shiftInfo = readData(sessionData, patrol, parameters);
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
+    ShiftInfo shiftInfo = readData(sessionData, patrol, parameters, servletData);
 
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", shiftInfo.loggedInUserId);
     outerPage.printResortHeader(out);
     printTop(parameters);
-    printMiddle(patrol, shiftInfo.loggedInUserId, parameters, shiftInfo);
-    printBottom(shiftInfo.loggedInUserId, parameters, shiftInfo);
+    printMiddle(patrol, shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
+    printBottom(shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
     outerPage.printResortFooter(out);
     patrol.close();
   }
@@ -112,7 +111,7 @@ public class ChangeShift extends nspHttpServlet {
     }
   } //addnames
 
-  private boolean findIfPositionWasEmpty(Parameters parameters, PatrolData patrol, ShiftInfo shiftInfo) {
+  private boolean findIfPositionWasEmpty(Parameters parameters, PatrolData patrol, ShiftInfo shiftInfo, ServletData servletData) {
     boolean posWasEmpty = true;
     for (int assignmentGroup = 0; assignmentGroup < shiftInfo.totalAssignmentGroupsForToday; ++assignmentGroup) {
       for (int offsetWithinGroup = 0; offsetWithinGroup < shiftInfo.assignmentGroups[assignmentGroup].getCount(); ++offsetWithinGroup) {
@@ -121,7 +120,7 @@ public class ChangeShift extends nspHttpServlet {
           id = id.substring(1);
         }
         if ((assignmentGroup + 1) == parameters.pos && offsetWithinGroup == parameters.index) {
-          debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
+          debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup, servletData);
           posWasEmpty = isThisPositionEmpty(id, patrol, shiftInfo);
         }
       }
@@ -129,10 +128,10 @@ public class ChangeShift extends nspHttpServlet {
     return posWasEmpty;
   }
 
-  private void printMiddle(PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo) {
+  private void printMiddle(PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
     int visibleRadioButtons = 0;
 
-    boolean posWasEmpty = findIfPositionWasEmpty(parameters, patrol, shiftInfo);
+    boolean posWasEmpty = findIfPositionWasEmpty(parameters, patrol, shiftInfo, servletData);
 
     String nextURL = "ProcessChanges";
     out.print("<form target='_self' action=" + nextURL + " method=POST id=form02 name=form02>\n");
@@ -147,7 +146,7 @@ public class ChangeShift extends nspHttpServlet {
                + ", myName=" + shiftInfo.myName
                + ", posWasEmpty=" + posWasEmpty
                + ", allowEditing=" + shiftInfo.allowEditing
-               + ",  editingMyself=" + editingMyself);
+               + ",  editingMyself=" + editingMyself, servletData);
     if (shiftInfo.allowEditing && shiftInfo.myName != null) {
       //==INSERT== only used if position is empty
       if (posWasEmpty) {
@@ -235,13 +234,13 @@ public class ChangeShift extends nspHttpServlet {
     }
   }
 
-  private void printBottom(String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo) {
+  private void printBottom(String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
     out.println("</table>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"submitterID\" VALUE=\"" + loggedInUserId + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + parameters.pos + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"index1\" VALUE=\"" + parameters.index + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + shiftInfo.newIdNumber + "\">");
-    debugOut("printBottom, submitterID=");
+    debugOut("printBottom, submitterID=", servletData);
     String strDate = parameters.buildDateAndPosString();   //in the data base, pos is 1 based
 
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">");
@@ -254,15 +253,15 @@ public class ChangeShift extends nspHttpServlet {
     out.println("<H5>" + PatrolData.getResortFullName(resort) + " Ski Resort</H5>");
   } //end printBottom()
 
-  public ShiftInfo readData(SessionData sessionData, PatrolData patrol, Parameters parameters) {
+  public ShiftInfo readData(SessionData sessionData, PatrolData patrol, Parameters parameters, ServletData servletData) {
     String loggedInUserId = sessionData.getLoggedInUserId();
 
-    return new ShiftInfo(loggedInUserId, patrol, parameters);
+    return new ShiftInfo(loggedInUserId, patrol, parameters, servletData);
   } //end of readdata
 
-  private void debugOut(String msg) {
+  private void debugOut(String msg, ServletData servletData) {
     if (DEBUG) {
-      LOG.debug("ChangeShift: " + msg);
+      servletData.getLOG().debug("ChangeShift: " + msg);
     }
   }
 
@@ -274,7 +273,7 @@ public class ChangeShift extends nspHttpServlet {
     int pos;        //
     int index;      //
 
-    Parameters(HttpServletRequest request) {
+    Parameters(HttpServletRequest request, ServletData servletData) {
       String szDayOfWeek = request.getParameter("dayOfWeek"); //Sunday (=0), Monday, Tuesday, etc.
       String szDate = request.getParameter("date");
       String szMonth = request.getParameter("month"); //0 based
@@ -289,14 +288,14 @@ public class ChangeShift extends nspHttpServlet {
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
+        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index, servletData);
       } catch (NumberFormatException ex) {
         dayOfWeek = 7;
         dayOfMonth = 1;
         month = 1;
         year = 2020;
         pos = 1;
-        debugOut("ERROR, numeric processing exception, using default values");
+        debugOut("ERROR, numeric processing exception, using default values", servletData);
       }   //err
     } //end readParameterDate
 
@@ -332,7 +331,7 @@ public class ChangeShift extends nspHttpServlet {
     Hashtable<String, String> numToName;
 
 
-    ShiftInfo(String loggedInUserId, PatrolData patrol, Parameters parameters) {
+    ShiftInfo(String loggedInUserId, PatrolData patrol, Parameters parameters, ServletData servletData) {
       this.loggedInUserId = loggedInUserId;
       loggedInMember = patrol.getMemberByID(loggedInUserId);
       newName = "";
@@ -370,7 +369,7 @@ public class ChangeShift extends nspHttpServlet {
       totalAssignmentGroupsForToday = 0;
       assignmentGroups = new Assignments[200];
       for (Assignments shiftAssignments : patrol.readSortedAssignments(parameters.year, parameters.month + 1, parameters.dayOfMonth)) {
-        debugOut("readData-assignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
+        debugOut("readData-assignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments, servletData);
         assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
       } //end while Shift ski assignments
 

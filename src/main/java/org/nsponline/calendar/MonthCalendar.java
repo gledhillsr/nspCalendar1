@@ -15,7 +15,7 @@ import java.util.*;
  *         <p/>
  *         display a 1 month calendar
  */
-public class MonthCalendar extends nspHttpServlet {
+public class MonthCalendar extends NspHttpServlet {
   private static final boolean DEBUG = false;
   private static final int[] iDaysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -29,8 +29,8 @@ public class MonthCalendar extends nspHttpServlet {
   }
 
   @Override
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
-    new InnerMonthCalendar().runner(request, response);
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+    new InnerMonthCalendar().runner(request, response, servletData);
     }
 
   private class InnerMonthCalendar {
@@ -67,7 +67,7 @@ public class MonthCalendar extends nspHttpServlet {
     private String patrollerIdTag;
 
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) {
+    public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
 
       String szMonth;
       String szYear;
@@ -131,7 +131,7 @@ public class MonthCalendar extends nspHttpServlet {
         return;
       }
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
 
@@ -139,10 +139,10 @@ public class MonthCalendar extends nspHttpServlet {
 
       monthData = new Assignments[32][ShiftDefinitions.MAX + 5]; //all shifts for all days in 1 month
       getPrevNextDateInfo(); //reset calendar to 1st of month
-      readData(out, resort, sessionData);
+      readData(out, resort, sessionData, servletData);
 
       printTopOfPage(out, resort);
-      printCalendarDays(out, resort);
+      printCalendarDays(out, resort, servletData);
       printEndOfPage(out, resort);
       outerPage.printResortFooter(out);
     }
@@ -193,9 +193,9 @@ public class MonthCalendar extends nspHttpServlet {
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void readData(PrintWriter out, String resort, SessionData sessionData) {
+    private void readData(PrintWriter out, String resort, SessionData sessionData, ServletData servletData) {
       Roster member;
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
       ResultSet rosterResults = patrol.resetRoster();
       directorSettings = patrol.readDirectorSettings();
       while ((member = patrol.nextMember("", rosterResults)) != null) {
@@ -533,7 +533,7 @@ public class MonthCalendar extends nspHttpServlet {
       out.println("</FORM>");
     }
 
-    private void printCalendarDays(PrintWriter out, String resort) {
+    private void printCalendarDays(PrintWriter out, String resort, ServletData servletData) {
       int currDay = 2 - calendar.get(Calendar.DAY_OF_WEEK);
       int month = calendar.get(Calendar.MONTH); //0 based
       int daysInMonth = iDaysInMonth[month];
@@ -556,7 +556,7 @@ public class MonthCalendar extends nspHttpServlet {
             wid = dayWidth;
           }
           if (currDay > 0 && currDay <= daysInMonth) {
-            printCell(out, resort, monthData, currDay, dayOfWeek, wid, month + 1);
+            printCell(out, resort, monthData, currDay, dayOfWeek, wid, month + 1, servletData);
           }
           else {
             blankCell(out, wid);
@@ -572,7 +572,7 @@ public class MonthCalendar extends nspHttpServlet {
     }
 
     @SuppressWarnings({"deprecation", "Since15"})
-    private void printCell(PrintWriter out, String resort, Assignments[][] data, int day, int dayOfWeek, int wid, int currMon) {
+    private void printCell(PrintWriter out, String resort, Assignments[][] data, int day, int dayOfWeek, int wid, int currMon, ServletData servletData) {
       //output DATE
       dayOfWeek++; //convert to 1 based
       String eventName = null;
@@ -644,7 +644,7 @@ public class MonthCalendar extends nspHttpServlet {
                 break;
               }
               for (int j = 0; j < shift.getCount() && !notLoggedIn; ++j) {
-                printName(out, htmData + ((i + 1) + "&index=" + j), 0, shift.getStartString(), day, dayOfWeek, count++, i + 1, j, resort);
+                printName(out, htmData + ((i + 1) + "&index=" + j), 0, shift.getStartString(), day, dayOfWeek, count++, i + 1, j, resort, servletData);
               }
             }
             out.println("</table>");
@@ -685,10 +685,10 @@ public class MonthCalendar extends nspHttpServlet {
             String szTmp = data[day][i].getPosID(j);   //get Assignement positions still limit 0-9
             try {
               int id = Integer.parseInt(szTmp);
-              printName(out, htmData + ((i + 1) + "&index=" + j), id, time, day, dayOfWeek, posCount++, i + 1, j, resort);
+              printName(out, htmData + ((i + 1) + "&index=" + j), id, time, day, dayOfWeek, posCount++, i + 1, j, resort, servletData);
             }
             catch (Exception e) {
-              LOG.logException("Error, bad data for data[" + day + "][" + i + "].getPosID(" + j + ") = (" + szTmp + ")", e);
+              servletData.getLOG().logException("Error, bad data for data[" + day + "][" + i + "].getPosID(" + j + ") = (" + szTmp + ")", e);
             }
           }
         }
@@ -712,7 +712,7 @@ public class MonthCalendar extends nspHttpServlet {
 // printName
 //------------
     public void printName(PrintWriter out, String html, int id, String time, int day,
-                          int dayOfWeek, int posIndex, int pos, int idx, String resort) {
+                          int dayOfWeek, int posIndex, int pos, int idx, String resort, ServletData servletData) {
       String QuickTip;
       String szName;
       boolean missed = false;
@@ -799,7 +799,7 @@ public class MonthCalendar extends nspHttpServlet {
           NewIndividualAssignment newIndividualAssignment = monthNewIndividualAssignments.get(key);
           if (newIndividualAssignment != null) {
 //System.out.print("key=" + key + ", needs replacement=" + newIndividualAssignment.getNeedsReplacement());
-            int foundId = cvtToInt(newIndividualAssignment.getPatrollerId());
+            int foundId = cvtToInt(newIndividualAssignment.getPatrollerId(), servletData);
 //Log.log(" current id=" + id + ", id from new table="+ foundId);
             if (foundId != id) {
 //Log.log("ERROR with newIndividualAssignment id did not match current ID");
@@ -819,7 +819,7 @@ public class MonthCalendar extends nspHttpServlet {
       }
     }
 
-    int cvtToInt(String strNum) {
+    int cvtToInt(String strNum, ServletData servletData) {
       int num = 6; //bogus invalid font point size
       try {
         if (strNum != null) {
@@ -827,7 +827,7 @@ public class MonthCalendar extends nspHttpServlet {
         }
       }
       catch (Exception e) {
-        LOG.logException("cvtToInt failed to parse: " + strNum, e);
+        servletData.getLOG().logException("cvtToInt failed to parse: " + strNum, e);
       }
       return num;
     }

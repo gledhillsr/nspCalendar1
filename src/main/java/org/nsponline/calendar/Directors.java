@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 /*
  * @author Steve Gledhill
  */
-public class Directors extends nspHttpServlet {
+public class Directors extends NspHttpServlet {
 
   Class<?> getServletClass() {
     return this.getClass();
@@ -21,8 +21,8 @@ public class Directors extends nspHttpServlet {
     return "Directors";
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
-    new InnerDirector().runner(request, response);
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+    new InnerDirector().runner(servletData);
   }
 
   private class InnerDirector {
@@ -33,13 +33,13 @@ public class Directors extends nspHttpServlet {
     private int rosterSize;
 
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) {
+    public void runner(ServletData servletData) {
       if (credentials.hasInvalidCredentials()) {
         return;
       }
       patrollerId = sessionData.getLoggedInUserId();    //editor's ID
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-      int found = readData(patrollerId, sessionData); //to get director (ID from cookie)
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      int found = readData(patrollerId, sessionData, servletData); //to get director (ID from cookie)
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
 
@@ -54,8 +54,8 @@ public class Directors extends nspHttpServlet {
       outerPage.printResortFooter(out);
     }
 
-    public int readData(String readID, SessionData sessionData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    public int readData(String readID, SessionData sessionData, ServletData servletData) {
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
       ResultSet rosterResults = patrol.resetRoster();
 
       sortedRoster = new String[400];

@@ -11,7 +11,8 @@ import java.io.PrintWriter;
  * <p>
  * login through my web client
  */
-public class MemberLogin extends nspHttpServlet {
+@SuppressWarnings("SpellCheckingInspection")
+public class MemberLogin extends NspHttpServlet {
 
   Class<?> getServletClass() {
     return this.getClass();
@@ -21,12 +22,12 @@ public class MemberLogin extends nspHttpServlet {
     return null;
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
     String szParent;
     szParent = request.getParameter("NSPgoto");
-    debugOut("resort=" + resort + ", szParent=" + szParent);
+    debugOut("resort=" + resort + ", szParent=" + szParent, servletData);
     if (Utils.isEmpty(szParent)) {
-      debugOut("ERROR, szParent was not specified");
+      debugOut("ERROR, szParent was not specified", servletData);
       szParent = "MonthCalendar";
     }
     if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
@@ -35,7 +36,7 @@ public class MemberLogin extends nspHttpServlet {
                     "description of what you did to see this error. and I will fix it ASAP!!!");
       return;
     }
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
 
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
 
@@ -115,7 +116,7 @@ public class MemberLogin extends nspHttpServlet {
     out.println("</table>");
   }
 
-  private void debugOut(String str) {
-      LOG.debug(str);
+  private void debugOut(String str, ServletData servletData) {
+      servletData.getLOG().debug(str);
   }
 }

@@ -16,9 +16,10 @@ import java.util.Vector;
 /**
  * @author Steve Gledhill
  */
-public class EmailForm extends nspHttpServlet {
+@SuppressWarnings("SpellCheckingInspection")
+public class EmailForm extends NspHttpServlet {
 
-  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
+//  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
 
   @Override
@@ -30,10 +31,11 @@ public class EmailForm extends nspHttpServlet {
     return null;
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
-    new InnerEmailForm().runner(request, response);
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+    new InnerEmailForm().runner(request, servletData);
   }
 
+  @SuppressWarnings("CommentedOutCode")
   private class InnerEmailForm {
 
     private static final String fallback_from = "steve@gledhills.com";
@@ -79,7 +81,7 @@ public class EmailForm extends nspHttpServlet {
     private boolean messageIsUnique;
     private String fullPatrolName;
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) {
+    public void runner(final HttpServletRequest request, ServletData servletData) {
 
       if (credentials.hasInvalidCredentials()) {
         return;
@@ -88,20 +90,20 @@ public class EmailForm extends nspHttpServlet {
       final String szMyID = sessionData.getLoggedInUserId();
       resort = sessionData.getLoggedInResort();
       if (szMyID != null) {
-        readData(request);
-        BuildLists(szMyID, sessionData);
+        readData(request, servletData);
+        BuildLists(szMyID, sessionData, servletData);
       }
 
       String Submit = request.getParameter("Submit");
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       printTop(out, Submit);
       if (Submit != null) {
-        LOG.debug("resort " + resort + ", sending emails");
-        SendEmails(request, szMyID, sessionData);
+        servletData.getLOG().debug("resort " + resort + ", sending emails");
+        SendEmails(request, szMyID, sessionData, servletData);
       } else {
         printMiddle(out, resort, szMyID);
       }
@@ -258,11 +260,7 @@ public class EmailForm extends nspHttpServlet {
       return newMessage;
     }
 
-    /**
-     * @param request servletRequest from doPost
-     * @param szMyID  patroller id of patroller sending the email
-     */
-    private void SendEmails(HttpServletRequest request, String szMyID, SessionData sessionData) {
+    private void SendEmails(HttpServletRequest request, String szMyID, SessionData sessionData, ServletData servletData) {
       String newMessage;
 
       if (!readEmailData(request, szMyID, sessionData)) {
@@ -289,7 +287,7 @@ public class EmailForm extends nspHttpServlet {
           } else {
 //          mailTo2(fromEmailAddress, member, subject, newMessage);
             log("77777777777");
-            mailto(sessionData, mailMan, member, subject, newMessage);
+            mailto(sessionData, mailMan, member, subject, newMessage, servletData);
           }
         }
       }
@@ -323,10 +321,10 @@ public class EmailForm extends nspHttpServlet {
       return new String(foo);
     }
 
-    private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message) {
+    private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message, ServletData servletData) {
       String recipient = mbr.getEmailAddress();
       if (Utils.isValidEmailAddress(recipient)) {
-        LOG.debug("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
+        servletData.getLOG().debug("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
         mail.sendMessage(sessionData, subject, message, recipient);
       }
     } //end mailto
@@ -447,17 +445,7 @@ public class EmailForm extends nspHttpServlet {
       out.println("<br/><br/>");
     }
 
-
-    /**
-     * read data passes in the http request
-     *
-     * @param request httprequest parameters are:
-     *                classification: "BAS","INA","SR","SRA","ALM","PRO","AUX","TRA","CAN"
-     *                commitment:     "fulltime", "PartTime", "Inactive"
-     *                Instructor:     "ALL", ListDirector", "OEC" "CPR", "Ski", "Toboggan"
-     */
-    private void readData(HttpServletRequest request) {
-
+    private void readData(HttpServletRequest request, ServletData servletData) {
       String str = request.getParameter("EveryBody");
       if (str != null) {
         EveryBody = true;
@@ -531,7 +519,7 @@ public class EmailForm extends nspHttpServlet {
       if (request.getParameter("Inactive") != null) {
         commitmentToDisplay += 1;
       }
-      LOG.debug("commitmentToDisplay= " + commitmentToDisplay);
+      servletData.getLOG().debug("commitmentToDisplay= " + commitmentToDisplay);
 
 //instructor/director flags
       listDirector = false;
@@ -555,7 +543,7 @@ public class EmailForm extends nspHttpServlet {
       if (request.getParameter("Toboggan") != null) {
         instructorFlags += 8;
       }
-      LOG.debug("listAll= " + listAll + ", ListDirector= " + listDirector + ", instructorFlags= " + instructorFlags);
+      servletData.getLOG().debug("listAll= " + listAll + ", ListDirector= " + listDirector + ", instructorFlags= " + instructorFlags);
 
     }
 
@@ -627,13 +615,13 @@ public class EmailForm extends nspHttpServlet {
           num = Integer.parseInt(strNum);
         }
       } catch (Exception e) {
-        num = 0;
+        //num = 0;
       }
       return num;
     }
 
-    private void BuildLists(@SuppressWarnings("unused") String IDOfEditor, SessionData sessionData) {
-      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    private void BuildLists(@SuppressWarnings("unused") String IDOfEditor, SessionData sessionData, ServletData servletData) {
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
 
       readAssignments(patrol); //must read ASSIGNMENT data for other code to work
 

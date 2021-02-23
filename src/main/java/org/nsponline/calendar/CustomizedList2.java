@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.util.*;
 
 
-public class CustomizedList2 extends nspHttpServlet {
+public class CustomizedList2 extends NspHttpServlet {
 
   private static final boolean DEBUG = false;    //-----------
 
@@ -25,8 +25,8 @@ public class CustomizedList2 extends nspHttpServlet {
     return null;
   }
 
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response) {
-    new InnerCustomizedList2().runner(request, response);
+  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+    new InnerCustomizedList2().runner(request, response, servletData);
   }
 
   private class InnerCustomizedList2 {
@@ -99,11 +99,11 @@ public class CustomizedList2 extends nspHttpServlet {
     public InnerCustomizedList2() {
     }
 
-    public void runner(final HttpServletRequest request, final HttpServletResponse response) {
-      LOG = new Logger(CustomizedList2.class, request, null, null, Logger.INFO);
-      LOG.logRequestParameters();
-      SessionData sessionData = new SessionData(request, out, LOG);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2", LOG);
+    public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
+//      LOG = new Logger(CustomizedList2.class, request, null, null, Logger.INFO);
+//      LOG.logRequestParameters();
+      SessionData sessionData = new SessionData(request, out, servletData.getLOG());
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2", servletData.getLOG());
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -111,13 +111,13 @@ public class CustomizedList2 extends nspHttpServlet {
 
       directorSettings = null;
       szMyID = sessionData.getLoggedInUserId();
-      readData(request, szMyID, sessionData);
+      readData(request, szMyID, sessionData, servletData);
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
       patrollersListed = 0;
 
-      printTop();
+      printTop(servletData);
       if (PatrolData.isValidResort(resort)) {
         printBody();
       }
@@ -167,7 +167,7 @@ public class CustomizedList2 extends nspHttpServlet {
       debugOut("MinDays=" + minDays);
     }
 
-    private void readData(HttpServletRequest request, String IDOfEditor, SessionData sessionData) {
+    private void readData(HttpServletRequest request, String IDOfEditor, SessionData sessionData, ServletData servletData) {
       firstNameFirst = true;
       String szName = request.getParameter("NAME");
       if (szName != null && szName.equals("LAST")) {
@@ -272,7 +272,7 @@ public class CustomizedList2 extends nspHttpServlet {
         instructorFlags += 8;
       }
 
-      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
 
       //read assignments within a range and get shift count
       readAssignments(patrol); //must read for other code to work
@@ -387,8 +387,9 @@ public class CustomizedList2 extends nspHttpServlet {
 
     /**
      * printTop
+     * @param servletData
      */
-    public void printTop() {
+    public void printTop(ServletData servletData) {
 
 //        int headerFontSize = textFontSize+2; //adjust me ?
 
@@ -410,7 +411,7 @@ public class CustomizedList2 extends nspHttpServlet {
 
       out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(resort) + " Ski Patrol</h2></Center></p>");
 
-      LOG.info("CustomizedList2, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
+      servletData.getLOG().info("CustomizedList2, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
       if (isDirector || (directorSettings != null && directorSettings.getEmailAll())) {
         showButtonsAtTop();
       } //end email patrollers...

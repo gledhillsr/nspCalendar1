@@ -68,7 +68,7 @@ public class Assignments {
   }
 
   private void initData(Logger parentLogger) {
-    LOG = new Logger(Assignments.class, parentLogger, null, MIN_LOG_LEVEL);
+    LOG = parentLogger; //new Logger(Assignments.class, parentLogger, null, MIN_LOG_LEVEL);
 
     int i;
     exceptionError = false;

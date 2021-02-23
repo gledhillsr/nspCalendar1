@@ -104,8 +104,6 @@ public class PatrolData {
   //all the folowing instance variables must be initialized in the constructor
   //  private Connection connection;
   private Connection connection;
-//  private ResultSet rosterResults;
-//  private ResultSet assignmentResults;  //todo get rid of this global !!!
   private PreparedStatement shiftStatement;
   private boolean fetchFullData;
   private String localResort;
@@ -113,10 +111,9 @@ public class PatrolData {
   private Logger LOG;
 
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData, final Logger parentLogger) {
-    LOG = new Logger(PatrolData.class, parentLogger, myResort, MIN_LOG_LEVEL);
+//    LOG = new Logger(PatrolData.class, parentLogger, myResort, MIN_LOG_LEVEL);
+    LOG = parentLogger;
     this.sessionData = sessionData;
-//    rosterResults = null;
-//    assignmentResults = null;
     shiftStatement = null;
     localResort = myResort;
     fetchFullData = readAllData;
