@@ -60,6 +60,7 @@ public final class StaticUtils {
     }
     return false;  //cannot tell
   }
+
   public static void buildAndLogErrorResponse(HttpServletResponse response, int status, String errString) {
     Logger.logStatic("Response Error: " + status + ": " + errString);
     response.setStatus(status);

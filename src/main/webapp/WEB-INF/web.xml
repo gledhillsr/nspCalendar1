@@ -93,15 +93,15 @@
 
     <servlet>
         <servlet-name>RssAddItemServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.RssAddItem</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.RssResource$RssAddItem</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RssInitServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.RssInit</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.RssResource$RssInit</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RssTerminateServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.RssTerminate</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.RssResource$RssTerminate</servlet-class>
     </servlet>
 
     <servlet>
@@ -146,42 +146,38 @@
     </servlet>
     <servlet>
         <servlet-name>User</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.User</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$GetUser</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Resort</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.Resort</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$GetResort</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ResortList</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.ResortList</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$ResortList</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UserAssignments</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.UserAssignments</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$UserAssignments</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UserList</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.UserList</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$UserList</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PatrolAssignments</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.PatrolAssignments</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$PatrolAssignments</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Logout</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.Logout</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$Logout</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Login</servlet-name>
-        <servlet-class>org.nsponline.calendar.rest.Login</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.ApiResources$Login</servlet-class>
     </servlet>
 
 <!--    define & map URL patterns -->
-    <!--<servlet-mapping>-->
-        <!--<servlet-name>StatusServlet</servlet-name>-->
-        <!--<url-pattern>/Status</url-pattern>-->
-    <!--</servlet-mapping>-->
     <servlet-mapping>
         <servlet-name>MemberLoginServlet</servlet-name>
         <url-pattern>/MemberLogin</url-pattern>
@@ -195,24 +191,24 @@
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>User</servlet-name>
-        <url-pattern>/user</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Resort</servlet-name>
-        <url-pattern>/resort</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ResortList</servlet-name>
-        <url-pattern>/resort/list</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>UserAssignments</servlet-name>
         <url-pattern>/user/assignments</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UserList</servlet-name>
         <url-pattern>/user/list</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>User</servlet-name>
+        <url-pattern>/user</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResortList</servlet-name>
+        <url-pattern>/resort/list</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Resort</servlet-name>
+        <url-pattern>/resort</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PatrolAssignments</servlet-name>
