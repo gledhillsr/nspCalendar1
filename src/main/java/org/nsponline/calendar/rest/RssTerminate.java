@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.utils.StaticUtils;
 
 /**
  *   }
@@ -31,8 +31,8 @@ public class RssTerminate extends HttpServlet {
     private DeleteRss(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
       pid = request.getParameter("pid");
       System.out.println("delete rss feed for pid=" + pid);
-      if(Utils.isEmpty(pid)) {
-        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
+      if(StaticUtils.isEmpty(pid)) {
+        StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
         return;
       }
       String extension = ".json";
@@ -47,7 +47,7 @@ public class RssTerminate extends HttpServlet {
       file = new File(rssFeedName);
       file.delete();
 
-      Utils.build204Response(response);
+      StaticUtils.build204Response(response);
     }
   }
 }

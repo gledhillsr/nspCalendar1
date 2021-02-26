@@ -2,7 +2,7 @@ package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.NspSession;
@@ -88,21 +88,21 @@ public class PatrolAssignments extends HttpServlet {
         + ", year: [" + szYear
         + "], month: [" + szMonth
         + "], day: [" + szDay);
-    int year = Utils.convertToInt(szYear);
-    int month = Utils.convertToInt(szMonth);
-    int day = Utils.convertToInt(szDay);
+    int year = StaticUtils.convertToInt(szYear);
+    int month = StaticUtils.convertToInt(szMonth);
+    int day = StaticUtils.convertToInt(szDay);
 
     String sessionId = request.getHeader("Authorization");
-    if (Utils.isEmpty(sessionId)) {
-      Utils.buildAndLogErrorResponse(response, 400, "Authorization header not found");
+    if (StaticUtils.isEmpty(sessionId)) {
+      StaticUtils.buildAndLogErrorResponse(response, 400, "Authorization header not found");
       return;
     }
     if (!PatrolData.isValidResort(resort)) {
-      Utils.buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + ")");
+      StaticUtils.buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + ")");
       return;
     }
     if ((year == 0) != (month == 0)) {
-      Utils.buildAndLogErrorResponse(response, 400, "Invalid 'year' (" + szYear + "), 'month' (" + szMonth+ ")");
+      StaticUtils.buildAndLogErrorResponse(response, 400, "Invalid 'year' (" + szYear + "), 'month' (" + szMonth+ ")");
       return;
     }
 
@@ -112,22 +112,22 @@ public class PatrolAssignments extends HttpServlet {
     NspSession nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
       Logger.logStatic("ERROR:  Invalid Authorization (" + sessionId + ")");
-      Utils.buildAndLogErrorResponse(response, 401, "Invalid Authorization (" + sessionId + ")");
+      StaticUtils.buildAndLogErrorResponse(response, 401, "Invalid Authorization (" + sessionId + ")");
       return;
     }
     String authenticatedUserId = nspSession.getAuthenticatedUser();
     Roster patroller = patrol.getMemberByID(authenticatedUserId);
     if (patroller == null) {
       Logger.logStatic("ERROR:  User not found (" + authenticatedUserId + ")");
-      Utils.buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
+      StaticUtils.buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
       return;
     }
 
     //state is OK.  Do the real work
-    ObjectNode returnNode = Utils.nodeFactory.objectNode();
+    ObjectNode returnNode = StaticUtils.nodeFactory.objectNode();
     returnNode.put("resort", resort);
 
-    ArrayNode assignmentsArrayNode = Utils.nodeFactory.arrayNode();
+    ArrayNode assignmentsArrayNode = StaticUtils.nodeFactory.arrayNode();
     ArrayList<Assignments> assignmentsList = new ArrayList<Assignments>();
     if (day != 0) {
       assignmentsList = patrol.readSortedAssignments(year, month, day);
@@ -168,7 +168,7 @@ public class PatrolAssignments extends HttpServlet {
     }
     Logger.logStatic("  -- assignments count = " + count);
     returnNode.set("assignments", assignmentsArrayNode);
-    Utils.buildOkResponse(response, returnNode);
+    StaticUtils.buildOkResponse(response, returnNode);
 
     patrol.close();
   }

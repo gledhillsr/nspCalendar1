@@ -1,7 +1,7 @@
 package org.nsponline.calendar;
 
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
@@ -9,6 +9,7 @@ import org.nsponline.calendar.store.NewIndividualAssignment;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -34,7 +35,8 @@ public class ChangeShift extends NspHttpServlet {
     if (servletData.getCredentials().hasInvalidCredentials()) {
       return;
     }
-
+    PrintWriter out = servletData.getOut();
+    SessionData sessionData = servletData.getSessionData();
 
     Parameters parameters = new Parameters(request, servletData);
 
@@ -43,14 +45,14 @@ public class ChangeShift extends NspHttpServlet {
 
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", shiftInfo.loggedInUserId);
     outerPage.printResortHeader(out);
-    printTop(parameters, servletData.getResort());
-    printMiddle(patrol, shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
-    printBottom(shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
+    printTop(out, parameters, servletData.getResort());
+    printMiddle(out, patrol, shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
+    printBottom(out, shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
     outerPage.printResortFooter(out);
     patrol.close();
   }
 
-  public void printTop(Parameters parameters, String resort) {
+  public void printTop(PrintWriter out, Parameters parameters, String resort) {
 //all JavaScript code
     out.println("<SCRIPT LANGUAGE=\"JavaScript\">");
 //cancel button pressed
@@ -77,8 +79,8 @@ public class ChangeShift extends NspHttpServlet {
     out.println("</SCRIPT>");
     out.println("<A NAME=\"TOP\"></A>");
     out.println("<table border=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\" WIDTH=\"100%\"><tr><td>");
-    out.println("<font size=\"6\" COLOR=\"000000\" face=\"arial,helvetica\"><b>" + Utils.szDays[parameters.dayOfWeek] + "</b></font><BR>");
-    out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + Utils.szMonthsFull[parameters.month] + " " + parameters.dayOfMonth + ", " + parameters.year + "</B>");
+    out.println("<font size=\"6\" COLOR=\"000000\" face=\"arial,helvetica\"><b>" + StaticUtils.szDays[parameters.dayOfWeek] + "</b></font><BR>");
+    out.println("<font face=\"arial,helvetica\" COLOR=\"000000\" size=\"4\"><B>" + StaticUtils.szMonthsFull[parameters.month] + " " + parameters.dayOfMonth + ", " + parameters.year + "</B>");
     out.println("</font></TD>");
     out.println("<td VALIGN=\"MIDDLE\" ALIGN=\"RIGHT\" NOWRAP><FONT SIZE=\"2\" FACE=\"Arial, Helvetica\">");
     out.println("<a target='_self' href=\"MonthCalendar?resort=" + resort + "&month=" + parameters.month + "&year=" + parameters.year + "\"><IMG SRC=\"/images/ncgohome.gif\" BORDER=\"0\" ALT=\"Return to Volunteer Roster\" ALIGN=\"BOTTOM\" width=\"32\" height=\"32\"></a>");
@@ -100,7 +102,7 @@ public class ChangeShift extends NspHttpServlet {
     return isNullOrEmpty(name);
   }
 
-  private void addNames(String name, ShiftInfo shiftInfo) {
+  private void addNames(PrintWriter out, String name, ShiftInfo shiftInfo) {
     int i;
     for (i = 0; i < shiftInfo.rosterSize; ++i) {
       if (name != null && name.equals(shiftInfo.sortedRoster[i])) {
@@ -128,7 +130,7 @@ public class ChangeShift extends NspHttpServlet {
     return posWasEmpty;
   }
 
-  private void printMiddle(PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
+  private void printMiddle(PrintWriter out, PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
     int visibleRadioButtons = 0;
 
     boolean posWasEmpty = findIfPositionWasEmpty(parameters, patrol, shiftInfo, servletData);
@@ -182,7 +184,7 @@ public class ChangeShift extends NspHttpServlet {
       out.println("      <b>Insert</b> someone else&nbsp;</td>");
     }
     out.println("    <td width=\"50%\"><SELECT NAME=\"listName\" SIZE=10 onclick=autoSelectRadioBtn(" + (visibleRadioButtons - 1) + ")>");
-    addNames(shiftInfo.myName, shiftInfo);
+    addNames(out, shiftInfo.myName, shiftInfo);
     out.println("</SELECT>");
     out.println("    </td>");
     out.println("  </tr>");
@@ -234,7 +236,7 @@ public class ChangeShift extends NspHttpServlet {
     }
   }
 
-  private void printBottom(String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
+  private void printBottom(PrintWriter out, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
     out.println("</table>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"submitterID\" VALUE=\"" + loggedInUserId + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + parameters.pos + "\">");
@@ -344,7 +346,7 @@ public class ChangeShift extends NspHttpServlet {
       allowEditing = !ds.getDirectorsOnlyChange() || loggedInMember.isDirector();
       sortedRoster = new String[300];
       rosterSize = 0;
-      isDirector = loggedInUserId.equalsIgnoreCase(sessionData.getBackDoorUser());
+      isDirector = loggedInUserId.equalsIgnoreCase(servletData.getSessionData().getBackDoorUser());
 
       numToName = new Hashtable<String, String>();
       ResultSet rosterResults = patrol.resetRoster();

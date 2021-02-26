@@ -1,11 +1,12 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 
 /**
@@ -32,10 +33,11 @@ public class MemberList extends NspHttpServlet {
     private boolean isDirector = false;
     private String ePatrollerList = "";
     private DirectorSettings ds;
-
+    private PrintWriter out;
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
       SessionData sessionData = new SessionData(request, out, servletData.getLOG());
+      out = servletData.getOut();
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList", servletData.getLOG());
 
       if (credentials.hasInvalidCredentials()) {
@@ -64,7 +66,7 @@ public class MemberList extends NspHttpServlet {
       Roster member = patrol.nextMember("", rosterResults);
       while (member != null) {
         String emailAddress = member.getEmailAddress();
-        if (Utils.isValidEmailAddress(emailAddress)) {
+        if (StaticUtils.isValidEmailAddress(emailAddress)) {
           if (ePatrollerList.length() > 2) {
             ePatrollerList += ",";
           }

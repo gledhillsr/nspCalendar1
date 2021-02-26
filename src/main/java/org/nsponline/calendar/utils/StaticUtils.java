@@ -1,9 +1,8 @@
-package org.nsponline.calendar.misc;
+package org.nsponline.calendar.utils;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -12,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * @author Steve Gledhill
  */
-public final class Utils {
+public final class StaticUtils {
 
   @SuppressWarnings("RegExpRedundantEscape")
   private static final String EMAIL_PATTERN =
@@ -27,17 +26,11 @@ public final class Utils {
   public static JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
 
-  private Utils() {
-    //nothing to do
-  }
-
   public static boolean isEmpty(String str) {
-    //noinspection Since15
     return str == null || str.isEmpty();
   }
 
   public static boolean isNotEmpty(String str) {
-    //noinspection Since15
     return str != null && !str.isEmpty();
   }
 
@@ -61,7 +54,7 @@ public final class Utils {
 
   public static boolean isRequestFromBot(String userAgent) {
 
-    if (!Utils.isEmpty(userAgent)) {
+    if (!StaticUtils.isEmpty(userAgent)) {
       String upperUserAgent = userAgent.toUpperCase();
       return upperUserAgent.contains("BOT") || upperUserAgent.contains("SPIDER") || upperUserAgent.contains("CRAWLER");
     }
@@ -78,7 +71,7 @@ public final class Utils {
       return 0;
     }
     try {
-      return Integer.valueOf(szNumber);
+      return Integer.parseInt(szNumber);
     }
     catch (NumberFormatException e) {
       System.out.println("NumberFormatException on [" + szNumber + "]");

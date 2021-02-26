@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
-import org.nsponline.calendar.misc.Logger;
+import org.nsponline.calendar.utils.Logger;
 
 /**
  * @author Steve Gledhill

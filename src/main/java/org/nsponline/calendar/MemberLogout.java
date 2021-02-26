@@ -1,6 +1,7 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.utils.PatrolData;
+import org.nsponline.calendar.utils.SessionData;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class MemberLogout extends NspHttpServlet {
   }
 
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
+    SessionData sessionData = servletData.getSessionData();
     sessionData.clearLoggedInResort();
     sessionData.clearLoggedInUserId();
     String newLoc = PatrolData.SERVLET_URL + "MonthCalendar?resort=" + servletData.getResort();

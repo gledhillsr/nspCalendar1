@@ -1,6 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,21 +18,20 @@ import java.io.PrintWriter;
 public class LoginHelp extends NspHttpServlet {
 
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG = true;
+  private static final boolean DEBUG = true;
   @SuppressWarnings("FieldCanBeLocal")
-  private static boolean DEBUG_SENSITIVE = true;
+  private static final boolean DEBUG_SENSITIVE = true;
 
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
 
 //      PrintWriter out;
       String szParent;
       String resort = servletData.getResort();
+      PrintWriter out = servletData.getOut();
+      SessionData sessionData = servletData.getSessionData();
       String id = request.getParameter("ID");
       String pass = request.getParameter("Password");
-  //    resort = request.getParameter("resort");
       szParent = request.getParameter("NSPgoto");
-//      response.setContentType("text/html");
-//      out = response.getWriter();
 
       sessionData = new SessionData(request, out, servletData.getLOG());
       PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
@@ -42,12 +41,12 @@ public class LoginHelp extends NspHttpServlet {
       if (patrolData.isValidLogin(out, resort, id, pass, sessionData)) {   //does password match?
         sessionData.setLoggedInUserId(id);
         sessionData.setLoggedInResort(resort);
-        if (Utils.isEmpty(szParent)) {
+        if (StaticUtils.isEmpty(szParent)) {
           szParent = "MonthCalendar";
         }
         // String newLoc = BASE_URL + resort + "/index.php?resort=" + resort + "&NSPgoto=" + szParent + "&ID=" + id;
         String newLoc = PatrolData.SERVLET_URL + szParent + "?resort=" + resort + "&ID=" + id;
-        debugOut("LoginHelp (valid login) sendRedirect to: " + newLoc);
+        debugOut("LoginHelp (valid login) sendRedirect to: " + newLoc, sessionData);
         response.sendRedirect(newLoc);
         patrolData.close();
         return;
@@ -232,14 +231,14 @@ public class LoginHelp extends NspHttpServlet {
       out.println("</font>");
     }
 
-    private void debugOut(String str) {
+    private void debugOut(String str, SessionData sessionData) {
       if (DEBUG) {
         Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
       }
     }
 
     @SuppressWarnings("unused")
-    private void debugSensitiveOut(String str) {
+    private void debugSensitiveOut(String str, SessionData sessionData) {
       if (DEBUG_SENSITIVE) {
         Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
       }

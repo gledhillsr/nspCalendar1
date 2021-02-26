@@ -1,9 +1,8 @@
 package org.nsponline.calendar.store;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.StaticUtils;
 
 import java.lang.*;
 import java.sql.*;
@@ -444,7 +443,7 @@ public class DirectorSettings {
   }
 
   public ObjectNode toNode() {
-    ObjectNode returnNode = Utils.nodeFactory.objectNode();
+    ObjectNode returnNode = StaticUtils.nodeFactory.objectNode();
 
     returnNode.put("formalName", szPatrolName);
     returnNode.put("changesByDirectorsOnly", "1".equals(szDirectorsOnlyChange));

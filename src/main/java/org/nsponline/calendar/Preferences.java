@@ -1,6 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.DirectorSettings;
 
 import java.io.*;
@@ -295,7 +295,7 @@ public class Preferences extends HttpServlet {
       }
       out.println("  </select>&nbsp;&nbsp;<select " + readOnly + " size=\"1\" name=\"startMonth\">");
       for (int i = 1; i <= 12; ++i) {
-        out.println("    <option value=\"" + i + "\" " + ((i == startMonth) ? "selected" : "") + ">" + Utils.szMonthsFull[i -1] + "</option>");
+        out.println("    <option value=\"" + i + "\" " + ((i == startMonth) ? "selected" : "") + ">" + StaticUtils.szMonthsFull[i -1] + "</option>");
       }
       out.println("  </select>, ");
       out.println(" and <b>Ends</b> on <select " + readOnly + " size=\"1\" name=\"endDay\">");
@@ -304,7 +304,7 @@ public class Preferences extends HttpServlet {
       }
       out.println("  </select>&nbsp;&nbsp;<select " + readOnly + " size=\"1\" name=\"endMonth\">");
       for (int i = 1; i <= 12; ++i) {
-        out.println("    <option value=\"" + i + "\" " + ((i == endMonth) ? "selected" : "") + ">" + Utils.szMonthsFull[i -1] + "</option>");
+        out.println("    <option value=\"" + i + "\" " + ((i == endMonth) ? "selected" : "") + ">" + StaticUtils.szMonthsFull[i -1] + "</option>");
       }
       out.println("  </select> <br>");
       out.println("&nbsp;&nbsp;Season dates are used so <b>no</b> shifts or assignments are displayed out-of-season.<br>");
@@ -353,7 +353,7 @@ public class Preferences extends HttpServlet {
       }
       out.println("  </select>&nbsp;&nbsp;<select " + readOnly + " size=\"1\" name=\"blackOutStartMonth\">");
       for (int i = 1; i <= 12; ++i) {
-        out.println("    <option value=\"" + i + "\" " + ((i == blackOutStartMonth) ? "selected" : "") + ">" + Utils.szMonthsFull[i - 1] + "</option>");
+        out.println("    <option value=\"" + i + "\" " + ((i == blackOutStartMonth) ? "selected" : "") + ">" + StaticUtils.szMonthsFull[i - 1] + "</option>");
       }
       out.println("  </select>&nbsp;&nbsp;<select " + readOnly + " size=\"1\" name=\"blackOutStartYear\">");
       //end calendar
@@ -374,7 +374,7 @@ public class Preferences extends HttpServlet {
       }
       out.println("  </select>&nbsp;&nbsp;<select " + readOnly + " size=\"1\" name=\"blackOutEndMonth\">");
       for (int i = 1; i <= 12; ++i) {
-        out.println("    <option value=\"" + i + "\" " + ((i == blackOutEndMonth) ? "selected" : "") + ">" + Utils.szMonthsFull[i - 1] + "</option>");
+        out.println("    <option value=\"" + i + "\" " + ((i == blackOutEndMonth) ? "selected" : "") + ">" + StaticUtils.szMonthsFull[i - 1] + "</option>");
       }
       out.println("  </select> ");
       out.println("  </select>&nbsp;&nbsp;<select " + readOnly + " size=\"1\" name=\"blackOutEndYear\">");

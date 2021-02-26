@@ -1,6 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.store.ShiftDefinitions;
@@ -8,6 +8,7 @@ import org.nsponline.calendar.store.ShiftDefinitions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -62,11 +63,15 @@ public class DayShifts extends NspHttpServlet {
     private String[] sortedRoster;
     private int rosterSize;
     private String IDOfEditor;
+    private PrintWriter out;
+    private SessionData sessionData;
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
       if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }
+      out = servletData.getOut();
+      sessionData = servletData.getSessionData();
       String resort = servletData.getResort();
       Roster editorsMemberData;
       IDOfEditor = sessionData.getLoggedInUserId();
@@ -303,7 +308,7 @@ public class DayShifts extends NspHttpServlet {
       debugOut(request, "assignmentsFromDisk.clear()");
       szOriginalName = selectedShift;
       for (i = 0; i < 7; ++i) {
-        if (selectedShift.equals(Utils.szDays[i])) {
+        if (selectedShift.equals(StaticUtils.szDays[i])) {
           szOriginalName = " ";
           break;
         }
@@ -417,7 +422,7 @@ public class DayShifts extends NspHttpServlet {
         name = "";  //name from dropdown
       }
       if (selectedShift == null || selectedShift.length() <= 1) {
-        selectedShift = Utils.szDays[dayOfWeek];
+        selectedShift = StaticUtils.szDays[dayOfWeek];
       }
 //Log.log("---selectedShift = ("+selectedShift+")");
 
@@ -638,11 +643,11 @@ public class DayShifts extends NspHttpServlet {
 
     private void printBody(HttpServletRequest request, ArrayList<Assignments> assignmentsFromDisk, String resort) {
 //print date at top
-      out.println("<h1><font color='#FF0000'>" + Utils.szDays[dayOfWeek] + " " + Utils.szMonthsFull[month] + " " + szDate + ", " + szYear + "</font></h1>");
+      out.println("<h1><font color='#FF0000'>" + StaticUtils.szDays[dayOfWeek] + " " + StaticUtils.szMonthsFull[month] + " " + szDate + ", " + szYear + "</font></h1>");
 
       if (isDirector) {
         if (selectedShift.equals("")) {
-          selectedShift = Utils.szDays[dayOfWeek];
+          selectedShift = StaticUtils.szDays[dayOfWeek];
         }
 
         int defaultShiftSize = 0;
@@ -769,7 +774,7 @@ public class DayShifts extends NspHttpServlet {
 // if shift was passed in, use it
 // otherwise get default, if one exists (by useing the dayOfWeek)
         if (selectedShift.equals("")) {
-          selectedShift = Utils.szDays[dayOfWeek];
+          selectedShift = StaticUtils.szDays[dayOfWeek];
         }
         PatrolData.AddShiftsToTable(out, shiftsTemplates, selectedShift);
       }

@@ -1,6 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServlet;
@@ -125,7 +125,7 @@ public class SubList extends HttpServlet {
 
       while (member != null) {
 
-        if (Utils.isValidEmailAddress(member.getEmailAddress())) {
+        if (StaticUtils.isValidEmailAddress(member.getEmailAddress())) {
           member.setEmail("<a href='mailto:" + member.getEmailAddress() + "'>" + member.getEmailAddress() + "</a>");
         }
 

@@ -2,10 +2,10 @@ package org.nsponline.calendar.store;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.PatrolData;
+import org.nsponline.calendar.utils.SessionData;
+import org.nsponline.calendar.utils.StaticUtils;
 
 import java.sql.ResultSet;
 import java.text.ParsePosition;
@@ -407,7 +407,7 @@ public class Assignments {
   }
 
   public ObjectNode toNode() {
-    ObjectNode returnNode = Utils.nodeFactory.objectNode();
+    ObjectNode returnNode = StaticUtils.nodeFactory.objectNode();
 
     returnNode.put("Date", szDate);
     returnNode.put("StartTime", szStartTime);
@@ -415,7 +415,7 @@ public class Assignments {
     setIfNotEmpty(returnNode, "EventName", szEventName);
     returnNode.put("ShiftType", String.valueOf(type));
     returnNode.put("Count", String.valueOf(count));
-    ArrayNode patrollerIds = Utils.nodeFactory.arrayNode();
+    ArrayNode patrollerIds = StaticUtils.nodeFactory.arrayNode();
     for (int i=0; i < count; ++i) {
       patrollerIds.add(patrollerID[i]);
     }
@@ -424,7 +424,7 @@ public class Assignments {
   }
 
   private void setIfNotEmpty(ObjectNode returnNode, String key, String value) {
-    if (Utils.isNotEmpty(value)) {
+    if (StaticUtils.isNotEmpty(value)) {
       returnNode.put(key, value);
     }
   }

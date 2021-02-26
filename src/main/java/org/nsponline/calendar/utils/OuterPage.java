@@ -1,7 +1,7 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.utils;
 
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.ResortData;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.ResortData;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

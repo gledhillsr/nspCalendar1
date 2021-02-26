@@ -1,11 +1,12 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -88,7 +89,8 @@ public class ProcessChanges extends NspHttpServlet {
 
     private boolean dupError;
     private int nPos1;
-
+    private PrintWriter out;
+    private SessionData sessionData;
     private int transNumber;
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
@@ -96,6 +98,8 @@ public class ProcessChanges extends NspHttpServlet {
       if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }
+      out = servletData.getOut();
+      sessionData = servletData.getSessionData();
       szMyID = sessionData.getLoggedInUserId();
       String resort = servletData.getResort();
 
@@ -166,7 +170,7 @@ public class ProcessChanges extends NspHttpServlet {
         int cnt = 1;
         String today = szdate1.substring(0, szdate1.indexOf("_") + 1);
         for (ShiftDefinitions shift : patrolData.readShiftDefinitions()) {
-          if (shift.parsedEventName().equals(Utils.szDays[dayOfWeek0based])) {
+          if (shift.parsedEventName().equals(StaticUtils.szDays[dayOfWeek0based])) {
             Assignments assign = new Assignments((today + cnt), shift, servletData.getLOG());
             patrolData.writeAssignment(assign);
             if (cnt == nPos1) {
@@ -263,13 +267,13 @@ public class ProcessChanges extends NspHttpServlet {
       }
       out.println("<br/>");
 //on February 1, 2001 as Auxiliary Patroller
-      out.println("on: " + Utils.szDays[dayOfWeek0based] + " " + Utils.szMonthsFull[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
+      out.println("on: " + StaticUtils.szDays[dayOfWeek0based] + " " + StaticUtils.szMonthsFull[month1 - 1] + " " + date1 + ", " + year1 + "<br>");
 //at position: Auxiliary Patroller"
       out.println("at shift: " + szPos + "<br>");
 //todo this is always false
       if (transNumber == TRADE && szPos2 != null) {
         out.println("<br><br>INSERT <B>" + secondName + "</B> (" + secondID + ")<br><br>");
-        out.println("on: " + Utils.szDays[dayOfWeek2] + " " + Utils.szMonthsFull[month2 - 1] + " " + date2 + ", " + year2 + "<br>");
+        out.println("on: " + StaticUtils.szDays[dayOfWeek2] + " " + StaticUtils.szMonthsFull[month2 - 1] + " " + date2 + ", " + year2 + "<br>");
         out.println("at shift: " + szPos2 + "<br>");
 //          out.println("at shift: "+szPos[nPos2]+"<br>");
       }
@@ -526,12 +530,12 @@ public class ProcessChanges extends NspHttpServlet {
 
 //          emailMessage +="On "+szMonths[month1-1]+"/"+date1+"/"+year1+" \n  "+
 //          szTrans[transNumber]+" " + newName;// +" at position: "+ pos1; ???? szDays[dayOfWeek0based]
-        emailMessage += trans[transNumber] + " " + newName + " On " + Utils.szDays[dayOfWeek0based] + ", " + Utils.szMonthsFull[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
+        emailMessage += trans[transNumber] + " " + newName + " On " + StaticUtils.szDays[dayOfWeek0based] + ", " + StaticUtils.szMonthsFull[month1 - 1] + "/" + date1 + "/" + year1 + " (" + night1.getStartingTimeString() + " - " + night1.getEndingTimeString() + ")\n  ";// +" at position: "+ pos1;
 
         if (transNumber == TRADE) {
 //todo 10/2/2019, refactor to look like
 // <first> <last> was inserted into the calendar for Wednesday, April/1/2020 (6:30 pm - 9:30 pm).  Replacing patroller <first> <last>.
-          emailMessage += "\nOn " + Utils.szMonthsFull[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
+          emailMessage += "\nOn " + StaticUtils.szMonthsFull[month2 - 1] + "/" + date2 + "/" + year2 + "\n  " +
             trans[transNumber] + " " + secondName;// +" at position: "+ nPos2;
         }
         out.println("<h2>Submission Successful</h2>");

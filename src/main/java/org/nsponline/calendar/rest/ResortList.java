@@ -2,7 +2,7 @@ package org.nsponline.calendar.rest;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.NspSession;
 
 import javax.servlet.ServletException;
@@ -57,12 +57,12 @@ public class ResortList extends HttpServlet {
       PrintWriter out = response.getWriter();
       resort = request.getParameter("resort");
       String sessionId = request.getHeader("Authorization");
-      if(Utils.isEmpty(sessionId)) {
-        Utils.buildAndLogErrorResponse(response, 400, "Authorization header not found");
+      if(StaticUtils.isEmpty(sessionId)) {
+        StaticUtils.buildAndLogErrorResponse(response, 400, "Authorization header not found");
         return;
       }
       if (!PatrolData.isValidResort(resort)) {
-        Utils.buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
+        StaticUtils.buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
         return;
       }
       SessionData sessionData = new SessionData(request, out, LOG);
@@ -70,17 +70,17 @@ public class ResortList extends HttpServlet {
       Connection connection = patrol.getConnection();
       NspSession nspSession = NspSession.read(connection, sessionId);
       if (nspSession == null) {
-        Utils.buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
+        StaticUtils.buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
         return;
       }
-      ObjectNode returnNode = Utils.nodeFactory.objectNode();
-      ArrayNode resortArrayNode = Utils.nodeFactory.arrayNode();
+      ObjectNode returnNode = StaticUtils.nodeFactory.objectNode();
+      ArrayNode resortArrayNode = StaticUtils.nodeFactory.arrayNode();
       for (String eachResort : getResorts(connection)) {
-        resortArrayNode.add(Utils.nodeFactory.textNode(eachResort));
+        resortArrayNode.add(StaticUtils.nodeFactory.textNode(eachResort));
       }
       returnNode.set("resorts", resortArrayNode);
 
-      Utils.buildOkResponse(response, returnNode);
+      StaticUtils.buildOkResponse(response, returnNode);
           patrol.close();
     }
 

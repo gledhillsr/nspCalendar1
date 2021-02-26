@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Roster;
 
 /**
@@ -19,7 +19,7 @@ public class RefresherTraining extends NspHttpServlet {
   }
 
   String getParentIfBadCredentials() {
-    return "LiftEvac";
+    return "RefresherTraining";
   }
 
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
@@ -41,7 +41,7 @@ public class RefresherTraining extends NspHttpServlet {
         return;
       }
       SessionData sessionData = new SessionData(request, out, servletData.getLOG());
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "LiftEvac", servletData.getLOG());
+      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "RefresherTraining", servletData.getLOG());
       if (credentials.hasInvalidCredentials()) {
         return;
       }
@@ -57,7 +57,7 @@ public class RefresherTraining extends NspHttpServlet {
       outerPage.printResortHeader(out);
       printBody(IDOfEditor);
       patrol.close(); //must close connection!
-      servletData.getLOG().debug("ending LiftEvac");
+      servletData.getLOG().debug("ending RefresherTraining");
       outerPage.printResortFooter(out);
     }
 

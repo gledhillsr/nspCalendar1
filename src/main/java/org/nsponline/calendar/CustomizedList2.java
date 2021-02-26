@@ -1,12 +1,13 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -94,14 +95,15 @@ public class CustomizedList2 extends NspHttpServlet {
     private String sort1;
     private String sort2;
     private String sort3;
-
+    private PrintWriter out;
+    private SessionData sessionData;
 
     public InnerCustomizedList2() {
     }
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
-//      LOG = new Logger(CustomizedList2.class, request, null, null, Logger.INFO);
-//      LOG.logRequestParameters();
+      out = servletData.getOut();
+      sessionData = servletData.getSessionData();
       SessionData sessionData = new SessionData(request, out, servletData.getLOG());
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2", servletData.getLOG());
       if (credentials.hasInvalidCredentials()) {

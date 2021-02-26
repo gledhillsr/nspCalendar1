@@ -1,4 +1,4 @@
-package org.nsponline.calendar.misc;
+package org.nsponline.calendar.utils;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -35,20 +35,20 @@ public class MailMan {
       debugOutDontSend(sessionData, "NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
       return;
     }
-    if (Utils.isValidEmailAddress(fromAddress)) {
+    if (StaticUtils.isValidEmailAddress(fromAddress)) {
       this.replyToAddress = fromAddress;
       Logger.logStatic("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
     }
     else {
       this.replyToAddress = null;
-      if (Utils.isNotEmpty(fromAddress)) {
+      if (StaticUtils.isNotEmpty(fromAddress)) {
         Logger.logStatic("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
       }
     }
     try {
       String resort = sessionData.getLoggedInResort();
       ResortData resortInfo = PatrolData.getResortInfo(resort); //will return null if invalid resort (like in dailyReminder because no HttpSession)
-      if (resortInfo != null && Utils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) {
+      if (resortInfo != null && StaticUtils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) {
         //todo NOTE: this is where we load the resort/directors email address
         this.fromAddress = resortInfo.getDirectorsVerifiedEmail();
       }

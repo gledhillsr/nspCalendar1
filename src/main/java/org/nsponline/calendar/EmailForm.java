@@ -1,7 +1,7 @@
 package org.nsponline.calendar;
 
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.Roster;
 
@@ -80,9 +80,13 @@ public class EmailForm extends NspHttpServlet {
     private String[] memberIds;
     private boolean messageIsUnique;
     private String fullPatrolName;
+    private PrintWriter out;
+    private SessionData sessionData;
 
     public void runner(final HttpServletRequest request, ServletData servletData) {
       String resort = servletData.getResort();
+      out = servletData.getOut();
+      sessionData = servletData.getSessionData();
       if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }
@@ -141,7 +145,7 @@ public class EmailForm extends NspHttpServlet {
     private boolean getFromEmailAddress() {
       memberFromEmailAddress = fromMember.getEmailAddress();
       hasValidReturnEmailAddress = true;
-      if (!Utils.isValidEmailAddress(memberFromEmailAddress)) {
+      if (!StaticUtils.isValidEmailAddress(memberFromEmailAddress)) {
         memberFromEmailAddress = fallback_from;
         hasValidReturnEmailAddress = false;
       }
@@ -245,7 +249,7 @@ public class EmailForm extends NspHttpServlet {
           "to: " + fromMember.getFullName() + ", who had an invalid email address in the system.\n\n";
       } else {
         ResortData resortInfo = PatrolData.getResortInfo(resort); //will return null if invalid resort (like in dailyReminder because no HttpSession)
-        String directorsVerifiedEmail = (resortInfo != null && Utils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) ? resortInfo.getDirectorsVerifiedEmail() : null;
+        String directorsVerifiedEmail = (resortInfo != null && StaticUtils.isNotEmpty(resortInfo.getDirectorsVerifiedEmail())) ? resortInfo.getDirectorsVerifiedEmail() : null;
 
         log("the fromEmailAddress=" + fromEmailAddress);
         if (directorsVerifiedEmail == null) {
@@ -322,7 +326,7 @@ public class EmailForm extends NspHttpServlet {
 
     private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message, ServletData servletData) {
       String recipient = mbr.getEmailAddress();
-      if (Utils.isValidEmailAddress(recipient)) {
+      if (StaticUtils.isValidEmailAddress(recipient)) {
         servletData.getLOG().debug("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
         mail.sendMessage(sessionData, subject, message, recipient);
       }
@@ -347,7 +351,7 @@ public class EmailForm extends NspHttpServlet {
         szName = currentMember.getFullName();
         String em = currentMember.getEmailAddress();
         //check for valid email
-        if (Utils.isValidEmailAddress(em)) {
+        if (StaticUtils.isValidEmailAddress(em)) {
           szName += " &lt;" + em + "&gt;";
         }
       }
@@ -640,7 +644,7 @@ public class EmailForm extends NspHttpServlet {
           if (member.okToDisplay(EveryBody, SubList, listAll, classificationsToDisplay, commitmentToDisplay, listDirector, instructorFlags, MinDays)) {
             String emailAddress = member.getEmailAddress();
             //check for valid email
-            if (Utils.isValidEmailAddress(emailAddress)) {
+            if (StaticUtils.isValidEmailAddress(emailAddress)) {
               emaiPatrollerList.add(member.getID());
             } else {
               invalidEmailPatrollerList.add(member.getID());

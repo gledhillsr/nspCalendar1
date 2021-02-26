@@ -1,4 +1,4 @@
-package org.nsponline.calendar.misc;
+package org.nsponline.calendar.utils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,12 +42,12 @@ public class ValidateCredentials {
   private void init(SessionData sessionData, HttpServletResponse response, String parent, String idParameter, String idLoggedIn) {
     debugOut("parameters  idParameter=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
 //    debugOut("sessionData idLoggedIn=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
-    if (Utils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData, LOG)) {
+    if (StaticUtils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData, LOG)) {
       sessionData.setLoggedInUserId(idParameter);
       sessionData.setLoggedInResort(resortParameter);
     }
 
-    hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resortParameter) || Utils.isEmpty(sessionData.getLoggedInUserId());
+    hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resortParameter) || StaticUtils.isEmpty(sessionData.getLoggedInUserId());
     if (hasInvalidCredentials) {
 //      if (token != null && token.isEmpty()) {
 //        LOG.error("token is empty, loggedInUserId is NOT" + parent);
@@ -57,7 +57,7 @@ public class ValidateCredentials {
         sessionData.setLoggedInResort(null);
         sessionData.setLoggedInUserId(null);
         debugOut("RESETTING logged in resort/userId to null");
-        if (Utils.isNotEmpty(parent)) {
+        if (StaticUtils.isNotEmpty(parent)) {
           String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resortParameter + "&NSPgoto=" + parent;
           debugOut("calling sendRedirect(" + newLoc + ")");
           response.sendRedirect(newLoc);

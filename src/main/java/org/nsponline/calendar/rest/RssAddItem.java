@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.StaticUtils;
 
 /**
  *   }
@@ -58,16 +58,16 @@ public class RssAddItem extends HttpServlet {
       width = node.path("width").asText();
       title = node.path("title").asText();
       description = node.path("description").asText();
-      if(Utils.isEmpty(pid)) {
-        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
+      if(StaticUtils.isEmpty(pid)) {
+        StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
         return;
       }
-      if(Utils.isEmpty(url)) {
-        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'url'");
+      if(StaticUtils.isEmpty(url)) {
+        StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'url'");
         return;
       }
-      if(Utils.isEmpty(mimeType)) {
-        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'mimeType'");
+      if(StaticUtils.isEmpty(mimeType)) {
+        StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'mimeType'");
         return;
       }
 
@@ -78,7 +78,7 @@ public class RssAddItem extends HttpServlet {
       File rssFile = new File(rssFeedName);
       if (!rssFile.exists()) {
         System.out.println("RSS feed not found for " + pid);
-        Utils.buildAndLogErrorResponse(response, 400, "RSS feed not found for " + pid);
+        StaticUtils.buildAndLogErrorResponse(response, 400, "RSS feed not found for " + pid);
         return;
       }
 
@@ -96,15 +96,15 @@ public class RssAddItem extends HttpServlet {
         myWriter.write(rssNode.toPrettyString());
         myWriter.close();
         System.out.println("Successfully wrote to the file." + rssFeedName);
-        Utils.buildOkResponse(response, rssNode);
+        StaticUtils.buildOkResponse(response, rssNode);
         RssInit.writeXml(pid, null, rssNode);
       } catch (FileNotFoundException e) {
         System.out.println("FileNotFoundException: " + e.getMessage());
-        Utils.buildAndLogErrorResponse(response, 400, "Error reading RSS feed for " + pid + " err=" + e.getMessage());
+        StaticUtils.buildAndLogErrorResponse(response, 400, "Error reading RSS feed for " + pid + " err=" + e.getMessage());
         return;
       } catch (Exception e) {
         System.out.println("Exception: " + e.getMessage());
-        Utils.buildAndLogErrorResponse(response, 400, "Error writing RSS feed for " + pid + " err=" + e.getMessage());
+        StaticUtils.buildAndLogErrorResponse(response, 400, "Error writing RSS feed for " + pid + " err=" + e.getMessage());
         return;
       }
     }
@@ -116,7 +116,7 @@ public class RssAddItem extends HttpServlet {
 
       JsonNode items = channel.path("items");
       if (items.isMissingNode()) {
-        channel.set("items", Utils.nodeFactory.arrayNode());
+        channel.set("items", StaticUtils.nodeFactory.arrayNode());
       }
       ArrayNode itemsArray = (ArrayNode)channel.path("items");
       ObjectNode item = toNode(date, pid, url, mimeType, size, height, width, title, description);
@@ -124,7 +124,7 @@ public class RssAddItem extends HttpServlet {
     }
 
     public ObjectNode toNode(String date, String pid, final String url, final String mimeType, final String size, final String height, final String width, final String title, final String description) {
-      ObjectNode itemNode = Utils.nodeFactory.objectNode();
+      ObjectNode itemNode = StaticUtils.nodeFactory.objectNode();
       itemNode.put("pubDate", date);
 //      ObjectNode enclosure = Utils.nodeFactory.objectNode();
       itemNode.put("url", url);

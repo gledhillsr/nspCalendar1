@@ -1,8 +1,8 @@
 package org.nsponline.calendar.store;
 
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.PatrolData;
+import org.nsponline.calendar.utils.SessionData;
 
 import java.sql.SQLException;
 import java.text.*;

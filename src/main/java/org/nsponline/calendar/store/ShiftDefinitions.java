@@ -1,7 +1,7 @@
 package org.nsponline.calendar.store;
 
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.PatrolData;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.PatrolData;
 
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;

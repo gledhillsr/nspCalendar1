@@ -1,6 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Assignments;
 import org.nsponline.calendar.store.DirectorSettings;
 
@@ -164,7 +164,7 @@ public class PurgeAssignments extends HttpServlet {
       }
       out.println("  </select>&nbsp;&nbsp;<select size=\"1\" name=\"startMonth\">");
       for (int i = 1; i <= 12; ++i) {
-        out.println("&nbsp;&nbsp;<option value=\"" + i + "\" " + ((i == startMonth) ? "selected" : "") + ">" + Utils.szMonthsFull[i - 1] + "</option>");
+        out.println("&nbsp;&nbsp;<option value=\"" + i + "\" " + ((i == startMonth) ? "selected" : "") + ">" + StaticUtils.szMonthsFull[i - 1] + "</option>");
       }
       out.println("  </select>&nbsp;&nbsp;<select size=\"1\" name=\"startYear\">");
       for (int i = 0; i < 4; ++i) {

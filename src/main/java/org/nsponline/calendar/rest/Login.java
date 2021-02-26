@@ -3,7 +3,7 @@ package org.nsponline.calendar.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.NspSession;
 import org.nsponline.calendar.store.Roster;
 
@@ -17,7 +17,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Date;
 
-import static org.nsponline.calendar.misc.Utils.buildAndLogErrorResponse;
+import static org.nsponline.calendar.utils.StaticUtils.buildAndLogErrorResponse;
 
 /**
  * get an Authorization Token for the specified resort.  Given a valid userId/password
@@ -78,7 +78,7 @@ public class Login extends HttpServlet {
 //    logger(sessionData, "jsonBuffer:" + jsonBuffer.toString());
 
     String resort = request.getParameter("resort");
-    if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
+    if (StaticUtils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
       buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + ")");
       return;
     }
@@ -89,7 +89,7 @@ public class Login extends HttpServlet {
     String password = payload.getPassword();
     String patrollerId = payload.getId();
 
-    if (Utils.isEmpty(patrollerId) || Utils.isEmpty(password)) {
+    if (StaticUtils.isEmpty(patrollerId) || StaticUtils.isEmpty(password)) {
       buildAndLogErrorResponse(response, 400, "Missing id or password");
       return;
     }
@@ -120,11 +120,11 @@ public class Login extends HttpServlet {
       ObjectNode returnNode = nodeFactory.objectNode();
       returnNode.put("authToken", sessionId);
       //return OK
-      Utils.buildOkResponse(response, returnNode);
+      StaticUtils.buildOkResponse(response, returnNode);
     }
     else {
       String errMsg = (connection == null) ? "Could not get DB connection" : "Row insertion failed";
-      Utils.buildAndLogErrorResponse(response, 500, "Internal error: " + errMsg);
+      StaticUtils.buildAndLogErrorResponse(response, 500, "Internal error: " + errMsg);
     }
     patrol.close();
   }

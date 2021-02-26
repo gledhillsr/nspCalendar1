@@ -2,8 +2,8 @@ package org.nsponline.calendar.store;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.StaticUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
@@ -1129,7 +1129,7 @@ public class Roster {
   }
 
   public ObjectNode toNode() {
-    ObjectNode returnNode = Utils.nodeFactory.objectNode();
+    ObjectNode returnNode = StaticUtils.nodeFactory.objectNode();
     returnNode.put("IDNumber", getID());
     setIfNotEmpty(returnNode, "ClassificationCode", getClassification());
     setIfNotEmpty(returnNode, "ClassificationCode", getClassification());
@@ -1158,7 +1158,7 @@ public class Roster {
   }
 
   private void setIfNotEmpty(ObjectNode returnNode, String key, String value) {
-    if (Utils.isNotEmpty(value)) {
+    if (StaticUtils.isNotEmpty(value)) {
       returnNode.put(key, value);
     }
   }

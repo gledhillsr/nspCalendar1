@@ -1,6 +1,6 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,13 +25,15 @@ public class MemberLogin extends NspHttpServlet {
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
     String szParent;
     String resort = servletData.getResort();
+    SessionData sessionData = servletData.getSessionData();
+    PrintWriter out = servletData.getOut();
     szParent = request.getParameter("NSPgoto");
     debugOut("resort=" + resort + ", szParent=" + szParent, servletData);
-    if (Utils.isEmpty(szParent)) {
+    if (StaticUtils.isEmpty(szParent)) {
       debugOut("ERROR, szParent was not specified", servletData);
       szParent = "MonthCalendar";
     }
-    if (Utils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
+    if (StaticUtils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
       out.println("ERROR, unknown resort (" + resort + "), go back to www.nsponline.org, and click on your resort<br/>");
       out.println("If you see this problem again, please email me at steve@gledhills.com with a quick " +
                     "description of what you did to see this error. and I will fix it ASAP!!!");

@@ -1,8 +1,9 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.Roster;
 
+import java.io.PrintWriter;
 import java.util.*;
 import javax.servlet.http.*;
 import java.lang.*;
@@ -26,6 +27,8 @@ public class CustomizedList extends NspHttpServlet {
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData)  {
     boolean isDirector;
     String IDOfPatroller;
+    PrintWriter out = servletData.getOut();
+    SessionData sessionData = servletData.getSessionData();
 
     if (servletData.getCredentials().hasInvalidCredentials()) {
       return;
@@ -45,12 +48,12 @@ public class CustomizedList extends NspHttpServlet {
 
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
     outerPage.printResortHeader(out);
-    printTop();
-    printBody(isDirector, IDOfPatroller, servletData.getResort());
+    printTop(out);
+    printBody(out, isDirector, IDOfPatroller, servletData.getResort());
     outerPage.printResortFooter(out);
   }
 
-  public void printTop() {
+  public void printTop(PrintWriter out) {
     out.println("<head>");
 
     String title = "Customized Patrol List";
@@ -84,7 +87,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("</head>");
   }
 
-  private void printStep1InstructionsAsTable() {
+  private void printStep1InstructionsAsTable(PrintWriter out) {
     out.println("  <table border=\"0\" width=\"100%\">");
     out.println("    <tr>");
     out.println("      <td width=\"25%\" bgcolor=\"#E5E5E5\" bordercolor=\"#E5E5E5\">With Classification:</td>");
@@ -127,7 +130,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("  </table>");
   }
 
-  private void printStep2InstructionsAsTable(boolean isDirector, String resort) {
+  private void printStep2InstructionsAsTable(PrintWriter out, boolean isDirector, String resort) {
     out.println("    <table border=\"0\" width=\"100%\">");
     out.println("      <tr>");
     out.println("        <td width=\"20%\" bgcolor=\"#E5E5E5\">");
@@ -254,7 +257,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("    </table>");
   }
 
-  private void printStep3InstructionsAsTable(String resort) {
+  private void printStep3InstructionsAsTable(PrintWriter out) {
     out.println("    <table border=\"0\" width=\"100%\">");
     out.println("      <tr>");
     out.println("        <td width=\"34%\" bgcolor=\"#E5E5E5\">");
@@ -290,7 +293,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("    </table>");
   }
 
-  public void printBody(boolean isDirector, String IDOfPatroller, String resort) {
+  public void printBody(PrintWriter out, boolean isDirector, String IDOfPatroller, String resort) {
     out.println("<h1 align=\"center\">Customized Patrol List</h1>");
 
     out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "CustomizedList2\" method=POST>");
@@ -300,7 +303,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfPatroller + "\">");
 //step 1
     out.println("  <p align=\"left\"><font size=\"4\">Step 1) </font><font size=\"4\">Only include patrollers: (MUST select at least 1 from each category)</font></p>");
-    printStep1InstructionsAsTable();
+    printStep1InstructionsAsTable(out);
     out.print("  <p align=\"left\"><font size=\"4\">Step 2) Select what fields to display:");
     if (resort.equalsIgnoreCase("Brighton") && isDirector) {
       out.println("<font color=RED>&nbsp;&nbsp;&nbsp;(Director ONLY access)</font>");
@@ -309,14 +312,14 @@ public class CustomizedList extends NspHttpServlet {
 //step 2
     out.println("  <div align=\"center\">");
     out.println("    <center>");
-    printStep2InstructionsAsTable(isDirector, resort);
+    printStep2InstructionsAsTable(out, isDirector, resort);
     out.println("    </center>");
     out.println("  </div>");
 //step 3
     out.println("  <p align=\"left\"><font size=\"4\">Step 3) Sort by:</font></p>");
     out.println("  <div align=\"center\">");
     out.println("    <center>");
-    printStep3InstructionsAsTable(resort);
+    printStep3InstructionsAsTable(out);
     out.println("    </center>");
     out.println("  </div>");
 

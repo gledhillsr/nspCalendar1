@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.nsponline.calendar.misc.Logger;
-import org.nsponline.calendar.misc.Utils;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.StaticUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,12 +58,12 @@ public class RssInit extends HttpServlet {
       pid = node.path("pid").asText();
       fullName = node.path("fullName").asText();
       nameCache.put(pid, fullName);
-      if(Utils.isEmpty(pid)) {
-        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
+      if(StaticUtils.isEmpty(pid)) {
+        StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
         return;
       }
-      if(Utils.isEmpty(fullName)) {
-        Utils.buildAndLogErrorResponse(response, 400, "missing required field 'fullName'");
+      if(StaticUtils.isEmpty(fullName)) {
+        StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'fullName'");
         return;
       }
 
@@ -73,7 +73,7 @@ public class RssInit extends HttpServlet {
       File fileJson = new File(rssFeedNameJson);
       if (fileJson.exists()) {
         System.out.println("RSS feed exists for " + pid);
-        Utils.buildAndLogErrorResponse(response, 304, "RSS feed exists for " + pid);
+        StaticUtils.buildAndLogErrorResponse(response, 304, "RSS feed exists for " + pid);
         return;
       }
       ObjectNode initNode = constructInitNode(pid, fullName);
@@ -83,18 +83,18 @@ public class RssInit extends HttpServlet {
         myWriter.write(initNode.toPrettyString());
         myWriter.close();
         System.out.println("Successfully wrote to the file." + rssFeedNameJson);
-        Utils.buildOkResponse(response, toNode(pid, fullName));
+        StaticUtils.buildOkResponse(response, toNode(pid, fullName));
       } catch (IOException e) {
         System.out.println("An error occurred. e.getMessage=" + e.getMessage());
-        Utils.buildAndLogErrorResponse(response, 400, "Failed to create RSS feed.  Exception " + e.getMessage());
+        StaticUtils.buildAndLogErrorResponse(response, 400, "Failed to create RSS feed.  Exception " + e.getMessage());
       }
       writeXml(pid, fullName, null);
     }
 
     private ObjectNode constructInitNode(final String pid, final String fullName) {
-      ObjectNode initNode = Utils.nodeFactory.objectNode();
-      ObjectNode rssNode = Utils.nodeFactory.objectNode();
-      ObjectNode channelNode = Utils.nodeFactory.objectNode();
+      ObjectNode initNode = StaticUtils.nodeFactory.objectNode();
+      ObjectNode rssNode = StaticUtils.nodeFactory.objectNode();
+      ObjectNode channelNode = StaticUtils.nodeFactory.objectNode();
       String date = new Date().toString();
       channelNode.put("title", fullName + "'s ancestors from FamilySearch");
       channelNode.put("description", fullName + " Ancestor images from FamilySearch for " + fullName);
@@ -108,7 +108,7 @@ public class RssInit extends HttpServlet {
     }
 
     public ObjectNode toNode(String pid, String fullName) {
-      ObjectNode returnNode = Utils.nodeFactory.objectNode();
+      ObjectNode returnNode = StaticUtils.nodeFactory.objectNode();
 
       returnNode.put("status", "Initialized rss feed for pid=" + pid + ", name=" + fullName);
       return returnNode;

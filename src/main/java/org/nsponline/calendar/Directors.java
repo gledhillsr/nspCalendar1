@@ -1,11 +1,13 @@
 package org.nsponline.calendar;
 
-import org.nsponline.calendar.misc.PatrolData;
-import org.nsponline.calendar.misc.SessionData;
+import org.nsponline.calendar.utils.OuterPage;
+import org.nsponline.calendar.utils.PatrolData;
+import org.nsponline.calendar.utils.SessionData;
 import org.nsponline.calendar.store.Roster;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 
 /*
@@ -31,10 +33,13 @@ public class Directors extends NspHttpServlet {
     private String[] sortedRoster;
     private String MyName;
     private int rosterSize;
-
+    private PrintWriter out;
+    private SessionData sessionData;
 
     public void runner(ServletData servletData) {
       String resort = servletData.getResort();
+      out = servletData.getOut();
+      sessionData = servletData.getSessionData();
       if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }

@@ -1,7 +1,7 @@
 package org.nsponline.calendar;
 
 
-import org.nsponline.calendar.misc.*;
+import org.nsponline.calendar.utils.*;
 import org.nsponline.calendar.store.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,10 +65,13 @@ public class MonthCalendar extends NspHttpServlet {
     private int wkEndWidth; //big weekend is 11 and 22 (100/9)
     private boolean notLoggedIn;
     private String patrollerIdTag;
-
+    private PrintWriter out;
+    private SessionData sessionData;
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
       String resort = servletData.getResort();
+      sessionData = servletData.getSessionData();
+      out = servletData.getOut();
       String szMonth;
       String szYear;
       textFontSize = 10;
@@ -80,7 +83,7 @@ public class MonthCalendar extends NspHttpServlet {
       names = new Hashtable<Integer, String>(Roster.MAX_MEMBERS);
 
       //has the user set an "override" for the length of each text row
-      if (Utils.isNotEmpty(request.getParameter("textLen"))) {
+      if (StaticUtils.isNotEmpty(request.getParameter("textLen"))) {
         textLen = new Integer(request.getParameter("textLen"));
       }
       else {
@@ -89,7 +92,7 @@ public class MonthCalendar extends NspHttpServlet {
 
 //      new ValidateCredentials(sessionData, request, response, null);  //do not redirect
       patrollerId = sessionData.getLoggedInUserId();
-      if (Utils.isNotEmpty(patrollerId)) {
+      if (StaticUtils.isNotEmpty(patrollerId)) {
         patrollerIdTag = "&ID=" + patrollerId;
         notLoggedIn = false;
       }
@@ -415,7 +418,7 @@ public class MonthCalendar extends NspHttpServlet {
       if (PatrolData.USING_TESTING_ADDRESS) {
         testingMessage = "ERROR!!! Using to older database!!! Contact Steve Gledhill (801)209-5974 ASAP";
       }
-      out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + Utils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
+      out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + PatrolData.getResortFullName(resort) + " - Shift Schedule for " + StaticUtils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
       out.println("<font size=3>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       if (notLoggedIn) {
@@ -477,7 +480,7 @@ public class MonthCalendar extends NspHttpServlet {
       if (notLoggedIn) {
         szCurrHTML += "&noLogin=1";
       }
-      out.println("<a href='" + szCurrHTML + "' Target='_self'><IMG SRC='/images/ncgohome.gif' BORDER='0' ALT='Return to " + Utils.szMonthsFull[realCurrMonth] + " " + realCurrYear + "' ALIGN='MIDDLE' width='32' height='32'></a>");
+      out.println("<a href='" + szCurrHTML + "' Target='_self'><IMG SRC='/images/ncgohome.gif' BORDER='0' ALT='Return to " + StaticUtils.szMonthsFull[realCurrMonth] + " " + realCurrYear + "' ALIGN='MIDDLE' width='32' height='32'></a>");
       out.println(" </FONT></TD></TR>");
       out.println("<TR><TD VALIGN='Bottom' ALIGN='RIGHT' height='21'>");
       out.println("");
