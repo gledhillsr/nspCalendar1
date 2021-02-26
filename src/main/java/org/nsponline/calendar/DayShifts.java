@@ -64,10 +64,10 @@ public class DayShifts extends NspHttpServlet {
     private String IDOfEditor;
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
-      if (credentials.hasInvalidCredentials()) {
+      if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }
-
+      String resort = servletData.getResort();
       Roster editorsMemberData;
       IDOfEditor = sessionData.getLoggedInUserId();
       doAssignments = request.getParameter("doAssignments") != null;
@@ -95,14 +95,14 @@ public class DayShifts extends NspHttpServlet {
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
-      printTop();
-      printBody(request, assignmentsFromDisk);
+      printTop(servletData.getResort());
+      printBody(request, assignmentsFromDisk, servletData.getResort());
       printBottom();
       patrol.close();
       outerPage.printResortFooter(out);
     }
 
-    private void printTop() {
+    private void printTop(String resort) {
 //all JavaScript code
       out.println("<SCRIPT LANGUAGE='JavaScript'>");
       out.println("var mustChangeName = true");
@@ -438,6 +438,7 @@ public class DayShifts extends NspHttpServlet {
                                 ArrayList<Assignments> assignmentsFromDisk,
                                 ArrayList<ShiftDefinitions> parameterShifts, ServletData servletData) {
       int i;
+      String resort = servletData.getResort();
       HttpServletRequest request = sessionData.getRequest();
 //this is a little complicated, but there are 5 states we can enter into
 // all entries must have dayOfWeek, date, month, year or ELSE!
@@ -613,7 +614,7 @@ public class DayShifts extends NspHttpServlet {
 
     private void debugOut(HttpServletRequest request, String msg) {
       if (DEBUG) {
-        Logger.printToLogFileStatic(request, resort, "Debug-DayShifts: " + msg);
+        Logger.printToLogFileStatic(request, "<resortGoesHere>", "Debug-DayShifts: " + msg);
       }
     }
 
@@ -635,7 +636,7 @@ public class DayShifts extends NspHttpServlet {
       out.println("</body>");
     }
 
-    private void printBody(HttpServletRequest request, ArrayList<Assignments> assignmentsFromDisk) {
+    private void printBody(HttpServletRequest request, ArrayList<Assignments> assignmentsFromDisk, String resort) {
 //print date at top
       out.println("<h1><font color='#FF0000'>" + Utils.szDays[dayOfWeek] + " " + Utils.szMonthsFull[month] + " " + szDate + ", " + szYear + "</font></h1>");
 
@@ -654,7 +655,7 @@ public class DayShifts extends NspHttpServlet {
         }
         if (doAssignments) {
           //do group assignment
-          showEditAssignments(Math.max(defaultShiftSize, assignmentsFromDisk.size()), assignmentsFromDisk);
+          showEditAssignments(Math.max(defaultShiftSize, assignmentsFromDisk.size()), assignmentsFromDisk, resort);
         } else {
           if ((assignmentsFromDisk.size() > 0 || defaultShiftSize > 0) && dropdownShift == null) {
             //ask if director wants to do group assignment
@@ -668,14 +669,14 @@ public class DayShifts extends NspHttpServlet {
             out.println("<INPUT TYPE=SUBMIT NAME=doAssignments VALUE='Group Assignment of Patrollers to Shifts'>");
             out.println("&nbsp;&nbsp;&nbsp;(Fast if assigning a large number of patrollers at one time)</form>");
           }
-          showEditShift(request, assignmentsFromDisk);
+          showEditShift(request, assignmentsFromDisk, resort);
         }
       } else {
-        showShiftDetails(assignmentsFromDisk);
+        showShiftDetails(assignmentsFromDisk, resort);
       }
     } //end printBody
 
-    private void showShiftDetails(ArrayList<Assignments> assignmentsFromDisk) {
+    private void showShiftDetails(ArrayList<Assignments> assignmentsFromDisk, String resort) {
 //print table of values
       out.println("<div align='center'>");
       out.println("  <center>");
@@ -712,7 +713,7 @@ public class DayShifts extends NspHttpServlet {
       out.println("</form>");
     } //end ShowShiftDetails
 
-    private void showEditShift(HttpServletRequest request, ArrayList<Assignments> assignmentsFromDisk) {
+    private void showEditShift(HttpServletRequest request, ArrayList<Assignments> assignmentsFromDisk, String resort) {
 // Change Today's Shift
 //Log.log("starting in showEditShift, selectedShift="+selectedShift);
       out.println("<hr>");
@@ -811,7 +812,7 @@ public class DayShifts extends NspHttpServlet {
 //Log.log("endif in showEditShift, selectedShift="+selectedShift);
     }
 
-    private void showEditAssignments(int count, ArrayList<Assignments> assignmentsFromDisk) {
+    private void showEditAssignments(int count, ArrayList<Assignments> assignmentsFromDisk, String resort) {
       if (assignmentsFromDisk.size() == 1) {
         Assignments data = assignmentsFromDisk.get(0);
         if (data.getCount() == 0) {

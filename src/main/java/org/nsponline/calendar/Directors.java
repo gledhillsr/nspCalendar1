@@ -34,7 +34,8 @@ public class Directors extends NspHttpServlet {
 
 
     public void runner(ServletData servletData) {
-      if (credentials.hasInvalidCredentials()) {
+      String resort = servletData.getResort();
+      if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }
       patrollerId = sessionData.getLoggedInUserId();    //editor's ID
@@ -43,11 +44,11 @@ public class Directors extends NspHttpServlet {
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
 
-      printTop();
+      printTop(resort);
       if (found != 1) {
         out.println("Error reading patroller id [" + patrollerId + "]");
       } else if (PatrolData.isValidResort(resort)) {
-        printBody();
+        printBody(resort);
       } else {
         out.println("Invalid host resort. [" + resort + "]");
       }
@@ -55,7 +56,7 @@ public class Directors extends NspHttpServlet {
     }
 
     public int readData(String readID, SessionData sessionData, ServletData servletData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG());
       ResultSet rosterResults = patrol.resetRoster();
 
       sortedRoster = new String[400];
@@ -80,13 +81,13 @@ public class Directors extends NspHttpServlet {
       return 1;
     } //end ReadData
 
-    public void printTop() {
+    public void printTop(String resort) {
       out.println("<CENTER>");
       out.println("<h1>Database Maintenance for " + PatrolData.getResortFullName(resort) + "</h1>");
       out.println("</CENTER>");
     }
 
-    public void printBody() {
+    public void printBody(String resort) {
       String nextPage;
       if (!isDirector) {
         out.println("<hr>");
@@ -176,8 +177,6 @@ public class Directors extends NspHttpServlet {
         out.println("        </tr>");
 //night shift
         out.println("        <tr>");
-//            if(resort.equalsIgnoreCase("Brighton"))
-//                disableStatus = "";
         nextPage = PatrolData.SERVLET_URL + "CustomizedList2?resort=" + resort + "&NAME=LAST&AUX=1&BAS=1&SR=1&SRA=1&TRA=1&CAN=1&PRO=1&ALM=1&INA=1&FullTime=1&PartTime=1&Inactive=1&FIRST=1&NIGHT_CNT=1&NIGHT_DETAILS=1&ALL=1&FirstSort=shiftCnt&SecondSort=None&ThirdSort=None&FontSize=12&ID=" + patrollerId;
         out.println("            <td><input type=\"button\" value=\"Sorted By Night Shifts\"  onClick=window.location=\"" + nextPage + "\" " + disableStatus + "></td>");
         out.println("        </tr>");

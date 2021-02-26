@@ -93,11 +93,11 @@ public class ProcessChanges extends NspHttpServlet {
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
 
-      if (credentials.hasInvalidCredentials()) {
+      if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }
       szMyID = sessionData.getLoggedInUserId();
-      resort = request.getParameter("resort");
+      String resort = servletData.getResort();
 
       response.setContentType("text/html");
 
@@ -115,7 +115,7 @@ public class ProcessChanges extends NspHttpServlet {
     }
 
     private void readParameters(HttpServletRequest request, ServletData servletData) {
-
+      String resort = servletData.getResort();
       // create a GregorianCalendar with the Pacific Daylight time zone
       // and the current date and time
       calendarToday = new GregorianCalendar(TimeZone.getDefault());
@@ -179,7 +179,7 @@ public class ProcessChanges extends NspHttpServlet {
       }
     }
 
-    private void DisplayTransactionInformation() {
+    private void DisplayTransactionInformation(ServletData servletData) {
       final String szPos2 = null;
       if (night1 == null) {
         out.println("<h1>Error: Assignment data for " + szdate1 + " not found!</h1><br>");
@@ -191,23 +191,23 @@ public class ProcessChanges extends NspHttpServlet {
       dupError = false;
 
       if (transaction.equals("insertMyName")) {
-        setupForInsertMyself();
+        setupForInsertMyself(servletData.getResort());
       }
       else if (transaction.equals("missedShift")) {
-        if (setupForMissedShift()) {
+        if (setupForMissedShift(servletData.getResort())) {
           return;
         }
       }
       else if (transaction.equals("ReplaceWithMyName")) {
-        setupForReplaceWithMyself();
+        setupForReplaceWithMyself(servletData.getResort());
       }
       else if (transaction.equals("replaceWithSomeoneElse")) {
-        if (setupForReplaceWithNameInList()) {
+        if (setupForReplaceWithNameInList(servletData.getResort())) {
           return;  //member in list was not found
         }
       }
       else if (transaction.equals("removeName")) {
-        if (setupForRemoveName(resort)) {
+        if (setupForRemoveName(servletData.getResort())) {
           return; //member not found
         }
       }
@@ -328,7 +328,7 @@ public class ProcessChanges extends NspHttpServlet {
       return false;
     }
 
-    private boolean setupForReplaceWithNameInList() {
+    private boolean setupForReplaceWithNameInList(String resort) {
       member1 = patrolData.getMemberByName2(listName);
       if (member1 == null) {
         out.println("<h1>Error: member " + listName + " not found!</h1><br>");
@@ -346,7 +346,7 @@ public class ProcessChanges extends NspHttpServlet {
       return false;
     }
 
-    private void setupForReplaceWithMyself() {
+    private void setupForReplaceWithMyself(String resort) {
       transNumber = REPLACE;
       newID = submitterID;
       newName = szSubmitterName;
@@ -392,7 +392,7 @@ public class ProcessChanges extends NspHttpServlet {
       return false;
     }
 
-    private boolean setupForMissedShift() {
+    private boolean setupForMissedShift(String resort) {
       transNumber = MISSED_SHIFT;
       String cleanID;
       boolean missedShift = false;
@@ -420,7 +420,7 @@ public class ProcessChanges extends NspHttpServlet {
       return false;
     }
 
-    private void setupForInsertMyself() {
+    private void setupForInsertMyself(String resort) {
       transNumber = INSERT;
       newID = submitterID;
       newName = szSubmitterName;
@@ -493,8 +493,8 @@ public class ProcessChanges extends NspHttpServlet {
      * printBody
      */
     public void printBody(SessionData sessionData, ServletData servletData) {
-
-      DisplayTransactionInformation();
+      String resort = servletData.getResort();
+      DisplayTransactionInformation(servletData);
       DirectorSettings ds = patrolData.readDirectorSettings();
       boolean notifyPatrollers = ds.getNotifyChanges();
       boolean err = true;
@@ -576,7 +576,7 @@ public class ProcessChanges extends NspHttpServlet {
       else if (submitterID.equals(sessionData.getBackDoorUser())) { //using back door login, don't send emails
         servletData.getLOG().debug("no mail being sent by the System Administrator");
       }
-      else if (resort.equalsIgnoreCase("Sample")) {
+      else if (servletData.getResort().equalsIgnoreCase("Sample")) {
         servletData.getLOG().debug("no mail being sent for Sample resort");
       }
       else {    //hack to stop email
@@ -627,7 +627,7 @@ public class ProcessChanges extends NspHttpServlet {
         else if (member2 != null && member2.getID().equals(mbr.getID())) {
           sentToSecond = true;
         }
-        mail.sendMessage(sessionData, "Patrol Roster Changed (" + resort + ")", strChange3, recipient);
+        mail.sendMessage(sessionData, "Patrol Roster Changed (" + sessionData.getLoggedInResort() + ")", strChange3, recipient);
       }
     }
   } //end InnerProcessChanges

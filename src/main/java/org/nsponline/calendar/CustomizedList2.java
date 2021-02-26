@@ -118,7 +118,7 @@ public class CustomizedList2 extends NspHttpServlet {
       patrollersListed = 0;
 
       printTop(servletData);
-      if (PatrolData.isValidResort(resort)) {
+      if (PatrolData.isValidResort(servletData.getResort())) {
         printBody();
       }
       else {
@@ -272,7 +272,7 @@ public class CustomizedList2 extends NspHttpServlet {
         instructorFlags += 8;
       }
 
-      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG());
 
       //read assignments within a range and get shift count
       readAssignments(patrol); //must read for other code to work
@@ -305,7 +305,7 @@ public class CustomizedList2 extends NspHttpServlet {
     /**
      * showButtonsAtTop
      */
-    private void showButtonsAtTop() {
+    private void showButtonsAtTop(String resort) {
       out.println("<p><font size=\"3\"><Bold>");
       String options = "";
 //classification
@@ -385,10 +385,6 @@ public class CustomizedList2 extends NspHttpServlet {
       out.println("</p>");
     }
 
-    /**
-     * printTop
-     * @param servletData
-     */
     public void printTop(ServletData servletData) {
 
 //        int headerFontSize = textFontSize+2; //adjust me ?
@@ -409,11 +405,11 @@ public class CustomizedList2 extends NspHttpServlet {
       out.println("}");
       out.println("</script>");
 
-      out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(resort) + " Ski Patrol</h2></Center></p>");
+      out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(servletData.getResort()) + " Ski Patrol</h2></Center></p>");
 
       servletData.getLOG().info("CustomizedList2, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
       if (isDirector || (directorSettings != null && directorSettings.getEmailAll())) {
-        showButtonsAtTop();
+        showButtonsAtTop(servletData.getResort());
       } //end email patrollers...
       out.println("<table class='list' style=\"font-size: 10pt; face='Verdana, Arial, Helvetica' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
       out.println(" <tr>");
@@ -526,7 +522,7 @@ public class CustomizedList2 extends NspHttpServlet {
         Roster.addColumn(Roster.SHOW_TRAINING_LIST);
       }
 
-      Roster.printMemberListRowHeading(out, resort);
+      Roster.printMemberListRowHeading(out, servletData.getResort());
       out.println(" </tr>");
     }
 
@@ -772,7 +768,7 @@ public class CustomizedList2 extends NspHttpServlet {
 
     private void debugOut(String msg) {
       if (DEBUG) {
-        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-CustomizedList2(" + resort + "): " + msg);
+        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-CustomizedList2(): " + msg);
       }
     }
   }

@@ -35,8 +35,6 @@ public class MemberList extends NspHttpServlet {
 
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
-//      LOG = new Logger(MemberList.class, request, null, null, Logger.INFO);
-//      LOG.logRequestParameters();
       SessionData sessionData = new SessionData(request, out, servletData.getLOG());
       ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MemberList", servletData.getLOG());
 
@@ -46,12 +44,12 @@ public class MemberList extends NspHttpServlet {
       //by now, sessionData.getID and sessionData.getLoggedInResort are valid
       ds = null;
       patrollerId = sessionData.getLoggedInUserId();
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG());
       readData(sessionData, patrollerId, servletData);
 
       OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
       outerPage.printResortHeader(out);
-      printTop();
+      printTop(servletData.getResort());
       int count = printBody(sessionData, servletData);
       printBottom(count);
       outerPage.printResortFooter(out);
@@ -59,7 +57,7 @@ public class MemberList extends NspHttpServlet {
 
     @SuppressWarnings("StringConcatenationInLoop")
     private void readData(SessionData sessionData, String iDOfEditor, ServletData servletData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG());
       ResultSet rosterResults = patrol.resetRoster();
       ds = patrol.readDirectorSettings();
 
@@ -80,7 +78,7 @@ public class MemberList extends NspHttpServlet {
       isDirector = editor != null && editor.isDirector();
     }
 
-    private void printTop() {
+    private void printTop(String resort) {
       out.println("<script>");
       out.println("function printWindow(){");
       out.println("   bV = parseInt(navigator.appVersion)");
@@ -100,7 +98,7 @@ public class MemberList extends NspHttpServlet {
 
 //        out.println("<a href=\"javascript:printWindow()\">Print This Page</a></p>");
       }
-      out.println("<table  style=\"font-size: 10pt; face=\'Verdana, Arial, Helvetica\' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
+      out.println("<table  style=\"font-size: 10pt; face='Verdana, Arial, Helvetica' \" border=\"1\" width=\"99%\" bordercolordark=\"#003366\" bordercolorlight=\"#C0C0C0\">");
       out.println(" <tr>");
       out.println("  <td width=\"160\" bgcolor=\"#C0C0C0\"><font face=\"Verdana, Arial, Helvetica\"><font size=\"2\">Name</font></font></td>");
       out.println("  <td width=\"90\" bgcolor=\"#C0C0C0\"><font face=\"Verdana, Arial, Helvetica\"><font size=\"2\">Home</font></font></td>");
@@ -117,7 +115,7 @@ public class MemberList extends NspHttpServlet {
     }
 
     private int printBody(SessionData sessionData, ServletData servletData) {
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG());
       ResultSet rosterResults = patrol.resetRoster();
       Roster member = patrol.nextMember("&nbsp;", rosterResults);
       int count = 0;

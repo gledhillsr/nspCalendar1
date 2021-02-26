@@ -27,14 +27,14 @@ public class CustomizedList extends NspHttpServlet {
     boolean isDirector;
     String IDOfPatroller;
 
-    if (credentials.hasInvalidCredentials()) {
+    if (servletData.getCredentials().hasInvalidCredentials()) {
       return;
     }
     //end boiler-plate
 
     isDirector = false;
     IDOfPatroller = sessionData.getLoggedInUserId();
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, servletData.getResort(), sessionData, servletData.getLOG()); //when reading members, read full data
     if (IDOfPatroller != null) {
       Roster patroller = patrol.getMemberByID(IDOfPatroller); //ID from cookie
       isDirector = patroller.isDirector();
@@ -46,7 +46,7 @@ public class CustomizedList extends NspHttpServlet {
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
     outerPage.printResortHeader(out);
     printTop();
-    printBody(isDirector, IDOfPatroller);
+    printBody(isDirector, IDOfPatroller, servletData.getResort());
     outerPage.printResortFooter(out);
   }
 
@@ -127,7 +127,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("  </table>");
   }
 
-  private void printStep2InstructionsAsTable(boolean isDirector) {
+  private void printStep2InstructionsAsTable(boolean isDirector, String resort) {
     out.println("    <table border=\"0\" width=\"100%\">");
     out.println("      <tr>");
     out.println("        <td width=\"20%\" bgcolor=\"#E5E5E5\">");
@@ -254,7 +254,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("    </table>");
   }
 
-  private void printStep3InstructionsAsTable() {
+  private void printStep3InstructionsAsTable(String resort) {
     out.println("    <table border=\"0\" width=\"100%\">");
     out.println("      <tr>");
     out.println("        <td width=\"34%\" bgcolor=\"#E5E5E5\">");
@@ -290,7 +290,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("    </table>");
   }
 
-  public void printBody(boolean isDirector, String IDOfPatroller) {
+  public void printBody(boolean isDirector, String IDOfPatroller, String resort) {
     out.println("<h1 align=\"center\">Customized Patrol List</h1>");
 
     out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "CustomizedList2\" method=POST>");
@@ -309,14 +309,14 @@ public class CustomizedList extends NspHttpServlet {
 //step 2
     out.println("  <div align=\"center\">");
     out.println("    <center>");
-    printStep2InstructionsAsTable(isDirector);
+    printStep2InstructionsAsTable(isDirector, resort);
     out.println("    </center>");
     out.println("  </div>");
 //step 3
     out.println("  <p align=\"left\"><font size=\"4\">Step 3) Sort by:</font></p>");
     out.println("  <div align=\"center\">");
     out.println("    <center>");
-    printStep3InstructionsAsTable();
+    printStep3InstructionsAsTable(resort);
     out.println("    </center>");
     out.println("  </div>");
 

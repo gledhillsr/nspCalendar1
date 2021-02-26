@@ -24,6 +24,7 @@ public class MemberLogin extends NspHttpServlet {
 
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
     String szParent;
+    String resort = servletData.getResort();
     szParent = request.getParameter("NSPgoto");
     debugOut("resort=" + resort + ", szParent=" + szParent, servletData);
     if (Utils.isEmpty(szParent)) {

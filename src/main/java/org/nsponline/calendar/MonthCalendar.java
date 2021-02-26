@@ -68,7 +68,7 @@ public class MonthCalendar extends NspHttpServlet {
 
 
     public void runner(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
-
+      String resort = servletData.getResort();
       String szMonth;
       String szYear;
       textFontSize = 10;
@@ -127,7 +127,7 @@ public class MonthCalendar extends NspHttpServlet {
       calendar.set(currYear, currMonth, 1);
 
       if (!PatrolData.isValidResort(resort)) {
-        out.println("ERROR.  Invalid resort=" +resort);
+        out.println("ERROR.  Invalid resort=" + resort);
         return;
       }
 
@@ -834,7 +834,7 @@ public class MonthCalendar extends NspHttpServlet {
 
     private void debugOut(String str) {
       if (DEBUG) {
-        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-MonthCalendar(" + resort + "): " + str);
+        Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-MonthCalendar: " + str);
       }
     }
   }

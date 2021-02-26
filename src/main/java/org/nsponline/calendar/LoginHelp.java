@@ -26,7 +26,7 @@ public class LoginHelp extends NspHttpServlet {
 
 //      PrintWriter out;
       String szParent;
-
+      String resort = servletData.getResort();
       String id = request.getParameter("ID");
       String pass = request.getParameter("Password");
   //    resort = request.getParameter("resort");

@@ -13,8 +13,8 @@ abstract public class NspHttpServlet extends HttpServlet {
   //todo ******
 //  public Logger LOG; //todo 2/4/2021  REMOVE ME FIRST, and implement getter in every class (fairly big thing)
   public PrintWriter out;
-  public ValidateCredentials credentials;
-  public String resort;
+//  public ValidateCredentials credentials;
+//  public String resort; //todo finished 2/26
   public SessionData sessionData;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -34,9 +34,9 @@ abstract public class NspHttpServlet extends HttpServlet {
   }
 
   private void commonSetupServletBody(HttpServletRequest request, HttpServletResponse response, ServletData servletData) throws IOException {
-    resort = request.getParameter("resort");
-    if (!PatrolData.isValidResort(resort)) {
-      Utils.buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + "). Class=" + getServletClass().getSimpleName());
+//    resort = request.getParameter("resort");
+    if (!PatrolData.isValidResort(servletData.getResort())) {
+      Utils.buildAndLogErrorResponse(response, 400, "Resort not found (" + servletData.getResort() + "). Class=" + getServletClass().getSimpleName());
       return;
     }
     String userAgent = request.getHeader("user-agent");
@@ -61,9 +61,9 @@ abstract public class NspHttpServlet extends HttpServlet {
     ServletData servletData = new ServletData(request, response, methodType);
     //todo 2/11/2021 remove these globals.  Already in servletData
     out = response.getWriter();
-    resort = request.getParameter("resort");
+//    resort = request.getParameter("resort");
     sessionData = new SessionData(request, out, servletData.getLOG());
-    credentials = new ValidateCredentials(sessionData, request, response, getParentIfBadCredentials(), servletData.getLOG());
+//    credentials = new ValidateCredentials(sessionData, request, response, getParentIfBadCredentials(), servletData.getLOG());
     return servletData;
   }
 

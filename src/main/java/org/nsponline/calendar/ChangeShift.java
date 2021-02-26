@@ -31,26 +31,26 @@ public class ChangeShift extends NspHttpServlet {
 
   @Override
   public void servletBody(HttpServletRequest request, HttpServletResponse response, ServletData servletData) {
-    if (credentials.hasInvalidCredentials()) {
+    if (servletData.getCredentials().hasInvalidCredentials()) {
       return;
     }
 
 
     Parameters parameters = new Parameters(request, servletData);
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG()); //when reading members, read full data
     ShiftInfo shiftInfo = readData(sessionData, patrol, parameters, servletData);
 
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", shiftInfo.loggedInUserId);
     outerPage.printResortHeader(out);
-    printTop(parameters);
+    printTop(parameters, servletData.getResort());
     printMiddle(patrol, shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
     printBottom(shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
     outerPage.printResortFooter(out);
     patrol.close();
   }
 
-  public void printTop(Parameters parameters) {
+  public void printTop(Parameters parameters, String resort) {
 //all JavaScript code
     out.println("<SCRIPT LANGUAGE=\"JavaScript\">");
 //cancel button pressed
@@ -135,7 +135,7 @@ public class ChangeShift extends NspHttpServlet {
 
     String nextURL = "ProcessChanges";
     out.print("<form target='_self' action=" + nextURL + " method=POST id=form02 name=form02>\n");
-    out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">\n");
+    out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + servletData.getResort() + "\">\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + loggedInUserId + "\">\n");
 
 //start of selection table
@@ -250,7 +250,7 @@ public class ChangeShift extends NspHttpServlet {
     out.println("<INPUT TYPE=\"button\" VALUE=\"Cancel\" onClick=\"goHome()\">");
     out.println("</FORM>");
     out.println("<HR>");    //Horizontal Rule
-    out.println("<H5>" + PatrolData.getResortFullName(resort) + " Ski Resort</H5>");
+    out.println("<H5>" + PatrolData.getResortFullName(servletData.getResort()) + " Ski Resort</H5>");
   } //end printBottom()
 
   public ShiftInfo readData(SessionData sessionData, PatrolData patrol, Parameters parameters, ServletData servletData) {

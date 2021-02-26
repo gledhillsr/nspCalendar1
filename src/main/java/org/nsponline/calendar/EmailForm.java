@@ -82,13 +82,12 @@ public class EmailForm extends NspHttpServlet {
     private String fullPatrolName;
 
     public void runner(final HttpServletRequest request, ServletData servletData) {
-
-      if (credentials.hasInvalidCredentials()) {
+      String resort = servletData.getResort();
+      if (servletData.getCredentials().hasInvalidCredentials()) {
         return;
       }
 
       final String szMyID = sessionData.getLoggedInUserId();
-      resort = sessionData.getLoggedInResort();
       if (szMyID != null) {
         readData(request, servletData);
         BuildLists(szMyID, sessionData, servletData);
@@ -154,7 +153,7 @@ public class EmailForm extends NspHttpServlet {
       return true;
     }
 
-    private boolean readEmailData(HttpServletRequest request, String szMyID, SessionData sessionData) {
+    private boolean readEmailData(HttpServletRequest request, String szMyID, SessionData sessionData, String resort) {
       originalPatrollerEmailCount = cvtToInt(request.getParameter("patrollerCount"));
       memberIds = request.getParameterValues("Patrollers");
       if (memberIds == null) {
@@ -189,7 +188,7 @@ public class EmailForm extends NspHttpServlet {
       return true;
     }
 
-    private void logEmailBaseInfo() {
+    private void logEmailBaseInfo(String resort) {
       String str = "sending emails to " + memberIds.length + " out of " + originalPatrollerEmailCount + " patrollers who had valid email addresses.";
       GregorianCalendar calendar = new GregorianCalendar();
 //output to html page
@@ -201,7 +200,7 @@ public class EmailForm extends NspHttpServlet {
       PatrolData.logger(resort, "Message=" + message + "<br>" + "time=" + calendar.getTime().toString() + "<br>");
     }
 
-    private int logEveryEmailSent(int currentEmailCount, Roster member) {
+    private int logEveryEmailSent(int currentEmailCount, Roster member, String resort) {
       String str = (++currentEmailCount) + ") Mailing: " + member.getFullName() +
         " at: " + member.getEmailAddress();
 //output to html page
@@ -217,7 +216,7 @@ public class EmailForm extends NspHttpServlet {
      * @param member memberData
      * @return message string to email with footers
      */
-    private String getUniqueMessage(Roster member) {
+    private String getUniqueMessage(Roster member, String resort) {
       String newMessage;
 
       if (messageIsUnique) {
@@ -263,10 +262,10 @@ public class EmailForm extends NspHttpServlet {
     private void SendEmails(HttpServletRequest request, String szMyID, SessionData sessionData, ServletData servletData) {
       String newMessage;
 
-      if (!readEmailData(request, szMyID, sessionData)) {
+      if (!readEmailData(request, szMyID, sessionData, servletData.getResort())) {
         return;
       }
-      logEmailBaseInfo();
+      logEmailBaseInfo(servletData.getResort());
 
       MailMan mailMan = new MailMan(smtp, fromEmailAddress, fromMember.getFullName(), sessionData);
 //todo srg zzz this is where the main loop is (Oct 28, 2013)
@@ -279,8 +278,8 @@ public class EmailForm extends NspHttpServlet {
         for (String memberId : memberIds) {
           Roster member = patrol.getMemberByID(memberId);
           log("666666 member=" + member);
-          currentEmailCount = logEveryEmailSent(currentEmailCount, member);
-          newMessage = getUniqueMessage(member);
+          currentEmailCount = logEveryEmailSent(currentEmailCount, member, servletData.getResort());
+          newMessage = getUniqueMessage(member, servletData.getResort());
           if (DEBUG_NO_SEND) {
             out.println("hack, no mail being sent, message body is:<br>");
             out.println(newMessage + "<br>");
@@ -621,7 +620,7 @@ public class EmailForm extends NspHttpServlet {
     }
 
     private void BuildLists(@SuppressWarnings("unused") String IDOfEditor, SessionData sessionData, ServletData servletData) {
-      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG());
+      patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG());
 
       readAssignments(patrol); //must read ASSIGNMENT data for other code to work
 

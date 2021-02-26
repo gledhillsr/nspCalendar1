@@ -23,7 +23,7 @@ public class MemberLogout extends NspHttpServlet {
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
     sessionData.clearLoggedInResort();
     sessionData.clearLoggedInUserId();
-    String newLoc = PatrolData.SERVLET_URL + "MonthCalendar?resort=" + resort;
+    String newLoc = PatrolData.SERVLET_URL + "MonthCalendar?resort=" + servletData.getResort();
     servletData.getLOG().info("Logout sendRedirect to: " + newLoc);
     response.sendRedirect(newLoc);
   }
