@@ -60,7 +60,7 @@ public class Preferences extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out, LOG);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "Directors", LOG);
+      ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, "Directors", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }

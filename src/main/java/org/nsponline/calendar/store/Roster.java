@@ -29,10 +29,10 @@ public class Roster {
     lookupClassification.put("BAS", "Basic");
 //        lookupClassification.put("INA","Inactive");
     lookupClassification.put("SR", "Senior");
-    lookupClassification.put("SRA", "Senior Auxilary");
+    lookupClassification.put("SRA", "Senior Auxiliary");
     lookupClassification.put("ALM", "Alumni");
     lookupClassification.put("PRO", "Pro");
-    lookupClassification.put("AUX", "Aulilary");
+    lookupClassification.put("AUX", "Auxiliary");
     lookupClassification.put("TRA", "Transfer");
     lookupClassification.put("CAN", "Candidate");
     lookupClassification.put("OTH", "Other");

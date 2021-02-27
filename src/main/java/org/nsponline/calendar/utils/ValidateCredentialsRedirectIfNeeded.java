@@ -13,25 +13,25 @@ import static com.amazonaws.util.StringUtils.isNullOrEmpty;
  *
  * @author Steve Gledhill
  */
-public class ValidateCredentials {
+public class ValidateCredentialsRedirectIfNeeded {
 
   @SuppressWarnings("FieldCanBeLocal")
-  private String resortParameter;
+  private String resort;
   private String token;  //new todo implement
   private Logger LOG;
 
   private boolean hasInvalidCredentials;
 
   @SuppressWarnings("UnusedParameters")
-  public ValidateCredentials(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
-    this.resortParameter = request.getParameter("resort");
+  public ValidateCredentialsRedirectIfNeeded(SessionData sessionData, HttpServletRequest request, HttpServletResponse response, String parent, final Logger parentLogger) {
+    this.resort = request.getParameter("resort");
     this.token = request.getParameter("token");
 //    LOG = new Logger(this.getClass(), parentLogger, resortParameter, LOG_LEVEL);
     LOG = parentLogger;
     //  public Logger(final Class<?> aClass, final HttpServletRequest request, final String methodType, String resort, int minLogLevel) //todo 1/1/2020 srg, consider using something like
     String idParameter = request.getParameter("ID"); //NOT REQUIRED (keep it that way)
     String idLoggedIn = sessionData.getLoggedInUserId();
-    init(sessionData, response, parent, idParameter, idLoggedIn);
+    initAndRedirectIfNeeded(sessionData, response, parent, idParameter, idLoggedIn);
   }
 
 //  public ValidateCredentials(SessionData sessionData, String resort, String id) {
@@ -39,15 +39,8 @@ public class ValidateCredentials {
 //    init(sessionData, null, null, id, null);
 //  }
 
-  private void init(SessionData sessionData, HttpServletResponse response, String parent, String idParameter, String idLoggedIn) {
-    debugOut("parameters  idParameter=" + idParameter + ", resort=" + resortParameter + ", NSPgoto=" + parent);
-//    debugOut("sessionData idLoggedIn=" + idLoggedIn + ", resort=" + sessionData.getLoggedInResort() + ", NSPgoto=" + parent);
-    if (StaticUtils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resortParameter, idParameter, sessionData, LOG)) {
-      sessionData.setLoggedInUserId(idParameter);
-      sessionData.setLoggedInResort(resortParameter);
-    }
-
-    hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resortParameter) || StaticUtils.isEmpty(sessionData.getLoggedInUserId());
+  private void initAndRedirectIfNeeded(SessionData sessionData, HttpServletResponse response, String parent, String idParameter, String idLoggedIn) {
+    init(sessionData, parent, idParameter);
     if (hasInvalidCredentials) {
 //      if (token != null && token.isEmpty()) {
 //        LOG.error("token is empty, loggedInUserId is NOT" + parent);
@@ -58,7 +51,7 @@ public class ValidateCredentials {
         sessionData.setLoggedInUserId(null);
         debugOut("RESETTING logged in resort/userId to null");
         if (StaticUtils.isNotEmpty(parent)) {
-          String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resortParameter + "&NSPgoto=" + parent;
+          String newLoc = PatrolData.SERVLET_URL + "MemberLogin?resort=" + resort + "&NSPgoto=" + parent;
           debugOut("calling sendRedirect(" + newLoc + ")");
           response.sendRedirect(newLoc);
         }
@@ -68,8 +61,18 @@ public class ValidateCredentials {
       }
     }
     else {
-      debugOut("OK.  id=" + idLoggedIn + ", parent=" + parent + ", resort=" + resortParameter);
+      debugOut("validCredentials.  id=" + idLoggedIn + ", parent=" + parent + ", resort=" + resort);
     }
+  }
+
+  private void init(SessionData sessionData, String parent, String idParameter) {
+    debugOut("parameters  idParameter=" + idParameter + ", resort=" + resort + ", NSPgoto=" + parent);
+    if (StaticUtils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resort, idParameter, sessionData, LOG)) {
+      sessionData.setLoggedInUserId(idParameter);
+      sessionData.setLoggedInResort(resort);
+    }
+
+    hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resort) || StaticUtils.isEmpty(sessionData.getLoggedInUserId());
   }
 
   private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData, Logger parentLog) {
@@ -89,12 +92,12 @@ public class ValidateCredentials {
 
   private void errorOut(String msg) {
     // NOSONAR
-    LOG.error("ERROR-ValidateCredentials(" + resortParameter + "): " + msg);
+    LOG.error("ERROR-ValidateCredentials(" + resort + "): " + msg);
   }
 
   private void debugOut(String msg) {
     // NOSONAR
-    LOG.debug("DEBUG-ValidateCredentials(" + resortParameter + "): " + msg);
+    LOG.debug("DEBUG-ValidateCredentials(" + resort + "): " + msg);
   }
 
   public boolean hasInvalidCredentials() {

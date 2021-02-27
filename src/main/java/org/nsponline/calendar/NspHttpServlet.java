@@ -72,14 +72,14 @@ abstract public class NspHttpServlet extends HttpServlet {
     private String sdResort;
     private PrintWriter sdOut;
     private SessionData sdSessionData;
-    private ValidateCredentials sdCredentials;
+    private ValidateCredentialsRedirectIfNeeded sdCredentials;
 
     ServletData(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
       sdResort = request.getParameter("resort");
       sdLOG = new Logger(getServletClass(), request, methodType, sdResort, Logger.INFO);
       sdOut = response.getWriter();
       sdSessionData = new SessionData(request, sdOut, sdLOG);
-      sdCredentials = new ValidateCredentials(sdSessionData, request, response, getParentIfBadCredentials(), sdLOG);
+      sdCredentials = new ValidateCredentialsRedirectIfNeeded(sdSessionData, request, response, getParentIfBadCredentials(), sdLOG);
 
       response.setContentType("text/html");
       sdLOG.logRequestParameters();
@@ -97,7 +97,7 @@ abstract public class NspHttpServlet extends HttpServlet {
       return sdOut;
     }
 
-    ValidateCredentials getCredentials() {
+    ValidateCredentialsRedirectIfNeeded getCredentials() {
       return sdCredentials;
     }
 

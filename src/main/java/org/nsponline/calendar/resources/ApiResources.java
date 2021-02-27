@@ -162,10 +162,10 @@ public class ApiResources {
       new DoLogout(request, response, LOG);
     }
 
-    private class DoLogout extends ApiBase {
+    private class DoLogout extends ResourceBase {
       DoLogout(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
         super(request, response, LOG);
-        if (!initBaseAndValidSession(response)) {
+        if (!initBaseAndRequireValidSession(response)) {
           return;
         }
         sessionData.clearLoggedInResort();
@@ -229,10 +229,10 @@ public class ApiResources {
       new GetPatrolAssignments(request, response, LOG);
     }
 
-    private class GetPatrolAssignments extends ApiBase {
+    private class GetPatrolAssignments extends ResourceBase {
       GetPatrolAssignments(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
         super(request, response, LOG);
-        if (!initBaseAndValidSession(response)) {
+        if (!initBaseAndRequireValidSession(response)) {
           return;
         }
 
@@ -362,11 +362,11 @@ public class ApiResources {
       new GetUserAssignments(request, response, LOG);
     }
 
-    private class GetUserAssignments extends ApiBase {
+    private class GetUserAssignments extends ResourceBase {
 
       GetUserAssignments(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
         super(request, response, LOG);
-        if (!initBaseAndValidSession(response)) {
+        if (!initBaseAndRequireValidSession(response)) {
           return;
         }
         String szYear = request.getParameter("year");
@@ -462,11 +462,11 @@ public class ApiResources {
       new User(request, response, LOG);
     }
 
-    private class User extends ApiBase {
+    private class User extends ResourceBase {
 
       User(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
         super(request, response, LOG);
-        if (!initBaseAndValidSession(response)) {
+        if (!initBaseAndRequireValidSession(response)) {
           return;
         }
         Roster patroller = patrol.getMemberByID(nspSession.getAuthenticatedUser());
@@ -509,10 +509,10 @@ public class ApiResources {
       new InnerResort(request, response, LOG);
     }
 
-    private class InnerResort extends ApiBase {
+    private class InnerResort extends ResourceBase {
       InnerResort(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
         super(request, response, LOG);
-        if (!initBaseAndValidSession(response)) {
+        if (!initBaseAndRequireValidSession(response)) {
           return;
         }
         DirectorSettings directorSettings = patrol.readDirectorSettings();
@@ -553,11 +553,11 @@ public class ApiResources {
       new InnerResortList(request, response, LOG);
     }
 
-    private class InnerResortList extends ApiBase {
+    private class InnerResortList extends ResourceBase {
 
       InnerResortList(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
         super(request, response, LOG);
-        if (!initBaseAndValidSession(response)) {
+        if (!initBaseAndRequireValidSession(response)) {
           return;
         }
         ObjectNode returnNode = nodeFactory.objectNode();
@@ -646,11 +646,11 @@ public class ApiResources {
       new InnerUserList(request, response, LOG);
     }
 
-    private class InnerUserList extends ApiBase {
+    private class InnerUserList extends ResourceBase {
 
       InnerUserList(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
         super(request, response, LOG);
-        if (!initBaseAndValidSession(response)) {
+        if (!initBaseAndRequireValidSession(response)) {
           return;
         }
 

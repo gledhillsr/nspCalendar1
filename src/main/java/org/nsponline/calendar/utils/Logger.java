@@ -56,8 +56,8 @@ public class Logger {
 //        at org.nsponline.calendar.misc.Logger.<init>(Logger.java:37)
 //        at org.nsponline.calendar.misc.Logger.<init>(Logger.java:27)
 //        at org.nsponline.calendar.misc.ValidateCredentials.<init>(ValidateCredentials.java:26)
-//        at org.nsponline.calendar.SubList$InnerSubList.<init>(SubList.java:46)
-//        at org.nsponline.calendar.SubList.doGet(SubList.java:27)
+//        at org.nsponline.calendar.resources.OuterWebResource.SubList$InnerSubList.<init>(SubList.java:46)
+//        at org.nsponline.calendar.resources.OuterWebResource.SubList.doGet(SubList.java:27)
         }
 //      ip = "<<null request>>";
       agent = "";
@@ -188,6 +188,10 @@ public class Logger {
   public void logException(String msg, Exception e) {
     _printCommonHeader("ipAddress", resort);
     System.out.println(msg + "exceptionCause=\"" + e.getCause() + "\", exceptionMessage=\"" + e.getMessage() + "\" " + e.toString());
+  }
+
+  public String getClassName() {
+    return className;
   }
 
   // todo ***************** START these are the last to be made not static **************

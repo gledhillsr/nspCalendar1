@@ -41,7 +41,7 @@ public class RefresherTraining extends NspHttpServlet {
         return;
       }
       SessionData sessionData = new SessionData(request, out, servletData.getLOG());
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "RefresherTraining", servletData.getLOG());
+      ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, "RefresherTraining", servletData.getLOG());
       if (credentials.hasInvalidCredentials()) {
         return;
       }

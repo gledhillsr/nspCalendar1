@@ -105,7 +105,7 @@ public class CustomizedList2 extends NspHttpServlet {
       out = servletData.getOut();
       sessionData = servletData.getSessionData();
       SessionData sessionData = new SessionData(request, out, servletData.getLOG());
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "CustomizedList2", servletData.getLOG());
+      ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, "CustomizedList2", servletData.getLOG());
       if (credentials.hasInvalidCredentials()) {
         return;
       }

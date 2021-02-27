@@ -41,6 +41,7 @@ public final class StaticUtils {
   }
 
   public static void build204Response(HttpServletResponse response) {
+    Logger.logStatic("Response OK (204):");
     response.setStatus(204);
   }
 

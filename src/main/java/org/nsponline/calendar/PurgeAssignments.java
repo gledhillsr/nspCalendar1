@@ -46,7 +46,7 @@ public class PurgeAssignments extends HttpServlet {
       response.setContentType("text/html");
       out = response.getWriter();
       SessionData sessionData = new SessionData(request, out, LOG);
-      ValidateCredentials credentials = new ValidateCredentials(sessionData, request, response, "MonthCalendar", LOG);
+      ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, "MonthCalendar", LOG);
       if (credentials.hasInvalidCredentials()) {
         return;
       }

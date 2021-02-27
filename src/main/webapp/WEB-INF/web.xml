@@ -88,7 +88,7 @@
     </servlet>
     <servlet>
         <servlet-name>UpdateInfoServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.UpdateInfo</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$UpdateInfo</servlet-class>
     </servlet>
 
     <servlet>
@@ -106,7 +106,7 @@
 
     <servlet>
         <servlet-name>ListAssignmentsServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.ListAssignments</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$ListAssignments</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CustomizedListServlet</servlet-name>
@@ -118,7 +118,7 @@
     </servlet>
     <servlet>
         <servlet-name>SubListServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.SubList</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$SubList</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PreferencesServlet</servlet-name>
