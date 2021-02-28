@@ -54,7 +54,6 @@ public final class StaticUtils {
   }
 
   public static boolean isRequestFromBot(String userAgent) {
-
     if (!StaticUtils.isEmpty(userAgent)) {
       String upperUserAgent = userAgent.toUpperCase();
       return upperUserAgent.contains("BOT") || upperUserAgent.contains("SPIDER") || upperUserAgent.contains("CRAWLER");

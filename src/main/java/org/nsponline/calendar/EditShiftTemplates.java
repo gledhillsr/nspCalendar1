@@ -13,17 +13,17 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 
-public class EditShifts extends HttpServlet {
+public class EditShiftTemplates extends HttpServlet {
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    new LocalEditShifts(request, response, "GET");
+    new LocalEditShiftTemplates(request, response, "GET");
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    new LocalEditShifts(request, response, "POST");
+    new LocalEditShiftTemplates(request, response, "POST");
   }
 
-  private class LocalEditShifts {
+  private class LocalEditShiftTemplates {
     private Logger LOG;
     String szMyID;
     ArrayList<ShiftDefinitions> shifts;
@@ -38,8 +38,8 @@ public class EditShifts extends HttpServlet {
     boolean DeleteTemplateBtn;
     private String resort;
 
-    private LocalEditShifts(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
-      LOG = new Logger(EditShifts.class, request, methodType, null, Logger.INFO);
+    private LocalEditShiftTemplates(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
+      LOG = new Logger(EditShiftTemplates.class, request, methodType, null, Logger.INFO);
       LOG.logRequestParameters();
       response.setContentType("text/html");
       out = response.getWriter();

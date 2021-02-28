@@ -74,7 +74,7 @@ public class Download extends HttpServlet {
   boolean showPager;
   boolean showEmail;
   boolean showEmergency;
-//  boolean showSubsitute;
+//  boolean showSubstitute;
   boolean showCommit;
   boolean showInstructor;
   boolean showDirector;
@@ -161,7 +161,7 @@ public class Download extends HttpServlet {
     showPager       = request.getParameter("PAGER") != null;
     showEmail       = request.getParameter("EMAIL") != null;
     showEmergency   = request.getParameter("EMERGENCY") != null;
-//    showSubsitute   = request.getParameter("SUBSITUTE") != null;
+//    showSubstitute   = request.getParameter("SUBSTITUTE") != null;
     showCommit      = request.getParameter("COMMIT") != null;
     showInstructor  = request.getParameter("INSTRUCTOR") != null;
     showDirector    = request.getParameter("DIRECTOR") != null;
@@ -379,7 +379,7 @@ public class Download extends HttpServlet {
         if(actualCount == 0)
           out.println(member.getExcelHeader());
         out.println(member.getExcelString());
-//from CustomizedList2.java
+//from ListPatrollers.java
 // member.printMemberListRowData(out);
 //
         actualCount++;

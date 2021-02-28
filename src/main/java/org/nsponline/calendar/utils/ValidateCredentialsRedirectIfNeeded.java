@@ -81,7 +81,7 @@ public class ValidateCredentialsRedirectIfNeeded {
         !PatrolData.isValidResort(resortParameter)) {
       return false;
     }
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData, parentLog); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData, parentLog); //todo srg, 2/27/21 pass in, usually already available
     boolean validId = patrol.getMemberByID(idParameter) != null;
     //todo 1/1/2020, put try/catch around getMemberByID, and dump all parameters on error
     //seen this error when idParameter was not a number

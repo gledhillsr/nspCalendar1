@@ -181,7 +181,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("        </td>");
     out.println("        <td width=\"20%\" bgcolor=\"#E5E5E5\">");
     out.println("          <input type=\"checkbox\" name=\"EMERGENCY\">Emergency Call Up<br>");
-    out.println("          <input type=\"checkbox\" name=\"SUBSITUTE\">Substitute List<br>");
+    out.println("          <input type=\"checkbox\" name=\"SUBSTITUTE\">Substitute List<br>");
     out.println("          <input type=\"checkbox\" name=\"COMMIT\">Commitment Level<br>");
     out.println("          <input type=\"checkbox\" name=\"INSTRUCTOR\">Instructor&nbsp;Qualifications<br>");
     out.println("          <input type=\"checkbox\" name=\"DIRECTOR\">Director Status<br>");
@@ -296,8 +296,8 @@ public class CustomizedList extends NspHttpServlet {
   public void printBody(PrintWriter out, boolean isDirector, String IDOfPatroller, String resort) {
     out.println("<h1 align=\"center\">Customized Patrol List</h1>");
 
-    out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "CustomizedList2\" method=POST>");
-//        out.println("<form name=form1 action=\"CustomizedList2\" method=PUT>");
+    out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "ListPatrollers\" method=POST>");
+//        out.println("<form name=form1 action=\"ListPatrollers\" method=PUT>");
 
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfPatroller + "\">");

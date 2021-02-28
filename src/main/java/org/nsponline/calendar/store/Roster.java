@@ -18,7 +18,7 @@ import java.util.Vector;
  */
 @SuppressWarnings("unused")
 public class Roster {
-  private Logger LOG;
+  private final Logger LOG;
 
   public static final String HARD_SPACE_NBSP = "&nbsp;";
   //static data
@@ -66,7 +66,7 @@ public class Roster {
       {"email", "E-mail:&nbsp;", "E-mailAddress", "n", "Email", "130"},     //13
       {"EmergencyCallUp", "Emergency Call Up:&nbsp;", "EmergencyCall", "n", "Call Up", "50"},      //14
       {"Password", "Password:&nbsp;", "Password", "n", "Password", "60"},      //15
-      {"NightSubsitute", "Subsitute List:&nbsp;", "NightSubsitute", "n", "Sub", "50"},      //16
+      {"NightSubsitute", "Substitute List:&nbsp;", "NightSubsitute", "n", "Sub", "50"},      //16
       {"Commitment", "Commitment:&nbsp;", "Commitment", "n", "Commitment", "50"},      //17
       {"Instructor", "Instructor:&nbsp;", "Instructor", "n", "Instructor", "50"},      //18
       {"Director", "Director:&nbsp;", "Director", "y", "Director", "50"},      //19

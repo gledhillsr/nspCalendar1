@@ -1,66 +1,55 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.resources;
 
-
-import org.nsponline.calendar.utils.*;
-import org.nsponline.calendar.store.Assignments;
-import org.nsponline.calendar.store.DirectorSettings;
-import org.nsponline.calendar.store.Roster;
-import org.nsponline.calendar.store.NewIndividualAssignment;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.nsponline.calendar.store.Assignments;
+import org.nsponline.calendar.store.DirectorSettings;
+import org.nsponline.calendar.store.NewIndividualAssignment;
+import org.nsponline.calendar.store.Roster;
+import org.nsponline.calendar.utils.*;
 
 import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
-public class ChangeShift extends NspHttpServlet {
+public class InnerChangeShift extends ResourceBase  {
   private static final boolean DEBUG = true;
+  final private HttpServletResponse response;
 
-  @Override
-  Class<?> getServletClass() {
-    return this.getClass();
+  public InnerChangeShift(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
+    super(request, response, LOG);
+    this.response = response;
   }
 
-  String getParentIfBadCredentials() {
-    return "MonthCalendar";
-  }
-
-  public ChangeShift() {
-  }
-
-  @Override
-  public void servletBody(HttpServletRequest request, HttpServletResponse response, ServletData servletData) {
-    if (servletData.getCredentials().hasInvalidCredentials()) {
+  public void runner(String parentClassName) {
+    if (!initBaseAndAskForValidCredentials(response, parentClassName)) {
       return;
     }
-    PrintWriter out = servletData.getOut();
-    SessionData sessionData = servletData.getSessionData();
 
-    Parameters parameters = new Parameters(request, servletData);
+    Parameters parameters = new Parameters(request);
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, servletData.getResort(), sessionData, servletData.getLOG()); //when reading members, read full data
-    ShiftInfo shiftInfo = readData(sessionData, patrol, parameters, servletData);
+    ShiftInfo shiftInfo = readData(sessionData, patrol, parameters);
 
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", shiftInfo.loggedInUserId);
     outerPage.printResortHeader(out);
-    printTop(out, parameters, servletData.getResort());
-    printMiddle(out, patrol, shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
-    printBottom(out, shiftInfo.loggedInUserId, parameters, shiftInfo, servletData);
+    printTop(out, parameters, resort);
+    printMiddle(out, patrol, shiftInfo.loggedInUserId, parameters, shiftInfo);
+    printBottom(out, shiftInfo.loggedInUserId, parameters, shiftInfo);
     outerPage.printResortFooter(out);
     patrol.close();
   }
 
   public void printTop(PrintWriter out, Parameters parameters, String resort) {
-//all JavaScript code
+    //all JavaScript code
     out.println("<SCRIPT LANGUAGE=\"JavaScript\">");
-//cancel button pressed
+    //cancel button pressed
     out.println("function goHome() {");
     out.println("history.back()");
     out.println("}");
 
-//<!--
+    //<!--
     out.println("function autoSelectRadioBtn (index) {");
     // Skip for older (3.x) browsers, where the 'click' method
     // steals the focus, hence foiling the tab order.
@@ -111,9 +100,9 @@ public class ChangeShift extends NspHttpServlet {
         out.println("<option>" + shiftInfo.sortedRoster[i]);
       }
     }
-  } //addnames
+  }
 
-  private boolean findIfPositionWasEmpty(Parameters parameters, PatrolData patrol, ShiftInfo shiftInfo, ServletData servletData) {
+  private boolean findIfPositionWasEmpty(Parameters parameters, PatrolData patrol, ShiftInfo shiftInfo) {
     boolean posWasEmpty = true;
     for (int assignmentGroup = 0; assignmentGroup < shiftInfo.totalAssignmentGroupsForToday; ++assignmentGroup) {
       for (int offsetWithinGroup = 0; offsetWithinGroup < shiftInfo.assignmentGroups[assignmentGroup].getCount(); ++offsetWithinGroup) {
@@ -122,7 +111,7 @@ public class ChangeShift extends NspHttpServlet {
           id = id.substring(1);
         }
         if ((assignmentGroup + 1) == parameters.pos && offsetWithinGroup == parameters.index) {
-          debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup, servletData);
+          debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
           posWasEmpty = isThisPositionEmpty(id, patrol, shiftInfo);
         }
       }
@@ -130,17 +119,17 @@ public class ChangeShift extends NspHttpServlet {
     return posWasEmpty;
   }
 
-  private void printMiddle(PrintWriter out, PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
+  private void printMiddle(PrintWriter out, PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo) {
     int visibleRadioButtons = 0;
 
-    boolean posWasEmpty = findIfPositionWasEmpty(parameters, patrol, shiftInfo, servletData);
+    boolean posWasEmpty = findIfPositionWasEmpty(parameters, patrol, shiftInfo);
 
     String nextURL = "ProcessChanges";
     out.print("<form target='_self' action=" + nextURL + " method=POST id=form02 name=form02>\n");
-    out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + servletData.getResort() + "\">\n");
+    out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + loggedInUserId + "\">\n");
 
-//start of selection table
+    //start of selection table
     out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
     boolean editingMyself = (shiftInfo.newName != null && shiftInfo.newName.equals(shiftInfo.myName));
     debugOut("CALLING ProcessChanges with: loggedInUserId=" + loggedInUserId
@@ -148,7 +137,7 @@ public class ChangeShift extends NspHttpServlet {
                + ", myName=" + shiftInfo.myName
                + ", posWasEmpty=" + posWasEmpty
                + ", allowEditing=" + shiftInfo.allowEditing
-               + ",  editingMyself=" + editingMyself, servletData);
+               + ",  editingMyself=" + editingMyself);
     if (shiftInfo.allowEditing && shiftInfo.myName != null) {
       //==INSERT== only used if position is empty
       if (posWasEmpty) {
@@ -205,7 +194,7 @@ public class ChangeShift extends NspHttpServlet {
       out.println("  </tr>");
     }
 
-//==MISSED SHIFT== used if position is NOT empty
+    //==MISSED SHIFT== used if position is NOT empty
     if (!posWasEmpty && shiftInfo.isDirector) {
       out.println("  <tr> <td width=\"100%\" colspan=\"2\">");
       visibleRadioButtons++;
@@ -236,13 +225,13 @@ public class ChangeShift extends NspHttpServlet {
     }
   }
 
-  private void printBottom(PrintWriter out, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, ServletData servletData) {
+  private void printBottom(PrintWriter out, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo) {
     out.println("</table>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"submitterID\" VALUE=\"" + loggedInUserId + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + parameters.pos + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"index1\" VALUE=\"" + parameters.index + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + shiftInfo.newIdNumber + "\">");
-    debugOut("printBottom, submitterID=", servletData);
+    debugOut("printBottom, submitterID=");
     String strDate = parameters.buildDateAndPosString();   //in the data base, pos is 1 based
 
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">");
@@ -252,18 +241,18 @@ public class ChangeShift extends NspHttpServlet {
     out.println("<INPUT TYPE=\"button\" VALUE=\"Cancel\" onClick=\"goHome()\">");
     out.println("</FORM>");
     out.println("<HR>");    //Horizontal Rule
-    out.println("<H5>" + PatrolData.getResortFullName(servletData.getResort()) + " Ski Resort</H5>");
+    out.println("<H5>" + PatrolData.getResortFullName(resort) + " Ski Resort</H5>");
   } //end printBottom()
 
-  public ShiftInfo readData(SessionData sessionData, PatrolData patrol, Parameters parameters, ServletData servletData) {
+  public ShiftInfo readData(SessionData sessionData, PatrolData patrol, Parameters parameters) {
     String loggedInUserId = sessionData.getLoggedInUserId();
 
-    return new ShiftInfo(loggedInUserId, patrol, parameters, servletData);
-  } //end of readdata
+    return new ShiftInfo(loggedInUserId, patrol, parameters);
+  }
 
-  private void debugOut(String msg, ServletData servletData) {
+  private void debugOut(String msg) {
     if (DEBUG) {
-      servletData.getLOG().debug("ChangeShift: " + msg);
+      LOG.debug("ChangeShift: " + msg);
     }
   }
 
@@ -275,7 +264,7 @@ public class ChangeShift extends NspHttpServlet {
     int pos;        //
     int index;      //
 
-    Parameters(HttpServletRequest request, ServletData servletData) {
+    Parameters(HttpServletRequest request) {
       String szDayOfWeek = request.getParameter("dayOfWeek"); //Sunday (=0), Monday, Tuesday, etc.
       String szDate = request.getParameter("date");
       String szMonth = request.getParameter("month"); //0 based
@@ -290,14 +279,14 @@ public class ChangeShift extends NspHttpServlet {
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index, servletData);
+        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
       } catch (NumberFormatException ex) {
         dayOfWeek = 7;
         dayOfMonth = 1;
         month = 1;
         year = 2020;
         pos = 1;
-        debugOut("ERROR, numeric processing exception, using default values", servletData);
+        debugOut("ERROR, numeric processing exception, using default values");
       }   //err
     } //end readParameterDate
 
@@ -333,7 +322,7 @@ public class ChangeShift extends NspHttpServlet {
     Hashtable<String, String> numToName;
 
 
-    ShiftInfo(String loggedInUserId, PatrolData patrol, Parameters parameters, ServletData servletData) {
+    ShiftInfo(String loggedInUserId, PatrolData patrol, Parameters parameters) {
       this.loggedInUserId = loggedInUserId;
       loggedInMember = patrol.getMemberByID(loggedInUserId);
       newName = "";
@@ -346,7 +335,7 @@ public class ChangeShift extends NspHttpServlet {
       allowEditing = !ds.getDirectorsOnlyChange() || loggedInMember.isDirector();
       sortedRoster = new String[300];
       rosterSize = 0;
-      isDirector = loggedInUserId.equalsIgnoreCase(servletData.getSessionData().getBackDoorUser());
+      isDirector = loggedInUserId.equalsIgnoreCase(sessionData.getBackDoorUser());
 
       numToName = new Hashtable<String, String>();
       ResultSet rosterResults = patrol.resetRoster();
@@ -371,7 +360,7 @@ public class ChangeShift extends NspHttpServlet {
       totalAssignmentGroupsForToday = 0;
       assignmentGroups = new Assignments[200];
       for (Assignments shiftAssignments : patrol.readSortedAssignments(parameters.year, parameters.month + 1, parameters.dayOfMonth)) {
-        debugOut("readData-assignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments, servletData);
+        debugOut("readData-assignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
         assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
       } //end while Shift ski assignments
 

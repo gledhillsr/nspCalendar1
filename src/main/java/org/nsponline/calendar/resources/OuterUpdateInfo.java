@@ -93,7 +93,6 @@ public class OuterUpdateInfo extends ResourceBase {
   }
 
   public int readData(String readID, SessionData sessionData) {
-    patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     if ((setNewID || editInfo || deletePatroller || finalDelete) && NameToEdit != null) {
 
       debugOut("in UpdateInfo, setNewID=" + setNewID + ", editInfo=" + editInfo + ", NameToEdit=(" + NameToEdit + ")");
@@ -129,7 +128,6 @@ public class OuterUpdateInfo extends ResourceBase {
     if (editor != null) {
       editorIsDirector = editor.isDirector();
     }
-    patrol.close(); //must close connection!
     //        else
     //            editorIsDirector = false;
 
@@ -219,7 +217,7 @@ public class OuterUpdateInfo extends ResourceBase {
 
     //    try  {
     //////------- the following line works for an applet, but not for a servlet -----
-    //      Driver drv = (Driver) Class.forName(PatrolData.JDBC_DRIVER).newInstance();
+    //      Driver drv = (Driver) Class.forName(patrol.JDBC_DRIVER).newInstance();
     //    }
     //    catch (Exception e) {
     //        out.println("Cannot load the driver, reason:"+e.toString());
@@ -231,7 +229,7 @@ public class OuterUpdateInfo extends ResourceBase {
     try {
 
       // Change MyDSN, myUsername and myPassword to your specific DSN
-      Connection c = PatrolData.getConnection(resort, sessionData);
+      Connection c = patrol.getConnection(resort, sessionData);
       PreparedStatement sRost;
 
       Roster md;
@@ -268,7 +266,7 @@ public class OuterUpdateInfo extends ResourceBase {
       else {
         out.println("<h2>Updated record for " + name + ":</h2>");
       }
-      out.println("host resort: " + PatrolData.getResortFullName(resort) + "<br>");
+      out.println("host resort: " + patrol.getResortFullName(resort) + "<br>");
 
       int first = 0; // was DB_START;
       int last = Roster.DB_SIZE; //director is last column
@@ -300,9 +298,7 @@ public class OuterUpdateInfo extends ResourceBase {
           LOG.debug("new patroller");
         }
         //check for duplicate ID
-        patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
         Roster mem = patrol.getMemberByID(md.getID()); //zz
-        patrol.close(); //must close connection!
         if (mem != null) {
           out.println("<h3>ERROR, id '" + md.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
           out.println("<br><br>Use the 'Back' button on your browser to make a change.");
@@ -319,9 +315,7 @@ public class OuterUpdateInfo extends ResourceBase {
           LOG.debug("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
         }
         //test if any ID change was made
-        patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-        Roster mem = patrol.getMemberByID(md.getID()); //zz
-        patrol.close(); //must close connection!
+        Roster mem = patrol.getMemberByID(md.getID());
         if (mem != null) {
           out.println("<h3>ERROR, id '" + md.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
           out.println("<br><br>Use the 'Back' button on your browser to make a change.");
@@ -359,7 +353,7 @@ public class OuterUpdateInfo extends ResourceBase {
       LOG.info("UpdateInfo closed static connection for " + resort);
       //      if (finalDelete) {
       //			out.println("Deleted...<br>");
-      //        String nextPage = PatrolData.SERVLET_URL + "Directors?resort=" + resort + "&ID+" + IDOfEditor;
+      //        String nextPage = patrol.SERVLET_URL + "Directors?resort=" + resort + "&ID+" + IDOfEditor;
       //Log.log("+++ in finalDelete, nextPage="+nextPage);
       //            response.sendRedirect(nextPage);
       //      }
@@ -451,7 +445,7 @@ public class OuterUpdateInfo extends ResourceBase {
       }
       out.println("</table>");
       if (deletePatroller) {
-        out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "UpdateInfo\" method=POST>");
+        out.println("<form target='_self' action=\"" + patrol.SERVLET_URL + "UpdateInfo\" method=POST>");
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
         //Log.log("+++ in deletePatroller, IDOfEditor="+IDOfEditor);
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfEditor + "\">");
@@ -463,16 +457,16 @@ public class OuterUpdateInfo extends ResourceBase {
         //???
       }
       else if (isNewPatroller) {
-        String nextPage = PatrolData.SERVLET_URL + "UpdateInfo?resort=" + resort + "&Purpose=Add_Patroller&ID=" + IDOfEditor;
+        String nextPage = patrol.SERVLET_URL + "UpdateInfo?resort=" + resort + "&Purpose=Add_Patroller&ID=" + IDOfEditor;
         out.println("<br><INPUT TYPE=button VALUE=\"Add Another New Patroller\" onClick=window.location=\"" + nextPage + "\">&nbsp;&nbsp;&nbsp;&nbsp;");
-        nextPage = PatrolData.SERVLET_URL + "Directors?resort=" + resort + "&ID=" + IDOfEditor;
+        nextPage = patrol.SERVLET_URL + "Directors?resort=" + resort + "&ID=" + IDOfEditor;
         out.println("<INPUT TYPE=button VALUE=\"Return to Director's Page\" onClick=window.location=\"" + nextPage + "\">");
       }
       else // if (finalDelete || setNewID)
       {
-        String nextPage = PatrolData.SERVLET_URL + "Directors?resort=" + resort + "&ID=" + IDOfEditor;
+        String nextPage = patrol.SERVLET_URL + "Directors?resort=" + resort + "&ID=" + IDOfEditor;
         if (!editorIsDirector) {
-          nextPage = PatrolData.SERVLET_URL + "UpdateInfo?resort=" + resort + "&ID=" + IDOfEditor;
+          nextPage = patrol.SERVLET_URL + "UpdateInfo?resort=" + resort + "&ID=" + IDOfEditor;
         }
         out.println("<INPUT TYPE=button VALUE=\"Done\" onClick=window.location=\"" + nextPage + "\">");
       }
@@ -515,13 +509,13 @@ public class OuterUpdateInfo extends ResourceBase {
       }
       // header -------------------
       out.println("<h2>Personal Information for:  " + fullName + "</h2><br>");
-      out.println("host resort: <b>" + PatrolData.getResortFullName(resort) + "</b>");
+      out.println("host resort: <b>" + patrol.getResortFullName(resort) + "</b>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font><br>");
+//      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font><br>");
 
       out.println("<P>");
       out.print("<form target='_self' action=\"");
-      out.print(PatrolData.SERVLET_URL + "UpdateInfo?resort=" + resort + "&ID=" + IDOfEditor);
+      out.print(patrol.SERVLET_URL + "UpdateInfo?resort=" + resort + "&ID=" + IDOfEditor);
       out.print("\" ");
       //          out.print("UpdateInfo\" ");
       out.println("method=POST ");

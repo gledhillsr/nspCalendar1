@@ -64,7 +64,7 @@
     </servlet>
     <servlet>
         <servlet-name>MonthCalendarServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.MonthCalendar</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$MonthCalendar</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>DayShiftsServlet</servlet-name>
@@ -72,7 +72,7 @@
     </servlet>
     <servlet>
         <servlet-name>ChangeShiftServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.ChangeShift</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$ChangeShift</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ProcessChangesServlet</servlet-name>
@@ -80,11 +80,11 @@
     </servlet>
     <servlet>
         <servlet-name>DirectorsServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.Directors</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$Directors</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RefresherTrainingServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.RefresherTraining</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$RefresherTraining</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UpdateInfoServlet</servlet-name>
@@ -113,8 +113,8 @@
         <servlet-class>org.nsponline.calendar.CustomizedList</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>CustomizedList2Servlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.CustomizedList2</servlet-class>
+        <servlet-name>ListPatrollersServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$ListPatrollers</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>SubListServlet</servlet-name>
@@ -126,7 +126,7 @@
     </servlet>
     <servlet>
         <servlet-name>EditShiftsServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.EditShifts</servlet-class>
+        <servlet-class>org.nsponline.calendar.EditShiftTemplates</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PurgeAssignmentsServlet</servlet-name>
@@ -273,8 +273,8 @@
         <url-pattern>/CustomizedList</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>CustomizedList2Servlet</servlet-name>
-        <url-pattern>/CustomizedList2</url-pattern>
+        <servlet-name>ListPatrollersServlet</servlet-name>
+        <url-pattern>/ListPatrollers</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SubListServlet</servlet-name>
