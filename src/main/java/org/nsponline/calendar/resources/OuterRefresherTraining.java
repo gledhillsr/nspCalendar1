@@ -21,13 +21,13 @@ public class OuterRefresherTraining extends ResourceBase {
 
     printCommonHeader();
     printBody(sessionData.getLoggedInUserId());
-    patrol.close(); //must close connection!
+    patrolData.close(); //must close connection!
     printCommonFooter();
   }
 
   private void printBody(String IDOfEditor) {
     out.println("<h2>" + PatrolData.getResortFullName(resort) + " Ski Patrol - Refresher and Training information</h2>");
-    Roster member = patrol.getMemberByID(IDOfEditor);
+    Roster member = patrolData.getMemberByID(IDOfEditor);
     String siteUrl = "<font size =\"2\" color=\"red\" face=verdana,arial><A href='http://gledhills.com/Brighton/training/index.php?id=" + IDOfEditor + "' target='_blank'><b>2020 Brighton Ski Patrol Refresher</b></a></font>";
     out.println("<br><br> " + member.getFullName() + ", this is <b>your</b> link the new online refresher: " + siteUrl);
     //show custom link

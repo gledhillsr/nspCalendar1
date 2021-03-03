@@ -110,12 +110,12 @@ public class OuterMonthCalendar extends ResourceBase {
     }
     calendar.set(currYear, currMonth, 1);
 
-    if (!patrol.isValidResort(resort)) {
+    if (!patrolData.isValidResort(resort)) {
       out.println("ERROR.  Invalid resort=" + resort);
       return;
     }
 
-    OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
+    OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
 
     outerPage.printResortHeader(out);
 
@@ -175,19 +175,19 @@ public class OuterMonthCalendar extends ResourceBase {
   @SuppressWarnings("ConstantConditions")
   private void readData(SessionData sessionData) {
     Roster member;
-    ResultSet rosterResults = patrol.resetRoster();
-    directorSettings = patrol.readDirectorSettings();
-    while ((member = patrol.nextMember("", rosterResults)) != null) {
+    ResultSet rosterResults = patrolData.resetRoster();
+    directorSettings = patrolData.readDirectorSettings();
+    while ((member = patrolData.nextMember("", rosterResults)) != null) {
       names.put(member.getIdNum(), member.getFullName() + ", " + member.getHomePhone());
       if (member.getID().equals(patrollerId) || sessionData.getBackDoorUser().equals(patrollerId)) {
         isDirector = member.isDirector();
       }
     }
-    monthNewIndividualAssignments = patrol.readNewIndividualAssignments(currYear, currMonth + 1, 0); //entire month
+    monthNewIndividualAssignments = patrolData.readNewIndividualAssignments(currYear, currMonth + 1, 0); //entire month
 
     maxAssignmentCnt = 0;
 
-    populateMonthDataArray(patrol);
+    populateMonthDataArray(patrolData);
 
     //  decide if I will make weekend shifts in two columns
     if (resort.contains("Jackson")) {
@@ -216,7 +216,7 @@ public class OuterMonthCalendar extends ResourceBase {
     //      patrol.resetShiftDefinitions();
     int lastDayOfWeekIndex = -1;
     int pos = 0;
-    for (ShiftDefinitions shift : patrol.readShiftDefinitions()) {
+    for (ShiftDefinitions shift : patrolData.readShiftDefinitions()) {
       String name = shift.parsedEventName();
       int currDayOfWeekIndex = getDayOfWeekIndexOrNegativeOne(name);
 
@@ -237,7 +237,7 @@ public class OuterMonthCalendar extends ResourceBase {
     seasonEndDay = directorSettings.getEndDay();
     seasonEndMonth = directorSettings.getEndMonth();
 
-    patrol.close();
+    patrolData.close();
   } //end of readdata
 
   private int getDayOfWeekIndexOrNegativeOne(String name) {
@@ -314,7 +314,7 @@ public class OuterMonthCalendar extends ResourceBase {
 
 
     out.println("<html>");
-    out.println("<head><title>" + patrol.getResortFullName(resort) + " Schedule</title>");
+    out.println("<head><title>" + patrolData.getResortFullName(resort) + " Schedule</title>");
 
     out.println("<SCRIPT LANGUAGE = 'JavaScript'>");
 
@@ -379,10 +379,10 @@ public class OuterMonthCalendar extends ResourceBase {
     out.println("<TABLE BORDER='0' CELLSPACING='0' CELLPADDING='0' WIDTH='100%'>");
     out.println("<TR><TD ALIGN='LEFT' VALIGN='Bottom'><BR>");
     String testingMessage = "";
-    if (patrol.USING_TESTING_ADDRESS) {
+    if (patrolData.USING_TESTING_ADDRESS) {
       testingMessage = "ERROR!!! Using to older database!!! Contact Steve Gledhill (801)209-5974 ASAP";
     }
-    out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + patrol.getResortFullName(resort) + " - Shift Schedule for " + StaticUtils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
+    out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + patrolData.getResortFullName(resort) + " - Shift Schedule for " + StaticUtils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
     out.println("<font size=3>");
     out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     if (notLoggedIn) {
@@ -523,7 +523,7 @@ public class OuterMonthCalendar extends ResourceBase {
 
     //    int indx = 0;
     //build hyperlink tags
-    String htmData = "ChangeShift?resort=" + resort + patrollerIdTag + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day +
+    String htmData = "ChangeShiftAssignments?resort=" + resort + patrollerIdTag + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day +
       "&month=" + currMonth + "&year=" + currYear + "&pos=";
     String htmDisplayData = "<a target='_self' href='DayShifts?resort=" + resort + "&dayOfWeek=" + (dayOfWeek - 1) +
       "&date=" + day + "&month=" + currMonth + "&year=" + currYear + patrollerIdTag +
@@ -601,7 +601,7 @@ public class OuterMonthCalendar extends ResourceBase {
       }
       out.println("<TABLE WIDTH='100%' Border='0' CELLPADDING='0' CellSpacing='0'>");
       int posCount = 0;
-      htmData = "ChangeShift?resort=" + resort + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day + "&month=" + currMonth + "&year=" + currYear + patrollerIdTag + "&pos=";
+      htmData = "ChangeShiftAssignments?resort=" + resort + "&dayOfWeek=" + (dayOfWeek - 1) + "&date=" + day + "&month=" + currMonth + "&year=" + currYear + patrollerIdTag + "&pos=";
       for (int i = 0; i < assignmentCount && !notLoggedIn; ++i) {
         int count = data[day][i].getCount();
         for (int j = 0; j < count; ++j) {

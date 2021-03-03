@@ -174,7 +174,7 @@ public class ApiResources {
         nspSession.deleteRow(connection);
         StaticUtils.build204Response(response);
 
-        patrol.close();
+        patrolData.close();
       }
     }
   }
@@ -253,7 +253,7 @@ public class ApiResources {
         }
 
         String authenticatedUserId = nspSession.getAuthenticatedUser();
-        Roster patroller = patrol.getMemberByID(authenticatedUserId);
+        Roster patroller = patrolData.getMemberByID(authenticatedUserId);
         if (patroller == null) {
           Logger.logStatic("ERROR:  User not found (" + authenticatedUserId + ")");
           buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
@@ -267,13 +267,13 @@ public class ApiResources {
         ArrayNode assignmentsArrayNode = nodeFactory.arrayNode();
         ArrayList<Assignments> assignmentsList = new ArrayList<Assignments>();
         if (day != 0) {
-          assignmentsList = patrol.readSortedAssignments(year, month, day);
+          assignmentsList = patrolData.readSortedAssignments(year, month, day);
         } else if (year != 0) {
-          assignmentsList = patrol.readSortedAssignments(year, month);
+          assignmentsList = patrolData.readSortedAssignments(year, month);
         } else {
           //entire season
 
-          DirectorSettings directorSettings = patrol.readDirectorSettings();
+          DirectorSettings directorSettings = patrolData.readDirectorSettings();
           int startDay = directorSettings.getStartDay();
           int startMonth = directorSettings.getStartMonth();
           int startYear;
@@ -290,10 +290,10 @@ public class ApiResources {
                              + startMonth + "/" + startDay + "/" + startYear
                              + " to: " + endDay + "/" + endMonth + "/" + endYear);
           for (int mon = startMonth; mon <= 12; mon++) {
-            assignmentsList.addAll(patrol.readSortedAssignments(startYear, mon));
+            assignmentsList.addAll(patrolData.readSortedAssignments(startYear, mon));
           }
           for (int mon = 1; mon <= endMonth; mon++) {
-            assignmentsList.addAll(patrol.readSortedAssignments(endYear, mon));
+            assignmentsList.addAll(patrolData.readSortedAssignments(endYear, mon));
           }
         }
         int count = 0;
@@ -305,7 +305,7 @@ public class ApiResources {
         returnNode.set("assignments", assignmentsArrayNode);
         StaticUtils.buildOkResponse(response, returnNode);
 
-        patrol.close();
+        patrolData.close();
       }
     }
   }
@@ -384,7 +384,7 @@ public class ApiResources {
         }
 
         String authenticatedUserId = nspSession.getAuthenticatedUser();
-        Roster patroller = patrol.getMemberByID(authenticatedUserId);
+        Roster patroller = patrolData.getMemberByID(authenticatedUserId);
         if (patroller == null) {
           buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
           return;
@@ -398,11 +398,11 @@ public class ApiResources {
         ArrayNode assignmentsArrayNode = nodeFactory.arrayNode();
         ArrayList<Assignments> assignmentsList;
         if (year == 0) {
-          assignmentsList = patrol.readAllSortedAssignments(authenticatedUserId);
+          assignmentsList = patrolData.readAllSortedAssignments(authenticatedUserId);
         } else if (day != 0) {
-          assignmentsList = patrol.readSortedAssignments(authenticatedUserId, year, month, day);
+          assignmentsList = patrolData.readSortedAssignments(authenticatedUserId, year, month, day);
         } else {
-          assignmentsList = patrol.readSortedAssignments(authenticatedUserId, year, month);
+          assignmentsList = patrolData.readSortedAssignments(authenticatedUserId, year, month);
         }
         for (Assignments ns : assignmentsList) {
           assignmentsArrayNode.add(ns.toNode());
@@ -410,7 +410,7 @@ public class ApiResources {
         returnNode.set("assignments", assignmentsArrayNode);
         StaticUtils.buildOkResponse(response, returnNode);
 
-        patrol.close();
+        patrolData.close();
       }
     }
   }
@@ -469,13 +469,13 @@ public class ApiResources {
         if (!initBaseAndRequireValidSession(response)) {
           return;
         }
-        Roster patroller = patrol.getMemberByID(nspSession.getAuthenticatedUser());
+        Roster patroller = patrolData.getMemberByID(nspSession.getAuthenticatedUser());
         if (patroller == null) {
           buildAndLogErrorResponse(response, 400, "user not found (" + nspSession.getAuthenticatedUser() + ")");
           return;
         }
         StaticUtils.buildOkResponse(response, patroller.toNode());
-        patrol.close();
+        patrolData.close();
       }
     }
   }
@@ -515,7 +515,7 @@ public class ApiResources {
         if (!initBaseAndRequireValidSession(response)) {
           return;
         }
-        DirectorSettings directorSettings = patrol.readDirectorSettings();
+        DirectorSettings directorSettings = patrolData.readDirectorSettings();
         if (directorSettings == null) {
           buildAndLogErrorResponse(response, 400, "resort settings not found (should never happen) (" + nspSession.getAuthenticatedUser() + ")");
           return;
@@ -523,7 +523,7 @@ public class ApiResources {
 
         StaticUtils.buildOkResponse(response, directorSettings.toNode());
 
-        patrol.close();
+        patrolData.close();
       }
     }
   }
@@ -568,7 +568,7 @@ public class ApiResources {
         returnNode.set("resorts", resortArrayNode);
 
         StaticUtils.buildOkResponse(response, returnNode);
-        patrol.close();
+        patrolData.close();
       }
 
       private List<String> getResorts(Connection connection, Logger LOG) {
@@ -654,11 +654,11 @@ public class ApiResources {
           return;
         }
 
-        ResultSet rosterResults = patrol.resetRoster();
+        ResultSet rosterResults = patrolData.resetRoster();
         int rosterSize = 0;
         Roster patroller;
         ArrayNode rosterArrayNode = nodeFactory.arrayNode();
-        while ((patroller = patrol.nextMember("", rosterResults)) != null) {
+        while ((patroller = patrolData.nextMember("", rosterResults)) != null) {
           rosterSize++;
           rosterArrayNode.add(patroller.toNode());
         }
@@ -668,7 +668,7 @@ public class ApiResources {
 
         StaticUtils.buildOkResponse(response, returnNode);
 
-        patrol.close();
+        patrolData.close();
       }
     }
   }

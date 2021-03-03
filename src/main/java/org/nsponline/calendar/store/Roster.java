@@ -263,7 +263,7 @@ public class Roster {
     out.println(" <td>" + getHomePhone() + "</td>");
     out.println(" <td>" + getWorkPhone() + "</td>");
     out.println(" <td>" + getCellPhone() + "</td>");
-    out.println(" <td>" + getPager() + "</td>");
+//    out.println(" <td>" + getPager() + "</td>");
     String str = getEmailAddress();
     if (!HARD_SPACE_NBSP.equals(getEmailAddress())) {
       str = "<a href=\"mailto:" + getEmailAddress() + "\">" + getEmailAddress() + "</a>";

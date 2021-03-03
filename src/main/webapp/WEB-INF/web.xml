@@ -68,15 +68,15 @@
     </servlet>
     <servlet>
         <servlet-name>DayShiftsServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.DayShifts</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$DayShifts</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ChangeShiftServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$ChangeShift</servlet-class>
+        <servlet-name>ChangeShiftAssignmentsServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$ChangeShiftAssignments</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ProcessChangesServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.ProcessChanges</servlet-class>
+        <servlet-name>ProcessChangeShiftAssignmentsServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$ProcessChangeShiftAssignments</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>DirectorsServlet</servlet-name>
@@ -121,16 +121,16 @@
         <servlet-class>org.nsponline.calendar.resources.OuterWebResource$SubList</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>PreferencesServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.Preferences</servlet-class>
+        <servlet-name>WebSitePreferencesServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$WebSitePreferences</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>EditShiftsServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.EditShiftTemplates</servlet-class>
+        <servlet-name>EditShiftTemplatesServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$EditShiftTemplates</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>PurgeAssignmentsServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.PurgeAssignments</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$PurgeAssignments</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>EmailFormServlet</servlet-name>
@@ -138,7 +138,7 @@
     </servlet>
     <servlet>
         <servlet-name>MemberListServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.MemberList</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$MemberList</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>MemberLogoutServlet</servlet-name>
@@ -231,12 +231,12 @@
         <url-pattern>/DayShifts</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ChangeShiftServlet</servlet-name>
-        <url-pattern>/ChangeShift</url-pattern>
+        <servlet-name>ChangeShiftAssignmentsServlet</servlet-name>
+        <url-pattern>/ChangeShiftAssignments</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ProcessChangesServlet</servlet-name>
-        <url-pattern>/ProcessChanges</url-pattern>
+        <servlet-name>ProcessChangeShiftAssignmentsServlet</servlet-name>
+        <url-pattern>/ProcessChangeShiftAssignments</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>DirectorsServlet</servlet-name>
@@ -281,12 +281,12 @@
         <url-pattern>/SubList</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>PreferencesServlet</servlet-name>
-        <url-pattern>/Preferences</url-pattern>
+        <servlet-name>WebSitePreferencesServlet</servlet-name>
+        <url-pattern>/WebSitePreferences</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>EditShiftsServlet</servlet-name>
-        <url-pattern>/EditShifts</url-pattern>
+        <servlet-name>EditShiftTemplatesServlet</servlet-name>
+        <url-pattern>/EditShiftTemplates</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PurgeAssignmentsServlet</servlet-name>

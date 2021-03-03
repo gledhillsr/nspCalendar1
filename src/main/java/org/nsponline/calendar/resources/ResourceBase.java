@@ -12,13 +12,13 @@ import static org.nsponline.calendar.utils.StaticUtils.buildAndLogErrorResponse;
 
 @SuppressWarnings({"DuplicatedCode", "BooleanMethodIsAlwaysInverted"})
 public class ResourceBase {
-  protected PrintWriter out;
-  String resort;
+  final PrintWriter out;
+  final String resort;
   String sessionId;
-  Logger LOG;
-  HttpServletRequest request;
+  final Logger LOG;
+  final HttpServletRequest request;
   SessionData sessionData;
-  PatrolData patrol;
+  PatrolData patrolData;
   Connection connection;
   NspSession nspSession;
   private OuterPage outerPage; //for commonHeader & commonFooter
@@ -49,12 +49,12 @@ public class ResourceBase {
       return false;
     }
     sessionData = new SessionData(request, out, LOG);
-    patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-    connection = patrol.getConnection();
+    patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    connection = patrolData.getConnection();
     nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
       buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
-      patrol.close();
+      patrolData.close();
       return false;
     }
     return true;
@@ -66,50 +66,16 @@ public class ResourceBase {
       return false;
     }
     sessionData = new SessionData(request, out, LOG);
-    patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-    connection = patrol.getConnection();
+    patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    connection = patrolData.getConnection();
 
     ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, parent, LOG);
-    if (credentials.hasInvalidCredentials()) {
-      return false; //stop further page display
-    }
-
-// todo 2/27/2021 this code is for when the NspSession is implemented
-//    nspSession = NspSession.read(connection, sessionId);
-//    if (nspSession == null) {
-//      buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
-//      patrol.close();
-//      return false; //stop further page display
-//    }
-    return true; //continue displaying page
-  }
-
-  protected boolean initBaseAndRequireValidCredentials(HttpServletResponse response, String parent) {
-    if (!PatrolData.isValidResort(resort)) {
-      buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
-      return false;
-    }
-    sessionData = new SessionData(request, out, LOG);
-    patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-    connection = patrol.getConnection();
-
-    ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, parent, LOG);
-    if (credentials.hasInvalidCredentials()) {
-      return false; //stop further page display
-    }
-
-// todo 2/27/2021 this code is for when the NspSession is implemented
-//    nspSession = NspSession.read(connection, sessionId);
-//    if (nspSession == null) {
-//      buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
-//      patrol.close();
-//      return false; //stop further page display
-//    }
-    return true; //continue displaying page
+    return !credentials.hasInvalidCredentials(); //stop further page display
+//continue displaying page
   }
 
   protected void printCommonHeader() {
-    outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
+    outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId());
     outerPage.printResortHeader(out);
   }
 

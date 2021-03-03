@@ -14,11 +14,11 @@ import org.nsponline.calendar.utils.*;
 
 import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
-public class InnerChangeShift extends ResourceBase  {
+public class InnerChangeShiftAssignments extends ResourceBase  {
   private static final boolean DEBUG = true;
   final private HttpServletResponse response;
 
-  public InnerChangeShift(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
+  public InnerChangeShiftAssignments(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
     super(request, response, LOG);
     this.response = response;
   }
@@ -30,15 +30,14 @@ public class InnerChangeShift extends ResourceBase  {
 
     Parameters parameters = new Parameters(request);
 
-    ShiftInfo shiftInfo = readData(sessionData, patrol, parameters);
+    ShiftInfo shiftInfo = readData(sessionData, patrolData, parameters);
 
-    OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", shiftInfo.loggedInUserId);
-    outerPage.printResortHeader(out);
+    printCommonHeader();
     printTop(out, parameters, resort);
-    printMiddle(out, patrol, shiftInfo.loggedInUserId, parameters, shiftInfo);
+    printMiddle(out, patrolData, shiftInfo.loggedInUserId, parameters, shiftInfo);
     printBottom(out, shiftInfo.loggedInUserId, parameters, shiftInfo);
-    outerPage.printResortFooter(out);
-    patrol.close();
+    printCommonFooter();
+    patrolData.close();
   }
 
   public void printTop(PrintWriter out, Parameters parameters, String resort) {
@@ -124,7 +123,7 @@ public class InnerChangeShift extends ResourceBase  {
 
     boolean posWasEmpty = findIfPositionWasEmpty(parameters, patrol, shiftInfo);
 
-    String nextURL = "ProcessChanges";
+    String nextURL = "ProcessChangeShiftAssignments";
     out.print("<form target='_self' action=" + nextURL + " method=POST id=form02 name=form02>\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + loggedInUserId + "\">\n");
@@ -132,7 +131,7 @@ public class InnerChangeShift extends ResourceBase  {
     //start of selection table
     out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
     boolean editingMyself = (shiftInfo.newName != null && shiftInfo.newName.equals(shiftInfo.myName));
-    debugOut("CALLING ProcessChanges with: loggedInUserId=" + loggedInUserId
+    debugOut("CALLING ProcessChangeShiftAssignments with: loggedInUserId=" + loggedInUserId
                + ", newName=" + shiftInfo.newName
                + ", myName=" + shiftInfo.myName
                + ", posWasEmpty=" + posWasEmpty
@@ -252,7 +251,7 @@ public class InnerChangeShift extends ResourceBase  {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      LOG.debug("ChangeShift: " + msg);
+      LOG.debug("ChangeShiftAssignments: " + msg);
     }
   }
 
@@ -367,4 +366,4 @@ public class InnerChangeShift extends ResourceBase  {
     }
   } //end ShiftInfo inner class
 
-} //end ChangeShift class
+} //end ChangeShiftAssignments class

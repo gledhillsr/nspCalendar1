@@ -1,15 +1,9 @@
 package org.nsponline.calendar.resources;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.util.*;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.nsponline.calendar.NspHttpServlet;
-import org.nsponline.calendar.store.*;
 import org.nsponline.calendar.utils.*;
 
 public class OuterWebResource {
@@ -32,7 +26,7 @@ public class OuterWebResource {
    * @author Steve Gledhill
    */
   public static class UpdateInfo extends HttpServlet {
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), MIN_LOG_LEVEL);
       new OuterUpdateInfo(request, response, LOG);
     }
@@ -66,9 +60,9 @@ public class OuterWebResource {
     }
   }
 
-  /*
+  /**
    * @author Steve Gledhill
-   */
+   **/
   public static class Directors extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
@@ -76,9 +70,9 @@ public class OuterWebResource {
     }
   }
 
-  /*
+  /**
    * @author Steve Gledhill
-   */
+   **/
   public static class ListPatrollers extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
@@ -94,12 +88,28 @@ public class OuterWebResource {
   /**
    * @author Steve Gledhill
    *         <p/>
-   *         display a 1 month calendar
+   *         display a one month calendar
    */
   public static class MonthCalendar extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
       new OuterMonthCalendar(request, response, LOG).runner(this.getClass().getSimpleName());
+    }
+  }
+
+  /**
+   * @author Steve Gledhill
+   * <p>
+   * List all patrollers who are not marked as "inactive"
+   */
+  public static class MemberList extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
+      new OuterMemberList(request, response, LOG).runner(this.getClass().getSimpleName());
+    }
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "POST", request.getParameter("resort"), Logger.INFO);
+      new OuterMemberList(request, response, LOG).runner(this.getClass().getSimpleName());
     }
   }
 }

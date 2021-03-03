@@ -9,13 +9,8 @@ import org.nsponline.calendar.utils.*;
 
 abstract public class NspHttpServlet extends HttpServlet {
   //todo ******
-  //todo 1/20/2021  I think this routine has collision problems.  2 concurrent calls to ChangeShift could init wrong credentials
+  //todo 1/20/2021  delete this class
   //todo ******
-//  public Logger LOG; //todo 2/4/2021  REMOVE ME FIRST, and implement getter in every class (fairly big thing)
-//  public PrintWriter out;
-//  public ValidateCredentials credentials;
-//  public String resort; //todo finished 2/26
-//  public SessionData sessionData;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 

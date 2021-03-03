@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.utils.Logger;
-import org.nsponline.calendar.utils.PatrolData;
 import org.nsponline.calendar.utils.StaticUtils;
 
 public class OuterSubList extends ResourceBase {
@@ -24,18 +23,18 @@ public class OuterSubList extends ResourceBase {
     printEndOfTable();
     printCommonFooter();
 
-    patrol.close(); //must close connection!
+    patrolData.close(); //must close connection!
   }
 
   @SuppressWarnings("StringConcatenationInLoop")
   void printStartOfTable(String IDOfEditor) {
-    out.println("<h2>Substitute List for " + patrol.getResortFullName(resort) + "</h2>");
+    out.println("<h2>Substitute List for " + patrolData.getResortFullName(resort) + "</h2>");
     //          if(isDirector || (ds != null && !ds.getEmailAll()))
     {
       //      //getEmailAddress()
       String ePatrollerList = "";
-      ResultSet rosterResults = patrol.resetRoster();
-      Roster member = patrol.nextMember("", rosterResults);
+      ResultSet rosterResults = patrolData.resetRoster();
+      Roster member = patrolData.nextMember("", rosterResults);
       while (member != null) {
         String em = member.getEmailAddress();
         if (member.getSub() == null || (!member.getSub().startsWith("y") && !member.getSub().startsWith("Y"))) {
@@ -47,7 +46,7 @@ public class OuterSubList extends ResourceBase {
           }
           ePatrollerList += member.getEmailAddress();
         }
-        member = patrol.nextMember("", rosterResults);
+        member = patrolData.nextMember("", rosterResults);
       }
 
       out.println("<p><Bold>");
@@ -62,7 +61,7 @@ public class OuterSubList extends ResourceBase {
     out.println("          <td width='90'  bgcolor='#C0C0C0'><font face='Verdana, Arial, Helvetica' size='2'>Home</font></td>");
     out.println("          <td width='83'  bgcolor='#C0C0C0'><font face='Verdana, Arial, Helvetica' size='2'>Work</font></td>");
     out.println("          <td width='70'  bgcolor='#C0C0C0'><font face='Verdana, Arial, Helvetica' size='2'>Cell</font></td>");
-    out.println("          <td width='73'  bgcolor='#C0C0C0'><font face='Verdana, Arial, Helvetica' size='2'>Pager</font></td>");
+//    out.println("          <td width='73'  bgcolor='#C0C0C0'><font face='Verdana, Arial, Helvetica' size='2'>Pager</font></td>");
     out.println("          <td width='136' bgcolor='#C0C0C0'><font face='Verdana, Arial, Helvetica' size='2'>Email</font></td>");
     out.println("        </tr>");
   }
@@ -73,7 +72,7 @@ public class OuterSubList extends ResourceBase {
     out.println(" <td>" + home + "</td>");
     out.println(" <td>" + work + "</td>");
     out.println(" <td>" + cell + "</td>");
-    out.println(" <td>" + pager + "</td>");
+//    out.println(" <td>" + pager + "</td>");
     out.println(" <td>" + email + "</td>");
     out.println("</tr>\n");
   }
@@ -84,8 +83,8 @@ public class OuterSubList extends ResourceBase {
   }
 
   public void printBody() {
-    ResultSet rosterResults = patrol.resetRoster();
-    Roster member = patrol.nextMember("&nbsp;", rosterResults);
+    ResultSet rosterResults = patrolData.resetRoster();
+    Roster member = patrolData.nextMember("&nbsp;", rosterResults);
 
     while (member != null) {
 
@@ -96,7 +95,7 @@ public class OuterSubList extends ResourceBase {
       if (member.getSub() != null && (member.getSub().startsWith("y") || member.getSub().startsWith("Y"))) {
         printRow(member.getFullName_lastNameFirst(), member.getHomePhone(), member.getWorkPhone(), member.getCellPhone(), member.getPager(), member.getEmailAddress());
       }
-      member = patrol.nextMember("&nbsp;", rosterResults);   // "&nbsp;" is the default string field
+      member = patrolData.nextMember("&nbsp;", rosterResults);   // "&nbsp;" is the default string field
     }
   }
 

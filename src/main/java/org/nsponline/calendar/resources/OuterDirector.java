@@ -37,23 +37,23 @@ public class OuterDirector extends ResourceBase {
     printBody(resort);
     printCommonFooter();
 
-    patrol.close(); //must close connection!
+    patrolData.close(); //must close connection!
   }
 
   public void readRoster(String readID, SessionData sessionData) {
-    ResultSet rosterResults = patrol.resetRoster();
+    ResultSet rosterResults = patrolData.resetRoster();
 
     sortedRoster = new String[400];
 
     rosterSize = 0;
     Roster member;
-    while ((member = patrol.nextMember("", rosterResults)) != null) {
+    while ((member = patrolData.nextMember("", rosterResults)) != null) {
       sortedRoster[rosterSize++] = member.getLast() + ", " + member.getFirst();
     }
     if (readID.equalsIgnoreCase(sessionData.getBackDoorUser())) {
       isDirector = true;
     } else {
-      member = patrol.getMemberByID(readID);
+      member = patrolData.getMemberByID(readID);
       if (member == null) {
         return;
       }
@@ -175,13 +175,13 @@ public class OuterDirector extends ResourceBase {
       out.println("        <tr>");
       out.println("          <td align=\"left\">");
       //            nextPage = PatrolData.SERVLET_URL+"Preferences?resort="+resort+"&ID="+ID;
-      nextPage = "Preferences?resort=" + resort + "&ID=" + patrollerId;
+      nextPage = "WebSitePreferences?resort=" + resort + "&ID=" + patrollerId;
       out.println("            <input type=\"button\" value=\"Web Site Preferences ...\" onClick=window.location=\"" + nextPage + "\"></td>");
       out.println("        </tr>");
       out.println("        <tr>");
       out.println("          <td align=\"left\">");
-      //            nextPage = PatrolData.SERVLET_URL+"EditShifts?resort="+resort+"&ID="+ID;
-      nextPage = "EditShifts?resort=" + resort + "&ID=" + patrollerId;
+      //            nextPage = PatrolData.SERVLET_URL+"EditShiftTemplates?resort="+resort+"&ID="+ID;
+      nextPage = "EditShiftTemplates?resort=" + resort + "&ID=" + patrollerId;
       out.println("            <input type=\"button\" value=\"Edit Shift Templates (for Calendar) ...\" onClick=window.location=\"" + nextPage + "\"></td>");
       out.println("        </tr>");
       out.println("        <tr>");
