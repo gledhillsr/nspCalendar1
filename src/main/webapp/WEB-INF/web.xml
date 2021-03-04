@@ -83,6 +83,10 @@
         <servlet-class>org.nsponline.calendar.resources.OuterWebResource$Directors</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>DirectorDownloadServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.DirectorDownload</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>RefresherTrainingServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.resources.OuterWebResource$RefresherTraining</servlet-class>
     </servlet>
@@ -109,8 +113,8 @@
         <servlet-class>org.nsponline.calendar.resources.OuterWebResource$ListAssignments</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>CustomizedListServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.CustomizedList</servlet-class>
+        <servlet-name>SetupListPatrollersServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$SetupListPatrollers</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ListPatrollersServlet</servlet-name>
@@ -134,7 +138,7 @@
     </servlet>
     <servlet>
         <servlet-name>EmailFormServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.EmailForm</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$EmailForm</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>MemberListServlet</servlet-name>
@@ -142,7 +146,7 @@
     </servlet>
     <servlet>
         <servlet-name>MemberLogoutServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.MemberLogout</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$MemberLogout</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>User</servlet-name>
@@ -243,6 +247,10 @@
         <url-pattern>/Directors</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>DirectorDownloadServlet</servlet-name>
+        <url-pattern>/DirectorDownload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>RefresherTrainingServlet</servlet-name>
         <url-pattern>/RefresherTraining</url-pattern>
     </servlet-mapping>
@@ -269,8 +277,8 @@
         <url-pattern>/ListAssignments</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>CustomizedListServlet</servlet-name>
-        <url-pattern>/CustomizedList</url-pattern>
+        <servlet-name>SetupListPatrollersServlet</servlet-name>
+        <url-pattern>/SetupListPatrollers</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ListPatrollersServlet</servlet-name>

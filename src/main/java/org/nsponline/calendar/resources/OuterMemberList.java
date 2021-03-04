@@ -11,7 +11,7 @@ import org.nsponline.calendar.utils.PatrolData;
 import org.nsponline.calendar.utils.SessionData;
 import org.nsponline.calendar.utils.StaticUtils;
 
-public class OuterMemberList extends ResourceBase{
+public class OuterMemberList extends ResourceBase {
   final private HttpServletResponse response;
   private String patrollerId;
   private boolean isDirector = false;

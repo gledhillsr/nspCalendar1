@@ -10,7 +10,7 @@ import org.nsponline.calendar.utils.PatrolData;
 import org.nsponline.calendar.utils.SessionData;
 import org.nsponline.calendar.utils.StaticUtils;
 
-class LocalWebSitePreferences extends ResourceBase {
+class InnerWebSitePreferences extends ResourceBase {
   final private HttpServletResponse response; //todo move into ResourceBase
 
   String szMyID;
@@ -35,7 +35,7 @@ class LocalWebSitePreferences extends ResourceBase {
   int blackOutEndYear;
   int removeAccess;
 
-  LocalWebSitePreferences(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
+  InnerWebSitePreferences(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
     super(request, response, LOG);
     this.response = response;
   }

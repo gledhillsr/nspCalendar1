@@ -88,12 +88,12 @@ public class InnerWebResource {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", null, MIN_LOG_LEVEL);
-      new LocalWebSitePreferences(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
+      new InnerWebSitePreferences(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "POST", null, MIN_LOG_LEVEL);
-      new LocalWebSitePreferences(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
+      new InnerWebSitePreferences(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
     }
   }
 
@@ -128,6 +128,40 @@ public class InnerWebResource {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "POST", null, MIN_LOG_LEVEL);
       new InnerProcessChangeShiftAssignments(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
+    }
+  }
+
+  /**
+   * Ask questions to create a fully customized list of patrollers (ListPatrollers generates the list)
+   * called from directors page
+   * GET
+   *
+   * @author Steve Gledhill
+   */
+  public static class SetupListPatrollers extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", null, MIN_LOG_LEVEL);
+      new InnerSetupListPatrollers(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
+    }
+  }
+
+  /**
+   * send emails
+   * 
+   * GET (don't know)
+   * POST
+   * 
+   * @author Steve Gledhill
+   */
+  public static class EmailForm extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", null, MIN_LOG_LEVEL);
+      new InnerEmailForm(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
+    }
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "POST", null, MIN_LOG_LEVEL);
+      new InnerEmailForm(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
     }
   }
 }

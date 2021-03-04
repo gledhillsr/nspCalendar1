@@ -353,12 +353,13 @@ public class OuterListPatrollers extends ResourceBase {
     //      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font>");
 
     //DownloadThisTable
-    if (isDirector) {
+    //todo mostly removed button 2/3/2021 (
+    if (isDirector && "192443".equals(szMyID)) {
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       //options += "&format=palm";
       options += "&format=Excel";
-      loc = "download?resort=" + resort + "&ID=" + szMyID + options;
-      out.println("<INPUT  TYPE=\"button\" VALUE=\"Download this table (under construction)\" onClick=window.location=\"" + loc + "\">");
+      loc = "DirectorDownload?resort=" + resort + "&ID=" + szMyID + options;
+      out.println("<INPUT  TYPE=\"button\" VALUE=\"Steve, Download table (under construction)\" onClick=window.location=\"" + loc + "\">");
     }
     out.println("</p>");
   }

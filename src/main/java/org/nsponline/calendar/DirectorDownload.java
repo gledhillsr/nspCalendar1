@@ -12,13 +12,13 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.lang.*;
 
-public class Download extends HttpServlet {
+public class DirectorDownload extends HttpServlet {
   private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
   private Logger LOG;
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    LOG = new Logger(Download.class, request, "GET", null, MIN_LOG_LEVEL);
+    LOG = new Logger(DirectorDownload.class, request, "GET", null, MIN_LOG_LEVEL);
     LOG.logRequestParameters();
     new LocalDownload(request, response);
   }
@@ -408,12 +408,12 @@ public class Download extends HttpServlet {
     out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">");
     out.println("<title>Database Maintenance</title>");
     out.println("</head><body>");
-    out.println("<h1 align=\"center\">Download the Roster for a Palm Pilot?</h1>");
+    out.println("<h1 align=\"center\">Download the Roster as a CSV file?</h1>");
   }
 
   public void printBody() {
     out.println("<p align=\"left\">You can download the full patrol roster in a format that can be");
-    out.println("imported into your Palm Pilot's address book.</p>");
+    out.println("imported into other applications.</p>");
     out.println("<p align=\"left\">Instructions:&nbsp; (Yes, I know this is NOT really simple)</p>");
     out.println("<p align=\"left\">1) You MUST have the Palm Pilot desktop software</p>");
     out.println("<p align=\"left\">2) Click the download button to save the roster on your hard");

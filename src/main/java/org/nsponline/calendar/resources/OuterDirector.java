@@ -76,8 +76,8 @@ public class OuterDirector extends ResourceBase {
       out.println("<p>Sorry, you are -not- authorized for this menu.&nbsp; Try becoming a director");
       out.println("next year <img border=\"0\" src=\"/nspImages/EvilSmile.gif\" align=\"middle\" width=\"32\" height=\"32\"></p>");
       out.println("</CENTER>");
-      //            nextPage = PatrolData.SERVLET_URL+"CustomizedList?resort="+resort+"&ID="+ID;
-      nextPage = "CustomizedList?resort=" + resort + "&ID=" + patrollerId;
+      //            nextPage = PatrolData.SERVLET_URL+"SetupListPatrollers?resort="+resort+"&ID="+ID;
+      nextPage = "SetupListPatrollers?resort=" + resort + "&ID=" + patrollerId;
       out.println("<br><br>Only option available is: <input type=\"button\" value=\"Customized Listing ...\"  onClick=window.location=\"" + nextPage + "\"></td>");
     } else {
       //            out.println("<form action=\""+PatrolData.SERVLET_URL+"UpdateInfo\" method=POST id=form02 name=form02>");
@@ -141,8 +141,8 @@ public class OuterDirector extends ResourceBase {
       out.println("        </tr>");
       //custom listing
       out.println("        <tr>");
-      //            nextPage = PatrolData.SERVLET_URL+"CustomizedList?resort="+resort+"&ID="+ID;
-      nextPage = "CustomizedList?resort=" + resort + "&ID=" + patrollerId;
+      //            nextPage = PatrolData.SERVLET_URL+"SetupListPatrollers?resort="+resort+"&ID="+ID;
+      nextPage = "SetupListPatrollers?resort=" + resort + "&ID=" + patrollerId;
       out.println("		   <td rowspan=3><input type=\"button\" value=\"Customized Listing ...\"  onClick=window.location=\"" + nextPage + "\"></td>");
       //Day Shift
       //            String disableStatus = "disabled";

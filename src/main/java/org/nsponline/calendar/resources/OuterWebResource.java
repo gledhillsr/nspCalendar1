@@ -112,4 +112,17 @@ public class OuterWebResource {
       new OuterMemberList(request, response, LOG).runner(this.getClass().getSimpleName());
     }
   }
+
+  /**
+   * @author Steve Gledhill
+   * <p>
+   * clear cookies, and push to MonthCalendar (no longer logged in)
+   */
+  public static class MemberLogout extends HttpServlet {
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
+      new OuterMemberLogout(request, response, LOG);
+    }
+  }
 }

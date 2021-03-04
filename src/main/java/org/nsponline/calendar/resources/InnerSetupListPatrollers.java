@@ -1,43 +1,37 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.resources;
 
-import org.nsponline.calendar.utils.*;
-import org.nsponline.calendar.store.Roster;
-
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
-import javax.servlet.http.*;
-import java.lang.*;
+import java.util.Calendar;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.nsponline.calendar.store.Roster;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.OuterPage;
+import org.nsponline.calendar.utils.PatrolData;
 
-/**
- * @author Steve Gledhill
- */
-public class CustomizedList extends NspHttpServlet {
+public class InnerSetupListPatrollers extends ResourceBase {
+  final private HttpServletResponse response; //todo move into ResourceBase
 
   private static final String[] szMonths = {"Error", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-  @Override
-  Class<?> getServletClass() {
-    return this.getClass();
+
+  public InnerSetupListPatrollers(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
+    super(request, response, LOG);
+    this.response = response;
   }
 
-  String getParentIfBadCredentials() {
-    return "MonthCalendar";
-  }
-
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData)  {
-    boolean isDirector;
-    String IDOfPatroller;
-    PrintWriter out = servletData.getOut();
-    SessionData sessionData = servletData.getSessionData();
-
-    if (servletData.getCredentials().hasInvalidCredentials()) {
+  public void runner(String parentClassName) throws IOException {
+    if (!initBaseAndAskForValidCredentials(response, parentClassName)) {
       return;
     }
+    boolean isDirector;
+    String IDOfPatroller;
     //end boiler-plate
 
     isDirector = false;
     IDOfPatroller = sessionData.getLoggedInUserId();
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, servletData.getResort(), sessionData, servletData.getLOG()); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, LOG); //when reading members, read full data
     if (IDOfPatroller != null) {
       Roster patroller = patrol.getMemberByID(IDOfPatroller); //ID from cookie
       isDirector = patroller.isDirector();
@@ -49,7 +43,7 @@ public class CustomizedList extends NspHttpServlet {
     OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
     outerPage.printResortHeader(out);
     printTop(out);
-    printBody(out, isDirector, IDOfPatroller, servletData.getResort());
+    printBody(out, isDirector, IDOfPatroller, resort);
     outerPage.printResortFooter(out);
   }
 
@@ -59,28 +53,28 @@ public class CustomizedList extends NspHttpServlet {
     String title = "Customized Patrol List";
     out.println("<title>" + title + "</title>");
 
-//all JavaScript code
+    //all JavaScript code
     out.println("<SCRIPT LANGUAGE=\"JavaScript\">");
-//????
+    //????
     out.println("function validateBtn () {");
-//        out.println("   var nLen = document.form1.transaction.length;");
-//    // Check if only one option, select it
-//        out.println("   if ((nLen == null) || (typeof nLen == \"undefined\"))");
-//        out.println("       document.form02.transaction.click();");
-//    // Make sure specified (0-based) index is within range
-//        out.println("   else");
-//        out.println("   if (index < nLen)");
-//        out.println("       document.form1.DAY_CNT.checked=1;");
-//        out.println("       document.form1.NIGHT_CNT.checked=1;");
+    //        out.println("   var nLen = document.form1.transaction.length;");
+    //    // Check if only one option, select it
+    //        out.println("   if ((nLen == null) || (typeof nLen == \"undefined\"))");
+    //        out.println("       document.form02.transaction.click();");
+    //    // Make sure specified (0-based) index is within range
+    //        out.println("   else");
+    //        out.println("   if (index < nLen)");
+    //        out.println("       document.form1.DAY_CNT.checked=1;");
+    //        out.println("       document.form1.NIGHT_CNT.checked=1;");
     out.println("   if(!document.form1.DAY_CNT.checked && !document.form1.SWING_CNT.checked && !document.form1.NIGHT_CNT.checked && !document.form1.TRAINING_CNT.checked) {");
     out.println("       alert(\"Must first check any combination of \\nDay, Swing, Night, and/or Training!\");");
     out.println("       document.form1.MIN_DAYS.checked=0;");
-//
+    //
     out.println("    } else {");
     out.println("       document.form1.MinDays.disabled=false;");
     out.println("    }");
     out.println("}");
-//-->
+    //-->
 
     out.println("</SCRIPT>");
 
@@ -103,7 +97,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("        <input type=\"checkbox\" name=\"PRO\" value=\"ON\">Pro<br>");
     out.println("        <input type=\"checkbox\" name=\"ALM\" value=\"ON\">Alumni<br>");
     out.println("        <input type=\"checkbox\" name=\"OTH\" value=\"ON\">Other<br>");
-//    out.println("        <input type=\"checkbox\" name=\"INA\" value=\"ON\" disabled>Inactive</td>");
+    //    out.println("        <input type=\"checkbox\" name=\"INA\" value=\"ON\" disabled>Inactive</td>");
     out.println("    </tr>");
     out.println("    <tr>");
     out.println("      <td width=\"25%\" bordercolor=\"#E5E5E5\" bgcolor=\"#E5E5E5\">AND Commitment:</td>");
@@ -148,7 +142,7 @@ public class CustomizedList extends NspHttpServlet {
         out.println("      <input type=\"checkbox\" name=\"MENTORING\">Mentoring Status");
       }
       out.println("</font>");
-//    out.println("          <input type=\"checkbox\" name=\"C20\" value=\"ON\">Password<br>");
+      //    out.println("          <input type=\"checkbox\" name=\"C20\" value=\"ON\">Password<br>");
     }
     out.println("        </td>");
     out.println("        <td width=\"15%\" bgcolor=\"#E5E5E5\">");
@@ -160,7 +154,7 @@ public class CustomizedList extends NspHttpServlet {
     if (resort.equalsIgnoreCase("Brighton") && isDirector) {
       out.println("<font color=RED>");
       out.println("<br>   <input type=\"checkbox\" name=\"CAN_EARN_CREDITS\">Can&nbsp;Earn&nbsp;Credit<br>");
-//        out.println("          <input type=\"checkbox\" name=\"CARRY_OVER_CREDITS\">Old&nbsp;Credits");
+      //        out.println("          <input type=\"checkbox\" name=\"CARRY_OVER_CREDITS\">Old&nbsp;Credits");
       out.println(" <input type=\"checkbox\" name=\"CREDITS_EARNED\">Credits&nbsp;Available<br>");
       out.println(" <input type=\"checkbox\" name=\"LAST_CREDIT_UPDATE\">Date of Credit Update");
       out.println("</font>");
@@ -172,12 +166,12 @@ public class CustomizedList extends NspHttpServlet {
     out.println("          <input type=\"checkbox\" name=\"CELL\" Checked >Cell Phone<br>");
     out.println("          <input type=\"checkbox\" name=\"PAGER\">Pager<br>");
     out.println("          <input type=\"checkbox\" name=\"EMAIL\" Checked>Email&nbsp;Address<br>");
-//    if(resort.equalsIgnoreCase("Brighton") && isDirector) {
-//        out.println("<font color=RED>");
-//        out.println("<br>  <input type=\"checkbox\" name=\"CREDITS_EARNED\">Credits&nbsp;Available<br>");
-//        out.println("      <input type=\"checkbox\" name=\"CREDITS_USED\">Credits&nbsp;Used");
-//        out.println("</font>");
-//    }
+    //    if(resort.equalsIgnoreCase("Brighton") && isDirector) {
+    //        out.println("<font color=RED>");
+    //        out.println("<br>  <input type=\"checkbox\" name=\"CREDITS_EARNED\">Credits&nbsp;Available<br>");
+    //        out.println("      <input type=\"checkbox\" name=\"CREDITS_USED\">Credits&nbsp;Used");
+    //        out.println("</font>");
+    //    }
     out.println("        </td>");
     out.println("        <td width=\"20%\" bgcolor=\"#E5E5E5\">");
     out.println("          <input type=\"checkbox\" name=\"EMERGENCY\">Emergency Call Up<br>");
@@ -186,11 +180,11 @@ public class CustomizedList extends NspHttpServlet {
     out.println("          <input type=\"checkbox\" name=\"INSTRUCTOR\">Instructor&nbsp;Qualifications<br>");
     out.println("          <input type=\"checkbox\" name=\"DIRECTOR\">Director Status<br>");
     out.println("          <input type=\"checkbox\" name=\"LAST_UPDATED\">Last Updated Date");
-//    if(resort.equalsIgnoreCase("Brighton") && isDirector) {
-//        out.println("<font color=RED>");
-//        out.println("<br><br>          <input type=\"checkbox\" name=\"LAST_CREDIT_UPDATE\">Date of Credit Update");
-//        out.println("</font>");
-//    }
+    //    if(resort.equalsIgnoreCase("Brighton") && isDirector) {
+    //        out.println("<font color=RED>");
+    //        out.println("<br><br>          <input type=\"checkbox\" name=\"LAST_CREDIT_UPDATE\">Date of Credit Update");
+    //        out.println("</font>");
+    //    }
     out.println("        </td>");
     out.println("        <td width=\"30%\" bgcolor=\"#E5E5E5\">");
     int i;
@@ -229,7 +223,7 @@ public class CustomizedList extends NspHttpServlet {
     out.println("  </select><br>");
 
     out.println("---Shift&nbsp;Info-(Within&nbsp;above&nbsp;Range)---<br>");
-//    if(resort.equalsIgnoreCase("Brighton")) {
+    //    if(resort.equalsIgnoreCase("Brighton")) {
     out.println("<input   type=checkbox name=DAY_CNT      >#&nbsp;Days:&nbsp;&nbsp;\n");
     out.println("&nbsp;&nbsp;<input type=checkbox name=DAY_DETAILS  >Include&nbsp;Details<br>\n");
     out.println("<input   type=checkbox name=SWING_CNT    ># Swings:\n");
@@ -240,10 +234,10 @@ public class CustomizedList extends NspHttpServlet {
     out.println("&nbsp;&nbsp;<input type=checkbox name=TRAINING_DETAILS>Include&nbsp;Details<br>\n");
     out.println("---&nbsp;Limit&nbsp;names&nbsp;if&nbsp;above&nbsp;total&nbsp;is:&nbsp;----<br>\n");
 
-//    } else {
-//        out.println("          <input  type=\"checkbox\" name=\"DAY_CNT\">Count of Shift Assignments<br>");
-//        out.println("          &nbsp;&nbsp;&nbsp;&nbsp;<input  type=\"checkbox\" name=\"DAY_DETAILS\">Include Details<br>");
-//    }
+    //    } else {
+    //        out.println("          <input  type=\"checkbox\" name=\"DAY_CNT\">Count of Shift Assignments<br>");
+    //        out.println("          &nbsp;&nbsp;&nbsp;&nbsp;<input  type=\"checkbox\" name=\"DAY_DETAILS\">Include Details<br>");
+    //    }
     out.println("          <input type=\"checkbox\" name=\"MIN_DAYS\" onclick=validateBtn()>Only list if less than ");
     out.println("<select size=\"1\" name=\"MinDays\">");
     for (i = 1; i <= 20; ++i) {
@@ -280,15 +274,15 @@ public class CustomizedList extends NspHttpServlet {
     out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"SecondSort\" value=\"Name\">Name<br>");
     out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"SecondSort\" value=\"Class\">Classification<br>");
     out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"SecondSort\" value=\"Comm\">Commitment<br>");
-//    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"SecondSort\" disabled value=\"shiftCnt\"># of Shift Assignments<br>");
-//    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"SecondSort\" disabled value=\"Updt\">Last Updated Date</td>");
+    //    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"SecondSort\" disabled value=\"shiftCnt\"># of Shift Assignments<br>");
+    //    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"SecondSort\" disabled value=\"Updt\">Last Updated Date</td>");
     out.println("        <td width=\"33%\" bgcolor=\"#E5E5E5\">");
     out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" value=\"None\" checked>NO third sort field<br>");
     out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" value=\"Name\">Name<br>");
     out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" value=\"Class\">Classification<br>");
     out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" value=\"Comm\">Commitment<br>");
-//    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" disabled value=\"shiftCnt\"># of Shift Assignments<br>");
-//    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" disabled value=\"Updt\">Last Updated Date</td>");
+    //    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" disabled value=\"shiftCnt\"># of Shift Assignments<br>");
+    //    out.println("          &nbsp;&nbsp; <input type=\"radio\" name=\"ThirdSort\" disabled value=\"Updt\">Last Updated Date</td>");
     out.println("      </tr>");
     out.println("    </table>");
   }
@@ -297,11 +291,11 @@ public class CustomizedList extends NspHttpServlet {
     out.println("<h1 align=\"center\">Customized Patrol List</h1>");
 
     out.println("<form target='_self' action=\"" + PatrolData.SERVLET_URL + "ListPatrollers\" method=POST>");
-//        out.println("<form name=form1 action=\"ListPatrollers\" method=PUT>");
+    //        out.println("<form name=form1 action=\"ListPatrollers\" method=PUT>");
 
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + IDOfPatroller + "\">");
-//step 1
+    //step 1
     out.println("  <p align=\"left\"><font size=\"4\">Step 1) </font><font size=\"4\">Only include patrollers: (MUST select at least 1 from each category)</font></p>");
     printStep1InstructionsAsTable(out);
     out.print("  <p align=\"left\"><font size=\"4\">Step 2) Select what fields to display:");
@@ -309,13 +303,13 @@ public class CustomizedList extends NspHttpServlet {
       out.println("<font color=RED>&nbsp;&nbsp;&nbsp;(Director ONLY access)</font>");
     }
     out.println("  </font></p>");
-//step 2
+    //step 2
     out.println("  <div align=\"center\">");
     out.println("    <center>");
     printStep2InstructionsAsTable(out, isDirector, resort);
     out.println("    </center>");
     out.println("  </div>");
-//step 3
+    //step 3
     out.println("  <p align=\"left\"><font size=\"4\">Step 3) Sort by:</font></p>");
     out.println("  <div align=\"center\">");
     out.println("    <center>");
@@ -340,4 +334,3 @@ public class CustomizedList extends NspHttpServlet {
     out.println("</form>");
   }
 }
-

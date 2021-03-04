@@ -39,13 +39,13 @@ public class ResourceBase {
       buildAndLogErrorResponse(response, 401, "Authorization header not found");
       return false;
     }
-    if (!PatrolData.isValidResort(resort)) {
-      buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
-      return false;
-    }
     String userAgent = request.getHeader("user-agent");
     if (StaticUtils.isRequestFromBot(userAgent)) {
       StaticUtils.buildAndLogErrorResponse(response, 401, "Unauthorized agent (" + userAgent + "). Class=" + LOG.getClassName());
+      return false;
+    }
+    if (!PatrolData.isValidResort(resort)) {
+      buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
       return false;
     }
     sessionData = new SessionData(request, out, LOG);
@@ -61,6 +61,11 @@ public class ResourceBase {
   }
 
   protected boolean initBaseAndAskForValidCredentials(HttpServletResponse response, String parent) {
+    String userAgent = request.getHeader("user-agent");
+    if (StaticUtils.isRequestFromBot(userAgent)) {
+      StaticUtils.buildAndLogErrorResponse(response, 401, "Unauthorized agent (" + userAgent + "). Class=" + LOG.getClassName());
+      return false;
+    }
     if (!PatrolData.isValidResort(resort)) {
       buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
       return false;
