@@ -84,7 +84,7 @@
     </servlet>
     <servlet>
         <servlet-name>DirectorDownloadServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.DirectorDownload</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.InnerWebResource$DownloadRoster</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RefresherTrainingServlet</servlet-name>
@@ -248,7 +248,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>DirectorDownloadServlet</servlet-name>
-        <url-pattern>/DirectorDownload</url-pattern>
+        <url-pattern>/DownloadRoster</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>RefresherTrainingServlet</servlet-name>

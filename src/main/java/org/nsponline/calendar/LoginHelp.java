@@ -24,14 +24,13 @@ public class LoginHelp extends NspHttpServlet {
 
   void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) throws IOException {
 
-//      PrintWriter out;
-      String szParent;
       String resort = servletData.getResort();
       PrintWriter out = servletData.getOut();
+
       SessionData sessionData = servletData.getSessionData();
       String id = request.getParameter("ID");
       String pass = request.getParameter("Password");
-      szParent = request.getParameter("NSPgoto");
+    String szParent = request.getParameter("NSPgoto");
 
       sessionData = new SessionData(request, out, servletData.getLOG());
       PatrolData patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data

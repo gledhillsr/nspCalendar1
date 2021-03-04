@@ -164,4 +164,18 @@ public class InnerWebResource {
       new InnerEmailForm(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
     }
   }
+
+  /**
+   * todo, download roster as CVS, WIP
+   * MUST be Director to do this
+   * GET
+   *
+   * @author Steve Gledhill
+   */
+  public static class DownloadRoster extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", null, MIN_LOG_LEVEL);
+      new InnerDownloadRoster(request, response, LOG).runner(OUTER_CLASS_IF_CREDENTIALS_FAIL);
+    }
+  }
 }

@@ -358,7 +358,7 @@ public class OuterListPatrollers extends ResourceBase {
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
       //options += "&format=palm";
       options += "&format=Excel";
-      loc = "DirectorDownload?resort=" + resort + "&ID=" + szMyID + options;
+      loc = "DownloadRoster?resort=" + resort + "&ID=" + szMyID + options;
       out.println("<INPUT  TYPE=\"button\" VALUE=\"Steve, Download table (under construction)\" onClick=window.location=\"" + loc + "\">");
     }
     out.println("</p>");

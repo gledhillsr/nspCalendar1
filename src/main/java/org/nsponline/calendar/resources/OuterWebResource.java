@@ -23,6 +23,9 @@ public class OuterWebResource {
   }
 
   /**
+   * My Info tab, see and update patrollers roster data
+   * GET
+   * POST
    * @author Steve Gledhill
    */
   public static class UpdateInfo extends HttpServlet {
@@ -38,10 +41,10 @@ public class OuterWebResource {
   }
 
   /**
-   * @author Steve Gledhill
-   *         <p/>
-   *         List calendar assignments for the patroller.
+   *  My Assignments tab.  List calendar assignments for the patroller.
    *         Brighton patrollers also get a view of the locker room assignments
+   *  GET
+   * @author Steve Gledhill
    */
   public static class ListAssignments extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -51,6 +54,8 @@ public class OuterWebResource {
   }
 
   /**
+   * Refresher/Training tab (Brighton only)
+   * GET
    * @author Steve Gledhill
    */
   public static class RefresherTraining extends HttpServlet {
@@ -61,6 +66,8 @@ public class OuterWebResource {
   }
 
   /**
+   * Directors tab
+   * GET
    * @author Steve Gledhill
    **/
   public static class Directors extends HttpServlet {
@@ -71,6 +78,10 @@ public class OuterWebResource {
   }
 
   /**
+   * Patrollers tab for Brighton, also directors screen
+   * ALMOST SAME as MemberList (Patrollers tab, for other resorts)
+   * GET
+   * POST
    * @author Steve Gledhill
    **/
   public static class ListPatrollers extends HttpServlet {
@@ -86,21 +97,14 @@ public class OuterWebResource {
   }
 
   /**
+   * todo  get rid of MemberList, and use ListPatrollers
+   *
+   * Patrollers tab, for other resorts (not Brighton)
+   * ALMOST SAME as ListPatrollers (Patrollers tab, Brighton)
+   * GET
+   * POST
    * @author Steve Gledhill
-   *         <p/>
-   *         display a one month calendar
-   */
-  public static class MonthCalendar extends HttpServlet {
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
-      new OuterMonthCalendar(request, response, LOG).runner(this.getClass().getSimpleName());
-    }
-  }
-
-  /**
-   * @author Steve Gledhill
-   * <p>
-   * List all patrollers who are not marked as "inactive"
+   *
    */
   public static class MemberList extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -110,6 +114,18 @@ public class OuterWebResource {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "POST", request.getParameter("resort"), Logger.INFO);
       new OuterMemberList(request, response, LOG).runner(this.getClass().getSimpleName());
+    }
+  }
+
+  /**
+   * @author Steve Gledhill
+   *         <p/>
+   *         display a one month calendar
+   */
+  public static class MonthCalendar extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
+      new OuterMonthCalendar(request, response, LOG).runner(this.getClass().getSimpleName());
     }
   }
 
