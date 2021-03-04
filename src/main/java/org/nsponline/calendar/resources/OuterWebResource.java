@@ -1,6 +1,7 @@
 package org.nsponline.calendar.resources;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -139,6 +140,38 @@ public class OuterWebResource {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
       new OuterMemberLogout(request, response, LOG);
+    }
+  }
+
+  /**
+   * @author Steve Gledhill
+   *         <p/>
+   *         1) validate user/password
+   *         2) if valid, go to parent page
+   *         3) else display login help screen
+   */
+  public static class LoginHelp extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
+      new OuterLoginHelp(request, response, LOG);
+    }
+
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "POST", request.getParameter("resort"), Logger.INFO);
+      new OuterLoginHelp(request, response, LOG);
+    }
+  }
+
+  /**
+   * login through my web client
+   *
+   * @author Steve Gledhill
+   */
+  @SuppressWarnings("SpellCheckingInspection")
+  public static class MemberLogin extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
+      new OuterMemberLogin(request, response, LOG);
     }
   }
 }

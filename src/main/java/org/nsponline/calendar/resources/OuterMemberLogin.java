@@ -1,36 +1,23 @@
-package org.nsponline.calendar;
+package org.nsponline.calendar.resources;
 
-import org.nsponline.calendar.utils.*;
-
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.PatrolData;
+import org.nsponline.calendar.utils.StaticUtils;
 
-/**
- * @author Steve Gledhill
- * <p>
- * login through my web client
- */
-@SuppressWarnings("SpellCheckingInspection")
-public class MemberLogin extends NspHttpServlet {
+public class OuterMemberLogin extends ResourceBase {
 
-  Class<?> getServletClass() {
-    return this.getClass();
-  }
+  public OuterMemberLogin(final HttpServletRequest request, final HttpServletResponse response, Logger LOG) throws IOException {
+    super(request, response, LOG);
+    initBase(response);
 
-  String getParentIfBadCredentials() {
-    return null;
-  }
-
-  void servletBody(final HttpServletRequest request, final HttpServletResponse response, ServletData servletData) {
-    String szParent;
-    String resort = servletData.getResort();
-    SessionData sessionData = servletData.getSessionData();
-    PrintWriter out = servletData.getOut();
-    szParent = request.getParameter("NSPgoto");
-    debugOut("resort=" + resort + ", szParent=" + szParent, servletData);
+    String szParent = request.getParameter("NSPgoto");
+    debugOut("resort=" + resort + ", szParent=" + szParent);
     if (StaticUtils.isEmpty(szParent)) {
-      debugOut("ERROR, szParent was not specified", servletData);
+      debugOut("ERROR, szParent was not specified");
       szParent = "MonthCalendar";
     }
     if (StaticUtils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
@@ -39,15 +26,13 @@ public class MemberLogin extends NspHttpServlet {
                     "description of what you did to see this error. and I will fix it ASAP!!!");
       return;
     }
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, servletData.getLOG()); //when reading members, read full data
+    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
-    OuterPage outerPage = new OuterPage(patrol.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
-
-    outerPage.printResortHeader(out);
+    printCommonHeader();
     // printJavaScript(out, resort, szParent);
     printTop(out, resort);
     printMiddle(out, szParent, resort);
-    outerPage.printResortFooter(out);
+    printCommonFooter();
   }
 
   private String getJavaScriptAndStyles() {
@@ -66,9 +51,9 @@ public class MemberLogin extends NspHttpServlet {
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;Patroller id='<b>111111</b>' password='<b>password</b>'<br><br>");
       out.println("Everything is enabled, but no email notifications will be sent.");
     }
-//      else {
-//        out.println("    <td width='75%'>If you have not yet logged in, your <b>last name</b> is your password");
-//      }
+    //      else {
+    //        out.println("    <td width='75%'>If you have not yet logged in, your <b>last name</b> is your password");
+    //      }
     out.println("    </td>");
     out.println("  </tr>");
     out.println("  <tr>");
@@ -119,7 +104,7 @@ public class MemberLogin extends NspHttpServlet {
     out.println("</table>");
   }
 
-  private void debugOut(String str, ServletData servletData) {
-      servletData.getLOG().debug(str);
+  private void debugOut(String str) {
+    LOG.debug(str);
   }
 }

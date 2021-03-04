@@ -24,59 +24,59 @@ public class ResourceBase {
   private OuterPage outerPage; //for commonHeader & commonFooter
 
   ResourceBase(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
-//    response.setContentType("application/json");
+//    response.setContentType("application/json"); //for ApiResources
     this.LOG = LOG;
     this.request = request;
-    out = response.getWriter();
     response.setContentType("text/html");
+    out = response.getWriter();
     resort = request.getParameter("resort");
     sessionId = request.getHeader("Authorization");
     LOG.logRequestParameters();
   }
 
-  protected boolean initBaseAndRequireValidSession(HttpServletResponse response) {
-    if (StaticUtils.isEmpty(sessionId)) {
-      buildAndLogErrorResponse(response, 401, "Authorization header not found");
-      return false;
-    }
+  protected boolean initBase(HttpServletResponse response) {
     String userAgent = request.getHeader("user-agent");
     if (StaticUtils.isRequestFromBot(userAgent)) {
       StaticUtils.buildAndLogErrorResponse(response, 401, "Unauthorized agent (" + userAgent + "). Class=" + LOG.getClassName());
-      return false;
+      return false; //parent should stop further page display
     }
     if (!PatrolData.isValidResort(resort)) {
       buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
-      return false;
+      return false; //parent should stop further page display
     }
     sessionData = new SessionData(request, out, LOG);
     patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
     connection = patrolData.getConnection();
+    return true;
+  }
+
+    protected boolean initBaseAndRequireValidSession(HttpServletResponse response) {
+    /*
+     * TODO, soon this is to be used for all inner methods.  Right now, only called from ApiResource
+     */
+    if (!initBase(response)) {
+      return false; //'resort' etc, MUST be valid (response was setup),  parent should stop further page display
+    }
+    if (StaticUtils.isEmpty(sessionId)) {
+      buildAndLogErrorResponse(response, 401, "Authorization header not found");
+      return false; //parent should stop further page display
+    }
     nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
       buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
       patrolData.close();
-      return false;
+      return false; //parent should stop further page display
     }
     return true;
   }
 
   protected boolean initBaseAndAskForValidCredentials(HttpServletResponse response, String parent) {
-    String userAgent = request.getHeader("user-agent");
-    if (StaticUtils.isRequestFromBot(userAgent)) {
-      StaticUtils.buildAndLogErrorResponse(response, 401, "Unauthorized agent (" + userAgent + "). Class=" + LOG.getClassName());
-      return false;
+    if (!initBase(response)) {
+      return false; //'resort' etc, MUST be valid (response was setup),  parent should stop further page display
     }
-    if (!PatrolData.isValidResort(resort)) {
-      buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
-      return false;
-    }
-    sessionData = new SessionData(request, out, LOG);
-    patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
-    connection = patrolData.getConnection();
-
+    //redirects to MemberLogin if credentials are not valid
     ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, parent, LOG);
-    return !credentials.hasInvalidCredentials(); //stop further page display
-//continue displaying page
+    return !credentials.hasInvalidCredentials(); //if 'false' parent should stop further page display
   }
 
   protected void printCommonHeader() {

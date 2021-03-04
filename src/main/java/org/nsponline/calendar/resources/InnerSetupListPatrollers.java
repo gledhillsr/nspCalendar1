@@ -40,11 +40,10 @@ public class InnerSetupListPatrollers extends ResourceBase {
       }
     }
 
-    OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
-    outerPage.printResortHeader(out);
+    printCommonHeader();
     printTop(out);
     printBody(out, isDirector, IDOfPatroller, resort);
-    outerPage.printResortFooter(out);
+    printCommonFooter();
   }
 
   public void printTop(PrintWriter out) {

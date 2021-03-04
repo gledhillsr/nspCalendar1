@@ -79,8 +79,7 @@ public class InnerEmailForm extends ResourceBase {
 
     PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
-    OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
-    outerPage.printResortHeader(out);
+    printCommonHeader();
     printTop(out, Submit);
     if (Submit != null) {
       LOG.debug("resort " + resort + ", sending emails");
@@ -88,7 +87,7 @@ public class InnerEmailForm extends ResourceBase {
     } else {
       printMiddle(out, resort, szMyID);
     }
-    outerPage.printResortFooter(out);
+    printCommonFooter();
 
   }
 

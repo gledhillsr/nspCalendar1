@@ -56,11 +56,11 @@
     <!--</servlet>-->
     <servlet>
         <servlet-name>MemberLoginServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.MemberLogin</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$MemberLogin</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>LoginHelpServlet</servlet-name>
-        <servlet-class>org.nsponline.calendar.LoginHelp</servlet-class>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$LoginHelp</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>MonthCalendarServlet</servlet-name>

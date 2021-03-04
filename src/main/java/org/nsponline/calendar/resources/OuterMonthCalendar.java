@@ -115,9 +115,7 @@ public class OuterMonthCalendar extends ResourceBase {
       return;
     }
 
-    OuterPage outerPage = new OuterPage(patrolData.getResortInfo(), getJavaScriptAndStyles(), sessionData.getLoggedInUserId());
-
-    outerPage.printResortHeader(out);
+    printCommonHeader();
 
     monthData = new Assignments[32][ShiftDefinitions.MAX + 5]; //all shifts for all days in 1 month
     getPrevNextDateInfo(); //reset calendar to 1st of month
@@ -126,7 +124,7 @@ public class OuterMonthCalendar extends ResourceBase {
     printTopOfPage(out, resort);
     printCalendarDays(out, resort);
     printEndOfPage(out, resort);
-    outerPage.printResortFooter(out);
+    printCommonFooter();
   }
 
   private boolean isDateInvalidOrMissing(String szMonth, String szYear) {

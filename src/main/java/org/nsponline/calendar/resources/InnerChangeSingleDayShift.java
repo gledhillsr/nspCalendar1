@@ -84,13 +84,12 @@ public class InnerChangeSingleDayShift extends ResourceBase {
       return;
     }
 
-    OuterPage outerPage = new OuterPage(patrol.getResortInfo(), "", sessionData.getLoggedInUserId());
-    outerPage.printResortHeader(out);
+    printCommonHeader();
     printTop(resort);
     printBody(request, assignmentsFromDisk, resort);
     printBottom();
     patrol.close();
-    outerPage.printResortFooter(out);
+    printCommonFooter();
   }
 
   private void printTop(String resort) {

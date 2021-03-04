@@ -98,11 +98,9 @@ public class OuterListPatrollers extends ResourceBase {
     patrollersListed = 0;
 
     printCommonHeader();
-
     printTop();
     printBody();
     printBottom();
-
     printCommonFooter();
   }
 
