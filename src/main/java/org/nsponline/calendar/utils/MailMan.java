@@ -11,6 +11,7 @@ import java.util.Collections;
  * @author Steve Gledhill
  */
 
+@SuppressWarnings("CommentedOutCode")
 public class MailMan {
 
   @SuppressWarnings("unused")
@@ -19,30 +20,25 @@ public class MailMan {
   @SuppressWarnings("WeakerAccess")
   static final String CONFIGSET = "nspMail";
 
-  private AmazonSimpleEmailService sesClient;
+  private final AmazonSimpleEmailService sesClient;
   private String fromAddress;
-  private String replyToAddress;
+  private final String replyToAddress;
+  private final Logger LOG;
 
-  /**
-   * MailMan constructor.
-   *
-   * @param host        The smtp host address.
-   * @param fromAddress The return address. ie: steve@gledhills.com
-   * @param fromText    fromAddress text    ie: Steve Gledhill
-   */
-  public MailMan(String host, String fromAddress, String fromText, SessionData sessionData) {
+  public MailMan(String fromAddress, SessionData sessionData, Logger LOG) {
+    this.LOG = LOG;
     if (DEBUG_DONT_SEND) {
-      debugOutDontSend(sessionData, "NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
+      debugOutDontSend("NOTHING WILL BE SENT BECAUSE OF DEBUG SETTING!");
       return;
     }
     if (StaticUtils.isValidEmailAddress(fromAddress)) {
       this.replyToAddress = fromAddress;
-      Logger.logStatic("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
+      LOG.debug("DEBUG - MailMan setting replyToAddress to: " + fromAddress);
     }
     else {
       this.replyToAddress = null;
       if (StaticUtils.isNotEmpty(fromAddress)) {
-        Logger.logStatic("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
+        LOG.debug("DEBUG - replyToAddress invalid email address: [" + fromAddress + "]");
       }
     }
     try {
@@ -60,13 +56,13 @@ public class MailMan {
     }
 
     sesClient = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
-    logger(sessionData, "MailMan(host=" + host + ", fromAddress=" + this.fromAddress+ ", replyToAddress=" + this.replyToAddress + ", fromText='" + fromText + "')");
+//    logger();
   }
 
-  public void sendMessage(SessionData sessionData, String subject, String messageBody, String toAddress) {
-    logger(sessionData, "sendMessage(subject='" + subject + "', message='\n---- message body ----\n" + messageBody + "\n---- end body ---\ntoAddress=" + toAddress + ")");
+  public void sendMessage(String subject, String messageBody, String toAddress) {
+//    logger();
     if (DEBUG_DONT_SEND) {
-      debugOutDontSend(sessionData, "nothing sent because of debug");
+      debugOutDontSend("nothing sent because of debug");
       return;
     }
     sendAmazonEmail(fromAddress, replyToAddress, toAddress, subject, messageBody);
@@ -98,24 +94,25 @@ public class MailMan {
       Long startMillis = System.nanoTime() / 1000000L;
       SendEmailResult result = sesClient.sendEmail(request);
       Long endMillis = System.nanoTime() / 1000000L;
-      Logger.logStatic("Email sent in " + (endMillis - startMillis) + " milli seconds.  result=" + result.toString());
+      LOG.info("Email sent from=" + from + ", to: " + destination + ", mailTime=" + (endMillis - startMillis) + " milliSeconds.  result=" + result.toString());
     }
     catch (Exception ex) {
-      Logger.logStatic("The email was not sent.  Exception message: " + ex.getMessage());
+      LOG.error("The email was not sent.  Exception message: " + ex.getMessage());
     }
   }
 
-  private void logger(SessionData sessionData, Object... msg) {
-    Logger.printMailMsgToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), sessionData.getLoggedInUserId(), "MailMan: ");
-    for (Object item : msg) {
-      System.out.print(item); //keep this here
-    }
-    Logger.logStatic(""); //keep this here
-  }
-
-  private void debugOutDontSend(SessionData sessionData, String msg) {
+//  private static void logger(Object... msg) {
+//    System.out.println("MailMan: zzz");
+//    for (Object item : msg) {
+//      System.out.print(item); //keep this here
+//    }
+//    System.out.println("");
+//  }
+//
+  private void debugOutDontSend(String msg) {
     if (DEBUG_DONT_SEND) {
-      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG_DONT_SEND-Mailman: " + msg);
+//      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG_DONT_SEND-Mailman: " + msg);
+      LOG.info("DEBUG_DONT_SEND-Mailman: " + msg);
     }
   }
 

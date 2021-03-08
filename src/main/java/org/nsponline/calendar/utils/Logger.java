@@ -12,14 +12,15 @@ public class Logger {
 
   private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
 
-  private String className;
+  private final String className;
   @SuppressWarnings("unused")
 //  private String ip;
   private String agent;
   private String methodType;
   private String resort;
+  private String id;
   private HttpServletRequest request; //temporary, just save elements to display
-  private int minLogLevel;
+  private final int minLogLevel;
 
   public Logger(Class<?> clazz, int minLogLevel) {  //todo get rid of this
     this.className = clazz.getSimpleName();
@@ -46,8 +47,17 @@ public class Logger {
       error("Class was 'null' in Logger constructor");
 //      Thread.dumpStack();
     }
-
-    this.resort = resort == null ? request.getParameter("resort") : resort;
+    id = "UNKNON";
+    this.resort = resort;
+    if (request != null) {
+      String ID = request.getParameter("ID");
+      if (ID != null && !ID.isEmpty()) {
+        id = ID;
+      }
+      if (resort == null) {
+        this.resort = request.getParameter("resort");
+      }
+    }
     if (request == null) {
       if (!"DailyReminder".equals(methodType)) {
         error("Null request in Logger, parent NotYetImplemented.");  //todo 1/1/2020
@@ -91,6 +101,7 @@ public class Logger {
   }
 
   public void logRequestParameters() {
+    boolean displayHeader = false;
     StringBuilder uriRequestMsg = new StringBuilder("logLevel=" + getLogLevelString() + " class=" + className + " method=" + methodType + " ");
     try {
       String uri = request.getHeader("referer"); //referer: http://52.3.5.75/calendar-1/MemberLogin?resort=Afton
@@ -113,14 +124,18 @@ public class Logger {
         String delimiter = paramValues.length > 1 ? ":" : "";
         for (String paramValue : paramValues) {
           if (!foundParam.contains(paramName)) { //exists in
-            uriRequestMsg.append("Password".equals(paramName) ? "ZZZZ" : (paramValue + delimiter));
+            String showParamValue = paramValue;
+            if ("Password".equals(paramName) || "message".equals(paramName)) {
+              showParamValue = "ZZZZ";
+            }
+            uriRequestMsg.append(showParamValue).append(delimiter);
           }
           foundParam.add(paramValue);
         }
         uriRequestMsg.append(parameterNames.hasMoreElements() ? ", " : " ");
       }
       //noinspection StatementWithEmptyBody
-//      if (!pathFound) {
+      if (displayHeader) {
         String headers = " --Headers: ";
         @SuppressWarnings("unchecked")
         Enumeration<String> headerNames = request.getHeaderNames();
@@ -129,7 +144,7 @@ public class Logger {
           headers += (" " + headerName + "=\"" + request.getHeader(headerName) + "\"");
         }
         uriRequestMsg.append(headers);
-//      }
+      }
       uriRequestMsg.append(") ");
 //      System.out.flush();
     } catch (Exception e) {
@@ -146,7 +161,10 @@ public class Logger {
     else if (minLogLevel == INFO) {
       return "INFO";
     }
-    return "WARN";
+    else if (minLogLevel == WARN) {
+      return "WARN";
+    }
+    return "ERROR";
   }
 
   public HttpServletRequest getRequest() {
@@ -168,7 +186,7 @@ public class Logger {
   @SuppressWarnings("unused")
   public void warn(String msg) {
     if (minLogLevel == INFO || minLogLevel == DEBUG || minLogLevel == WARN) {
-      writeToLogFile(request, "logLevel=WARN " + msg);
+      writeToLogFile(request, "logLevel=WARN  " + msg);
     }
   }
 
@@ -177,7 +195,8 @@ public class Logger {
   }
 
   public void logSqlStatement(String qryString) {
-    info("sql=\"" + qryString + "\"");
+    String prefix = qryString.contains("SELECT") ? "  " : "";
+    info(prefix + "sql=\"" + qryString + "\"");
   }
 
   private void writeToLogFile(HttpServletRequest request, String msg) {
@@ -194,44 +213,23 @@ public class Logger {
     return className;
   }
 
-  // todo ***************** START these are the last to be made not static **************
-  private static void _printCommonHeader(String ip, String resort) {
+  private void _printCommonHeader(String ip, String resort) {
 //    String strResort = String.format("%-14s", resort);
-    System.out.print("[" + getCurrentDateTimeString() + "] " + " ip=" + ip + ", resort=" + resort + " ");
+    System.out.print("[" + getCurrentDateTimeString() + "] " + " ip=" + ip + ", resort=" + resort + ", id=" + id + " ");
   }
 
-  private static String getCurrentDateTimeString() {
+  private String getCurrentDateTimeString() {
     //format: 2018-02-18 20:35:41,712
     // java.util.Date currentTime = new java.util.Date(year,month,date);
     Calendar gregorianCalendar = new GregorianCalendar(TimeZone.getDefault());
     return formatter.format(gregorianCalendar.getTime());
   }
 
-  private static void _printCommonHeader(HttpServletRequest request, String resort) {
+  private void _printCommonHeader(HttpServletRequest request, String resort) {
     String fromIp = "undef";
     if (request != null) {
       fromIp = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
     }
     _printCommonHeader(fromIp, resort);
-  }
-
-// todo ***************** END these are the last to be made not static **************
-
-  //todo ---------- make these NOT static -----------------
-  public static void printToLogFileStatic(HttpServletRequest request, String resort, String msg) {
-    writeToLogFileStatic(request, resort, " - " + msg);
-  }
-
-  public static void printMailMsgToLogFileStatic(HttpServletRequest request, String resort, String user, String msg) {
-    writeToLogFileStatic(request, resort, ", user=" + user + ", message=\"" + msg + "\"");
-  }
-
-  private static void writeToLogFileStatic(HttpServletRequest request, String resort, String msg) {
-    _printCommonHeader(request, resort);
-    logStatic(msg);
-  }
-
-  public static void logStatic(String msg) { //keep this for DailyReminder
-    System.out.println(msg);
   }
 }

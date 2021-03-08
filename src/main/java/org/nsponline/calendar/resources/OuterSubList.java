@@ -28,7 +28,7 @@ public class OuterSubList extends ResourceBase {
 
   @SuppressWarnings("StringConcatenationInLoop")
   void printStartOfTable(String IDOfEditor) {
-    out.println("<h2>Substitute List for " + patrolData.getResortFullName(resort) + "</h2>");
+    out.println("<h2>Substitute List for " + patrolData.getResortFullName(resort, LOG) + "</h2>");
     //          if(isDirector || (ds != null && !ds.getEmailAll()))
     {
       //      //getEmailAddress()

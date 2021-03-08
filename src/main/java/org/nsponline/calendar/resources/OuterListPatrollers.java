@@ -382,7 +382,7 @@ public class OuterListPatrollers extends ResourceBase {
     out.println("}");
     out.println("</script>");
 
-    out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(resort) + " Ski Patrol</h2></Center></p>");
+    out.println("<p><Center><h2>Members of the " + PatrolData.getResortFullName(resort, LOG) + " Ski Patrol</h2></Center></p>");
 
     LOG.info("ListPatrollers, isDirector=" + isDirector + " ID: " + szMyID + " directorSettings=" + directorSettings);
     if (isDirector || (directorSettings != null && directorSettings.getEmailAll())) {
@@ -745,7 +745,7 @@ public class OuterListPatrollers extends ResourceBase {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-ListPatrollers(): " + msg);
+      LOG.info( "DEBUG-ListPatrollers(): " + msg);
     }
   }
 }

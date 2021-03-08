@@ -64,7 +64,7 @@ public class OuterDirector extends ResourceBase {
 
   public void printTop(String resort) {
     out.println("<CENTER>");
-    out.println("<h1>Database Maintenance for " + PatrolData.getResortFullName(resort) + "</h1>");
+    out.println("<h1>Database Maintenance for " + PatrolData.getResortFullName(resort, LOG) + "</h1>");
     out.println("</CENTER>");
   }
 

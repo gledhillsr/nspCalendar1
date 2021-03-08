@@ -17,7 +17,7 @@ public class ValidateCredentialsRedirectIfNeeded {
 
   @SuppressWarnings("FieldCanBeLocal")
   private String resort;
-  private String token;  //new todo implement
+  private String token;  //new todo implement for long lived credentials
   private Logger LOG;
 
   private boolean hasInvalidCredentials;
@@ -67,28 +67,29 @@ public class ValidateCredentialsRedirectIfNeeded {
 
   private void init(SessionData sessionData, String parent, String idParameter) {
     debugOut("parameters  idParameter=" + idParameter + ", resort=" + resort + ", NSPgoto=" + parent);
-    if (StaticUtils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resort, idParameter, sessionData, LOG)) {
-      sessionData.setLoggedInUserId(idParameter);
-      sessionData.setLoggedInResort(resort);
-    }
+//todo this is a HACK that bypasses the login.  remove it 3/4/21
+//    if (StaticUtils.isEmpty(sessionData.getLoggedInUserId()) && doParametersRepresentValidLogin(resort, idParameter, sessionData, LOG)) {
+//      sessionData.setLoggedInUserId(idParameter);
+//      sessionData.setLoggedInResort(resort);
+//    }
 
     hasInvalidCredentials = sessionData.isLoggedIntoAnotherResort(resort) || StaticUtils.isEmpty(sessionData.getLoggedInUserId());
   }
 
-  private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData, Logger parentLog) {
-    if (isNullOrEmpty(resortParameter) ||
-        isNullOrEmpty(idParameter) ||
-        !PatrolData.isValidResort(resortParameter)) {
-      return false;
-    }
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData, parentLog); //todo srg, 2/27/21 pass in, usually already available
-    boolean validId = patrol.getMemberByID(idParameter) != null;
-    //todo 1/1/2020, put try/catch around getMemberByID, and dump all parameters on error
-    //seen this error when idParameter was not a number
-    patrol.close();
-    debugOut("cheated login, validId (" + idParameter + ") = " + validId);
-    return validId;
-  }
+//  private boolean doParametersRepresentValidLogin(String resortParameter, String idParameter, SessionData sessionData, Logger parentLog) {
+//    if (isNullOrEmpty(resortParameter) ||
+//        isNullOrEmpty(idParameter) ||
+//        !PatrolData.isValidResort(resortParameter)) {
+//      return false;
+//    }
+//    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resortParameter, sessionData, parentLog); //todo srg, 2/27/21 pass in, usually already available
+//    boolean validId = patrol.getMemberByID(idParameter) != null;
+//    //todo 1/1/2020, put try/catch around getMemberByID, and dump all parameters on error
+//    //seen this error when idParameter was not a number
+//    patrol.close();
+//    debugOut("cheated login, validId (" + idParameter + ") = " + validId);
+//    return validId;
+//  }
 
   private void errorOut(String msg) {
     // NOSONAR

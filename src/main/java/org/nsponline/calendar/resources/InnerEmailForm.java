@@ -154,7 +154,7 @@ public class InnerEmailForm extends ResourceBase {
     }
     smtp = sessionData.getSmtpHost(); //MailMan._smtpHost;
     fromEmailAddress = fallback_from;
-    fullPatrolName = PatrolData.getResortFullName(resort);
+    fullPatrolName = PatrolData.getResortFullName(resort, LOG);
 
     if (hasValidReturnEmailAddress) {
       fromEmailAddress = memberFromEmailAddress;
@@ -175,10 +175,9 @@ public class InnerEmailForm extends ResourceBase {
     //output to html page
     out.println(str + "<br>");
     //output to tomcat logs
-    PatrolData.logger(resort, str + " resort=" + resort);
-    PatrolData.logger(resort, "from=" + fromMember.getFullName() + " &lt;<b>" + memberFromEmailAddress + "&gt;</b><br><br>");
-    PatrolData.logger(resort, "Subject=" + subject + "<br>");
-    PatrolData.logger(resort, "Message=" + message + "<br>" + "time=" + calendar.getTime().toString() + "<br>");
+//todo 3/4/21    LOG.info( str + "from=" + fromMember.getFullName() + " &lt;<b>" + memberFromEmailAddress + "&gt;</b><br><br>");
+//    PatrolData.logger(resort, "Subject=" + subject + "<br>");
+//    PatrolData.logger(resort, "Message=" + message + "<br>" + "time=" + calendar.getTime().toString() + "<br>");
   }
 
   private int logEveryEmailSent(int currentEmailCount, Roster member, String resort) {
@@ -187,7 +186,7 @@ public class InnerEmailForm extends ResourceBase {
     //output to html page
     out.println(str + "<br>");
     //output to tomcat logs
-    PatrolData.logger(resort, str);
+//todo 3/4/21    PatrolData.logger(resort, str);
     return currentEmailCount;
   }
 
@@ -248,7 +247,7 @@ public class InnerEmailForm extends ResourceBase {
     }
     logEmailBaseInfo(resort);
 
-    MailMan mailMan = new MailMan(smtp, fromEmailAddress, fromMember.getFullName(), sessionData);
+    MailMan mailMan = new MailMan(fromEmailAddress, sessionData, LOG);
     //todo srg zzz this is where the main loop is (Oct 28, 2013)
     //loop for each patroller
 //    log("44444444444444");
@@ -304,8 +303,8 @@ public class InnerEmailForm extends ResourceBase {
   private void mailto(SessionData sessionData, MailMan mail, Roster mbr, String subject, String message) {
     String recipient = mbr.getEmailAddress();
     if (StaticUtils.isValidEmailAddress(recipient)) {
-      LOG.debug("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
-      mail.sendMessage(sessionData, subject, message, recipient);
+//      LOG.debug("Sending mail to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
+      mail.sendMessage(subject, message, recipient);
     }
   } //end mailto
 
@@ -352,7 +351,7 @@ public class InnerEmailForm extends ResourceBase {
         String name = member.getFullName_lastNameFirst();
         out.println("   <option selected value=" + id + ">" + name + "</option>");
       } else {
-        PatrolData.logger(resort, "DATA ERROR, api failed. patrol.getMemberByID(" + id + ")");
+        LOG.error("DATA ERROR, api failed. patrol.getMemberByID(" + id + ")");
       }
 
     }

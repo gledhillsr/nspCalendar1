@@ -87,7 +87,7 @@ public class ApiResources {
 
       String resort = request.getParameter("resort");
       if (StaticUtils.isEmpty(resort) || !PatrolData.isValidResort(resort)) {
-        buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + ")");
+        buildAndLogErrorResponse(response, 400, "Resort not found (" + resort + ")", LOG);
         return;
       }
 
@@ -98,7 +98,7 @@ public class ApiResources {
       String patrollerId = payload.getId();
 
       if (StaticUtils.isEmpty(patrollerId) || StaticUtils.isEmpty(password)) {
-        buildAndLogErrorResponse(response, 400, "Missing id or password");
+        buildAndLogErrorResponse(response, 400, "Missing id or password", LOG);
         return;
       }
 
@@ -107,7 +107,7 @@ public class ApiResources {
         sessionData.setLoggedInUserId(patrollerId);
         sessionData.setLoggedInResort(resort);
       } else {
-        buildAndLogErrorResponse(response, 401, "no matching id/password for resort=" + resort);
+        buildAndLogErrorResponse(response, 401, "no matching id/password for resort=" + resort, LOG);
         return;
       }
 
@@ -127,16 +127,16 @@ public class ApiResources {
         ObjectNode returnNode = nodeFactory.objectNode();
         returnNode.put("authToken", sessionId);
         //return OK
-        StaticUtils.buildOkResponse(response, returnNode);
+        StaticUtils.buildOkResponse(response, returnNode, LOG);
       } else {
         String errMsg = (connection == null) ? "Could not get DB connection" : "Row insertion failed";
-        StaticUtils.buildAndLogErrorResponse(response, 500, "Internal error: " + errMsg);
+        StaticUtils.buildAndLogErrorResponse(response, 500, "Internal error: " + errMsg, LOG);
       }
       patrol.close();
     }
 
     private void logger(SessionData sessionData, String str) {
-      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
+      sessionData.getLOG().info(str);
     }
   }
 
@@ -172,7 +172,7 @@ public class ApiResources {
         sessionData.clearLoggedInUserId();
 
         nspSession.deleteRow(connection);
-        StaticUtils.build204Response(response);
+        StaticUtils.build204Response(response, LOG);
 
         patrolData.close();
       }
@@ -239,7 +239,7 @@ public class ApiResources {
         String szYear = request.getParameter("year");
         String szMonth = request.getParameter("month");
         String szDay = request.getParameter("day");
-        Logger.logStatic(" --patrol/assignments... resort=" + resort
+        LOG.info(" --patrol/assignments... resort=" + resort
                            + ", year: [" + szYear
                            + "], month: [" + szMonth
                            + "], day: [" + szDay);
@@ -248,15 +248,15 @@ public class ApiResources {
         int day = convertToInt(szDay);
 
         if ((year == 0) != (month == 0)) {
-          buildAndLogErrorResponse(response, 400, "Invalid 'year' (" + szYear + "), 'month' (" + szMonth + ")");
+          buildAndLogErrorResponse(response, 400, "Invalid 'year' (" + szYear + "), 'month' (" + szMonth + ")", LOG);
           return;
         }
 
         String authenticatedUserId = nspSession.getAuthenticatedUser();
         Roster patroller = patrolData.getMemberByID(authenticatedUserId);
         if (patroller == null) {
-          Logger.logStatic("ERROR:  User not found (" + authenticatedUserId + ")");
-          buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
+          LOG.info("ERROR:  User not found (" + authenticatedUserId + ")");
+          buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")", LOG);
           return;
         }
 
@@ -286,7 +286,7 @@ public class ApiResources {
           int endMonth = directorSettings.getEndMonth();
           int endYear = startYear + 1;
 
-          Logger.logStatic("full season from: "
+          LOG.info("full season from: "
                              + startMonth + "/" + startDay + "/" + startYear
                              + " to: " + endDay + "/" + endMonth + "/" + endYear);
           for (int mon = startMonth; mon <= 12; mon++) {
@@ -301,9 +301,9 @@ public class ApiResources {
           count++;
           assignmentsArrayNode.add(ns.toNode());
         }
-        Logger.logStatic("  -- assignments count = " + count);
+        LOG.info("  -- assignments count = " + count);
         returnNode.set("assignments", assignmentsArrayNode);
-        StaticUtils.buildOkResponse(response, returnNode);
+        StaticUtils.buildOkResponse(response, returnNode, LOG);
 
         patrolData.close();
       }
@@ -379,14 +379,14 @@ public class ApiResources {
         //if no year, do everything
         //if yea, them month must exist
         if ((year == 0 && month != 0) || (year != 0 && month == 0)) {
-          buildAndLogErrorResponse(response, 400, "required 'year' (" + szYear + ") and 'month' (" + szMonth + ")");
+          buildAndLogErrorResponse(response, 400, "required 'year' (" + szYear + ") and 'month' (" + szMonth + ")", LOG);
           return;
         }
 
         String authenticatedUserId = nspSession.getAuthenticatedUser();
         Roster patroller = patrolData.getMemberByID(authenticatedUserId);
         if (patroller == null) {
-          buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")");
+          buildAndLogErrorResponse(response, 400, "User not found (" + authenticatedUserId + ")", LOG);
           return;
         }
 
@@ -408,7 +408,7 @@ public class ApiResources {
           assignmentsArrayNode.add(ns.toNode());
         }
         returnNode.set("assignments", assignmentsArrayNode);
-        StaticUtils.buildOkResponse(response, returnNode);
+        StaticUtils.buildOkResponse(response, returnNode, LOG);
 
         patrolData.close();
       }
@@ -471,10 +471,10 @@ public class ApiResources {
         }
         Roster patroller = patrolData.getMemberByID(nspSession.getAuthenticatedUser());
         if (patroller == null) {
-          buildAndLogErrorResponse(response, 400, "user not found (" + nspSession.getAuthenticatedUser() + ")");
+          buildAndLogErrorResponse(response, 400, "user not found (" + nspSession.getAuthenticatedUser() + ")", LOG);
           return;
         }
-        StaticUtils.buildOkResponse(response, patroller.toNode());
+        StaticUtils.buildOkResponse(response, patroller.toNode(), LOG);
         patrolData.close();
       }
     }
@@ -517,11 +517,11 @@ public class ApiResources {
         }
         DirectorSettings directorSettings = patrolData.readDirectorSettings();
         if (directorSettings == null) {
-          buildAndLogErrorResponse(response, 400, "resort settings not found (should never happen) (" + nspSession.getAuthenticatedUser() + ")");
+          buildAndLogErrorResponse(response, 400, "resort settings not found (should never happen) (" + nspSession.getAuthenticatedUser() + ")", LOG);
           return;
         }
 
-        StaticUtils.buildOkResponse(response, directorSettings.toNode());
+        StaticUtils.buildOkResponse(response, directorSettings.toNode(), LOG);
 
         patrolData.close();
       }
@@ -567,7 +567,7 @@ public class ApiResources {
         }
         returnNode.set("resorts", resortArrayNode);
 
-        StaticUtils.buildOkResponse(response, returnNode);
+        StaticUtils.buildOkResponse(response, returnNode, LOG);
         patrolData.close();
       }
 
@@ -666,7 +666,7 @@ public class ApiResources {
         returnNode.put("memberCount", rosterSize);
         returnNode.set("roster", rosterArrayNode);
 
-        StaticUtils.buildOkResponse(response, returnNode);
+        StaticUtils.buildOkResponse(response, returnNode, LOG);
 
         patrolData.close();
       }

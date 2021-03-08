@@ -7,6 +7,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.utils.*;
 
+/**
+ * 1) Display "Login help" screen to input the user id & password, or send password
+ * 2) receive userId/password/resort,
+ *      a) if valid, set session data !!!!, and goto parent
+ *      b) if not valid, do step 1
+ * POST the userId/password to SELF (resort is HIDDEN)
+ *      password is not encrypted yet
+ */
+
 public class OuterLoginHelp extends ResourceBase {
   @SuppressWarnings("FieldCanBeLocal")
   private static final boolean DEBUG = true;
@@ -32,7 +41,7 @@ public class OuterLoginHelp extends ResourceBase {
       }
       // String newLoc = BASE_URL + resort + "/index.php?resort=" + resort + "&NSPgoto=" + szParent + "&ID=" + id;
       String newLoc = PatrolData.SERVLET_URL + szParent + "?resort=" + resort + "&ID=" + id;
-      debugOut("LoginHelp (valid login) sendRedirect to: " + newLoc, sessionData);
+//      debugOut("LoginHelp (valid login) sendRedirect to: " + newLoc, sessionData);
       response.sendRedirect(newLoc);
       patrolData.close();
       return;
@@ -52,7 +61,7 @@ public class OuterLoginHelp extends ResourceBase {
       String ID2 = request.getParameter("ID2");
       String email = request.getParameter("email");
       if (ID2 != null || email != null) {
-        int ret = sendPassword(out, ID2, email, resort, sessionData, patrolData);
+        int ret = sendPassword(ID2, email, resort, sessionData, patrolData);
         if (ret == 0) {
           out.println("Note: an email of the ID and password was just sent.<br>");
         } else if (ret == 1) {
@@ -73,9 +82,9 @@ public class OuterLoginHelp extends ResourceBase {
     }
     String recipient = mbr.getEmailAddress();
     if (recipient != null && recipient.length() > 3 && recipient.indexOf('@') > 0) {
-      System.out.print("Sending password email to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
+      LOG.info("Sending password email to " + mbr.getFullName() + " at " + recipient);   //no e-mail, JUST LOG IT
       //        try {
-      mail.sendMessage(sessionData, subject, message, recipient);
+      mail.sendMessage(subject, message, recipient);
       //          Log.log("  mail was sucessfull");    //no e-mail, JUST LOG IT
       return true;
       //        }
@@ -87,9 +96,7 @@ public class OuterLoginHelp extends ResourceBase {
     return false;
   } //end mailto
 
-
-  @SuppressWarnings("UnusedParameters")
-  private int sendPassword(PrintWriter out, String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
+  private int sendPassword(String ID, String emailAddress, String resort, SessionData sessionData, PatrolData patrol) {
     Roster member = null;
     if (ID != null && !ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && ID.length() > 4) {
       member = patrol.getMemberByID(ID); //ID from cookie
@@ -106,13 +113,16 @@ public class OuterLoginHelp extends ResourceBase {
     }
     if (member != null) {
       String password = member.getPassword();
+      if (password == null || password.isEmpty()) {
+        password = member.getLast();
+      }
       String fullName = member.getFullName();
       String message = fullName + "\n\nYou have requested your login information for your resort " + resort + " on the online scheduling web site.\n\n" +
         "Your patrol ID is: " + ID + "\n" +
         "Your password is: " + password + "\n\n" +
         "Please change this password ASAP (since it was sent in an email).\n\n" +
         "If you continue to have problems, please contact your director.\n\nThanks.";
-      MailMan mail = new MailMan(sessionData.getSmtpHost(), emailAddress, fullName, sessionData);
+      MailMan mail = new MailMan(emailAddress, sessionData, LOG);
       if (mailto(sessionData, mail, member, "Here is your password you requested", message)) {
         return 0; //mail was sent
       } else {
@@ -139,8 +149,8 @@ public class OuterLoginHelp extends ResourceBase {
     out.println("<p>");
     out.println("&nbsp;");
     out.println("<font face=verdana, arial size=2 color=black>");
-    out.println("<b>" + PatrolData.getResortFullName(resort) + " Login Help</b><p>");
-    out.println("Please enter the following information.  If we find match in the member database, you'll get instant access.<br><b>If you have assigned yourself a password, your Last name will no longer work.</b><p>");
+    out.println("<b>" + PatrolData.getResortFullName(resort, LOG) + " Login Help</b><p>");
+    out.println("Please enter the following information.<br><p>");
     out.println("<form target='_self' action=" + PatrolData.SERVLET_URL + "LoginHelp method=post>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME='NSPgoto' VALUE=\"" + szParent + "\">\n");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">\n");
@@ -186,9 +196,6 @@ public class OuterLoginHelp extends ResourceBase {
 
     out.println("</form>");
     out.println("<font face=verdana, arial size=2 color=black>");
-    out.println("<p><b>If you did have a password, but forgot it</b>, Oops. I have not yet implemented the e-mail you your password function.  ");
-    out.println("Please try to get if from your Director (then can look it up).  Otherwise email me at Steve@Gledhills.com, and tell me your resort and your patroller ID, ");
-    out.println("then I will email you back your password (Sorry for the inconvience).</p>");
     out.println("For help on locating your NSP Member ID Number, check the examples below of your NSP Membership Card, your OEC Card and the mailing label on your issues of <i>Ski Patrol Magazine</i>");
     out.println("</font>");
     out.println("<table>");
@@ -209,16 +216,10 @@ public class OuterLoginHelp extends ResourceBase {
     out.println("</font>");
   }
 
-  private void debugOut(String str, SessionData sessionData) {
-    if (DEBUG) {
-      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
-    }
-  }
-
   @SuppressWarnings("unused")
   private void debugSensitiveOut(String str, SessionData sessionData) {
     if (DEBUG_SENSITIVE) {
-      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), str);
+      LOG.info(str);
     }
   }
 }

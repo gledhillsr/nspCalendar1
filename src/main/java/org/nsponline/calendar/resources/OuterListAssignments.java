@@ -73,7 +73,7 @@ public class OuterListAssignments extends ResourceBase {
 
     calendarStart.set(startYear, startMonth, 1);  //(yyyy,mm,dd) Month is 0 based
     LOG.debug("zzzz calendar start " + calendarStart.toString());
-    out.println("<p><font size=5>" + myName + "'s Assignment Schedule for " + PatrolData.getResortFullName(resort) + "</font>");
+    out.println("<p><font size=5>" + myName + "'s Assignment Schedule for " + PatrolData.getResortFullName(resort, LOG) + "</font>");
     out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 //      out.println("<a href=\"javascript:printWindow()\">Print This Page</a>");
     out.println("</font></p>");

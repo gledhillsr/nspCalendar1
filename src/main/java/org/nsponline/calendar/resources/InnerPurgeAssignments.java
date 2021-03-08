@@ -124,7 +124,7 @@ class InnerPurgeAssignments extends ResourceBase {
   }
 
   public void printBody() {
-    out.println("<h1 align=\"center\">Delete Old Assignments for " + PatrolData.getResortFullName(resort) + "</h1>");
+    out.println("<h1 align=\"center\">Delete Old Assignments for " + PatrolData.getResortFullName(resort, LOG) + "</h1>");
     out.println("<form target='_self' onSubmit=\"return validate()\" action=\"" + PatrolData.SERVLET_URL + "PurgeAssignments\" method=POST>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">");

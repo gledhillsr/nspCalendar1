@@ -441,7 +441,7 @@ public class InnerProcessChangeShiftAssignments extends ResourceBase {
     if (newIndividualAssignment == null) {
       //INSERT (eventually this should go away) only used when assignments are duplicated
       int shiftType = NewIndividualAssignment.DAY_TYPE;  //todo shiftType is ignored?
-      LOG.error("HACK in needsReplacement, shiftType forced to DAY SHIFT");
+      LOG.error("HACK in needsReplacement, shiftType forced to DAY SHIFT (field CURRENTLY not used)");
       newIndividualAssignment = new NewIndividualAssignment(calendarToday.getTime(), nPos1, nIndex1AsNum, shiftType,
                                                             NewIndividualAssignment.FLAG_BIT_NEEDS_REPLACEMENT, newID, submitterID);
 
@@ -560,7 +560,7 @@ public class InnerProcessChangeShiftAssignments extends ResourceBase {
       LOG.debug("no mail being sent for Sample resort");
     }
     else {    //hack to stop email
-      MailMan mail = new MailMan(smtp, from, "Automated Ski Patrol Reminder", sessionData);
+      MailMan mail = new MailMan(from, sessionData, LOG);
       ResultSet rosterResults = patrolData.resetRoster();
       Roster mbr;
       sentToFirst = false;
@@ -607,7 +607,7 @@ public class InnerProcessChangeShiftAssignments extends ResourceBase {
       else if (member2 != null && member2.getID().equals(mbr.getID())) {
         sentToSecond = true;
       }
-      mail.sendMessage(sessionData, "Patrol Roster Changed (" + sessionData.getLoggedInResort() + ")", strChange3, recipient);
+      mail.sendMessage("Patrol Roster Changed (" + sessionData.getLoggedInResort() + ")", strChange3, recipient);
     }
   }
 } //end InnerProcessChanges

@@ -572,7 +572,7 @@ public class Roster {
       classification = lookupClassification.get(getClassification());
     }
     catch (Exception ex) {
-      Logger.logStatic("ERROR, classification not found" + getClassification());
+      LOG.error("ERROR, classification not found" + getClassification());
     }
     return classification;
   }
@@ -741,20 +741,20 @@ public class Roster {
     return qryString;
   }
 
-  public static String vouchersToCredits(String vouchers) {
-    String credits;
-    try {
-//          double xx = Double.parseDouble(vouchers);
-//        ct = (int)(xx * 2.0);
-      credits = Integer.parseInt(vouchers) + "";
-//Log.log("-------"+ct+" credits="+credits);
-    }
-    catch (Exception e) {
-      Logger.logStatic("Error in vouchersToCredits, parsing voucher count of " + vouchers + ".  Setting Credits to 0");
-      credits = "0";
-    }
-    return credits;
-  }
+//  public static String vouchersToCredits(String vouchers) {
+//    String credits;
+//    try {
+////          double xx = Double.parseDouble(vouchers);
+////        ct = (int)(xx * 2.0);
+//      credits = Integer.parseInt(vouchers) + "";
+////Log.log("-------"+ct+" credits="+credits);
+//    }
+//    catch (Exception e) {
+//      LOG.error("Error in vouchersToCredits, parsing voucher count of " + vouchers + ".  Setting Credits to 0");
+//      credits = "0";
+//    }
+//    return credits;
+//  }
 
   public static String creditsToVouchers(String szCredits) {
     String szVouchers = "0";

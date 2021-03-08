@@ -228,7 +228,7 @@ public class OuterUpdateInfo extends ResourceBase {
     try {
 
       // Change MyDSN, myUsername and myPassword to your specific DSN
-      Connection c = patrolData.getConnection(resort, sessionData);
+      Connection c = patrolData.getConnection(resort, sessionData, LOG);
       PreparedStatement sRost;
 
       Roster md;
@@ -265,7 +265,7 @@ public class OuterUpdateInfo extends ResourceBase {
       else {
         out.println("<h2>Updated record for " + name + ":</h2>");
       }
-      out.println("host resort: " + patrolData.getResortFullName(resort) + "<br>");
+      out.println("host resort: " + patrolData.getResortFullName(resort, LOG) + "<br>");
 
       int first = 0; // was DB_START;
       int last = Roster.DB_SIZE; //director is last column
@@ -414,7 +414,7 @@ public class OuterUpdateInfo extends ResourceBase {
             date = szMonths[cal.get(Calendar.MONTH)] + "-" + cal.get(Calendar.DATE) + "-" + cal.get(Calendar.YEAR);
           }
           catch (Exception e) {
-            Logger.logStatic("Error parsing Long value for: (" + szTmp + ")");
+            LOG.error("Error parsing Long value for: (" + szTmp + ")");
           }
           out.println(date);
         }
@@ -508,7 +508,7 @@ public class OuterUpdateInfo extends ResourceBase {
       }
       // header -------------------
       out.println("<h2>Personal Information for:  " + fullName + "</h2><br>");
-      out.println("host resort: <b>" + patrolData.getResortFullName(resort) + "</b>");
+      out.println("host resort: <b>" + patrolData.getResortFullName(resort, LOG) + "</b>");
       out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 //      out.println("<a href=\"javascript:printWindow()\">Print This Page</a></font><br>");
 
@@ -818,7 +818,7 @@ public class OuterUpdateInfo extends ResourceBase {
         //Log.log("date="+date);
       }
       catch (Exception e) {
-        Logger.logStatic("Error, exception parsing " + szDefault + " in UpdateInfo: " + e);
+        LOG.error("Error, exception parsing " + szDefault + " in UpdateInfo: " + e);
       }
 
       if (!editorIsDirector) {

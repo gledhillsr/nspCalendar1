@@ -96,7 +96,7 @@ public class Assignments {
       str = assignmentResults.getString(tag);
     }
     catch (Exception e) {
-      LOG(sessionData, "exception in readString e=" + e);
+      LOG.error("exception in readString e=" + e);
       exceptionError = true;
     } //end try
 
@@ -181,7 +181,7 @@ public class Assignments {
 
   public static int getTypeID(SessionData sessionData, String szType) {
     if (szType == null) {
-      LOG(sessionData, "** Assignments.getDate error, type was null");
+      sessionData.getLOG().error("** Assignments.getDate error, type was null");
       return DAY_TYPE;
     }
     for (int shiftType = 0; shiftType < MAX_SHIFT_TYPES; ++shiftType) {
@@ -189,7 +189,7 @@ public class Assignments {
         return shiftType;
       }
     }
-    LOG(sessionData, "** Assignments.getDate error, invalid string");
+    sessionData.getLOG().error("** Assignments.getDate error, invalid string");
     return DAY_TYPE;
   }
 
@@ -382,10 +382,6 @@ public class Assignments {
 
   private void debugOut(String msg) {
     LOG.debug("Assignments: " + msg);
-  }
-
-  private static void LOG(SessionData sessionData, String msg) {
-    Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), msg);
   }
 
   public boolean includesPatroller(String patrollerId) {

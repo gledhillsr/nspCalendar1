@@ -72,7 +72,7 @@ public class OuterMemberList extends ResourceBase {
     out.println("}");
     out.println("</script>");
 
-    out.println("<p><Center><h2>List of Members of " + PatrolData.getResortFullName(resort) + " Ski Patrollers</h2></Center></p>");
+    out.println("<p><Center><h2>List of Members of " + PatrolData.getResortFullName(resort, LOG) + " Ski Patrollers</h2></Center></p>");
 
     if (isDirector || (ds != null && ds.getEmailAll())) {
       //getEmailAddress()

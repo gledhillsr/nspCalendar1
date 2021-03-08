@@ -21,12 +21,13 @@ public class OuterPage {
   private String loggedInUserId;
   private ResortData resortData;
   private static final int MAX_BUFFER = 4000;
+  private Logger LOG;
 
-
-  public OuterPage(ResortData resort, String javaScriptAndStyles, String loggedInUserId) {
+  public OuterPage(ResortData resort, String javaScriptAndStyles, String loggedInUserId, Logger LOG) {
     resortData = resort;
+    this.LOG = LOG;
     if (resortData == null) {
-      System.out.println("MAJOR ERROR, resortData is null.  This should not happen here");
+      LOG.error("MAJOR ERROR, resortData is null.  This should not happen here");
       Thread.dumpStack();
     }
     this.javaScript = javaScriptAndStyles;
@@ -101,14 +102,12 @@ public class OuterPage {
   }
 
   private void errorOut(String msg) {
-    // nosonar
-    Logger.logStatic("ERROR: OuterPage: " + msg);
+    LOG.error("ERROR: OuterPage: " + msg);
   }
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      // nosonar
-      Logger.logStatic("DEBUG: OuterPage: " + msg);
+      LOG.debug("DEBUG: OuterPage: " + msg);
     }
   }
 }

@@ -232,7 +232,7 @@ class InnerWebSitePreferences extends ResourceBase {
       readOnly = " DISABLED ";
     }
 
-    out.println("<h1 align=\"center\">Web Site Preferences for " + PatrolData.getResortFullName(resort) + "</h1>");
+    out.println("<h1 align=\"center\">Web Site Preferences for " + PatrolData.getResortFullName(resort, LOG) + "</h1>");
     out.println("<form target='_self' name=myForm action=\"" + PatrolData.SERVLET_URL + "WebSitePreferences\" method=POST>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\"" + resort + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\"" + szMyID + "\">");

@@ -577,13 +577,13 @@ public class InnerChangeSingleDayShift extends ResourceBase {
       String tEnd = request.getParameter("endTime_" + i);
       String tCount = request.getParameter("count_" + i);
       if (tCount == null) {
-        Logger.printToLogFileStatic(request, resort, "ERROR, reading past assignment data");
+        LOG.error( "ERROR, reading past assignment data");
         break;
       }
       int tCnt = Integer.parseInt(tCount);
       String tShift = request.getParameter("shift_" + i);
       if (tShift == null) {
-        Logger.printToLogFileStatic(request, resort, "ERROR, reading past assignment data");
+        LOG.error( "ERROR, reading past assignment data");
         break;
       }
       int tType = Assignments.getTypeID(sessionData, tShift);
@@ -603,7 +603,7 @@ public class InnerChangeSingleDayShift extends ResourceBase {
 
   private void debugOut(HttpServletRequest request, String msg) {
     if (DEBUG) {
-      Logger.printToLogFileStatic(request, "<resortGoesHere>", "Debug-DayShifts: " + msg);
+      LOG.info( "Debug-DayShifts: " + msg);
     }
   }
 

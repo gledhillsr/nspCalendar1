@@ -19,7 +19,7 @@ public class ResourceBase {
   final HttpServletRequest request;
   SessionData sessionData;
   PatrolData patrolData;
-  Connection connection;
+  Connection connection;  //only used locally and ApiBase.  PatrolData has it's own copy of connection
   NspSession nspSession;
   private OuterPage outerPage; //for commonHeader & commonFooter
 
@@ -37,11 +37,11 @@ public class ResourceBase {
   protected boolean initBase(HttpServletResponse response) {
     String userAgent = request.getHeader("user-agent");
     if (StaticUtils.isRequestFromBot(userAgent)) {
-      StaticUtils.buildAndLogErrorResponse(response, 401, "Unauthorized agent (" + userAgent + "). Class=" + LOG.getClassName());
+      StaticUtils.buildAndLogErrorResponse(response, 401, "Unauthorized agent (" + userAgent + "). Class=" + LOG.getClassName(), LOG);
       return false; //parent should stop further page display
     }
     if (!PatrolData.isValidResort(resort)) {
-      buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")");
+      buildAndLogErrorResponse(response, 400, "Resort not found: (" + resort + ")", LOG);
       return false; //parent should stop further page display
     }
     sessionData = new SessionData(request, out, LOG);
@@ -58,12 +58,12 @@ public class ResourceBase {
       return false; //'resort' etc, MUST be valid (response was setup),  parent should stop further page display
     }
     if (StaticUtils.isEmpty(sessionId)) {
-      buildAndLogErrorResponse(response, 401, "Authorization header not found");
+      buildAndLogErrorResponse(response, 401, "Authorization header not found", LOG);
       return false; //parent should stop further page display
     }
     nspSession = NspSession.read(connection, sessionId);
     if (nspSession == null) {
-      buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")");
+      buildAndLogErrorResponse(response, 401, "Invalid Authorization: (" + sessionId + ")", LOG);
       patrolData.close();
       return false; //parent should stop further page display
     }
@@ -80,7 +80,7 @@ public class ResourceBase {
   }
 
   protected void printCommonHeader() {
-    outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId());
+    outerPage = new OuterPage(patrolData.getResortInfo(), "", sessionData.getLoggedInUserId(), LOG);
     outerPage.printResortHeader(out);
   }
 

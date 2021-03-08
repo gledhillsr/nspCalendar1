@@ -27,6 +27,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class RssResource {
+  private static final int MIN_LOG_LEVEL = Logger.INFO;
+
   /**
    *   }
    * @Response 400 - Bad Request
@@ -44,38 +46,37 @@ public class RssResource {
     static Map<String, String> nameCache = new HashMap<String, String>();
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      new GetRss(request, response, "POST");
+      Logger LOG = new Logger(this.getClass(), request, "POST", request.getParameter("resort"), MIN_LOG_LEVEL);
+      new GetRss(request, response, "POST", LOG);
     }
 
     @SuppressWarnings("InnerClassMayBeStatic")
     private class GetRss {
-      private Logger LOG;
       private String pid;
       private String fullName;
       private ObjectMapper mapper = new ObjectMapper();
 
-      private GetRss(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
-
+      private GetRss(HttpServletRequest request, HttpServletResponse response, String methodType, Logger LOG) throws IOException {
         JsonNode node = mapper.readTree(request.getInputStream());
         pid = node.path("pid").asText();
         fullName = node.path("fullName").asText();
         nameCache.put(pid, fullName);
         if(StaticUtils.isEmpty(pid)) {
-          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
+          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'", LOG);
           return;
         }
         if(StaticUtils.isEmpty(fullName)) {
-          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'fullName'");
+          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'fullName'", LOG);
           return;
         }
 
         String rssFeedNameJson = HOME_DIRECTORY + pid + ".json";
         String rssFeedNameXml = HOME_DIRECTORY + pid + ".xml";
-        System.out.println("look for file=" + rssFeedNameJson);
+        LOG.info("look for file=" + rssFeedNameJson);
         File fileJson = new File(rssFeedNameJson);
         if (fileJson.exists()) {
           System.out.println("RSS feed exists for " + pid);
-          StaticUtils.buildAndLogErrorResponse(response, 304, "RSS feed exists for " + pid);
+          StaticUtils.buildAndLogErrorResponse(response, 304, "RSS feed exists for " + pid, LOG);
           return;
         }
         ObjectNode initNode = constructInitNode(pid, fullName);
@@ -84,11 +85,11 @@ public class RssResource {
           FileWriter myWriter = new FileWriter(rssFeedNameJson);
           myWriter.write(initNode.toPrettyString());
           myWriter.close();
-          System.out.println("Successfully wrote to the file." + rssFeedNameJson);
-          StaticUtils.buildOkResponse(response, toNode(pid, fullName));
+          LOG.info("Successfully wrote to the file." + rssFeedNameJson);
+          StaticUtils.buildOkResponse(response, toNode(pid, fullName), LOG);
         } catch (IOException e) {
-          System.out.println("An error occurred. e.getMessage=" + e.getMessage());
-          StaticUtils.buildAndLogErrorResponse(response, 400, "Failed to create RSS feed.  Exception " + e.getMessage());
+          LOG.info("An error occurred. e.getMessage=" + e.getMessage());
+          StaticUtils.buildAndLogErrorResponse(response, 400, "Failed to create RSS feed.  Exception " + e.getMessage(), LOG);
         }
         writeXml(pid, fullName, null);
       }
@@ -197,7 +198,7 @@ public class RssResource {
   //        </item>
           System.out.println("new xml items=" + rssNode.path("rss").path("channel").path("items"));
           if (rssNode.path("rss").path("channel").path("items").isArray()) {
-            for (JsonNode itemNode : (ArrayNode)rssNode.path("rss").path("channel").path("items")) {
+            for (JsonNode itemNode : rssNode.path("rss").path("channel").path("items")) {
               System.out.println("new xml item=" + itemNode.toPrettyString());
               Element itemElement = document.createElement("item");
               addElementIfExists(itemNode.path("title").asText(), "title", document, itemElement);
@@ -287,12 +288,12 @@ public class RssResource {
   //  }
   //
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      new GetRss(request, response, "POST");
+      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), MIN_LOG_LEVEL);
+      new GetRss(request, response, "POST", LOG);
     }
 
     @SuppressWarnings("InnerClassMayBeStatic")
     private class GetRss {
-      private Logger LOG;
       private String pid = "";
       private String url = "";
       private String mimeType = "";
@@ -302,7 +303,7 @@ public class RssResource {
       private String title = "";
       private String description = "";
 
-      private GetRss(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
+      private GetRss(HttpServletRequest request, HttpServletResponse response, String methodType, Logger LOG) throws IOException {
         JsonNode node = mapper.readTree(request.getInputStream());
         pid = node.path("pid").asText();
         url = node.path("url").asText();
@@ -313,15 +314,15 @@ public class RssResource {
         title = node.path("title").asText();
         description = node.path("description").asText();
         if(StaticUtils.isEmpty(pid)) {
-          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
+          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'", LOG);
           return;
         }
         if(StaticUtils.isEmpty(url)) {
-          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'url'");
+          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'url'", LOG);
           return;
         }
         if(StaticUtils.isEmpty(mimeType)) {
-          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'mimeType'");
+          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'mimeType'", LOG);
           return;
         }
 
@@ -332,7 +333,7 @@ public class RssResource {
         File rssFile = new File(rssFeedName);
         if (!rssFile.exists()) {
           System.out.println("RSS feed not found for " + pid);
-          StaticUtils.buildAndLogErrorResponse(response, 400, "RSS feed not found for " + pid);
+          StaticUtils.buildAndLogErrorResponse(response, 400, "RSS feed not found for " + pid, LOG);
           return;
         }
 
@@ -350,15 +351,15 @@ public class RssResource {
           myWriter.write(rssNode.toPrettyString());
           myWriter.close();
           System.out.println("Successfully wrote to the file." + rssFeedName);
-          StaticUtils.buildOkResponse(response, rssNode);
+          StaticUtils.buildOkResponse(response, rssNode, LOG);
           RssInit.writeXml(pid, null, rssNode);
         } catch (FileNotFoundException e) {
           System.out.println("FileNotFoundException: " + e.getMessage());
-          StaticUtils.buildAndLogErrorResponse(response, 400, "Error reading RSS feed for " + pid + " err=" + e.getMessage());
+          StaticUtils.buildAndLogErrorResponse(response, 400, "Error reading RSS feed for " + pid + " err=" + e.getMessage(), LOG);
           return;
         } catch (Exception e) {
           System.out.println("Exception: " + e.getMessage());
-          StaticUtils.buildAndLogErrorResponse(response, 400, "Error writing RSS feed for " + pid + " err=" + e.getMessage());
+          StaticUtils.buildAndLogErrorResponse(response, 400, "Error writing RSS feed for " + pid + " err=" + e.getMessage(), LOG);
           return;
         }
       }
@@ -419,18 +420,19 @@ public class RssResource {
   public static class RssTerminate extends HttpServlet {
 
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      new DeleteRss(request, response, "DELETE");
+      Logger LOG = new Logger(this.getClass(), request, "DELETE", request.getParameter("resort"), MIN_LOG_LEVEL);
+      new DeleteRss(request, response, "DELETE", LOG);
     }
 
     @SuppressWarnings("InnerClassMayBeStatic")
     private class DeleteRss {
       private String pid;
 
-      private DeleteRss(HttpServletRequest request, HttpServletResponse response, String methodType) throws IOException {
+      private DeleteRss(HttpServletRequest request, HttpServletResponse response, String methodType, Logger LOG) throws IOException {
         pid = request.getParameter("pid");
         System.out.println("delete rss feed for pid=" + pid);
         if(StaticUtils.isEmpty(pid)) {
-          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'");
+          StaticUtils.buildAndLogErrorResponse(response, 400, "missing required field 'pid'", LOG);
           return;
         }
         String extension = ".json";
@@ -445,7 +447,7 @@ public class RssResource {
         file = new File(rssFeedName);
         file.delete();
 
-        StaticUtils.build204Response(response);
+        StaticUtils.build204Response(response, LOG);
       }
     }
   }

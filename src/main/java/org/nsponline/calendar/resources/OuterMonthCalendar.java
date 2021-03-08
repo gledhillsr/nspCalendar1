@@ -312,7 +312,7 @@ public class OuterMonthCalendar extends ResourceBase {
 
 
     out.println("<html>");
-    out.println("<head><title>" + patrolData.getResortFullName(resort) + " Schedule</title>");
+    out.println("<head><title>" + patrolData.getResortFullName(resort, LOG) + " Schedule</title>");
 
     out.println("<SCRIPT LANGUAGE = 'JavaScript'>");
 
@@ -380,7 +380,7 @@ public class OuterMonthCalendar extends ResourceBase {
     if (patrolData.USING_TESTING_ADDRESS) {
       testingMessage = "ERROR!!! Using to older database!!! Contact Steve Gledhill (801)209-5974 ASAP";
     }
-    out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + patrolData.getResortFullName(resort) + " - Shift Schedule for " + StaticUtils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
+    out.println("<FONT FACE='Arial, Helvetica' COLOR='000000' SIZE='4'><B>" + testingMessage + patrolData.getResortFullName(resort, LOG) + " - Shift Schedule for " + StaticUtils.szMonthsFull[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR) + "</B></FONT>");
     out.println("<font size=3>");
     out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
     if (notLoggedIn) {
@@ -746,7 +746,7 @@ public class OuterMonthCalendar extends ResourceBase {
 
   private void debugOut(String str) {
     if (DEBUG) {
-      Logger.printToLogFileStatic(sessionData.getRequest(), sessionData.getLoggedInResort(), "DEBUG-MonthCalendar: " + str);
+      LOG.info("DEBUG-MonthCalendar: " + str);
     }
   }
 }

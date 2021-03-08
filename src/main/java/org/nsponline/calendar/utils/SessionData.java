@@ -208,33 +208,22 @@ public class SessionData {
     return isLoggedIn;
   }
 
+  public Logger getLOG() {
+    return LOG;
+  }
   private void debugOut(String msg) {
     if (DEBUG) {
-      // NOSONAR
-      if (LOG != null) {
-        LOG.info("DEBUG-SessionData: " + msg);
-      }
-      else {
-        Logger.logStatic("DEBUG-SessionData: " + msg);
-      }
+      LOG.info("DEBUG-SessionData: " + msg);
     }
   }
 
   private void debugVerboseOut(String msg) {
     if (DEBUG_VERBOSE) {
-      // NOSONAR
-      if (LOG != null) {
-        LOG.info("DEBUG_VERBOSE-SessionData: " + msg);
-      }
-      else {
-        Logger.logStatic("DEBUG_VERBOSE-SessionData: " + msg);
-      }
+      LOG.info("DEBUG_VERBOSE-SessionData: " + msg);
     }
   }
 
   public HttpServletRequest getRequest() {
     return request;
   }
-
-
 }

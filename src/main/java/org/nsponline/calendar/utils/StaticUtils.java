@@ -40,16 +40,16 @@ public final class StaticUtils {
     return matcher.matches();
   }
 
-  public static void build204Response(HttpServletResponse response) {
-    Logger.logStatic("Response OK (204):");
+  public static void build204Response(HttpServletResponse response, Logger LOG) {
+    LOG.info("Response OK (204):");
     response.setStatus(204);
   }
 
-  public static void buildOkResponse(HttpServletResponse response, ObjectNode returnNode) throws IOException {
-    Logger.logStatic("Response OK: " + returnNode.toString());
+  public static void buildOkResponse(HttpServletResponse response, ObjectNode returnNode, Logger LOG) throws IOException {
+    LOG.info("Response OK: " + returnNode.toString());
     response.setStatus(200);
     response.setContentType("application/json");
-    Logger.logStatic(returnNode.toString());
+    LOG.info(returnNode.toString());
     response.getWriter().write(returnNode.toString());
   }
 
@@ -61,8 +61,8 @@ public final class StaticUtils {
     return false;  //cannot tell
   }
 
-  public static void buildAndLogErrorResponse(HttpServletResponse response, int status, String errString) {
-    Logger.logStatic("Response Error: " + status + ": " + errString);
+  public static void buildAndLogErrorResponse(HttpServletResponse response, int status, String errString, Logger LOG) {
+    LOG.error("Response Error: " + status + ": " + errString);
     response.setStatus(status);
     response.addHeader("X-Reason", errString);
   }

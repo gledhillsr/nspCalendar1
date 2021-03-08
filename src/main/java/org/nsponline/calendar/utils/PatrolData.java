@@ -127,7 +127,7 @@ public class PatrolData {
       //todo do something here. besides throw a NPE later
       return;
     }
-    connection = getConnection(localResort, sessionData);
+    connection = getConnection(localResort, sessionData, LOG);
 
     if (connection == null) //error was already displayed, if null
     {
@@ -140,14 +140,14 @@ public class PatrolData {
     return connection;
   }
 
-  public static Connection getConnection(String resort, SessionData sessionData) {    //todo get rid of static !!!!!!!!!!
+  public static Connection getConnection(String resort, SessionData sessionData, Logger LOG) {    //todo get rid of static !!!!!!!!!!
     Connection conn = null;
     try {
-      conn = java.sql.DriverManager.getConnection(getJDBC_URL(resort), sessionData.getDbUser(), sessionData.getDbPassword());
+      conn = java.sql.DriverManager.getConnection(getJDBC_URL(resort, LOG), sessionData.getDbUser(), sessionData.getDbPassword());
 //      debugOutStatic(sessionData, "PatrolData.connection " + ((conn == null) ? "FAILED" : "SUCCEEDED") + " for " + getJDBC_URL(resort));
     }
     catch (Exception e) {
-      logErrorStatic(sessionData, "Error: " + e.getMessage() + " connecting to table:" + resort);
+      LOG.error("Error: " + e.getMessage() + " connecting to table:" + resort);
       java.lang.Thread.currentThread().dumpStack();
     }
     return conn;
@@ -156,7 +156,7 @@ public class PatrolData {
   public ResultSet resetAssignments() {
     try {
       String selectAllAssignmentsByDateSQLString = Assignments.getSelectAllAssignmentsByDateSQLString(localResort);
-      LOG.info("resetAssignments: " + selectAllAssignmentsByDateSQLString);
+      LOG.logSqlStatement( selectAllAssignmentsByDateSQLString + " (resetAssignments)");
       PreparedStatement assignmentsStatement = connection.prepareStatement(selectAllAssignmentsByDateSQLString);
       return assignmentsStatement.executeQuery();
     }
@@ -197,7 +197,7 @@ public class PatrolData {
   public ResultSet resetRoster() {
     try {
       String sqlQuery = "SELECT * FROM roster ORDER BY LastName, FirstName";
-      LOG.logSqlStatement(sqlQuery);
+      LOG.logSqlStatement(sqlQuery + " (resetRoster) ");
       PreparedStatement rosterStatement = connection.prepareStatement(sqlQuery);
       return rosterStatement.executeQuery();
     }
@@ -209,7 +209,9 @@ public class PatrolData {
 
   public ResultSet resetRoster(String sort) {
     try {
-      PreparedStatement rosterStatement = connection.prepareStatement("SELECT * FROM roster ORDER BY " + sort);
+      String sqlQuery = "SELECT * FROM roster ORDER BY " + sort;
+      LOG.logSqlStatement(sqlQuery + " (resetRoster(sort)) ");
+      PreparedStatement rosterStatement = connection.prepareStatement(sqlQuery);
       return rosterStatement.executeQuery();
     }
     catch (Exception e) {
@@ -294,7 +296,7 @@ public class PatrolData {
 
   public void deleteShift(ShiftDefinitions ns) {
     String qryString = ns.getDeleteSQLString(localResort);
-    LOG.info("deleteShift: " + qryString);
+    LOG.logSqlStatement(qryString + "  deleteShift");
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -313,7 +315,7 @@ public class PatrolData {
     else {
       qryString = ns.getInsertShiftDefinitionsQueryString(localResort);
     }
-    LOG.info("writeShift: " + qryString);
+    LOG.logSqlStatement(qryString + "  writeShift");
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -697,29 +699,28 @@ public class PatrolData {
     return resortMap.get(localResort);
   }
 
-  public static String getResortFullName(String resort) {
+  public static String getResortFullName(String resort, Logger LOG) {
     if (resortMap.containsKey(resort)) {    //resort string is same as db name, value is full resort string
       return resortMap.get(resort).getResortFullName();
     }
-    Logger.logStatic("**** Error, unknown resort (" + resort + ")");
+    LOG.error("**** Error, unknown resort (" + resort + ")");
     Thread.currentThread().dumpStack();
     return "Error, invalid resort (" + resort + ")";
   }
 
-  private static String getJDBC_URL(String resort) {
+  private static String getJDBC_URL(String resort, Logger LOG) {
     String jdbcLoc = "jdbc:mysql://" + MYSQL_ADDRESS + "/";
     if (isValidResort(resort)) {
       return jdbcLoc + resort;
     }
 
-    logger(resort, "****** Error, unknown resort (" + resort + ")");
+    LOG.error("****** Error, unknown resort (" + resort + ")");
     Thread.currentThread().dumpStack();
     return "invalidResort";
   }
 
   public boolean insertNewIndividualAssignment( NewIndividualAssignment newIndividualAssignment) {
-    String qryString = newIndividualAssignment.getInsertSQLString(sessionData);
-    LOG.info("insertNewIndividualAssignment" + qryString);
+    String qryString = newIndividualAssignment.getInsertSQLString();
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -732,7 +733,7 @@ public class PatrolData {
   }
 
   public boolean updateNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
-    String qryString = newIndividualAssignment.getUpdateSQLString(sessionData);
+    String qryString = newIndividualAssignment.getUpdateSQLString();
     LOG.info("updateNewIndividualAssignment: " + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
@@ -752,12 +753,12 @@ public class PatrolData {
     //SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE "2009-02-07%"
     try {
       String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE \'" + key + "\'";
-      infoOut("readNewIndividualAssignments: " + queryString);
+      LOG.logSqlStatement(queryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(queryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
       while (assignmentResults.next()) {
         NewIndividualAssignment newIndividualAssignment = new NewIndividualAssignment();
-        newIndividualAssignment.read(sessionData, assignmentResults);
+        newIndividualAssignment.read(assignmentResults);
 //        debugOut(newIndividualAssignment.toString());
         results.put(newIndividualAssignment.getDateShiftPos(), newIndividualAssignment);
       }
@@ -778,20 +779,19 @@ public class PatrolData {
 //    }
 //  }
 //
-  public static void logger(String myResort, String message) {
-    Logger.printToLogFileStatic(null, myResort, message);
-  }
+//  public static void logger(String myResort, String message) {
+//    Logger.printToLogFileStatic(null, myResort, message);
+//  }
 
   public void deleteNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
-    String qryString = newIndividualAssignment.getDeleteSQLString(sessionData);
-    LOG.logSqlStatement(qryString);
+    String qryString = newIndividualAssignment.getDeleteSQLString();
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();  //can throw exception
       newIndividualAssignment.setExisted(false);
     }
     catch (Exception e) {
-      Logger.logStatic("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
+      LOG.error("(" + localResort + ") Cannot delete Shift, reason:" + e.toString());
     }
   }
 
@@ -898,27 +898,27 @@ public class PatrolData {
     LOG.error(msg);
   }
 
-  private static void logErrorStatic(SessionData sessionData, String msg) {
-    String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
-    HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
-    Logger.printToLogFileStatic(request, localResort, msg);
-  }
+//  private static void logErrorStatic(SessionData sessionData, String msg) {
+//    String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
+//    HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
+//    Logger.printToLogFileStatic(request, localResort, msg);
+//  }
   public boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
-    Logger logErr = new Logger(PatrolData.class, sessionData.getRequest(), "???", resort, MIN_LOG_LEVEL);
+//    Logger logErr = new Logger(PatrolData.class, sessionData.getRequest(), "???", resort, MIN_LOG_LEVEL);
     boolean validLogin = false;
     ResultSet rs;
-    LOG.info("LoginHelp: isValidLogin("+resort + ", "+ID+", "+pass+")");
     if (ID == null || pass == null) {
-      logErr.error("Login Failed: either ID (" + ID + ") or Password not supplied");
+      LOG.error("Login Failed: either ID (" + ID + ") or Password not supplied");
       return false;
     }
+//    LOG.info("LoginHelp: isValidLogin("+resort + ", " + ID + ")");
 
     try {
       //noinspection unused
       Driver drv = (Driver) Class.forName(PatrolData.JDBC_DRIVER).newInstance();
     }
     catch (Exception e) {
-      logErr.logException("LoginHelp: Cannot find mysql driver:", e);
+      LOG.logException("LoginHelp: Cannot find mysql driver:", e);
       return false;
     }
 
@@ -927,10 +927,10 @@ public class PatrolData {
     }    // Try to connect to the database
     try {
       // Change MyDSN, myUsername and myPassword to your specific DSN
-      Connection c = PatrolData.getConnection(resort, sessionData);
+      Connection c = PatrolData.getConnection(resort, sessionData, LOG);
       @SuppressWarnings("SqlNoDataSourceInspection")
       String szQuery = "SELECT * FROM roster WHERE IDNumber = \"" + ID + "\"";
-      logErr.info(szQuery);
+      LOG.info("(login) " + szQuery);
       @SuppressWarnings("SpellCheckingInspection")
       PreparedStatement sRost = c.prepareStatement(szQuery);
       if (sRost == null) {
@@ -962,21 +962,21 @@ public class PatrolData {
         }
 
         if (validLogin) {
-          Logger.printToLogFileStatic(sessionData.getRequest(), resort, "Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
+          LOG.info("Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
         }
         else {
-          Logger.printToLogFileStatic(sessionData.getRequest(), resort, "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "]");
+          LOG.error( "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "]");
         }
       }
       else {
-        Logger.printToLogFileStatic(sessionData.getRequest(), resort, "Login Failed: memberId not found [" + ID + "]");
+        LOG.error("Login Failed: memberId not found [" + ID + "]");
       }
 
       c.close();
     }
     catch (Exception e) {
       out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-      Logger.printToLogFileStatic(sessionData.getRequest(), resort, "LoginHelp. Error connecting or reading table:" + e.getMessage());
+      LOG.error("LoginHelp. Error connecting or reading table:" + e.getMessage());
     } //end try
 
     return validLogin;

@@ -18,6 +18,14 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
   private static final boolean DEBUG = true;
   final private HttpServletResponse response;
 
+  /**
+   * From the calendar, clicked on a specific shift
+   * Modify a single specific shift yyyy/mm/dd/shiftIndex/positionIndex to insert/modify/delete the assignment for that shift
+   * GET resort=Brighton,  dayOfWeek=4,  date=4,  month=1,  year=2021,  ID=192443,  pos=1 (1 based),  index=0
+   * then POST's updates to ProcessChangeShiftAssignments, or return to MonthCalendar
+   *
+   * @author Steve Gledhill
+   */
   public InnerChangeShiftAssignments(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
     super(request, response, LOG);
     this.response = response;
@@ -240,7 +248,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     out.println("<INPUT TYPE=\"button\" VALUE=\"Cancel\" onClick=\"goHome()\">");
     out.println("</FORM>");
     out.println("<HR>");    //Horizontal Rule
-    out.println("<H5>" + PatrolData.getResortFullName(resort) + " Ski Resort</H5>");
+    out.println("<H5>" + PatrolData.getResortFullName(resort, LOG) + " Ski Resort</H5>");
   } //end printBottom()
 
   public ShiftInfo readData(SessionData sessionData, PatrolData patrol, Parameters parameters) {

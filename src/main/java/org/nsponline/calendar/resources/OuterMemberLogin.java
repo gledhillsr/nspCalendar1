@@ -8,6 +8,11 @@ import org.nsponline.calendar.utils.Logger;
 import org.nsponline.calendar.utils.PatrolData;
 import org.nsponline.calendar.utils.StaticUtils;
 
+/**
+ * Display screen to input the user id & password
+ * POST the userId/password to LoginHelp (resort is HIDDEN)
+ *      password is not encrypted yet
+ */
 public class OuterMemberLogin extends ResourceBase {
 
   public OuterMemberLogin(final HttpServletRequest request, final HttpServletResponse response, Logger LOG) throws IOException {
@@ -26,7 +31,7 @@ public class OuterMemberLogin extends ResourceBase {
                     "description of what you did to see this error. and I will fix it ASAP!!!");
       return;
     }
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+//    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
 
     printCommonHeader();
     // printJavaScript(out, resort, szParent);
@@ -35,13 +40,13 @@ public class OuterMemberLogin extends ResourceBase {
     printCommonFooter();
   }
 
-  private String getJavaScriptAndStyles() {
-    return "";
-  }
+//  private String getJavaScriptAndStyles() {
+//    return "";
+//  }
 
   @SuppressWarnings("squid:S2068") // ignore hard coded password violation - needed for Sample resort
   private void printTop(PrintWriter out, String resort) {
-    out.println("<p><H2>" + PatrolData.getResortFullName(resort) + " Ski Patrol Login</H2></p>");
+    out.println("<p><H2>" + PatrolData.getResortFullName(resort, LOG) + " Ski Patrol Login</H2></p>");
     out.println("<p>");
     out.println("<p>&nbsp;<table border='0' width='500' cellspacing='4' cellpadding='0'>");
     out.println("  <tr>");

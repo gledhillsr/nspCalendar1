@@ -72,7 +72,7 @@ public class DailyReminder {
         continue;
       }
 
-      String resortStr = PatrolData.getResortFullName(resort);
+      String resortStr = PatrolData.getResortFullName(resort, LOG);
       debugOut("Assignment=" + assignment.toString());
       String message = "Reminder\n\nYou are scheduled to Ski Patrol at " + resortStr + ", on " + StaticUtils.szDays[dayOfWeek] + ", " + StaticUtils.szMonthsFull[month] + " " + date.get(Calendar.DAY_OF_MONTH) + ", " + date.get(Calendar.YEAR) + " from " +
           assignment.getStartingTimeString() + " to " +
@@ -121,7 +121,7 @@ public class DailyReminder {
 
   private void debugOut(String msg) {
     if (DEBUG) {
-      Logger.logStatic("DailyReminder=" + msg);
+      LOG.debug("DailyReminder=" + msg);
     }
   }
 
@@ -131,7 +131,7 @@ public class DailyReminder {
 //      mail.sendMessage(sessionData, "Ski Patrol Shift Reminder", message, addressToArray);
 
     for (String emailAddress : emailTo) {
-      mail.sendMessage(sessionData, "Ski Patrol Shift Reminder", message, emailAddress);
+      mail.sendMessage("Ski Patrol Shift Reminder", message, emailAddress);
     }
   }
 
@@ -143,12 +143,12 @@ public class DailyReminder {
     Properties properties = System.getProperties();
     PrintWriter out = new PrintWriter(System.out);
     SessionData sessionData = new SessionData(properties, out);
-
+    Logger LOG = new Logger(DailyReminder.class, null, "DailyReminder", "DailyReminder", Logger.INFO);
     out.println("******************************************************");
     out.println("START RUNNING DAILY REMINDER: " + new Date().toString());
     out.println("******************************************************");
     if (sessionData.getDbPassword() == null) {
-      Logger.logStatic("error session credentials not found");
+      LOG.error("error session credentials not found");
       System.exit(1);
     }
     //setup credentials and connection
@@ -156,7 +156,7 @@ public class DailyReminder {
     for (String resort : PatrolData.resortMap.keySet()) {
       if (!"Sample".equals(resort)) {
         sessionData.setLoggedInResort(resort); //used to set From field in emails (if director has SES verified address)
-        MailMan mail = new MailMan(sessionData.getSmtpHost(), sessionData.getEmailUser(), "Automated Ski Patrol Reminder", sessionData);
+        MailMan mail = new MailMan(sessionData.getEmailUser(), sessionData, LOG);
         new DailyReminder(resort, sessionData, mail);
       }
     }
