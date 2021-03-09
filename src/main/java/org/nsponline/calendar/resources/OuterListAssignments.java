@@ -66,9 +66,8 @@ public class OuterListAssignments extends ResourceBase {
         startYear = currentYear - 1;
       }
       out.println("Display your: <a target='main' href=\"/screenshots/history.php?ID=" + szMyID + "\"><b>check-in history</b></a>");
-      out.println(" or <a target='main' href=\"screenshots/ski_credits.php?ID=" + szMyID + "\"><b>Ski Credits Earnings report</b></a>");
-
-      out.println(" (Ski History & Credits are updated at different times, so may not appear in sync.)<br>");
+//      out.println(" or <a target='main' href=\"screenshots/ski_credits.php?ID=" + szMyID + "\"><b>Ski Credits Earnings report</b></a>");
+//      out.println(" (Ski History & Credits are updated at different times, so may not appear in sync.)<br>");
     }
 
     calendarStart.set(startYear, startMonth, 1);  //(yyyy,mm,dd) Month is 0 based

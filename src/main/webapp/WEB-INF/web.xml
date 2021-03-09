@@ -55,6 +55,10 @@
         <!--<servlet-class>org.nsponline.calendar.Status</servlet-class>-->
     <!--</servlet>-->
     <servlet>
+        <servlet-name>VolunteerFormServlet</servlet-name>
+        <servlet-class>org.nsponline.calendar.resources.OuterWebResource$VolunteerForm</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>MemberLoginServlet</servlet-name>
         <servlet-class>org.nsponline.calendar.resources.OuterWebResource$MemberLogin</servlet-class>
     </servlet>
@@ -182,6 +186,10 @@
     </servlet>
 
 <!--    define & map URL patterns -->
+    <servlet-mapping>
+        <servlet-name>VolunteerFormServlet</servlet-name>
+        <url-pattern>/VolunteerForm</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MemberLoginServlet</servlet-name>
         <url-pattern>/MemberLogin</url-pattern>

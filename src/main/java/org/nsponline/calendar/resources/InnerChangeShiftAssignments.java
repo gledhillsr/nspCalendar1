@@ -89,6 +89,10 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     String name = shiftInfo.numToName.get(id); //format ,"Steve Gledhill"
     shiftInfo.newName = name;
     shiftInfo.newIdNumber = id;
+    if ("0".equals(id)) {
+      shiftInfo.newName1 = shiftInfo.newIdNumber;  //could not find name, so use number as name
+      return true;
+    }
     Roster md = patrol.getMemberByID(id);
     if (md != null) {
       shiftInfo.newName1 = md.getFullName();

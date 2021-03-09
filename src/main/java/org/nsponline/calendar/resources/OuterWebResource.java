@@ -1,11 +1,10 @@
 package org.nsponline.calendar.resources;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.nsponline.calendar.utils.*;
+import org.nsponline.calendar.utils.Logger;
 
 public class OuterWebResource {
   private static final int MIN_LOG_LEVEL = Logger.INFO;
@@ -167,11 +166,22 @@ public class OuterWebResource {
    *
    * @author Steve Gledhill
    */
-  @SuppressWarnings("SpellCheckingInspection")
   public static class MemberLogin extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO);
       new OuterMemberLogin(request, response, LOG);
+    }
+  }
+
+  /**
+   * Submit a VolunteerForm, send emails to correct person(s)
+   *
+   * @author Steve Gledhill
+   */
+  public static class VolunteerForm extends HttpServlet {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      Logger LOG = new Logger(this.getClass(), request, "POST", request.getParameter("resort"), Logger.INFO);
+      new OuterVolunteerForm(request, response, LOG);
     }
   }
 }

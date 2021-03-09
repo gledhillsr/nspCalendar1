@@ -2,7 +2,6 @@ package org.nsponline.calendar.utils;
 
 import org.nsponline.calendar.store.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
@@ -13,12 +12,12 @@ import java.util.HashMap;
  * general display info about all patrols
  * @author Steve Gledhill
  */
-@SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance", "SqlDialectInspection"})
+@SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance", "SqlDialectInspection",
+  "SpellCheckingInspection", "UnusedReturnValue"})
 public class PatrolData {
-  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
 
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
-  private static String MYSQL_ADDRESS = "127.0.0.1"; // was "ip-172-31-59-191.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
+  private final static String MYSQL_ADDRESS = "127.0.0.1"; // was "ip-172-31-59-191.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
 
   public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
@@ -29,7 +28,7 @@ public class PatrolData {
   private static final String backDoorFakeLastName = "Administrator";
   private static final String backDoorEmail = "Steve@Gledhills.com";
 
-  public static final HashMap<String, ResortData> resortMap = new HashMap<String, ResortData>();
+  public static final HashMap<String, ResortData> resortMap = new HashMap<>();
   static private final int IMG_HEIGHT = 80;
   static {
     resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
@@ -105,10 +104,10 @@ public class PatrolData {
   //  private Connection connection;
   private Connection connection;
   private PreparedStatement shiftStatement;
-  private boolean fetchFullData;
-  private String localResort;
-  private SessionData sessionData;
-  private Logger LOG;
+  private final boolean fetchFullData;
+  private final String localResort;
+  private final SessionData sessionData;
+  private final Logger LOG;
 
   public PatrolData(boolean readAllData, String myResort, SessionData sessionData, final Logger parentLogger) {
 //    LOG = new Logger(PatrolData.class, parentLogger, myResort, MIN_LOG_LEVEL);
@@ -255,7 +254,7 @@ public class PatrolData {
   final static String READ_SHIFT_DEFINITIONS_QUERY = "SELECT * FROM `shiftdefinitions` ORDER BY `shiftdefinitions`.`EventName` ASC";
 
   public ArrayList<ShiftDefinitions> readShiftDefinitions() {
-    ArrayList<ShiftDefinitions> shiftDefinitions = new ArrayList<ShiftDefinitions>();
+    ArrayList<ShiftDefinitions> shiftDefinitions = new ArrayList<>();
     StringBuilder strBuilder = new StringBuilder();
     try {
       strBuilder.append(".");
@@ -341,6 +340,7 @@ public class PatrolData {
     } //end try
   } // end close
 
+  @SuppressWarnings("ConstantConditions")
   public Roster nextMember(String defaultString, ResultSet rosterResults) {
     Roster member = null;
     try {
@@ -376,8 +376,7 @@ public class PatrolData {
       return member;
     }
     if (szMemberID.matches("[0-9]{5,6}")) {
-      try {
-        PreparedStatement rosterStatement = connection.prepareStatement(str);
+      try (PreparedStatement rosterStatement = connection.prepareStatement(str)) {
         ResultSet rosterResults = rosterStatement.executeQuery();
         while (rosterResults.next()) {
           int id = rosterResults.getInt("IDNumber");
@@ -491,7 +490,7 @@ public class PatrolData {
   public Assignments readAssignment(String myDate) { //formmat yyyy-mm-dd_p
     Assignments ns;
     try {
-      String queryString = "SELECT * FROM assignments WHERE Date=\'" + myDate + "\'";
+      String queryString = "SELECT * FROM assignments WHERE Date='" + myDate + "'";
       LOG.logSqlStatement(queryString);
       PreparedStatement assignmentsStatementLocal = connection.prepareStatement(queryString);
       ResultSet assignmentResultsLocal = assignmentsStatementLocal.executeQuery();
@@ -684,7 +683,7 @@ public class PatrolData {
       ++validShifts;
 //            }
     }
-    out.println("<INPUT TYPE='HIDDEN\' NAME='shiftCount' VALUE='" + validShifts + "'>");
+    out.println("<INPUT TYPE='HIDDEN' NAME='shiftCount' VALUE='" + validShifts + "'>");
   }
 
   static public boolean isValidResort(String resort) {
@@ -747,12 +746,12 @@ public class PatrolData {
   }
 
   public HashMap<String, NewIndividualAssignment> readNewIndividualAssignments(int year, int month, int day) { //formmat yyyy-mm-dd_i_n
-    HashMap<String, NewIndividualAssignment> results = new HashMap<String, NewIndividualAssignment>();
+    HashMap<String, NewIndividualAssignment> results = new HashMap<>();
     String key = NewIndividualAssignment.buildKey(year, month, day, -1, -1);
     key += "%";
     //SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE "2009-02-07%"
     try {
-      String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE \'" + key + "\'";
+      String queryString = "SELECT * FROM `newindividualassignment` WHERE `date_shift_pos` LIKE '" + key + "'";
       LOG.logSqlStatement(queryString);
       PreparedStatement assignmentsStatement = connection.prepareStatement(queryString);
       ResultSet assignmentResults = assignmentsStatement.executeQuery();
@@ -798,7 +797,7 @@ public class PatrolData {
   public ArrayList<Assignments> readAllSortedAssignments(String patrollerId) {
     String dateMask = "20%"; //WHERE `date_shift_pos` LIKE '2015-10-%'
 //    logger("readSortedAssignments(" + dateMask + ")");
-    ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
+    ArrayList<Assignments> monthAssignments = new ArrayList<>();
     try {
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
       LOG.logSqlStatement(qryString);
@@ -831,7 +830,7 @@ public class PatrolData {
   }
 
   private ArrayList<Assignments> filterAssignments(String patrollerId, ArrayList<Assignments> unFilteredAssignments) {
-    ArrayList<Assignments> filteredAssignments = new ArrayList<Assignments>();
+    ArrayList<Assignments> filteredAssignments = new ArrayList<>();
     for (Assignments eachAssignment : unFilteredAssignments) {
       if (eachAssignment.includesPatroller(patrollerId)) {
         filteredAssignments.add(eachAssignment);
@@ -843,7 +842,7 @@ public class PatrolData {
   public ArrayList<Assignments> readSortedAssignments(int year, int month) {
     String dateMask = String.format("%4d-%02d-", year, month) + "%";
 //    logger("  readSortedAssignments(" + dateMask + ")");
-    ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
+    ArrayList<Assignments> monthAssignments = new ArrayList<>();
     try {
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
       LOG.logSqlStatement(qryString);
@@ -866,7 +865,7 @@ public class PatrolData {
   public ArrayList<Assignments> readSortedAssignments(int year, int month, int day) {
     String dateMask = String.format("%4d-%02d-%02d_", year, month, day) + "%";
 //    logger("  readSortedAssignments(" + dateMask + ")");
-    ArrayList<Assignments> monthAssignments = new ArrayList<Assignments>();
+    ArrayList<Assignments> monthAssignments = new ArrayList<>();
     try {
       String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
       LOG.logSqlStatement(qryString);
@@ -884,14 +883,6 @@ public class PatrolData {
       LOG.logException("Error (line 887) resetting Assignments table", e);
     } //end try
     return monthAssignments;
-  }
-
-  private void debugOut(String msg) {
-    LOG.debug(msg);
-  }
-
-  private void infoOut(String msg) {
-    LOG.info(msg);
   }
 
   private void logError(String msg) {
@@ -931,7 +922,6 @@ public class PatrolData {
       @SuppressWarnings("SqlNoDataSourceInspection")
       String szQuery = "SELECT * FROM roster WHERE IDNumber = \"" + ID + "\"";
       LOG.info("(login) " + szQuery);
-      @SuppressWarnings("SpellCheckingInspection")
       PreparedStatement sRost = c.prepareStatement(szQuery);
       if (sRost == null) {
         return false;
