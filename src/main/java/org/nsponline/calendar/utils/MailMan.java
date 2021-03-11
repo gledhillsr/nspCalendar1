@@ -20,9 +20,9 @@ public class MailMan {
   @SuppressWarnings("WeakerAccess")
   static final String CONFIGSET = "nspMail";
 
-  private final AmazonSimpleEmailService sesClient;
+  private AmazonSimpleEmailService sesClient = null;
   private String fromAddress;
-  private final String replyToAddress;
+  private String replyToAddress = null;
   private final Logger LOG;
 
   public MailMan(String fromAddress, SessionData sessionData, Logger LOG) {
@@ -126,7 +126,7 @@ public class MailMan {
 //    String fromAddress = args[1];   //nancy@gledhills.com
 //    String fromName = "Nancy Gledhill";
 //    String subject = args[2];       //"subject text"
-//    String message = args[3];       //"body text\nline 2"
+//    String message = args[3];       //"body text\n line 2"
 //    String toAddress = args[4];     //gledhillsr@familysearch.org
 //    MailMan mailMan = new MailMan(smtpHost, fromAddress, fromName);
 //    mailMan.sendMessage(subject, message, toAddress);

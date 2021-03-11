@@ -80,8 +80,7 @@ public class DailyReminder {
       message += "Please do NOT reply to this automated reminder. \nUnless, you are NOT a member of the National Ski Patrol, and received this email accidentally.";
       emailTo = getMemberEmailsWhoHaveAssignment(assignment, patrol);
       if (!emailTo.isEmpty()) {
-        sendEmail(sessionData, emailTo, mail, message);
-        ++messagesSent;
+        messagesSent += sendEmail(sessionData, emailTo, mail, message);
       }
       else {
         debugOut("Warning: there were no patrollers signed up for this shift");
@@ -125,14 +124,16 @@ public class DailyReminder {
     }
   }
 
-  private void sendEmail(SessionData sessionData, Set<String> emailTo, MailMan mail, String message) {
+  private int sendEmail(SessionData sessionData, Set<String> emailTo, MailMan mail, String message) {
 //todo, this should work ? (instead of for loop below)
 //      String[] addressToArray = (String[]) emailTo.toArray();
 //      mail.sendMessage(sessionData, "Ski Patrol Shift Reminder", message, addressToArray);
-
+    int emailsSent = 0;
     for (String emailAddress : emailTo) {
       mail.sendMessage("Ski Patrol Shift Reminder", message, emailAddress);
+      ++emailsSent;
     }
+    return emailsSent;
   }
 
 
