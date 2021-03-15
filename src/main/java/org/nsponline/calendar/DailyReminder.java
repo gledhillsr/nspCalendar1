@@ -15,7 +15,7 @@ public class DailyReminder {
   public DailyReminder(String resort, SessionData sessionData, MailMan mail) {
     LOG = new Logger(this.getClass(), null, "DailyReminder", "DailyReminder", Logger.INFO);
     LOG.info("*** Processing email reminders for resort=" + resort);
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG);
     DirectorSettings ds = patrol.readDirectorSettings();
     if (!ds.getSendReminder()) {
       LOG.info("Don't send email reminders for resort=" + resort + ". The director settings denied this...");

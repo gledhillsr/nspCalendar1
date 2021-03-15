@@ -62,7 +62,7 @@ public class InnerChangeSingleDayShift extends ResourceBase {
     Roster editorsMemberData;
     IDOfEditor = sessionData.getLoggedInUserId();
     doAssignments = request.getParameter("doAssignments") != null;
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG); //when reading members, read full data
     editorsMemberData = patrol.getMemberByID(IDOfEditor); //ID from cookie
 
     //noinspection SimplifiableIfStatement

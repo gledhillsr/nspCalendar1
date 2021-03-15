@@ -162,7 +162,7 @@ public class InnerEditShiftTemplates extends ResourceBase {
     shiftToDelete = 0;
     ShiftDefinitions[] todaysData = new ShiftDefinitions[shiftCount];
     int cnt = 0;
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG); //when reading members, read full data
     // read Shift ski assignments for the specific day
     shifts = new ArrayList<ShiftDefinitions>();
     patrol.resetShiftDefinitions();  //todo 12/30/15  this does nothing or is broken

@@ -8,7 +8,6 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.nsponline.calendar.store.Assignments;
-import org.nsponline.calendar.store.DirectorSettings;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.utils.Logger;
 import org.nsponline.calendar.utils.PatrolData;
@@ -262,7 +261,7 @@ public class InnerDownloadRoster extends ResourceBase {
     //Log.log("listDirector= "+listDirector);
     //Log.log("instructorFlags= "+instructorFlags);
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG); //when reading members, read full data
 
     //read assignments within a range and get shift count
     readAssignments(patrol); //must read for other code to work
@@ -349,7 +348,7 @@ public class InnerDownloadRoster extends ResourceBase {
 
 
   public void excelOutput(SessionData sessionData) {
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG);
     //sg 8/31/07
     //        MemberData member = patrol.nextMember("");
     //        out.println(member.getExcelHeader());

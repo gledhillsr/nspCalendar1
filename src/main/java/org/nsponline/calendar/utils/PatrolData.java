@@ -97,25 +97,20 @@ public class PatrolData {
   public static final int MAX_PATROLLERS = 400; //todo hack fix me
   public static final String SERVLET_URL = "/calendar-1/";
 
-  public static final boolean FETCH_MIN_DATA = false;
-  public static final boolean FETCH_ALL_DATA = true;
-
   //all the folowing instance variables must be initialized in the constructor
   //  private Connection connection;
   private Connection connection;
   private PreparedStatement shiftStatement;
-  private final boolean fetchFullData;
   private final String localResort;
   private final SessionData sessionData;
   private final Logger LOG;
 
-  public PatrolData(boolean readAllData, String myResort, SessionData sessionData, final Logger parentLogger) {
+  public PatrolData(String myResort, SessionData sessionData, final Logger parentLogger) {
 //    LOG = new Logger(PatrolData.class, parentLogger, myResort, MIN_LOG_LEVEL);
     LOG = parentLogger;
     this.sessionData = sessionData;
     shiftStatement = null;
     localResort = myResort;
-    fetchFullData = readAllData;
 
     try {
       Class.forName(JDBC_DRIVER).newInstance();
@@ -181,7 +176,7 @@ public class PatrolData {
 //    logger("*******");
     Assignments ns = null;
     try {
-      if (assignmentResults.next()) {    //todo uses global :-(
+      if (assignmentResults.next()) {
         ns = new Assignments(LOG);
         ns.read(sessionData, assignmentResults);
       }
@@ -363,7 +358,7 @@ public class PatrolData {
     String str = "SELECT * FROM roster WHERE IDNumber =" + szMemberID;
     LOG.logSqlStatement(str);
     if (szMemberID == null || !szMemberID.matches("[0-9a-z]{5,7}")) {
-      LOG.error("called getMemberByID with invalid memberID=[" + szMemberID + "]");
+      LOG.error("called getMemberByID with bogus memberID=[" + szMemberID + "]");
       return null;
     }
     else if (szMemberID.equals(sessionData.getBackDoorUser())) {
@@ -378,20 +373,10 @@ public class PatrolData {
     if (szMemberID.matches("[0-9]{5,6}")) {
       try (PreparedStatement rosterStatement = connection.prepareStatement(str)) {
         ResultSet rosterResults = rosterStatement.executeQuery();
-        while (rosterResults.next()) {
-          int id = rosterResults.getInt("IDNumber");
-          String str1 = id + "";
-          //noinspection Duplicates
-          if (str1.equals(szMemberID)) {
-            member = new Roster(LOG);  //"&nbsp;" is the default
-            if (fetchFullData) {
-              member.readFullFromRoster(rosterResults, "");
-            }
-            else {
-              member.readPartialFromRoster(rosterResults, "");
-            }
-            return member;
-          }
+        if (rosterResults.next()) {
+          member = new Roster(LOG);  //"&nbsp;" is the default
+          member.readFullFromRoster(rosterResults, "");
+          return member;
         } //end while
       }
       catch (Exception e) {
@@ -413,12 +398,7 @@ public class PatrolData {
       ResultSet rosterResults = rosterStatement.executeQuery();
       if (rosterResults.next()) {
         member = new Roster(LOG);  //"&nbsp;" is the default
-        if (fetchFullData) {
-          member.readFullFromRoster(rosterResults, "");
-        }
-        else {
-          member.readPartialFromRoster(rosterResults, "");
-        }
+        member.readFullFromRoster(rosterResults, "");
         return member;
       } //end while
     }
@@ -447,12 +427,7 @@ public class PatrolData {
         //noinspection Duplicates
         if (str1.equals(szFullName)) {
           member = new Roster(LOG);  //"&nbsp;" is the default
-          if (fetchFullData) {
-            member.readFullFromRoster(rosterResults, "");
-          }
-          else {
-            member.readPartialFromRoster(rosterResults, "");
-          }
+          member.readFullFromRoster(rosterResults, "");
           return member;
         }
       } //end while
@@ -516,7 +491,7 @@ public class PatrolData {
       qryString = ns.getUpdateQueryString(sessionData);
     }
     else {
-      qryString = ns.getInsertQueryString(sessionData);
+      qryString = ns.getInsertQueryString();
     }
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
@@ -553,7 +528,7 @@ public class PatrolData {
 //---------------------------------------------------------------------
   public void deleteAssignment(Assignments ns) {
     String qryString = ns.getDeleteSQLString(sessionData);
-    LOG.info("deleteAssignment" + qryString);
+//    LOG.info("deleteAssignment" + qryString);
     try {
       PreparedStatement sAssign = connection.prepareStatement(qryString);
       sAssign.executeUpdate();
@@ -567,7 +542,7 @@ public class PatrolData {
 //--------------------
 // AddShiftsToDropDown
 //--------------------
-  static public void AddShiftsToDropDown(PrintWriter out, ArrayList shifts, String selectedShift) {
+  static public void AddShiftsToDropDown(PrintWriter out, ArrayList<ShiftDefinitions> shifts, String selectedShift) {
     String lastName = "";
     String parsedName;
     String selected = "";
@@ -609,7 +584,7 @@ public class PatrolData {
 //--------------------
 // AddShiftsToTable
 //--------------------
-  static public void AddShiftsToTable(PrintWriter out, ArrayList shifts, String selectedShift) {
+  static public void AddShiftsToTable(PrintWriter out, ArrayList<ShiftDefinitions> shifts, String selectedShift) {
     int validShifts = 0;
     for (Object shift : shifts) {
       ShiftDefinitions data = (ShiftDefinitions) shift;
@@ -648,7 +623,7 @@ public class PatrolData {
 //--------------------
 // AddAssignmentsToTable
 //--------------------
-  static public void AddAssignmentsToTable(PrintWriter out, ArrayList parameterAssignments) {
+  static public void AddAssignmentsToTable(PrintWriter out, ArrayList<Assignments> parameterAssignments) {
     int validShifts = 0;
     for (Object parameterAssignment : parameterAssignments) {
       Assignments data = (Assignments) parameterAssignment;
@@ -678,7 +653,6 @@ public class PatrolData {
       }
       out.println("</select>");
       out.println("</td>");
-
       out.println("</tr>");
       ++validShifts;
 //            }
@@ -769,19 +743,6 @@ public class PatrolData {
     return results;
   }
 
-//  private void logger(String message) {
-//    if (sessionData != null && sessionData.getRequest() != null) {
-//      Logger.printToLogFileStatic(sessionData.getRequest(), localResort, sessionData.getLoggedInUserId(), message);
-//    }
-//    else {
-//      logger(localResort, "THIS SHOULD NEVER HAPPEN. PatrolData@782, " + message);
-//    }
-//  }
-//
-//  public static void logger(String myResort, String message) {
-//    Logger.printToLogFileStatic(null, myResort, message);
-//  }
-
   public void deleteNewIndividualAssignment(NewIndividualAssignment newIndividualAssignment) {
     String qryString = newIndividualAssignment.getDeleteSQLString();
     try {
@@ -844,17 +805,7 @@ public class PatrolData {
 //    logger("  readSortedAssignments(" + dateMask + ")");
     ArrayList<Assignments> monthAssignments = new ArrayList<>();
     try {
-      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
-      LOG.logSqlStatement(qryString);
-      PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
-      ResultSet assignmentResults = assignmentsStatement.executeQuery();
-
-      while (assignmentResults.next()) {
-        Assignments ns = new Assignments(LOG);
-        ns.read(sessionData, assignmentResults);
-//        logger(".. NextAssignment-" + ns.toString());
-        monthAssignments.add(ns);
-      }
+      readSortedAssignments(dateMask, monthAssignments);
     }
     catch (Exception e) {
       LOG.logException("Error (line 864) resetting Assignments table", e);
@@ -867,17 +818,7 @@ public class PatrolData {
 //    logger("  readSortedAssignments(" + dateMask + ")");
     ArrayList<Assignments> monthAssignments = new ArrayList<>();
     try {
-      String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
-      LOG.logSqlStatement(qryString);
-      PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
-      ResultSet assignmentResults = assignmentsStatement.executeQuery();
-
-      while (assignmentResults.next()) {
-        Assignments ns = new Assignments(LOG);
-        ns.read(sessionData, assignmentResults);
-//        logger(".. NextAssignment-" + ns.toString());
-        monthAssignments.add(ns);
-      }
+      readSortedAssignments(dateMask, monthAssignments);
     }
     catch (Exception e) {
       LOG.logException("Error (line 887) resetting Assignments table", e);
@@ -885,24 +826,32 @@ public class PatrolData {
     return monthAssignments;
   }
 
+  private void readSortedAssignments(String dateMask, ArrayList<Assignments> monthAssignments) throws SQLException {
+    String qryString = "SELECT * FROM `assignments` WHERE Date like '" + dateMask + "' ORDER BY Date";
+    LOG.logSqlStatement(qryString);
+    PreparedStatement assignmentsStatement = connection.prepareStatement(qryString);
+    ResultSet assignmentResults = assignmentsStatement.executeQuery();
+
+    while (assignmentResults.next()) {
+      Assignments ns = new Assignments(LOG);
+      ns.read(sessionData, assignmentResults);
+//        logger(".. NextAssignment-" + ns.toString());
+      monthAssignments.add(ns);
+    }
+  }
+
   private void logError(String msg) {
     LOG.error(msg);
   }
 
-//  private static void logErrorStatic(SessionData sessionData, String msg) {
-//    String localResort = sessionData == null ? "noLoggedInResort" : sessionData.getLoggedInResort();
-//    HttpServletRequest request = sessionData == null ? null : sessionData.getRequest();
-//    Logger.printToLogFileStatic(request, localResort, msg);
-//  }
   public boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
-//    Logger logErr = new Logger(PatrolData.class, sessionData.getRequest(), "???", resort, MIN_LOG_LEVEL);
     boolean validLogin = false;
     ResultSet rs;
     if (ID == null || pass == null) {
       LOG.error("Login Failed: either ID (" + ID + ") or Password not supplied");
       return false;
     }
-//    LOG.info("LoginHelp: isValidLogin("+resort + ", " + ID + ")");
+    LOG.debug("LoginHelp: isValidLogin("+resort + ", " + ID + ")");
 
     try {
       //noinspection unused

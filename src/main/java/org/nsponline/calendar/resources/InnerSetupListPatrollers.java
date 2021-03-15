@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.utils.Logger;
-import org.nsponline.calendar.utils.OuterPage;
 import org.nsponline.calendar.utils.PatrolData;
 
 public class InnerSetupListPatrollers extends ResourceBase {
@@ -31,7 +30,7 @@ public class InnerSetupListPatrollers extends ResourceBase {
 
     isDirector = false;
     IDOfPatroller = sessionData.getLoggedInUserId();
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, LOG); //when reading members, read full data
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG); //when reading members, read full data
     if (IDOfPatroller != null) {
       Roster patroller = patrol.getMemberByID(IDOfPatroller); //ID from cookie
       isDirector = patroller.isDirector();

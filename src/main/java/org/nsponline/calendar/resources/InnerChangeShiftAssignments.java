@@ -122,7 +122,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
           id = id.substring(1);
         }
         if ((assignmentGroup + 1) == parameters.pos && offsetWithinGroup == parameters.index) {
-          debugOut("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
+          LOG.debug("look for patroller at assignment group: " + (assignmentGroup + 1) + ", at offset: " + assignmentGroup);
           posWasEmpty = isThisPositionEmpty(id, patrol, shiftInfo);
         }
       }
@@ -143,12 +143,12 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     //start of selection table
     out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
     boolean editingMyself = (shiftInfo.newName != null && shiftInfo.newName.equals(shiftInfo.myName));
-    debugOut("CALLING ProcessChangeShiftAssignments with: loggedInUserId=" + loggedInUserId
+    LOG.debug("CALLING ProcessChangeShiftAssignments with: loggedInUserId=" + loggedInUserId
                + ", newName=" + shiftInfo.newName
                + ", myName=" + shiftInfo.myName
                + ", posWasEmpty=" + posWasEmpty
                + ", allowEditing=" + shiftInfo.allowEditing
-               + ",  editingMyself=" + editingMyself);
+               + ", editingMyself=" + editingMyself);
     if (shiftInfo.allowEditing && shiftInfo.myName != null) {
       //==INSERT== only used if position is empty
       if (posWasEmpty) {
@@ -242,7 +242,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + parameters.pos + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"index1\" VALUE=\"" + parameters.index + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"selectedID\" VALUE=\"" + shiftInfo.newIdNumber + "\">");
-    debugOut("printBottom, submitterID=");
+    LOG.debug("printBottom, submitterID=");
     String strDate = parameters.buildDateAndPosString();   //in the data base, pos is 1 based
 
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">");
@@ -261,15 +261,9 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     return new ShiftInfo(loggedInUserId, patrol, parameters);
   }
 
-  private void debugOut(String msg) {
-    if (DEBUG) {
-      LOG.debug("ChangeShiftAssignments: " + msg);
-    }
-  }
-
   private class Parameters {
     int dayOfWeek;  //0=Sunday
-    int dayOfMonth;       //1 based
+    int dayOfMonth; //1 based
     int month;      //0 based
     int year;       //duh
     int pos;        //
@@ -290,14 +284,14 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
         year = Integer.parseInt(szYear);
         pos = Integer.parseInt(szPos);
         index = Integer.parseInt(szIndex);
-        debugOut("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
+        LOG.debug("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
       } catch (NumberFormatException ex) {
         dayOfWeek = 7;
         dayOfMonth = 1;
         month = 1;
         year = 2020;
         pos = 1;
-        debugOut("ERROR, numeric processing exception, using default values");
+        LOG.debug("ERROR, numeric processing exception, using default values");
       }   //err
     } //end readParameterDate
 
@@ -348,7 +342,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
       rosterSize = 0;
       isDirector = loggedInUserId.equalsIgnoreCase(sessionData.getBackDoorUser());
 
-      numToName = new Hashtable<String, String>();
+      numToName = new Hashtable<>();
       ResultSet rosterResults = patrol.resetRoster();
       Roster nextMember;
       while ((nextMember = patrol.nextMember("", rosterResults)) != null) {
@@ -371,7 +365,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
       totalAssignmentGroupsForToday = 0;
       assignmentGroups = new Assignments[200];
       for (Assignments shiftAssignments : patrol.readSortedAssignments(parameters.year, parameters.month + 1, parameters.dayOfMonth)) {
-        debugOut("readData-assignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
+        LOG.debug("readData-assignmentGroups[" + totalAssignmentGroupsForToday + "]=" + shiftAssignments);
         assignmentGroups[totalAssignmentGroupsForToday++] = shiftAssignments;
       } //end while Shift ski assignments
 

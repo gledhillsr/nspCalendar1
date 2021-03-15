@@ -92,7 +92,7 @@ class InnerWebSitePreferences extends ResourceBase {
   // readData
   //------------
   private void readParameters(HttpServletRequest request, SessionData sessionData) {
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_MIN_DATA, resort, sessionData, LOG); //when reading members, read minimal data
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG); //when reading members, read minimal data
     DirectorSettings ds = patrol.readDirectorSettings();
     //Log.log("Original settings: "+ds.toString());
     String saveChangesBtn = request.getParameter("SaveChangesBtn");

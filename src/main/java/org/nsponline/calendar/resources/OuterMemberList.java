@@ -43,7 +43,7 @@ public class OuterMemberList extends ResourceBase {
 
   @SuppressWarnings("StringConcatenationInLoop")
   private void readData(SessionData sessionData, String iDOfEditor) {
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG);
     ResultSet rosterResults = patrol.resetRoster();
     ds = patrol.readDirectorSettings();
 
@@ -101,7 +101,7 @@ public class OuterMemberList extends ResourceBase {
   }
 
   private int printBody(SessionData sessionData) {
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG);
     ResultSet rosterResults = patrol.resetRoster();
     Roster member = patrol.nextMember("&nbsp;", rosterResults);
     int count = 0;

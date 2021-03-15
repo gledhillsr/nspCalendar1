@@ -50,7 +50,7 @@ public class OuterListAssignments extends ResourceBase {
       return;
     }
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG);
     Roster member = patrol.getMemberByID(szMyID);
     myID = Integer.parseInt(szMyID);
     myName = member.getFullName();

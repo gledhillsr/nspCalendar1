@@ -248,7 +248,7 @@ public class OuterListPatrollers extends ResourceBase {
       instructorFlags += 8;
     }
 
-    patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    patrol = new PatrolData(resort, sessionData, LOG);
 
     //read assignments within a range and get shift count
     readAssignments(patrol); //must read for other code to work

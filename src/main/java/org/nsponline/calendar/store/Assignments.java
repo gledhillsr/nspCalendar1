@@ -328,14 +328,14 @@ public class Assignments {
         debugOut("setting position " + i + " to 0");
         insertAt(sessionData.getLoggedInResort(), i, "0");
       }
-      qryString += ", " + tag[P0_INDEX + i] + "=" + getPosID(i);
+      qryString += ", " + tag[P0_INDEX + i] + "='" + getPosID(i) + "'"; //fixes bug where string starts with 0 zero
     }
     qryString += " WHERE Date=\'" + szDate + "\'";
     LOG.logSqlStatement(qryString);
     return qryString;
   }
 
-  public String getInsertQueryString(SessionData sessionData) {
+  public String getInsertQueryString() {
     int i;
     if (szEventName.indexOf('"') != -1) {
       szEventName = szEventName.replace('"', '\'');

@@ -77,7 +77,7 @@ public class InnerEmailForm extends ResourceBase {
 
     String Submit = request.getParameter("Submit");
 
-    PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG); //when reading members, read full data
+    PatrolData patrol = new PatrolData(resort, sessionData, LOG); //when reading members, read full data
 
     printCommonHeader();
     printTop(out, Submit);
@@ -600,7 +600,7 @@ public class InnerEmailForm extends ResourceBase {
   }
 
   private void BuildLists(@SuppressWarnings("unused") String IDOfEditor, SessionData sessionData) {
-    patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    patrol = new PatrolData(resort, sessionData, LOG);
 
     readAssignments(patrol); //must read ASSIGNMENT data for other code to work
 

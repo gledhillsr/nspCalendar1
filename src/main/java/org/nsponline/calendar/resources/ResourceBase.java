@@ -45,7 +45,7 @@ public class ResourceBase {
       return false; //parent should stop further page display
     }
     sessionData = new SessionData(request, out, LOG);
-    patrolData = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+    patrolData = new PatrolData(resort, sessionData, LOG);
     connection = patrolData.getConnection();
     return true;
   }

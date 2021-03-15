@@ -102,7 +102,7 @@ public class ApiResources {
         return;
       }
 
-      PatrolData patrol = new PatrolData(PatrolData.FETCH_ALL_DATA, resort, sessionData, LOG);
+      PatrolData patrol = new PatrolData(resort, sessionData, LOG);
       if (patrol.isValidLogin(out, resort, patrollerId, password, sessionData)) {   //does password match?
         sessionData.setLoggedInUserId(patrollerId);
         sessionData.setLoggedInResort(resort);

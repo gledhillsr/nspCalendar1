@@ -515,27 +515,12 @@ public class Roster {
     printEmergencyCallRow(out, null);
   }
 
-  //todo srg 1/1/2016 get rid of readPartial.
-  public boolean readPartialFromRoster(ResultSet rosterResults, String defaultString) {
-    exceptionError = false;
-    idNum = readInt(rosterResults, dbData[ID_NUM][DB_NAME]);
-    memberData[ID_NUM] = readString(rosterResults, dbData[ID_NUM][DB_NAME], defaultString);
-    memberData[LAST] = readString(rosterResults, dbData[LAST][DB_NAME], defaultString);
-    memberData[FIRST] = readString(rosterResults, dbData[FIRST][DB_NAME], defaultString);
-    memberData[DIRECTOR] = readString(rosterResults, dbData[DIRECTOR][DB_NAME], defaultString);
-    return !exceptionError;
-  } //end readFromRoster
-
-  //todo srg 1/1/2016 return memberData, not worthless boolean
   //todo make MemberData constructor
-  public boolean readFullFromRoster(ResultSet rosterResults, String defaultString) {
-    exceptionError = false;
+  public void readFullFromRoster(ResultSet rosterResults, String defaultString) {
     idNum = readInt(rosterResults, dbData[ID_NUM][DB_NAME]);
     for (int i = 0; i < DB_SIZE; ++i) {
       memberData[i] = readString(rosterResults, dbData[i][DB_NAME], defaultString);
-//Log.log(i+") "+memberData[i]);
     }
-    return !exceptionError;
   }
 
   private int readInt(ResultSet rosterResults, String tag) {
@@ -669,19 +654,11 @@ public class Roster {
     qryString += ") VALUES (";
 
     for (i = 0; i < DB_SIZE; ++i) {
-      String goodStr = memberData[order[i]];
-      try {
-        //make the ' character an excape sequence
-        goodStr = goodStr.replaceAll("'", "\\'");
-      }
-      catch (Exception e) {
-        //go back to original
-        goodStr = memberData[order[i]];
-      }
+      String valueStr = memberData[order[i]].replaceAll("'", "''");
       if (order[i] == CARRY_OVER_CREDITS || order[i] == CREDITS_USED) {
-        goodStr = "0";
+        valueStr = "0";
       }
-      qryString += "'" + goodStr + "'";
+      qryString += "'" + valueStr + "'";
       if (i < DB_SIZE - 1) {
         qryString += ", ";
       }
@@ -715,23 +692,12 @@ public class Roster {
 
     String qryString = "UPDATE roster SET ";
     for (i = 1; i < DB_SIZE; ++i) { //don't start with the key value (ID_NUM)
-      String goodStr = memberData[order[i]];
-      try {
-        //make the ' character an excape sequence
-        goodStr = goodStr.replaceAll("'", "\\'");
-//Log.log("goodStr="+goodStr+" oldString="+memberData[order[i]]);
-      }
-      catch (Exception e) {
-        //go back to original
-        goodStr = memberData[order[i]];
-//Log.log("exception="+goodStr);
-      }
-//            qryString += "'"  + goodStr + "')";
-//zzz
+      String valueStr = memberData[order[i]].replaceAll("'", "''");
+      //CARRY_OVER_CREDITS & CREDITS_USED
       if (order[i] == CARRY_OVER_CREDITS || order[i] == CREDITS_USED) {
-        goodStr = "0";
+        valueStr = "0";
       }
-      qryString += dbData[order[i]][DB_NAME] + " = \"" + goodStr + "\" ";
+      qryString += dbData[order[i]][DB_NAME] + " = \"" + valueStr + "\" ";
       if (i < DB_SIZE - 1) {
         qryString += ", ";
       }
@@ -741,20 +707,6 @@ public class Roster {
     return qryString;
   }
 
-//  public static String vouchersToCredits(String vouchers) {
-//    String credits;
-//    try {
-////          double xx = Double.parseDouble(vouchers);
-////        ct = (int)(xx * 2.0);
-//      credits = Integer.parseInt(vouchers) + "";
-////Log.log("-------"+ct+" credits="+credits);
-//    }
-//    catch (Exception e) {
-//      LOG.error("Error in vouchersToCredits, parsing voucher count of " + vouchers + ".  Setting Credits to 0");
-//      credits = "0";
-//    }
-//    return credits;
-//  }
 
   public static String creditsToVouchers(String szCredits) {
     String szVouchers = "0";

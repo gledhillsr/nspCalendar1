@@ -13,8 +13,8 @@ import org.nsponline.calendar.utils.SessionData;
 
 
 public class OuterUpdateInfo extends ResourceBase {
-  private final static boolean DEBUG = false;
-  private final static String[] szMonths = { "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"}; //0 based months
+  private final static String[] szMonths = {"Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct",
+    "Nov", "Dec"}; //0 based months
   @SuppressWarnings("SqlNoDataSourceInspection")
   private final static String[] IDpos = {"P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"};
 
@@ -58,34 +58,34 @@ public class OuterUpdateInfo extends ResourceBase {
     IDOfEditor = sessionData.getLoggedInUserId();
     IDToEdit = IDOfEditor;          //same (for now!)
     NameToEdit = request.getParameter("NameToEdit");
-    debugOut("NameToEdit=" + NameToEdit);
+    LOG.debug("NameToEdit=" + NameToEdit);
     oldMemberID = request.getParameter("removeOldID");  //only set on final pass
-    debugOut("oldMemberID=" + oldMemberID);
+    LOG.debug("oldMemberID=" + oldMemberID);
 
     setNewID = deletePatroller = editInfo = false;
 
     Purpose = request.getParameter("Purpose");
-    debugOut("Purpose=" + Purpose);
+    LOG.debug("Purpose=" + Purpose);
     isNewPatroller = (Purpose != null && Purpose.equals("Add_Patroller"));
     finalDelete = (Purpose != null && Purpose.equals("FinalDelete"));
     setNewID = (Purpose != null && Purpose.equals("setNewID"));  //set 2nd pass
-    debugOut("Purpose: setNewID=" + setNewID);
+    LOG.debug("Purpose: setNewID=" + setNewID);
 
     String str1 = request.getParameter("setNewID");                  //set 1st pass
     String str2 = request.getParameter("removeName");
     String str3 = request.getParameter("EditInfo");
     if (str1 != null) {
-      debugOut("---setNewID(1)---");
+      LOG.debug("---setNewID(1)---");
       setNewID = true;
       Purpose = str1;
     }
     if (str2 != null) {
-      debugOut("---deletePatroller---");
+      LOG.debug("---deletePatroller---");
       deletePatroller = true;
       Purpose = str2;
     }
     if (str3 != null) {
-      debugOut("---editInfo---");
+      LOG.debug("---editInfo---");
       editInfo = true;
       Purpose = str3;
     }
@@ -94,9 +94,9 @@ public class OuterUpdateInfo extends ResourceBase {
   public int readData(String readID, SessionData sessionData) {
     if ((setNewID || editInfo || deletePatroller || finalDelete) && NameToEdit != null) {
 
-      debugOut("in UpdateInfo, setNewID=" + setNewID + ", editInfo=" + editInfo + ", NameToEdit=(" + NameToEdit + ")");
+      LOG.debug("in UpdateInfo, setNewID=" + setNewID + ", editInfo=" + editInfo + ", NameToEdit=(" + NameToEdit + ")");
       user = patrolData.getMemberByLastNameFirstName(NameToEdit);
-      debugOut("user= (" + user + ")");
+      LOG.debug("user= (" + user + ")");
       if (user == null) {
         LOG.info("UpdateInfo - ERROR, member " + NameToEdit + " not found!");
         out.println("INTERNAL ERROR, member " + NameToEdit + " not found!");
@@ -108,14 +108,14 @@ public class OuterUpdateInfo extends ResourceBase {
       IDToEdit = IDOfEditor;  //same
       user = patrolData.getMemberByID(readID);
     }
-    debugOut("in UpdateInfo, IDOfEditor" + IDOfEditor + " resort=" + resort);
+    LOG.debug("in UpdateInfo, IDOfEditor" + IDOfEditor + " resort=" + resort);
     Roster editor;
     if (IDOfEditor.equals(sessionData.getBackDoorUser())) {
       editorIsDirector = true;
       return 1;
     }
     editor = patrolData.getMemberByID(IDOfEditor); //ID from cookie
-    debugOut("in UpdateInfo, editor" + editor + " resort=" + resort);
+    LOG.debug("in UpdateInfo, editor" + editor + " resort=" + resort);
 
     if (oldMemberID != null && oldMemberID.length() > 3) {
       oldMemberData = patrolData.getMemberByID(oldMemberID);
@@ -127,10 +127,8 @@ public class OuterUpdateInfo extends ResourceBase {
     if (editor != null) {
       editorIsDirector = editor.isDirector();
     }
-    //        else
-    //            editorIsDirector = false;
 
-    debugOut("in UpdateInfo, returning from ReadData, resort=" + resort);
+    LOG.debug("in UpdateInfo, returning from ReadData, resort=" + resort);
     return 1;
   } //end ReadData
 
@@ -235,9 +233,7 @@ public class OuterUpdateInfo extends ResourceBase {
       if (deletePatroller || finalDelete) {
         //          md = patrol.getMemberByID(IDToEdit);
         md = user;
-        if (DEBUG) {
-          LOG.debug("deletePatroller=" + deletePatroller + " finalDelete=" + finalDelete);
-        }
+        LOG.debug("deletePatroller=" + deletePatroller + " finalDelete=" + finalDelete);
 
       }
       else {
@@ -245,9 +241,7 @@ public class OuterUpdateInfo extends ResourceBase {
         md = new Roster(request); //read from command line
         //          md.setID(IDToEdit);
       }
-      if (DEBUG) {
-        LOG.debug("Member: " + md);
-      }
+      LOG.debug("Member: " + md);
       //      String szFirst = request.getParameter(MemberData.dbData[MemberData.FIRST][MemberData.SERVLET_NAME]);
       //      String szLast  = request.getParameter(MemberData.dbData[MemberData.LAST][MemberData.SERVLET_NAME]);
       String name = md.getFullName();
@@ -276,16 +270,12 @@ public class OuterUpdateInfo extends ResourceBase {
       boolean isError = false;
       //Log.log("-----------************---------------");
       if (deletePatroller) {
-        if (DEBUG) {
-          LOG.debug("delete Patroller");
-        }
+        LOG.debug("delete Patroller");
         //          sz = md.getDeleteSQLString();
         //don't DELETE record here
       }
       else if (finalDelete) {
-        if (DEBUG) {
-          LOG.debug("Final delete Patroller");
-        }
+        LOG.debug("Final delete Patroller");
         sz = md.getDeleteSQLString(resort);
         sRost = c.prepareStatement(sz);
         sRost.executeUpdate();
@@ -293,9 +283,7 @@ public class OuterUpdateInfo extends ResourceBase {
         updateAssignments(IDToEdit, "0", c);    //replace ID with 0 in assignment table
       }
       else if (isNewPatroller) {
-        if (DEBUG) {
-          LOG.debug("new patroller");
-        }
+        LOG.debug("new patroller");
         //check for duplicate ID
         Roster mem = patrolData.getMemberByID(md.getID()); //zz
         if (mem != null) {
@@ -310,9 +298,7 @@ public class OuterUpdateInfo extends ResourceBase {
         }
       }
       else if (setNewID) {
-        if (DEBUG) {
-          LOG.debug("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
-        }
+        LOG.debug("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
         //test if any ID change was made
         Roster mem = patrolData.getMemberByID(md.getID());
         if (mem != null) {
@@ -340,16 +326,14 @@ public class OuterUpdateInfo extends ResourceBase {
         }
       }
       else {
-        if (DEBUG) {
-          LOG.debug("Simple Update");
-        }
+        LOG.debug("Simple Update");
         sz = md.getUpdateSQLString(resort);
         sRost = c.prepareStatement(sz);
         sRost.executeUpdate();
       }
 
       c.close();
-      LOG.info("UpdateInfo closed static connection for " + resort);
+      LOG.debug("UpdateInfo closed static connection for " + resort);
       //      if (finalDelete) {
       //			out.println("Deleted...<br>");
       //        String nextPage = patrol.SERVLET_URL + "Directors?resort=" + resort + "&ID+" + IDOfEditor;
@@ -488,9 +472,7 @@ public class OuterUpdateInfo extends ResourceBase {
     if (IDToEdit != null) {
       isValidNum = readData(IDToEdit, sessionData);
     }
-    if (DEBUG) {
-      LOG.debug(" UpdateInfo:printBodyForm IDToEdit=" + IDToEdit + ", isValidNum=" + isValidNum);
-    }
+    LOG.debug(" UpdateInfo:printBodyForm IDToEdit=" + IDToEdit + ", isValidNum=" + isValidNum);
     if (isValidNum == 1) {
       //valid #
       String fullName;
@@ -573,9 +555,7 @@ public class OuterUpdateInfo extends ResourceBase {
       out.println("<input type=submit>");
       out.println("</form>");
     }
-    if (DEBUG) {
-      LOG.debug(" UpdateInfo: end of printBodyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
-    }
+    LOG.debug(" UpdateInfo: end of printBodyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
   }
 
   public boolean isValidField(int index, boolean editorIsDirector) {
@@ -897,11 +877,5 @@ public class OuterUpdateInfo extends ResourceBase {
 
     out.println("</font></td>");
     out.println("</tr>");
-  }
-
-  private void debugOut(String msg) {
-    if (DEBUG) {
-      LOG.debug("DEBUG-UpdateInfo (" + resort + "): " + msg);
-    }
   }
 }
