@@ -17,7 +17,9 @@ public class OuterMemberLogin extends ResourceBase {
 
   public OuterMemberLogin(final HttpServletRequest request, final HttpServletResponse response, Logger LOG) throws IOException {
     super(request, response, LOG);
-    initBase(response);
+    if (!initBase(response)) {
+      return; //"resort" not found, or requestFromBot
+    }
 
     String szParent = request.getParameter("NSPgoto");
     debugOut("resort=" + resort + ", szParent=" + szParent);

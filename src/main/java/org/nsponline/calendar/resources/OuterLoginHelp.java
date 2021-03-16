@@ -24,12 +24,12 @@ public class OuterLoginHelp extends ResourceBase {
 
   public OuterLoginHelp(final HttpServletRequest request, final HttpServletResponse response, Logger LOG) throws IOException {
     super(request, response, LOG);
-    initBase(response);
-
+    if (!initBase(response)) {
+      return; //"resort" not found, or requestFromBot
+    }
     String id = request.getParameter("ID");
     String pass = request.getParameter("Password");
     String szParent = request.getParameter("NSPgoto");
-
     sessionData.clearLoggedInResort();
     sessionData.clearLoggedInUserId();
 

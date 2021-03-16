@@ -7,6 +7,10 @@ import org.nsponline.calendar.utils.PatrolData;
 import org.nsponline.calendar.utils.SessionData;
 import org.nsponline.calendar.utils.StaticUtils;
 
+import static org.nsponline.calendar.utils.StaticUtils.sqlEncode;
+import static org.nsponline.calendar.utils.StaticUtils.sqlStrip;
+import static org.nsponline.calendar.utils.StaticUtils.sqlDecode;
+
 import java.sql.ResultSet;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -15,7 +19,6 @@ import java.text.SimpleDateFormat;
  * @author Steve Gledhill
  */
 public class Assignments {
-  private static final int MIN_LOG_LEVEL = Logger.INFO;
   //public fields
   public final static int MAX_ASSIGNMENT_SIZE = 10;          //max number of assignments
   public final static int DAY_TYPE = 0;
@@ -94,6 +97,7 @@ public class Assignments {
     String str = null;
     try {
       str = assignmentResults.getString(tag);
+      LOG.debug(str); //todo remove me
     }
     catch (Exception e) {
       LOG.error("exception in readString e=" + e);
@@ -108,8 +112,8 @@ public class Assignments {
     szDate = readString(sessionData, assignmentResults, tag[DATE_INDEX]);
     szStartTime = readString(sessionData, assignmentResults, tag[START_INDEX]);
     szEndTime = readString(sessionData, assignmentResults, tag[END_INDEX]);
-    szEventName = readString(sessionData, assignmentResults, tag[EVENT_INDEX]);
-    debugOut("szEventName=(" + szEventName + ")");
+    szEventName = sqlDecode(readString(sessionData, assignmentResults, tag[EVENT_INDEX]));
+    LOG.debug("szEventName=(" + szEventName + ")");
     if (szEventName == null || szEventName.equals("null")) {
       szEventName = " ";
     }
@@ -121,7 +125,7 @@ public class Assignments {
       patrollerID[i] = readString(sessionData, assignmentResults, ("P" + i));
     }
     existed = true;
-    debugOut("Assignment.read=" + this);
+    LOG.debug("Assignment.read=" + this);
     return !exceptionError;
   }
 
@@ -198,13 +202,13 @@ public class Assignments {
   }
 
   public int getUseCount(String resort) {
-    debugOut("Assignments.getUseCount() for " + szDate + ", fullCount=" + count);
+    LOG.debug("Assignments.getUseCount() for " + szDate + ", fullCount=" + count);
     int cnt = 0;
     int i;
     for (i = 0; i < count; ++i) {
       if (patrollerID[i] != null && !patrollerID[i].equals("0") && !patrollerID[i].equals("")) {
         ++cnt;
-        debugOut("Found " + cnt + ") patroller=(" + patrollerID[i] + ")");
+        LOG.debug("Found " + cnt + ") patroller=(" + patrollerID[i] + ")");
       }
     }
     return cnt;
@@ -214,17 +218,9 @@ public class Assignments {
     szDate = newDate;
   }
 
-//  public void setStartTime(String str) {
-//    szStartTime = str;
-//  }
-//
-//  public void setEndTime(String str) {
-//    szEndTime = str;
-//  }
-
-  public void setEventName(SessionData sessionData, String str) {
+  public void setEventName(String str) {
     szEventName = str;
-    debugOut("1 szEventName=(" + szEventName + ")");
+    LOG.debug("1 szEventName=(" + szEventName + ")");
   }
 
   public void setType(int cnt) {
@@ -295,37 +291,32 @@ public class Assignments {
 
   public void remove(String resort, int nPos) {
     if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {     //validate pos
-      debugOut("Assignment: remove(nPos=" + nPos + ", ID was " + patrollerID[nPos] + ")");
+      LOG.debug("Assignment: remove(nPos=" + nPos + ", ID was " + patrollerID[nPos] + ")");
       patrollerID[nPos] = "0";    //no patroller assigned
     }
   }
 
   public void insertAt(String resort, int nPos, String ID) {
-    debugOut("Assignment: insertAt(nPos=" + nPos + ", ID=" + ID + ")");
+    LOG.debug("Assignment: insertAt(nPos=" + nPos + ", ID=" + ID + ")");
     if (nPos >= 0 && nPos < MAX_ASSIGNMENT_SIZE) {
       patrollerID[nPos] = ID;
     }
-    debugOut(toString());
+    LOG.debug(toString());
   }
 
   public String getUpdateQueryString(SessionData sessionData) {
     int i;
-    if (szEventName.indexOf('"') != -1) {
-      szEventName = szEventName.replace('"', '\'');
-    }
-    if (szStartTime.indexOf('"') != -1) {
-      szStartTime = szStartTime.replace('"', '\'');
-    }
-    if (szEndTime.indexOf('"') != -1) {
-      szEndTime = szEndTime.replace('"', '\'');
-    }
+    //encode fields that can be set by the user
+    String encodedEventName = sqlEncode(szEventName);
+    String encodedStartTime = sqlStrip(szStartTime);
+    String encodedEndTime = sqlStrip(szEndTime);
 
-    String qryString = "UPDATE assignments SET StartTime =\"" + szStartTime + "\", EndTime =\"" + szEndTime +
-        "\", EventName=\"" + szEventName + "\", ShiftType=" + type + ", Count=" + count;
+    String qryString = "UPDATE assignments SET StartTime =\"" + encodedStartTime + "\", EndTime =\"" + encodedEndTime +
+        "\", EventName=\"" + encodedEventName + "\", ShiftType=" + type + ", Count=" + count;
     // +
     for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
       if (i >= count) {
-        debugOut("setting position " + i + " to 0");
+        LOG.debug("setting position " + i + " to 0");
         insertAt(sessionData.getLoggedInResort(), i, "0");
       }
       qryString += ", " + tag[P0_INDEX + i] + "='" + getPosID(i) + "'"; //fixes bug where string starts with 0 zero
@@ -337,20 +328,14 @@ public class Assignments {
 
   public String getInsertQueryString() {
     int i;
-    if (szEventName.indexOf('"') != -1) {
-      szEventName = szEventName.replace('"', '\'');
-    }
-    if (szStartTime.indexOf('"') != -1) {
-      szStartTime = szStartTime.replace('"', '\'');
-    }
-    if (szEndTime.indexOf('"') != -1) {
-      szEndTime = szEndTime.replace('"', '\'');
-    }
+    String encodedEventName = sqlEncode(szEventName);
+    String encodedStartTime = sqlStrip(szStartTime);
+    String encodedEndTime = sqlStrip(szEndTime);
 
     String qryString = "INSERT INTO assignments Values(\'" + szDate + "', \"" +
-        szStartTime + "\", \"" + szEndTime + "\", \"" + szEventName + "\", \"" + type + "\", " + count;
+      encodedStartTime + "\", \"" + encodedEndTime + "\", \"" + encodedEventName + "\", \"" + type + "\", " + count;
     for (i = 0; i < MAX_ASSIGNMENT_SIZE; ++i) {
-      qryString += ", " + getPosID(i);
+      qryString += ", '" + getPosID(i) + "'";
     }
     qryString += ")";
 
@@ -359,14 +344,14 @@ public class Assignments {
   }
 
   public String getDeleteSQLString(SessionData sessionData) {
-    String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " = '" + szDate + "'";
+    String qryString = "DELETE FROM assignments WHERE " + tag[DATE_INDEX] + " ='" + szDate + "'";
     LOG.logSqlStatement(qryString);
     return qryString;
   }
 
-  public static String getSelectAllAssignmentsByDateSQLString(String resort) {
+  public static String getSelectAllAssignmentsByDateSQLString(Logger LOG) {
     String sqlQuery = "SELECT * FROM assignments ORDER BY \"" + getDateSqlTag() + "\"";
-//    LOG.logSqlStatement(sqlQuery);
+    LOG.logSqlStatement(sqlQuery);
     return sqlQuery;
   }
 
@@ -378,10 +363,6 @@ public class Assignments {
     }
     ret += " existed=" + existed;
     return ret;
-  }
-
-  private void debugOut(String msg) {
-    LOG.debug("Assignments: " + msg);
   }
 
   public boolean includesPatroller(String patrollerId) {

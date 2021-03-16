@@ -206,7 +206,7 @@ public class InnerChangeSingleDayShift extends ResourceBase {
         sData = new ShiftDefinitions(szNameComment, " ", " ", 0, Assignments.DAY_TYPE, LOG);    //shift with 0 patrollers
         String szAssignmentDate = GetTodaysAssignmentString(assignmentSize + 1);  //2002-12-31_1  index is 1 based
         Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
-        assignment.setEventName(sessionData, szNameComment);
+        assignment.setEventName(szNameComment);
         debugOut("assignmentsFromDisk.add(" + assignment + ")");
         assignmentsFromDisk.add(assignment);
         patrol.writeAssignment(assignment);
@@ -233,7 +233,7 @@ public class InnerChangeSingleDayShift extends ResourceBase {
     } else {
       name = "";  //name from dropdown
     }
-    assignment.setEventName(sessionData, name);
+    assignment.setEventName(name);
     patrol.writeAssignment(assignment);
   }
 
@@ -273,7 +273,7 @@ public class InnerChangeSingleDayShift extends ResourceBase {
           Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
           debugOut("assignmentsFromDisk.add placeholder(" + assignment + ")");
           assignmentsFromDisk.add(assignment);
-          assignment.setEventName(sessionData, szNameComment);
+          assignment.setEventName(szNameComment);
           patrol.writeAssignment(assignment);
         }
       }
@@ -380,7 +380,7 @@ public class InnerChangeSingleDayShift extends ResourceBase {
       //          szAssignmentDate = GetTodaysAssignmentString(shiftIndex + 1);
       //        }
       assignment = new Assignments(szAssignmentDate, sh, LOG);
-      assignment.setEventName(sessionData, szNameComment);
+      assignment.setEventName(szNameComment);
       //        Assignments old = patrol.readAssignment(assignment.getDate());
       //        debugOut("ZZZZZZZ HACK TO REMOVE, old=" + ((old == null) ? "null" : old.toString()));
       Assignments prevAssignment = patrol.readAssignment(assignment.getDate());
@@ -415,7 +415,7 @@ public class InnerChangeSingleDayShift extends ResourceBase {
       if (selectedShift.equals(sData.parsedEventName())) {
         String szAssignmentDate = GetTodaysAssignmentString(++assignmentSize);   //1 based, so increment first
         Assignments assignment = new Assignments(szAssignmentDate, sData, LOG);
-        assignment.setEventName(sessionData, name);
+        assignment.setEventName(name);
         debugOut("assignmentsFromDisk.add(" + assignment + ")");
         assignmentsFromDisk.add(assignment);
         patrol.writeAssignment(assignment);

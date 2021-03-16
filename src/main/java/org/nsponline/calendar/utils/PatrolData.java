@@ -149,7 +149,7 @@ public class PatrolData {
 
   public ResultSet resetAssignments() {
     try {
-      String selectAllAssignmentsByDateSQLString = Assignments.getSelectAllAssignmentsByDateSQLString(localResort);
+      String selectAllAssignmentsByDateSQLString = Assignments.getSelectAllAssignmentsByDateSQLString(LOG);
       LOG.logSqlStatement( selectAllAssignmentsByDateSQLString + " (resetAssignments)");
       PreparedStatement assignmentsStatement = connection.prepareStatement(selectAllAssignmentsByDateSQLString);
       return assignmentsStatement.executeQuery();

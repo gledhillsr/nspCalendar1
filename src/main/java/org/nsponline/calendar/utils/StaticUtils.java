@@ -79,4 +79,25 @@ public final class StaticUtils {
       return 0;
     }
   }
+
+  public static String sqlStrip(String asciiString) {
+    if (asciiString.matches(".*[<>'\"].*")) {
+      return asciiString.replaceAll("'", "").replaceAll("\"", "").replaceAll("<", "").replaceAll(">", "");
+    }
+    return asciiString;
+  }
+
+  public static String sqlEncode(String asciiString) {
+    if (asciiString.matches(".*[<>'\"].*")) {
+      return asciiString.replaceAll("'", "0x27").replaceAll("\"", "0x22").replaceAll("<", "0x3C").replaceAll(">", "0x3E");
+    }
+    return asciiString;
+  }
+
+  public static String sqlDecode(String encodedString) {
+    if (encodedString.contains("0x")) {
+      return encodedString.replaceAll("0x27", "'").replaceAll("0x22", "\"").replaceAll("0x3C", "<").replaceAll("0x3E", ">");
+    }
+    return encodedString;
+  }
 }
