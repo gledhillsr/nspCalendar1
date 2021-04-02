@@ -75,7 +75,7 @@ public class ResourceBase {
       return false; //'resort' etc, MUST be valid (response was setup),  parent should stop further page display
     }
     //redirects to MemberLogin if credentials are not valid
-    ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, parent, LOG);
+    ValidateCredentialsRedirectIfNeeded credentials = new ValidateCredentialsRedirectIfNeeded(sessionData, request, response, parent, patrolData, LOG);
     return !credentials.hasInvalidCredentials(); //if 'false' parent should stop further page display
   }
 
