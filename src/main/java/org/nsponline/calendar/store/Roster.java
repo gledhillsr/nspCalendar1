@@ -55,7 +55,8 @@ public class Roster {
       {"LastName", "Last Name:&nbsp;", "LastName", "n", "Name", "90"},      //2
       {"FirstName", "First Name:&nbsp;", "FirstName", "n", "Name", "90"},      //3
       {"Spouse", "Spouse:&nbsp;", "Spouse", "n", "Spouse", "40"},      //4
-      {"Address", "Address:&nbsp;", "Address", "n", "Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "90"},      //5
+      {"Address", "Address:&nbsp;", "Address", "n",
+          "Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "90"},      //5
       {"City", "City:&nbsp;", "City", "n", "City", "90"},      //6
       {"State", "State:&nbsp;", "State", "n", "State", "50"},      //7
       {"ZipCode", "Zip Code:&nbsp;", "ZipCode", "n", "Zip", "60"},      //8
@@ -78,7 +79,8 @@ public class Roster {
       {"carryOverCredits", "Carry Over Credits:", "carryOverCredits", "y", "Carry Over Credits", "50"},  //25
       {"creditsEarned", "Total Credits Available:", "creditsEarned", "y", "Credits Available", "40"},     //26
       {"creditsUsed", "not used:", "creditsUsed", "y", "Credits Used", "40"},       //27
-      {"comments", "Private&nbsp;Comments<br>(<b>Only</b>&nbsp;visible&nbsp;to&nbsp;directors)", "Comments", "y", "Private Comments", "100"},          //28
+      {"comments", "Private&nbsp;Comments<br>(<b>Only</b>&nbsp;visible&nbsp;to&nbsp;directors)", "Comments", "y",
+          "Private Comments", "100"},          //28
       {"", "", "", "n", "Day Shifts", "40"},              //29
       {"", "", "", "n", "Swing Shifts", "40"},            //30
       {"", "", "", "n", "Night Shifts", "40"},            //31
@@ -86,7 +88,12 @@ public class Roster {
       {"", "", "", "n", "Day Shift Details", "200"},     //33
       {"", "", "", "n", "Swing Shift Details", "200"},   //34
       {"", "", "", "n", "Night Shift Details", "200"},   //35
-      {"", "", "", "n", "Training Shift Details", "200"}}; //36
+      {"", "", "", "n", "Training Shift Details", "200"},//36
+      {"", "", "", "n", "Other Shifts", "40"},           //37
+      {"", "", "", "n", "Holiday Shifts", "40"},         //38
+      {"", "", "", "n", "Other Shift Details", "200"},   //39
+      {"", "", "", "n", "Holiday Shift Details", "200"}  //40
+};
   //indexes into dbData array (displayed order, not defined order)
   public final static int ID_NUM = 0;
   public final static int CLASSIFICATION = 1;
@@ -131,8 +138,15 @@ public class Roster {
   public final static int SHOW_SWING_LIST = DB_SIZE + 5;
   public final static int SHOW_NIGHT_LIST = DB_SIZE + 6;
   public final static int SHOW_TRAINING_LIST = DB_SIZE + 7;
+
+  //added Oct 7, 2021
+  public final static int SHOW_OTHER_CNT = DB_SIZE + 8;
+  public final static int SHOW_HOLIDAY_CNT = DB_SIZE + 9;
+  public final static int SHOW_OTHER_LIST = DB_SIZE + 10;
+  public final static int SHOW_HOLIDAY_LIST = DB_SIZE + 11;
+
   //-------------------
-  static final int FULL_DB_SIZE = SHOW_TRAINING_LIST;
+  static final int FULL_DB_SIZE = SHOW_HOLIDAY_LIST;
 
   public final static int MAX_MEMBERS = 300;  //todo HACK fix me
   static int HASH_NAMES = 0x0001;
@@ -445,6 +459,14 @@ public class Roster {
           str = AssignmentCount[Assignments.TRAINING_TYPE] + "";
           align = " align=center";
           break;
+        case SHOW_OTHER_CNT:
+          str = AssignmentCount[Assignments.OTHER_TYPE] + "";
+          align = " align=center";
+          break;
+        case SHOW_HOLIDAY_CNT:
+          str = AssignmentCount[Assignments.HOLIDAY_TYPE] + "";
+          align = " align=center";
+          break;
         case SHOW_NIGHT_LIST:
           str = szAssignments[Assignments.NIGHT_TYPE];
           break;
@@ -456,6 +478,12 @@ public class Roster {
           break;
         case SHOW_TRAINING_LIST:
           str = szAssignments[Assignments.TRAINING_TYPE];
+          break;
+        case SHOW_OTHER_LIST:
+          str = szAssignments[Assignments.OTHER_TYPE];
+          break;
+        case SHOW_HOLIDAY_LIST:
+          str = szAssignments[Assignments.HOLIDAY_TYPE];
           break;
       }
       out.print(" <td" + align + ">" + str + "</td>");

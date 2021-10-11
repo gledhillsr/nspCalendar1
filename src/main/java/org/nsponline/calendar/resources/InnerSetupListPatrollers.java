@@ -64,8 +64,8 @@ public class InnerSetupListPatrollers extends ResourceBase {
     //        out.println("   if (index < nLen)");
     //        out.println("       document.form1.DAY_CNT.checked=1;");
     //        out.println("       document.form1.NIGHT_CNT.checked=1;");
-    out.println("   if(!document.form1.DAY_CNT.checked && !document.form1.SWING_CNT.checked && !document.form1.NIGHT_CNT.checked && !document.form1.TRAINING_CNT.checked) {");
-    out.println("       alert(\"Must first check any combination of \\nDay, Swing, Night, and/or Training!\");");
+    out.println("   if(!document.form1.DAY_CNT.checked && !document.form1.SWING_CNT.checked && !document.form1.NIGHT_CNT.checked && !document.form1.TRAINING_CNT.checked && !document.form1.OTHER_CNT.checked && !document.form1.HOLIDAY_CNT.checked) {");
+    out.println("       alert(\"Must first check any combination of \\nDay, Swing, Night, Training, Other, and/or Holiday!\");");
     out.println("       document.form1.MIN_DAYS.checked=0;");
     //
     out.println("    } else {");
@@ -230,6 +230,10 @@ public class InnerSetupListPatrollers extends ResourceBase {
     out.println("&nbsp;&nbsp;<input type=checkbox name=NIGHT_DETAILS>Include&nbsp;Details<br>\n");
     out.println("<input   type=checkbox name=TRAINING_CNT    ># Training:\n");
     out.println("&nbsp;&nbsp;<input type=checkbox name=TRAINING_DETAILS>Include&nbsp;Details<br>\n");
+    out.println("<input   type=checkbox name=OTHER_CNT    ># Other:\n");
+    out.println("&nbsp;&nbsp;<input type=checkbox name=OTHER_DETAILS>Include&nbsp;Details<br>\n");
+    out.println("<input   type=checkbox name=HOLIDAY_CNT    ># Holiday:\n");
+    out.println("&nbsp;&nbsp;<input type=checkbox name=HOLIDAY_DETAILS>Include&nbsp;Details<br>\n");
     out.println("---&nbsp;Limit&nbsp;names&nbsp;if&nbsp;above&nbsp;total&nbsp;is:&nbsp;----<br>\n");
 
     //    } else {

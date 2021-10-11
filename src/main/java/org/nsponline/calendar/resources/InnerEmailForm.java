@@ -38,6 +38,8 @@ public class InnerEmailForm extends ResourceBase {
   private boolean showSwingCnt;
   private boolean showNightCnt;
   private boolean showTrainingCnt;
+  private boolean showOtherCnt;
+  private boolean showHolidayCnt;
 
   private int StartDay;
   private int StartMonth;
@@ -443,6 +445,8 @@ public class InnerEmailForm extends ResourceBase {
     showSwingCnt = request.getParameter("SWING_CNT") != null;
     showNightCnt = request.getParameter("NIGHT_CNT") != null;
     showTrainingCnt = request.getParameter("TRAINING_CNT") != null;
+    showOtherCnt = request.getParameter("OTHER_CNT") != null;
+    showHolidayCnt = request.getParameter("HOLIDAY_CNT") != null;
 
     //day/swing/night details are not used here
     //    final boolean showSwingList = request.getParameter("SWING_DETAILS") != null;
@@ -580,6 +584,10 @@ public class InnerEmailForm extends ResourceBase {
               ++member.AssignmentCount[Assignments.NIGHT_TYPE];
             } else if (showTrainingCnt && ns.isTrainingShift()) {
               ++member.AssignmentCount[Assignments.TRAINING_TYPE];
+            } else if (showOtherCnt && ns.isOtherShift()) {
+              ++member.AssignmentCount[Assignments.OTHER_TYPE];
+            } else if (showHolidayCnt && ns.isHolidayShift()) {
+              ++member.AssignmentCount[Assignments.HOLIDAY_TYPE];
             }
           } //end if okToDisplay
         } //end for loop for shift

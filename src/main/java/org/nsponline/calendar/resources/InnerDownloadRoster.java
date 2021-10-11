@@ -77,10 +77,15 @@ public class InnerDownloadRoster extends ResourceBase {
   boolean showDayCnt;
   boolean showSwingCnt;
   boolean showTrainingCnt;
+  boolean showOtherCnt;
+  boolean showHolidayCnt;
+
   boolean showNightList;
   boolean showDayList;
   boolean showSwingList;
   boolean showTrainingList;
+  boolean showOtherList;
+  boolean showHolidayList;
   //  boolean showTeamLead;
   //  boolean showMentoring;
   //  boolean showCreditsEarned;
@@ -163,10 +168,15 @@ public class InnerDownloadRoster extends ResourceBase {
     showDayCnt      = request.getParameter("DAY_CNT") != null;
     showSwingCnt      = request.getParameter("SWING_CNT") != null;
     showTrainingCnt      = request.getParameter("TRAINING_CNT") != null;
+    showOtherCnt      = request.getParameter("OTHER_CNT") != null;
+    showHolidayCnt      = request.getParameter("HOLIDAY_CNT") != null;
+
     showNightList   = request.getParameter("NIGHT_DETAILS") != null;
     showSwingList   = request.getParameter("SWING_DETAILS") != null;
     showDayList     = request.getParameter("DAY_DETAILS") != null;
     showTrainingList     = request.getParameter("TRAINING_DETAILS") != null;
+    showOtherList     = request.getParameter("OTHER_DETAILS") != null;
+    showHolidayList     = request.getParameter("HOLIDAY_DETAILS") != null;
     //    showTeamLead        = request.getParameter("TEAM_LEAD") != null;
     //    showMentoring       = request.getParameter("MENTORING") != null;
     //    showCreditsEarned   = request.getParameter("CREDITS_EARNED") != null;
@@ -220,10 +230,14 @@ public class InnerDownloadRoster extends ResourceBase {
       LOG.info("showDayCnt="+showDayCnt);
       LOG.info("showSwingCnt="+showSwingCnt);
       LOG.info("showTrainingCnt="+showTrainingCnt);
+      LOG.info("showOtherCnt="+showOtherCnt);
+      LOG.info("showHolidayCnt="+showHolidayCnt);
       LOG.info("showNightList="+showNightList);
       LOG.info("showDayList="+showDayList);
       LOG.info("showSwingList="+showSwingList);
       LOG.info("showTrainingList="+showTrainingList);
+      LOG.info("showOtherList="+showOtherList);
+      LOG.info("showHolidayList="+showHolidayList);
       LOG.info("useMinDays="+useMinDays);
       LOG.info("MinDays="+MinDays);
     }
@@ -364,7 +378,9 @@ public class InnerDownloadRoster extends ResourceBase {
       int totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
         member.AssignmentCount[Assignments.SWING_TYPE] +
         member.AssignmentCount[Assignments.TRAINING_TYPE] +
-        member.AssignmentCount[Assignments.NIGHT_TYPE];
+        member.AssignmentCount[Assignments.NIGHT_TYPE] +
+        member.AssignmentCount[Assignments.OTHER_TYPE] +
+        member.AssignmentCount[Assignments.HOLIDAY_TYPE];
       if(!useMinDays || totalAssignments < MinDays) {
         if(actualCount == 0)
           out.println(member.getExcelHeader());
@@ -512,6 +528,20 @@ public class InnerDownloadRoster extends ResourceBase {
               if(maxShiftCount < member.AssignmentCount[Assignments.TRAINING_TYPE])
                 maxShiftCount = member.AssignmentCount[Assignments.TRAINING_TYPE];
               member.szAssignments[Assignments.TRAINING_TYPE] += ns.getMyFormattedDate() + " ";
+            }
+
+            if(showOtherCnt && ns.isOtherShift()) {
+              ++member.AssignmentCount[Assignments.OTHER_TYPE];
+              if(maxShiftCount < member.AssignmentCount[Assignments.OTHER_TYPE])
+                maxShiftCount = member.AssignmentCount[Assignments.OTHER_TYPE];
+              member.szAssignments[Assignments.OTHER_TYPE] += ns.getMyFormattedDate() + " ";
+            }
+
+            if(showHolidayCnt && ns.isHolidayShift()) {
+              ++member.AssignmentCount[Assignments.HOLIDAY_TYPE];
+              if(maxShiftCount < member.AssignmentCount[Assignments.HOLIDAY_TYPE])
+                maxShiftCount = member.AssignmentCount[Assignments.HOLIDAY_TYPE];
+              member.szAssignments[Assignments.HOLIDAY_TYPE] += ns.getMyFormattedDate() + " ";
             }
             //zzzz
           } //end if okToDisplay

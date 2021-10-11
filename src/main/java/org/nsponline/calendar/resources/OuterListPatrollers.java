@@ -67,10 +67,14 @@ public class OuterListPatrollers extends ResourceBase {
   private boolean showDayCnt;
   private boolean showSwingCnt;
   private boolean showTrainingCnt;
+  private boolean showOtherCnt;
+  private boolean showHolidayCnt;
   private boolean showNightList;
   private boolean showDayList;
   private boolean showSwingList;
   private boolean showTrainingList;
+  private boolean showOtherList;
+  private boolean showHolidayList;
   private boolean showTeamLead;
   private boolean showMentoring;
   private boolean showCreditsEarned;
@@ -135,10 +139,14 @@ public class OuterListPatrollers extends ResourceBase {
     debugOut("showDayCnt=" + showDayCnt);
     debugOut("showSwingCnt=" + showSwingCnt);
     debugOut("showTrainingCnt=" + showTrainingCnt);
+    debugOut("showOtherCnt=" + showOtherCnt);
+    debugOut("showHolidayCnt=" + showHolidayCnt);
     debugOut("showNightList=" + showNightList);
     debugOut("showDayList=" + showDayList);
     debugOut("showSwingList=" + showSwingList);
     debugOut("showTrainingList=" + showTrainingList);
+    debugOut("showOtherList=" + showOtherList);
+    debugOut("showHolidayList=" + showHolidayList);
     debugOut("useMinDays=" + useMinDays);
     debugOut("MinDays=" + minDays);
   }
@@ -176,10 +184,15 @@ public class OuterListPatrollers extends ResourceBase {
     showDayCnt = request.getParameter("DAY_CNT") != null;
     showSwingCnt = request.getParameter("SWING_CNT") != null;
     showTrainingCnt = request.getParameter("TRAINING_CNT") != null;
+    showOtherCnt = request.getParameter("OTHER_CNT") != null;
+    showHolidayCnt = request.getParameter("HOLIDAY_CNT") != null;
+
     showNightList = request.getParameter("NIGHT_DETAILS") != null;
     showSwingList = request.getParameter("SWING_DETAILS") != null;
     showDayList = request.getParameter("DAY_DETAILS") != null;
     showTrainingList = request.getParameter("TRAINING_DETAILS") != null;
+    showOtherList = request.getParameter("OTHER_DETAILS") != null;
+    showHolidayList = request.getParameter("HOLIDAY_DETAILS") != null;
     showTeamLead = request.getParameter("TEAM_LEAD") != null;
     showMentoring = request.getParameter("MENTORING") != null;
     showCreditsEarned = request.getParameter("CREDITS_EARNED") != null;
@@ -334,6 +347,12 @@ public class OuterListPatrollers extends ResourceBase {
       }
       if (showTrainingCnt) {
         options += "&TRAINING_CNT=1";
+      }
+      if (showOtherCnt) {
+        options += "&OTHER_CNT=1";
+      }
+      if (showHolidayCnt) {
+        options += "&HOLIDAY_CNT=1";
       }
       options += "&StartDay=" + StartDay;
       options += "&StartMonth=" + StartMonth;
@@ -498,6 +517,18 @@ public class OuterListPatrollers extends ResourceBase {
     if (showTrainingList) {
       Roster.addColumn(Roster.SHOW_TRAINING_LIST);
     }
+    if (showOtherCnt) {
+      Roster.addColumn(Roster.SHOW_OTHER_CNT);
+    }
+    if (showOtherList) {
+      Roster.addColumn(Roster.SHOW_OTHER_LIST);
+    }
+    if (showHolidayCnt) {
+      Roster.addColumn(Roster.SHOW_HOLIDAY_CNT);
+    }
+    if (showHolidayList) {
+      Roster.addColumn(Roster.SHOW_HOLIDAY_LIST);
+    }
 
     Roster.printMemberListRowHeading(out, resort);
     out.println(" </tr>");
@@ -597,7 +628,9 @@ public class OuterListPatrollers extends ResourceBase {
         Integer totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
           member.AssignmentCount[Assignments.SWING_TYPE] +
           member.AssignmentCount[Assignments.TRAINING_TYPE] +
-          member.AssignmentCount[Assignments.NIGHT_TYPE];
+          member.AssignmentCount[Assignments.NIGHT_TYPE] +
+          member.AssignmentCount[Assignments.OTHER_TYPE] +
+          member.AssignmentCount[Assignments.HOLIDAY_TYPE];
         String key = String.format("%04d-%d", totalAssignments, memberIndex);
         treeMap.put(key, member);
       }
@@ -635,7 +668,9 @@ public class OuterListPatrollers extends ResourceBase {
         int totalAssignments = member.AssignmentCount[Assignments.DAY_TYPE] +
           member.AssignmentCount[Assignments.SWING_TYPE] +
           member.AssignmentCount[Assignments.TRAINING_TYPE] +
-          member.AssignmentCount[Assignments.NIGHT_TYPE];
+          member.AssignmentCount[Assignments.NIGHT_TYPE] +
+          member.AssignmentCount[Assignments.OTHER_TYPE] +
+          member.AssignmentCount[Assignments.HOLIDAY_TYPE];
         if (!useMinDays || totalAssignments < minDays) {
           member.printMemberListRowData(out);
           patrollersListed++;
@@ -723,6 +758,20 @@ public class OuterListPatrollers extends ResourceBase {
                 maxShiftCount = member.AssignmentCount[Assignments.TRAINING_TYPE];
               }
               member.szAssignments[Assignments.TRAINING_TYPE] += ns.getMyFormattedDate() + " ";
+            }
+            if (showOtherCnt && ns.isOtherShift()) {
+              ++member.AssignmentCount[Assignments.OTHER_TYPE];
+              if (maxShiftCount < member.AssignmentCount[Assignments.OTHER_TYPE]) {
+                maxShiftCount = member.AssignmentCount[Assignments.OTHER_TYPE];
+              }
+              member.szAssignments[Assignments.OTHER_TYPE] += ns.getMyFormattedDate() + " ";
+            }
+            if (showHolidayCnt && ns.isHolidayShift()) {
+              ++member.AssignmentCount[Assignments.HOLIDAY_TYPE];
+              if (maxShiftCount < member.AssignmentCount[Assignments.HOLIDAY_TYPE]) {
+                maxShiftCount = member.AssignmentCount[Assignments.HOLIDAY_TYPE];
+              }
+              member.szAssignments[Assignments.HOLIDAY_TYPE] += ns.getMyFormattedDate() + " ";
             }
           } //end if okToDisplay
         } //end for loop for shift

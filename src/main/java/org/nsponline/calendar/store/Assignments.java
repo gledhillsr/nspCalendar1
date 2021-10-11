@@ -25,10 +25,12 @@ public class Assignments {
   public final static int SWING_TYPE = 1;
   public final static int NIGHT_TYPE = 2;
   public final static int TRAINING_TYPE = 3;
-  public final static int MAX_SHIFT_TYPES = 4;
+  public final static int OTHER_TYPE = 4;
+  public final static int HOLIDAY_TYPE = 5;
+  public final static int MAX_SHIFT_TYPES = 6;
 
   //private fields
-  final private static String[] szShiftTypes = {"Day Shift", "Swing Shift", "Night Shift", "Training Shift"};
+  final private static String[] szShiftTypes = {"Day Shift", "Swing Shift", "Night Shift", "Training Shift", "Other Shift", "Holiday Shift"};
   final private static String[] tag = {"Date", "StartTime", "EndTime", "EventName", "ShiftType",
       "Count", "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"}; //string on form
   //NOTE: the Date string is in this format "2001-11-03_1"  where _1 is the FIRST record
@@ -263,6 +265,13 @@ public class Assignments {
     return (type == TRAINING_TYPE);
   }
 
+  public boolean isOtherShift() {
+    return (type == OTHER_TYPE);
+  }
+
+  public boolean isHolidayShift() {
+    return (type == HOLIDAY_TYPE);
+  }
   /*************************************************************************/
   /* getPosIndex - given an ID, which position(index) is that patroller    */
   /*  ASSUMES you cannot assign a patroller to two positions on same day   */
