@@ -37,11 +37,12 @@ public class OuterRefresherTraining extends ResourceBase {
     out.println("<br><br><br>Please do NOT share this link.  IT IS NOT PUBLIC INFORMATION. <br><br>Also, this link is specific to you, it will be how we track your progress!<br><br><br>");
     //Training
     out.println("<h3>Ongoing Training</h3><br>");
-    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/0g5ap1xCpS8' target='_blank'><b>November 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
-    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/1p6wa02OVGQ' target='_blank'><b>December 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
-    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/Vf2PrelElxY' target='_blank'><b>January 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
-    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/ESc3fHzvm2A' target='_blank'><b>February 2020 Brighton Ski Patrol Meeting (15 min)</b></a></font><br>");
-    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/RoHulrTi7OY' target='_blank'><b>March 2020 Brighton Ski Patrol Meeting (20 min)</b></a></font><br>");
+    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/b2gi3gqgYSg' target='_blank'><b>December 2021 Brighton Ski Patrol Meeting</b></a></font><br>");
+//    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/0g5ap1xCpS8' target='_blank'><b>November 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
+//    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/1p6wa02OVGQ' target='_blank'><b>December 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
+//    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/Vf2PrelElxY' target='_blank'><b>January 2020 Brighton Ski Patrol Meeting</b></a></font><br>");
+//    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/ESc3fHzvm2A' target='_blank'><b>February 2020 Brighton Ski Patrol Meeting (15 min)</b></a></font><br>");
+//    out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/RoHulrTi7OY' target='_blank'><b>March 2020 Brighton Ski Patrol Meeting (20 min)</b></a></font><br>");
 
     out.println("<br>");
     out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://www.youtube.com/watch?v=xvVSpyec5LM&feature=youtu.be' target='_blank'><b>Know Before You Go avalanche awareness refresher presented by Peter Tucker (27 min), Joey Manship (30 min), and Craig Gordon (55 min)</b></a></font><br>");

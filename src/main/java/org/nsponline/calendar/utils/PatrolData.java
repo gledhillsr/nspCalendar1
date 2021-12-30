@@ -60,7 +60,7 @@ public class PatrolData {
     resortMap.put("LeeCanyon",      new ResortData("LeeCanyon", "Lee Canyon", "schedule@leecanyonskipatrol.org", "http://www.leecanyonskipatrol.org", "/images/LeeCanyon.png", IMG_HEIGHT, 80));
     resortMap.put("LonesomePine",   new ResortData("LonesomePine", "Lonesome Pine Trails", null, "http://www.lonesomepines.org", "/images/lonesomepines.gif", IMG_HEIGHT, 80));
     resortMap.put("MagicMountain",  new ResortData("MagicMountain", "Magic Mountain", null, "http://www.magicmountainresort.com/", "/images/MagicMountain.jpg", IMG_HEIGHT, 145));
-    resortMap.put("psiaMagicMountain",  new ResortData("psiaMagicMountain", "Magic Mountain Snowsports School", null, "http://www.magicmountainresort.com/", "/images/psia.png", IMG_HEIGHT, 80));
+    resortMap.put("psiaMagicMountain",  new ResortData("psiaMagicMountain", "Magic Mountain Snowsports School", "jwkluth@gmail.com", "http://www.magicmountainresort.com/", "/images/psia.png", IMG_HEIGHT, 80));
     resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", null, "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
     resortMap.put("MountPleasant",  new ResortData("MountPleasant", "Mount Pleasant", "dfarbotnik@gmail.com", "http://www.skimountpleasant.com ", "/images/MountPleasant.png", IMG_HEIGHT, 80));
 

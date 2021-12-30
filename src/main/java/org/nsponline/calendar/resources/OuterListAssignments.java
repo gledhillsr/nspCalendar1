@@ -14,12 +14,13 @@ import org.nsponline.calendar.utils.SessionData;
 
 public class OuterListAssignments extends ResourceBase {
 
+  public static final String DISPLAY_ALL_ASSIGNMENTS = "DisplayAllAssignments";
+
   OuterListAssignments(HttpServletRequest request, HttpServletResponse response, Logger LOG) throws IOException {
     super(request, response, LOG);
     if (!initBaseAndAskForValidCredentials(response, "ListAssignments")) {
       return;
     }
-
     printCommonHeader();
     printTop(out);
     printMiddle(out, resort,  sessionData.getLoggedInUserId(), sessionData);
@@ -58,20 +59,23 @@ public class OuterListAssignments extends ResourceBase {
     Calendar calendarStart = new GregorianCalendar();
     int currentYear = calendarStart.get(Calendar.YEAR);
     int currentMonth = calendarStart.get(Calendar.MONTH);
-    int startYear = 2002;
+    int startYear;
     int startMonth = Calendar.JULY;
 
-    if (resort.equals("Brighton")) {
-      if (currentMonth < Calendar.JULY){
-        startYear = currentYear - 1;
+//    if (resort.equals("Brighton")) {
+      String displayAllAssignments = request.getParameter(DISPLAY_ALL_ASSIGNMENTS);
+      //todo if blank, look at cookie
+      if ("true".equals(displayAllAssignments)) {
+        out.println("Displaying all assignments.  <a target='main' href=\"/calendar-1/ListAssignments?resort=" + resort + "&ID=" + szMyID + "&" + DISPLAY_ALL_ASSIGNMENTS + "=false" + "\"><b>Change to current season only</b></a>");
+        startYear = 2002;
+      } else
+      {
+        out.println("Displaying current season ONLY.  <a target='main' href=\"/calendar-1/ListAssignments?resort=" + resort + "&ID=" + szMyID + "&" + DISPLAY_ALL_ASSIGNMENTS + "=true" + "\"><b>Change to display all assignments</b></a>");
+        startYear = (currentMonth < Calendar.JULY) ? currentYear - 1: currentYear;
       }
-      out.println("Display your: <a target='main' href=\"/screenshots/history.php?ID=" + szMyID + "\"><b>check-in history</b></a>");
-//      out.println(" or <a target='main' href=\"screenshots/ski_credits.php?ID=" + szMyID + "\"><b>Ski Credits Earnings report</b></a>");
-//      out.println(" (Ski History & Credits are updated at different times, so may not appear in sync.)<br>");
-    }
+//    }
 
     calendarStart.set(startYear, startMonth, 1);  //(yyyy,mm,dd) Month is 0 based
-    LOG.debug("zzzz calendar start " + calendarStart.toString());
     out.println("<p><font size=5>" + myName + "'s Assignment Schedule for " + PatrolData.getResortFullName(resort, LOG) + "</font>");
     out.println("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 //      out.println("<a href=\"javascript:printWindow()\">Print This Page</a>");
