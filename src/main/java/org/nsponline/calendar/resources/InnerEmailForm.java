@@ -162,12 +162,14 @@ public class InnerEmailForm extends ResourceBase {
       fromEmailAddress = memberFromEmailAddress;
     }
 
-    messageIsUnique = (message.contains("$pass$") ||
+    messageIsUnique = (
+//      message.contains("$pass$") ||
       message.contains("$last$") ||
       message.contains("$first$") ||
       message.contains("$id$") ||
-      message.contains("$carryovercredits$") ||
-      message.contains("$credits$"));
+      message.contains("$carryovercredits$")
+//    ||  message.contains("$credits$")
+    );
     return true;
   }
 
@@ -202,17 +204,17 @@ public class InnerEmailForm extends ResourceBase {
     String newMessage;
 
     if (messageIsUnique) {
-      String pass = member.getPassword().trim();
-      //if no password, then their last name is the password
-      if (pass.equals("")) {
-        pass = member.getLast();
-      }
-      newMessage = message.replaceAll("\\$pass\\$", pass);
-      newMessage = newMessage.replaceAll("\\$last\\$", member.getLast());
+//      String pass = member.getPassword().trim();
+//      //if no password, then their last name is the password
+//      if (pass.equals("")) {
+//        pass = member.getLast();
+//      }
+      newMessage = message.replaceAll("\\$last\\$", member.getLast());
       newMessage = newMessage.replaceAll("\\$first\\$", member.getFirst());
       newMessage = newMessage.replaceAll("\\$id\\$", member.getID());
+//      newMessage = newMessage.replaceAll("\\$pass\\$", pass);
       newMessage = newMessage.replaceAll("\\$carryovercredits\\$", member.getCarryOverCredits());
-      newMessage = newMessage.replaceAll("\\$credits\\$", member.getCreditsEarned());
+//      newMessage = newMessage.replaceAll("\\$credits\\$", member.getCreditsEarned());
       newMessage = newMessage.replaceAll("\\$credit\\$", member.getCreditsEarned());
     } else {
       newMessage = message;
@@ -409,19 +411,19 @@ public class InnerEmailForm extends ResourceBase {
     out.println("    <td>&nbsp;-- replace with patrollers ID number</td>\n");
     out.println("  </tr>\n");
     out.println("  <tr>\n");
-    out.println("    <td  align=right>$pass$</td>\n");
-    out.println("    <td >&nbsp;-- replace with patrollers password</td>\n");
+//    out.println("    <td  align=right>$pass$</td>\n");
+//    out.println("    <td >&nbsp;-- replace with patrollers password</td>\n");
     out.println("  </tr>\n");
-    if (resort.equalsIgnoreCase("Brighton")) {
+//    if (resort.equalsIgnoreCase("Brighton")) {
       //            out.println("  <tr>\n");
       //            out.println("    <td align=right>$carryovercredits$</td>\n");
       //            out.println("    <td>&nbsp;-- replace with number of 'Carry Over' credits on file</td>\n");
       //            out.println("  </tr>\n");
-      out.println("  <tr>\n");
-      out.println("    <td align=right>$credits$</td>\n");
-      out.println("    <td>&nbsp;-- replace with number of credits available (as of last update)</td>\n");
-      out.println("  </tr>\n");
-    }
+//      out.println("  <tr>\n");
+//      out.println("    <td align=right>$credits$</td>\n");
+//      out.println("    <td>&nbsp;-- replace with number of credits available (as of last update)</td>\n");
+//      out.println("  </tr>\n");
+//    }
     out.println("</table>\n");
     out.println("<br/><br/>");
   }

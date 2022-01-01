@@ -19,7 +19,7 @@ public class PatrolData {
 /* ------------ DEFINE ADDRESS OF MYSQL (for Amazon instances, user PRIVATE address --------- */
   private final static String MYSQL_ADDRESS = "127.0.0.1"; // was "ip-172-31-59-191.ec2.internal";  //private ip PRODUCTION.  must match /etc/my.cnf
 
-  public final static Boolean USING_TESTING_ADDRESS = false;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
+  public final static Boolean USING_TESTING_ADDRESS = true;   //used in MonthlyCalendar will add a "TESTING" to the calendar page
 
   /* ------------------------------------------------------------------------------------------ */
 
@@ -904,11 +904,13 @@ public class PatrolData {
           LOG.info("Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
         }
         else {
-          LOG.error( "Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "]");
+          LOG.error( "sleep(500).  Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "]");
+          Thread.sleep(500);
         }
       }
       else {
-        LOG.error("Login Failed: memberId not found [" + ID + "]");
+        LOG.error("sleep(500).  Login Failed: memberId not found [" + ID + "]");
+        Thread.sleep(500);
       }
 
       c.close();

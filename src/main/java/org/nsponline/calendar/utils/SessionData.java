@@ -2,10 +2,14 @@ package org.nsponline.calendar.utils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * @author Steve Gledhill
@@ -31,6 +35,7 @@ public class SessionData {
   private static final String LOGGED_IN_RESORT_TAG = "loggedInResort";
   private static final String AWS_ACCESS_KEY_ID_TAG = "AWSAccessKeyId";
   private static final String AWS_SECRET_KEY_TAG = "AWSSecretKey";
+  private static final String SALT_TAG = "salt";
 
   //don't store in session.  Afraid user may be able to see session data
   private String dbUser;
@@ -63,21 +68,7 @@ public class SessionData {
   }
 
   private void readCredentialPropertiesFile(Properties properties, PrintWriter out) {
-    FileInputStream inStream;
-    try {
-      inStream = new FileInputStream(PROPERTIES_FILE);
-    }
-    catch (IOException e) {
-      out.println("ERROR, could not open properties file.");
-      return;
-    }
-
-    try {
-      debugOut("reading SessionData properties file from disk.");
-      properties.load(inStream);
-    }
-    catch (IOException e) {
-      out.println("ERROR, could not read properties file");
+    if (!loadPropertiesFile(properties, out)) {
       return;
     }
     dbUser = properties.getProperty(DB_USER_TAG, "");
@@ -107,6 +98,31 @@ public class SessionData {
     debugVerboseOut(BACK_DOOR_PASSWORD_TAG + "=" + backDoorPassword);
     debugVerboseOut(AWS_ACCESS_KEY_ID_TAG + "=" + AWSAccessKeyId.substring(0, 4) + "....");
     debugVerboseOut(AWS_SECRET_KEY_TAG + "=" + AWSSecretKey.substring(0, 4) + "....");
+  }
+
+  private boolean loadPropertiesFile(Properties properties, PrintWriter out) {
+    FileInputStream inStream;
+    try {
+      inStream = new FileInputStream(PROPERTIES_FILE);
+    }
+    catch (IOException e) {
+      if (out != null) {
+        out.println("ERROR, could not open properties file.");
+      }
+      return false;
+    }
+
+    try {
+      debugOut("reading SessionData properties file from disk.");
+      properties.load(inStream);
+    }
+    catch (IOException e) {
+      if (out != null) {
+        out.println("ERROR, could not read properties file");
+      }
+      return false;
+    }
+    return true; //successful
   }
 
   public String getDbUser() {
@@ -212,7 +228,7 @@ public class SessionData {
     return LOG;
   }
   private void debugOut(String msg) {
-    if (DEBUG) {
+    if (DEBUG && LOG != null) {
       LOG.info("DEBUG-SessionData: " + msg);
     }
   }
@@ -225,5 +241,28 @@ public class SessionData {
 
   public HttpServletRequest getRequest() {
     return request;
+  }
+
+  public byte[] readSalt() {
+    Properties properties = new Properties();
+    if (!loadPropertiesFile(properties, null)) {
+      System.out.println("failed to read properties file");
+      System.exit(1);
+    }
+    String saltString = properties.getProperty(SALT_TAG, "");
+    if (saltString.isEmpty()) {
+      System.out.println("failed to read 'salt' array");
+      System.exit(1);
+    }
+    try {
+      return Hex.decodeHex(saltString);
+    }
+    catch (DecoderException e) {
+      System.out.println("failed to convert 'salt' array");
+      System.exit(1);
+    }
+    System.out.println("failed to convert 'salt' array");
+    System.exit(1);
+    return null;
   }
 }
