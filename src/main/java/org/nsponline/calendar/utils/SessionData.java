@@ -101,9 +101,9 @@ public class SessionData {
   }
 
   private boolean loadPropertiesFile(Properties properties, PrintWriter out) {
-    FileInputStream inStream;
-    try {
-      inStream = new FileInputStream(PROPERTIES_FILE);
+    try (FileInputStream inStream = new FileInputStream(PROPERTIES_FILE)) {
+      debugOut("reading SessionData properties file from disk.");
+      properties.load(inStream);
     }
     catch (IOException e) {
       if (out != null) {
@@ -112,16 +112,6 @@ public class SessionData {
       return false;
     }
 
-    try {
-      debugOut("reading SessionData properties file from disk.");
-      properties.load(inStream);
-    }
-    catch (IOException e) {
-      if (out != null) {
-        out.println("ERROR, could not read properties file");
-      }
-      return false;
-    }
     return true; //successful
   }
 
