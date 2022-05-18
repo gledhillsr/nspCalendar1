@@ -18,8 +18,6 @@ import org.nsponline.calendar.utils.*;
 
 public class OuterLoginHelp extends ResourceBase {
   @SuppressWarnings("FieldCanBeLocal")
-  private static final boolean DEBUG = true;
-  @SuppressWarnings("FieldCanBeLocal")
   private static final boolean DEBUG_SENSITIVE = true;
 
   public OuterLoginHelp(final HttpServletRequest request, final HttpServletResponse response, Logger LOG) throws IOException {

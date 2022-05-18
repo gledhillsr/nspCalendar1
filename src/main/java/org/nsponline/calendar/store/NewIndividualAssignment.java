@@ -70,7 +70,7 @@ public class NewIndividualAssignment {
     this.lastModifiedDate = null;
     this.lastModifiedBy = "";
     existed = false;
-    LOG = new Logger(NewIndividualAssignment.class, Logger.DEBUG);
+    LOG = new Logger(NewIndividualAssignment.class, Logger.INFO);
   }
 
   private String readString(ResultSet newAssignmentResults, String tag) {

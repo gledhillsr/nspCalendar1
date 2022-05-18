@@ -15,7 +15,6 @@ import org.nsponline.calendar.utils.*;
 import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 
 public class InnerChangeShiftAssignments extends ResourceBase  {
-  private static final boolean DEBUG = true;
   final private HttpServletResponse response;
 
   /**

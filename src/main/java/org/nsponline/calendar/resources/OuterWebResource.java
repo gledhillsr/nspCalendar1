@@ -30,12 +30,12 @@ public class OuterWebResource {
    */
   public static class UpdateInfo extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), MIN_LOG_LEVEL);
+      Logger LOG = new Logger(this.getClass(), request, "GET", request.getParameter("resort"), Logger.INFO); //todo restore
       new OuterUpdateInfo(request, response, LOG);
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      Logger LOG = new Logger(this.getClass(), request, "POST", request.getParameter("resort"), MIN_LOG_LEVEL);
+      Logger LOG = new Logger(this.getClass(), request, "POST", request.getParameter("resort"), Logger.INFO); //todo restore
       new OuterUpdateInfo(request, response, LOG);
     }
   }

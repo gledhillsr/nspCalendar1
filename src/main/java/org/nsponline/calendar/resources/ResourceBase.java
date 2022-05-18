@@ -87,5 +87,4 @@ public class ResourceBase {
   protected void printCommonFooter() {
     outerPage.printResortFooter(out);
   }
-
 }

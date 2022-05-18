@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Calendar;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.nsponline.calendar.store.Roster;
 import org.nsponline.calendar.utils.Logger;
 import org.nsponline.calendar.utils.SessionData;
 
+import static org.nsponline.calendar.store.Roster.*;
 
+
+@SuppressWarnings({"SqlNoDataSourceInspection", "AccessStaticViaInstance"})
 public class OuterUpdateInfo extends ResourceBase {
-  private final static String[] szMonths = {"Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct",
-    "Nov", "Dec"}; //0 based months
   @SuppressWarnings("SqlNoDataSourceInspection")
   private final static String[] IDpos = {"P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"};
 
@@ -22,7 +22,7 @@ public class OuterUpdateInfo extends ResourceBase {
   private String title;
   private String IDOfEditor, IDToEdit = null, NameToEdit, Purpose;
   private boolean editorIsDirector;
-  private Roster user;
+  private Roster userData;
   private Roster oldMemberData;
   private boolean isNewPatroller;
   private boolean deletePatroller;
@@ -95,18 +95,18 @@ public class OuterUpdateInfo extends ResourceBase {
     if ((setNewID || editInfo || deletePatroller || finalDelete) && NameToEdit != null) {
 
       LOG.debug("in UpdateInfo, setNewID=" + setNewID + ", editInfo=" + editInfo + ", NameToEdit=(" + NameToEdit + ")");
-      user = patrolData.getMemberByLastNameFirstName(NameToEdit);
-      LOG.debug("user= (" + user + ")");
-      if (user == null) {
+      userData = patrolData.getMemberByLastNameFirstName(NameToEdit);
+      LOG.debug("user= (" + userData + ")");
+      if (userData == null) {
         LOG.info("UpdateInfo - ERROR, member " + NameToEdit + " not found!");
         out.println("INTERNAL ERROR, member " + NameToEdit + " not found!");
         return 0;
       }
-      IDToEdit = user.getID();
+      IDToEdit = userData.getID();
     }
     else {
       IDToEdit = IDOfEditor;  //same
-      user = patrolData.getMemberByID(readID);
+      userData = patrolData.getMemberByID(readID);
     }
     LOG.debug("in UpdateInfo, IDOfEditor" + IDOfEditor + " resort=" + resort);
     Roster editor;
@@ -212,39 +212,28 @@ public class OuterUpdateInfo extends ResourceBase {
       out.println("<h2>ERROR, reading record for patroller id [" + IDOfEditor + "]</h2><br>");
     }
 
-    //    try  {
-    //////------- the following line works for an applet, but not for a servlet -----
-    //      Driver drv = (Driver) Class.forName(patrol.JDBC_DRIVER).newInstance();
-    //    }
-    //    catch (Exception e) {
-    //        out.println("Cannot load the driver, reason:"+e.toString());
-    //        return;
-    //    }
-
-    // Try to connect to the database
-
     try {
 
       // Change MyDSN, myUsername and myPassword to your specific DSN
       Connection c = patrolData.getConnection(resort, sessionData, LOG);
       PreparedStatement sRost;
 
-      Roster md;
+      Roster roster;
       if (deletePatroller || finalDelete) {
         //          md = patrol.getMemberByID(IDToEdit);
-        md = user;
+        roster = userData;
         LOG.debug("deletePatroller=" + deletePatroller + " finalDelete=" + finalDelete);
 
       }
       else {
         IDToEdit = request.getParameter(Roster.dbData[Roster.ID_NUM][Roster.SERVLET_NAME]);
-        md = new Roster(request); //read from command line
+        roster = new Roster(request); //read from command line
         //          md.setID(IDToEdit);
       }
-      LOG.debug("Member: " + md);
+      LOG.debug("Member: " + roster);
       //      String szFirst = request.getParameter(MemberData.dbData[MemberData.FIRST][MemberData.SERVLET_NAME]);
       //      String szLast  = request.getParameter(MemberData.dbData[MemberData.LAST][MemberData.SERVLET_NAME]);
-      String name = md.getFullName();
+      String name = roster.getFullName();
 
       //        out.println("<h2>Your new record has been updated as follows:</h2><br>");
       if (deletePatroller) {
@@ -276,7 +265,7 @@ public class OuterUpdateInfo extends ResourceBase {
       }
       else if (finalDelete) {
         LOG.debug("Final delete Patroller");
-        sz = md.getDeleteSQLString(resort);
+        sz = roster.getDeleteSQLString(resort);
         sRost = c.prepareStatement(sz);
         sRost.executeUpdate();
         //Log.log("executing delete");
@@ -285,14 +274,14 @@ public class OuterUpdateInfo extends ResourceBase {
       else if (isNewPatroller) {
         LOG.debug("new patroller");
         //check for duplicate ID
-        Roster mem = patrolData.getMemberByID(md.getID()); //zz
+        Roster mem = patrolData.getMemberByID(roster.getID());
         if (mem != null) {
-          out.println("<h3>ERROR, id '" + md.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
+          out.println("<h3>ERROR, id '" + roster.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
           out.println("<br><br>Use the 'Back' button on your browser to make a change.");
           isError = true;
         }
         else {
-          sz = md.getInsertSQLString(resort);
+          sz = roster.getInsertSQLString(resort, sessionData);
           sRost = c.prepareStatement(sz);
           sRost.executeUpdate();
         }
@@ -300,15 +289,15 @@ public class OuterUpdateInfo extends ResourceBase {
       else if (setNewID) {
         LOG.debug("Changing Member ID.  OldID=" + oldMemberID + ", NewID=" + IDToEdit);
         //test if any ID change was made
-        Roster mem = patrolData.getMemberByID(md.getID());
+        Roster mem = patrolData.getMemberByID(roster.getID());
         if (mem != null) {
-          out.println("<h3>ERROR, id '" + md.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
+          out.println("<h3>ERROR, id '" + roster.getID() + "' is already owned by " + mem.getFullName() + "</h3>");
           out.println("<br><br>Use the 'Back' button on your browser to make a change.");
         }
         else if (IDToEdit.equals(oldMemberID)) {
           //if ID was same, just update record
           //use data read from command line
-          sz = md.getUpdateSQLString(resort);
+          sz = roster.getUpdateSQLString(resort, sessionData);
           sRost = c.prepareStatement(sz);
           sRost.executeUpdate();
         }
@@ -316,7 +305,7 @@ public class OuterUpdateInfo extends ResourceBase {
           //if ID was new, insert new, then delete old
           //insert new ID
           updateAssignments(oldMemberID, IDToEdit, c);
-          sz = md.getInsertSQLString(resort);
+          sz = roster.getInsertSQLString(resort, sessionData);
           sRost = c.prepareStatement(sz);
           sRost.executeUpdate();
           //remove OLD id
@@ -327,19 +316,13 @@ public class OuterUpdateInfo extends ResourceBase {
       }
       else {
         LOG.debug("Simple Update");
-        sz = md.getUpdateSQLString(resort);
+        sz = roster.getUpdateSQLString(resort, sessionData);
         sRost = c.prepareStatement(sz);
         sRost.executeUpdate();
       }
 
       c.close();
       LOG.debug("UpdateInfo closed static connection for " + resort);
-      //      if (finalDelete) {
-      //			out.println("Deleted...<br>");
-      //        String nextPage = patrol.SERVLET_URL + "Directors?resort=" + resort + "&ID+" + IDOfEditor;
-      //Log.log("+++ in finalDelete, nextPage="+nextPage);
-      //            response.sendRedirect(nextPage);
-      //      }
       if (editorIsDirector) {
         first = 0;
         last = Roster.DB_SIZE;      //show director field for director
@@ -366,46 +349,22 @@ public class OuterUpdateInfo extends ResourceBase {
           continue;
         }
         //          localData[i] = request.getParameter(MemberData.dbData[i][MemberData.SERVLET_NAME]);
-        szTmp = md.memberData[i];
+        szTmp = roster.memberData[i];
         if (szTmp == null || szTmp.length() == 0) {
           szTmp = " ";
         }
-
-        if (i == Roster.CARRY_OVER_CREDITS) { //old field
+        //no longer support fields for "credits"
+        if (isUnsupportedCreditsField(i) || i == NEW_PASSWORD) { //old fields
           continue;
-        }
-        if (i == Roster.CREDITS_USED) { //old field
-          continue;
-        }
-
-
-        if (deletePatroller && i == Roster.CARRY_OVER_CREDITS) { //already good, except on delete
-          szTmp = Roster.creditsToVouchers(szTmp);
         }
 
         out.println("<tr>");
         out.println("<td width=\"230\" valign=\"middle\"><font size=3>" + Roster.dbData[i][Roster.DLG_NAME] + "</font></td>");
         out.println("<td width=\"350\" valign=\"left\"><font size=3>");
-        if (i == Roster.LAST_CREDIT_UPDATE) {
-          //              out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherDay\"   VALUE=\""+day+"\">");
-          //              out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherMonth\" VALUE=\""+month+"\">");
-          //              out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherYear\"  VALUE=\""+year+"\">");
-          String date = "Error";
-          Calendar cal = Calendar.getInstance();
-          try {
-            long millis = Long.parseLong(szTmp);
-            cal.setTimeInMillis(millis);
-            date = szMonths[cal.get(Calendar.MONTH)] + "-" + cal.get(Calendar.DATE) + "-" + cal.get(Calendar.YEAR);
-          }
-          catch (Exception e) {
-            LOG.error("Error parsing Long value for: (" + szTmp + ")");
-          }
-          out.println(date);
-        }
-        else if (i == Roster.COMMITMENT) {
+        if (i == Roster.COMMITMENT) {
           out.println(Roster.getCommitmentString(szTmp));
         }
-        else if (i == Roster.TEAM_LEAD || i == Roster.MENTORING || i == Roster.CAN_EARN_CREDITS) {
+        else if (i == Roster.TEAM_LEAD || i == Roster.MENTORING ) {
           //Log.log(i+") = ("+szTmp+")");
           if (szTmp.equals("1")) {
             out.println("Yes");
@@ -463,6 +422,7 @@ public class OuterUpdateInfo extends ResourceBase {
 
   } //end printBodySave
 
+
   @SuppressWarnings({"UnusedDeclaration"})
   public void printBodyForm(HttpServletRequest request, HttpServletResponse response, SessionData sessionData) {
     int i;
@@ -477,16 +437,16 @@ public class OuterUpdateInfo extends ResourceBase {
       //valid #
       String fullName;
       if (isNewPatroller) {
-        user = new Roster(LOG);
+        userData = new Roster(LOG);
         fullName = "NEW PATROLLER";
         IDToEdit = "";
       }
       else {
-        if (user == null) {
+        if (userData == null) {
           out.println("<h2>Internal Error, invalid patroller number: [" + IDToEdit + "]</h2><br>");
           return;
         }
-        fullName = user.getFullName();
+        fullName = userData.getFullName();
       }
       // header -------------------
       out.println("<h2>Personal Information for:  " + fullName + "</h2><br>");
@@ -512,17 +472,11 @@ public class OuterUpdateInfo extends ResourceBase {
       //            if(!editorIsDirector))
       //                last -= 1;
       for (i = first; i < last; ++i) {
-        showField(i, user.memberData[i], editorIsDirector);
+        showInputField(i, userData.memberData[i], editorIsDirector);
       }
 
       out.println("</table>");
-      //hidden fields ---------------------
-      //out.println("usingCookie="+usingCookie+"<br>");
-      //..                out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"ID\" VALUE=\""+IDOfEditor+"\">");
-      //..	            out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"resort\" VALUE=\""+resort+"\">");
-      //            if(!usingCookie) {
-      //                out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"NoCookie\" VALUE=\""+IDOfEditor+"\">");
-      //            }
+      //hidden fields ----------
       if (isNewPatroller) {
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"Purpose\" VALUE=\"Add_Patroller\">");
         out.println("<input type=submit value=\"New Profile\">");
@@ -558,7 +512,7 @@ public class OuterUpdateInfo extends ResourceBase {
     LOG.debug(" UpdateInfo: end of printBodyForm IDToEdit = " + IDToEdit + ", isValidNum=" + isValidNum);
   }
 
-  public boolean isValidField(int index, boolean editorIsDirector) {
+  public boolean isVisibleField(int index, boolean editorIsDirector) {
     //fields ONLY visible to directors
     if (!editorIsDirector) {
       switch (index) {
@@ -567,54 +521,46 @@ public class OuterUpdateInfo extends ResourceBase {
           return false;
       }
     }
+    if (isUnsupportedCreditsField(index) || index == NEW_PASSWORD) {
+      return false;
+    }
     //fields only visible is using locker room scheduling software
     if (!resort.equalsIgnoreCase("Brighton")) {
       switch (index) {
         case Roster.TEAM_LEAD:
         case Roster.MENTORING:
-        case Roster.CAN_EARN_CREDITS:
-        case Roster.LAST_CREDIT_UPDATE:
-        case Roster.CARRY_OVER_CREDITS:
-        case Roster.CREDITS_EARNED:
-        case Roster.CREDITS_USED:
           return false;
       }
     }
     return true;
   }
 
-  public void showField(int index, String szDefault, boolean editorIsDirector) {
+  public void showInputField(int index, String szDefault, boolean editorIsDirector) {
 
-    if (index == Roster.CARRY_OVER_CREDITS) { //old field
+    if (isUnsupportedCreditsField(index)) { //old field
       return;
     }
-    if (index == Roster.CREDITS_USED) { //old field
-      return;
-    }
-
 
     String label = Roster.dbData[index][Roster.DLG_NAME];
+    if (index == PASSWORD && !isNewPatroller && !deletePatroller && !finalDelete && !setNewID) {
+      //the only other case is editing a patroller
+      label = "Old password is hidden<br><b>Reset Password to</b>:&nbsp;<br>Blank keeps old password";
+    }
     String szField = Roster.dbData[index][Roster.SERVLET_NAME];
-    if (!isValidField(index, editorIsDirector)) {
+    if (!isVisibleField(index, editorIsDirector)) {
       out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
       //Log.log(index+") field "+szField+"=("+szDefault+") is hidden, for resort "+resort);
       return;
     }
     int len = 30;
-    //Log.log(index+") " + label + ", " + szField);
-    if (index == Roster.CAN_EARN_CREDITS) {
-      out.println("<tr>");
-      out.println("<td bgcolor=#e1e1e1 valign=center align=right><font size=3><b>Please Note:&nbsp;</b></font></td>");
-      out.println("<td bgcolor=#e1e1e1 valign=center align=left><font size=3>&nbsp;&nbsp;2 credits equals 1 day pass voucher</font></td>");
-      out.println("</tr>");
-    }
     out.println("<tr>");
     if (index == Roster.COMMENTS && !editorIsDirector) {
       //display NOTHING if the editor is not a director
       label = "&nbsp;";
     }
-    out.println("<td width=\"210\" valign=\"middle\"><font size=3>" + label + "</font></td>");
-
+    //display column 1, the field description
+    out.println("<td width=\"351\" valign=\"middle\"><font size=3>" + label + "</font></td>");
+    //display column 2, the input field
     int width = (index == Roster.INSTRUCTOR) ? 650 : 600;
     out.println("<td width=\"" + width + "\" valign=\"left\"><font size=3>");
     //  static final int CLASSIFICATION=1;
@@ -646,14 +592,12 @@ public class OuterUpdateInfo extends ResourceBase {
     else if (index == Roster.INSTRUCTOR) {
       //convert string to number
       int idx = 0;
-      //      String typeFlag = editorIsDirector ? " type=\"checkbox\" " : " type=\"hidden\" ";
       try {
         idx = Integer.parseInt(szDefault);
       }
       catch (Exception e) {
         //DO NOTHING
       }
-      //Log.log("idx="+idx);
       if (editorIsDirector) {
         out.println("                        <input type=\"checkbox\" name=\"OEC\"" + ((idx & 1) == 1 ? "checked" : "") + ">OEC");
         out.println("&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"checkbox\" name=\"CPR\"" + ((idx & 2) == 2 ? "checked" : "") + ">CPR");
@@ -739,9 +683,9 @@ public class OuterUpdateInfo extends ResourceBase {
         out.println("</SELECT>");
       }
       else {
-        String classification = user.getFullClassification();
+        String classification = userData.getFullClassification();
         if (classification == null) {
-          classification = user.getClassification();
+          classification = userData.getClassification();
         }
         out.println(classification);
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
@@ -778,100 +722,16 @@ public class OuterUpdateInfo extends ResourceBase {
         out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"IDToEdit\" VALUE=\"" + IDToEdit + "\">");
       }
     }
-    else if (index == Roster.LAST_CREDIT_UPDATE) {
-      // must be Brighton to get this far
-      int year = 2008, month = 0, day = 1; //bogus day
-      String date = szMonths[month] + "-" + day + "-" + year;
-      if (szDefault.equals("0")) {
-        szDefault = "1048169730029"; //feb, 20,2003
-      }
-
-      try {
-        // the date is stored in szDefault
-        Calendar cal = Calendar.getInstance();
-        long millis = Long.parseLong(szDefault);
-        cal.setTimeInMillis(millis);
-        year = cal.get(Calendar.YEAR);
-        month = cal.get(Calendar.MONTH);
-        day = cal.get(Calendar.DATE);
-        date = szMonths[month] + "-" + day + "-" + year;
-        //Log.log("date="+date);
-      }
-      catch (Exception e) {
-        LOG.error("Error, exception parsing " + szDefault + " in UpdateInfo: " + e);
-      }
-
-      if (!editorIsDirector) {
-        out.println(date);
-        out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherDay\"   VALUE=\"" + day + "\">");
-        out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherMonth\" VALUE=\"" + month + "\">");
-        out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"voucherYear\"  VALUE=\"" + year + "\">");
-      }
-      else {
-
-        out.println("<select size=1 name=\"voucherDay\">");
-        for (int i = 1; i <= 31; ++i) {
-          out.println("    <option " + ((i == day) ? "selected" : "") + ">" + i + "</option>");
-        }
-        out.println("  </select>&nbsp;&nbsp;<select size=1 name=\"voucherMonth\">");
-        for (int i = 0; i < 12; ++i) {
-          out.println("    <option value=\"" + i + "\" " + ((i == month) ? "selected" : "") + ">" + szMonths[i] + "</option>");
-        }
-        out.println("  </select> ");
-        out.println("  </select>&nbsp;&nbsp;<select size=1 name=\"voucherYear\">");
-
-        for (int i = year - 1; i <= year + 8; ++i) {
-          out.println("    <option value=\"" + i + "\" " + ((i == year) ? "selected" : "") + ">" + i + "</option>");
-        }
-        out.println("  </select>");
-      }
-    }
-    else if (index == Roster.CAN_EARN_CREDITS) {
-      // must be Brighton to get this far
-      if (editorIsDirector) {
-        out.println("<SELECT NAME=" + szField + " CLASS=\"select\">");
-        boolean isYes = szDefault.equals("1");
-        out.println("<OPTION " + (isYes ? "SELECTED" : "") + " VALUE=1>Yes");
-        out.println("<OPTION " + (isYes ? "" : "SELECTED") + " VALUE=0>No");
-        out.println("</SELECT>");
-      }
-      else {
-        if (szDefault.equals("1")) {
-          out.println("Yes");
-        }
-        else {
-          out.println("No");
-        }
-        out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
-      }
-    }
-    else if (index >= Roster.CARRY_OVER_CREDITS && index <= Roster.CREDITS_USED) {
-      // must be Brighton to get this far
-      szDefault = Roster.creditsToVouchers(szDefault);
-      //      String disabled = " readonly ";
-      if (editorIsDirector) {
-        //                disabled = "";
-        out.println("<input type=text size=" + len + " name=" + szField + " value=\"" + szDefault + "\">");
-      }
-      else {
-        out.println(szDefault);
-        out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"" + szField + "\" VALUE=\"" + szDefault + "\">");
-      }
-      try {
-        double xx = Double.parseDouble(szDefault) / 2;
-        out.println("&nbsp;&nbsp;&nbsp;(" + xx + " Vouchers)");
-      }
-      catch (Exception e) {
-        // DO NOTHING
-      }
-    }
     else if (index == Roster.COMMENTS) {
       //display NOTHING if the editor is not a director
-      if (editorIsDirector && index == Roster.COMMENTS) {
+      if (editorIsDirector) {
         out.println("<textarea cols=70 rows=4 name=" + szField + ">" + szDefault + "</textarea>");
       }
     }
     else {
+      if (szDefault == null || index == PASSWORD) {
+        szDefault="";
+      }
       out.println("<input type=text size=" + len + " name=" + szField + " value=\"" + szDefault + "\">");
     }
 

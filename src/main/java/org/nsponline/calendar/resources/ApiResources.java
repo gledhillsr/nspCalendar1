@@ -33,7 +33,7 @@ import static org.nsponline.calendar.utils.StaticUtils.convertToInt;
 @SuppressWarnings("InnerClassMayBeStatic")
 public class ApiResources {
 
-  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
+  private static final int MIN_LOG_LEVEL = Logger.INFO;
   private static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
   /**
@@ -155,7 +155,7 @@ public class ApiResources {
    */
   @SuppressWarnings("JavaDoc")
   public static class Logout extends HttpServlet {
-    private static final int MIN_LOG_LEVEL = Logger.DEBUG;
+    private static final int MIN_LOG_LEVEL = Logger.INFO;
 
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(Logout.class, request, "DELETE", null, MIN_LOG_LEVEL);
@@ -355,7 +355,7 @@ public class ApiResources {
    */
   @SuppressWarnings("JavaDoc")
   public static class UserAssignments extends HttpServlet {
-    private static final int MIN_LOG_LEVEL = Logger.DEBUG;
+    private static final int MIN_LOG_LEVEL = Logger.INFO;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       Logger LOG = new Logger(UserAssignments.class, request, "GET", null, MIN_LOG_LEVEL);
@@ -546,7 +546,7 @@ public class ApiResources {
    */
   @SuppressWarnings("JavaDoc")
   public static class ResortList extends HttpServlet {
-    private static final int MIN_LOG_LEVEL = Logger.DEBUG;
+    private static final int MIN_LOG_LEVEL = Logger.INFO;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       Logger LOG = new Logger(ResortList.class, request, "GET", null, MIN_LOG_LEVEL);
@@ -639,7 +639,7 @@ public class ApiResources {
    */
   @SuppressWarnings("JavaDoc")
   public static class UserList extends HttpServlet {
-    private static final int MIN_LOG_LEVEL = Logger.DEBUG;
+    private static final int MIN_LOG_LEVEL = Logger.INFO;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       Logger LOG = new Logger(UserList.class, request, "GET", null, MIN_LOG_LEVEL);

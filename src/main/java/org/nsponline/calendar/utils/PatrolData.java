@@ -1,11 +1,11 @@
 package org.nsponline.calendar.utils;
 
-import org.nsponline.calendar.store.*;
-
 import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.nsponline.calendar.store.*;
 
 /**
  * Main method to track general info about a resort (patrol)  Not backed by a table.  But stores
@@ -423,6 +423,7 @@ public class PatrolData {
 //                int id = rosterResults.getInt("IDNumber");
         String str1 = rosterResults.getString("LastName").trim() + ", " +
             rosterResults.getString("FirstName").trim();
+        str1 = str1.replaceAll("''", "'"); //IMPORTANT, UX displays ', but DB stores as ''.  So map DB to UX
 //Log.log("getMemberByLastNameFirstName: (" + szFullName + ") (" + str1 + ") cmp=" + str1.equals(szFullName));
         //noinspection Duplicates
         if (str1.equals(szFullName)) {
@@ -844,10 +845,10 @@ public class PatrolData {
     LOG.error(msg);
   }
 
-  public boolean isValidLogin(PrintWriter out, String resort, String ID, String pass, SessionData sessionData) {
+  public boolean isValidLogin(PrintWriter out, String resort, String ID, String incomingPass, SessionData sessionData) {
     boolean validLogin = false;
     ResultSet rs;
-    if (ID == null || pass == null) {
+    if (ID == null || incomingPass == null) {
       LOG.error("Login Failed: either ID (" + ID + ") or Password not supplied");
       return false;
     }
@@ -862,7 +863,7 @@ public class PatrolData {
       return false;
     }
 
-    if (ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && pass.equalsIgnoreCase(sessionData.getBackDoorPassword())) {
+    if (ID.equalsIgnoreCase(sessionData.getBackDoorUser()) && incomingPass.equalsIgnoreCase(sessionData.getBackDoorPassword())) {
       return true;
     }    // Try to connect to the database
     try {
@@ -880,23 +881,32 @@ public class PatrolData {
 
       if (rs != null && rs.next()) {      //will only loop 1 time
 
-        String originalPassword = rs.getString("password");
+        String originalPassword = rs.getString("password").trim();
+        String hashedPassword = rs.getString("newPassword");
         String lastName = rs.getString("LastName");
         String firstName = rs.getString("FirstName");
         String emailAddress = rs.getString("email");
         originalPassword = originalPassword.trim();
         lastName = lastName.trim();
-        pass = pass.trim();
+        incomingPass = incomingPass.trim();
 
         boolean hasPassword = (originalPassword.length() > 0);
-        if (hasPassword) {
-          if (originalPassword.equalsIgnoreCase(pass)) {
+        if (hashedPassword != null && hashedPassword.length() > 120) {
+          SaltUtils saltShaker = new SaltUtils();
+          String newHash = saltShaker.hashPassword(sessionData, incomingPass);
+          validLogin = hashedPassword.equals(newHash);
+          LOG.warn("DEBUG newHash=" + newHash + ", hashedPassword=" + hashedPassword + (hasPassword ? " OLD PASSWORD STILL EXISTS" : " NO old password exists"));
+        }
+        else if (hasPassword) {
+          if (originalPassword.equalsIgnoreCase(incomingPass)) {
             validLogin = true;
+            LOG.warn("DEBUG using old password");
           }
         }
         else {
-          if (lastName.equalsIgnoreCase(pass)) {
+          if (lastName.equalsIgnoreCase(incomingPass)) {
             validLogin = true;
+            LOG.warn("DEBUG using Last name as password");
           }
         }
 
@@ -904,7 +914,7 @@ public class PatrolData {
           LOG.info("Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
         }
         else {
-          LOG.error( "sleep(500).  Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + pass + "]");
+          LOG.error( "sleep(500).  Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + incomingPass + "]");
           Thread.sleep(500);
         }
       }
@@ -916,8 +926,11 @@ public class PatrolData {
       c.close();
     }
     catch (Exception e) {
-      out.println("Error connecting or reading table:" + e.getMessage()); //message on browser
-      LOG.error("LoginHelp. Error connecting or reading table:" + e.getMessage());
+      if (e instanceof NoSuchAlgorithmException) {
+        LOG.error("LoginHelp. Error initalizing salt:" + e.getMessage());
+      } else {
+        LOG.error("LoginHelp. Error connecting or reading table:" + e.getMessage());
+      }
     } //end try
 
     return validLogin;

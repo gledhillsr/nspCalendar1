@@ -1,17 +1,18 @@
 package org.nsponline.calendar.store;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.nsponline.calendar.utils.Logger;
-import org.nsponline.calendar.utils.StaticUtils;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
-import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.servlet.http.HttpServletRequest;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.nsponline.calendar.utils.Logger;
+import org.nsponline.calendar.utils.SaltUtils;
+import org.nsponline.calendar.utils.SessionData;
+import org.nsponline.calendar.utils.StaticUtils;
 
 /**
  * @author Steve Gledhill
@@ -22,7 +23,7 @@ public class Roster {
 
   public static final String HARD_SPACE_NBSP = "&nbsp;";
   //static data
-  final static Hashtable<String, String> lookupClassification = new Hashtable<String, String>(10);
+  final static Hashtable<String, String> lookupClassification = new Hashtable<>(10);
   final static String[] month = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
   static {
@@ -49,14 +50,13 @@ public class Roster {
 //      not in the order in the actual database
   public static final String[][] dbData = {
 //DB_NAME,              DLG_NAME,                SERVLET_NAME    EDIT_BY_DIRECTOR   Column Heading    Column width
-//(name in database)  (displayed on dialog)  (passed arg name) (who can edit) (name on printout) (width on printout)
+//(name in database)  (displayed on dialog)  (passed arg name) (director only edit) (name on printout) (width on printout)
       {"IDNumber", "ID Number:&nbsp;", "IDToEdit", "y", "ID", "40"},      //0
       {"ClassificationCode", "Classification:&nbsp;", "Class", "y", "Class", "50"},      //1
       {"LastName", "Last Name:&nbsp;", "LastName", "n", "Name", "90"},      //2
       {"FirstName", "First Name:&nbsp;", "FirstName", "n", "Name", "90"},      //3
       {"Spouse", "Spouse:&nbsp;", "Spouse", "n", "Spouse", "40"},      //4
-      {"Address", "Address:&nbsp;", "Address", "n",
-          "Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "90"},      //5
+      {"Address", "Address:&nbsp;", "Address", "n", "Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", "90"},      //5
       {"City", "City:&nbsp;", "City", "n", "City", "90"},      //6
       {"State", "State:&nbsp;", "State", "n", "State", "50"},      //7
       {"ZipCode", "Zip Code:&nbsp;", "ZipCode", "n", "Zip", "60"},      //8
@@ -79,20 +79,20 @@ public class Roster {
       {"carryOverCredits", "Carry Over Credits:", "carryOverCredits", "y", "Carry Over Credits", "50"},  //25
       {"creditsEarned", "Total Credits Available:", "creditsEarned", "y", "Credits Available", "40"},     //26
       {"creditsUsed", "not used:", "creditsUsed", "y", "Credits Used", "40"},       //27
-      {"comments", "Private&nbsp;Comments<br>(<b>Only</b>&nbsp;visible&nbsp;to&nbsp;directors)", "Comments", "y",
-          "Private Comments", "100"},          //28
-      {"", "", "", "n", "Day Shifts", "40"},              //29
-      {"", "", "", "n", "Swing Shifts", "40"},            //30
-      {"", "", "", "n", "Night Shifts", "40"},            //31
-      {"", "", "", "n", "Training Shifts", "40"},         //32
-      {"", "", "", "n", "Day Shift Details", "200"},     //33
-      {"", "", "", "n", "Swing Shift Details", "200"},   //34
-      {"", "", "", "n", "Night Shift Details", "200"},   //35
-      {"", "", "", "n", "Training Shift Details", "200"},//36
-      {"", "", "", "n", "Other Shifts", "40"},           //37
-      {"", "", "", "n", "Holiday Shifts", "40"},         //38
-      {"", "", "", "n", "Other Shift Details", "200"},   //39
-      {"", "", "", "n", "Holiday Shift Details", "200"}  //40
+      {"comments", "Private&nbsp;Comments<br>(<b>Only</b>&nbsp;visible&nbsp;to&nbsp;directors)", "Comments", "y", "Private Comments", "100"},          //28
+      {"newPassword", "hash:&nbsp;", "newPassword", "n", "NEVER DISPLAY", "10"},          //29
+      {"", "", "", "n", "Day Shifts", "40"},              //30
+      {"", "", "", "n", "Swing Shifts", "40"},            //31
+      {"", "", "", "n", "Night Shifts", "40"},            //32
+      {"", "", "", "n", "Training Shifts", "40"},         //33
+      {"", "", "", "n", "Day Shift Details", "200"},     //34
+      {"", "", "", "n", "Swing Shift Details", "200"},   //35
+      {"", "", "", "n", "Night Shift Details", "200"},   //36
+      {"", "", "", "n", "Training Shift Details", "200"},//37
+      {"", "", "", "n", "Other Shifts", "40"},           //38
+      {"", "", "", "n", "Holiday Shifts", "40"},         //39
+      {"", "", "", "n", "Other Shift Details", "200"},   //40
+      {"", "", "", "n", "Holiday Shift Details", "200"}  //41
 };
   //indexes into dbData array (displayed order, not defined order)
   public final static int ID_NUM = 0;
@@ -124,8 +124,9 @@ public class Roster {
   public final static int CREDITS_EARNED = 26;
   public final static int CREDITS_USED = 27;
   public final static int COMMENTS = 28;
+  public final static int NEW_PASSWORD = 29;
   //remember to update ALL the databases if this changes, eVen though only brighton uses these fields
-  public final static int DB_SIZE = 29;     //next available location
+  public final static int DB_SIZE = 30;     //next available location.  MUST also update "order[]" when increased
   public final static int BLANK = 98;
   public final static int BLANK_WIDE = 99;
 
@@ -161,7 +162,7 @@ public class Roster {
       ADDRESS, CITY, STATE, ZIPCODE,
       HOMEPHONE, WORKPHONE, CELLPHONE, PAGER,
       EMAIL, EMERGENCY, PASSWORD, SUB, COMMITMENT, INSTRUCTOR, DIRECTOR, LAST_UPDATED, COMMENTS,
-      CARRY_OVER_CREDITS, LAST_CREDIT_UPDATE, CAN_EARN_CREDITS, CREDITS_EARNED, CREDITS_USED, TEAM_LEAD, MENTORING}; //BRIGHTON ONLY
+      CARRY_OVER_CREDITS, LAST_CREDIT_UPDATE, CAN_EARN_CREDITS, CREDITS_EARNED, CREDITS_USED, TEAM_LEAD, MENTORING, NEW_PASSWORD}; //BRIGHTON ONLY
 
   //instance data
   boolean exceptionError;
@@ -340,8 +341,6 @@ public class Roster {
       String align = "";
       switch (idx) {
         case BLANK:
-          str = "&nbsp";
-          break;
         case BLANK_WIDE:
           str = "&nbsp";
           break;
@@ -415,25 +414,25 @@ public class Roster {
           str = getComments();
           break;
 //        CARRY_OVER_CREDITS,LAST_CREDIT_UPDATE,CAN_EARN_CREDITS, CREDITS_EARNED, CREDITS_USED, TEAM_LEAD, MENTORING }; //BRIGHTON ONLY
-        case CARRY_OVER_CREDITS:
-          str = getCarryOverCredits();
-          align = " align=center";
-          break;
-        case LAST_CREDIT_UPDATE:
-          str = getLastCreditDateStr();
-          break;
-        case CAN_EARN_CREDITS:
-          str = getCanEarnCredits().equals("1") ? "Yes" : "No";
-          align = " align=center";
-          break;
-        case CREDITS_EARNED:
-          str = getCreditsEarned();
-          align = " align=center";
-          break;
-        case CREDITS_USED:
-          str = getCreditsUsed();
-          align = " align=center";
-          break;
+//        case CARRY_OVER_CREDITS:
+//          str = getCarryOverCredits();
+//          align = " align=center";
+//          break;
+//        case LAST_CREDIT_UPDATE:
+//          str = getLastCreditDateStr();
+//          break;
+//        case CAN_EARN_CREDITS:
+//          str = getCanEarnCredits().equals("1") ? "Yes" : "No";
+//          align = " align=center";
+//          break;
+//        case CREDITS_EARNED:
+//          str = getCreditsEarned();
+//          align = " align=center";
+//          break;
+//        case CREDITS_USED:
+//          str = getCreditsUsed();
+//          align = " align=center";
+//          break;
         case TEAM_LEAD:
           str = getTeamLead().equals("1") ? "Yes" : "No";
           align = " align=center";
@@ -563,7 +562,9 @@ public class Roster {
 
   private String readString(ResultSet rosterResults, String tag, String szDefault) {
     try {
-      String str = rosterResults.getString(tag);
+      String originalValue = rosterResults.getString(tag);
+      String str = originalValue == null ? "" : originalValue.replaceAll("''", "'");
+
 //todo srg 2017 - decode all roster data here
       String unescapedStr = StringEscapeUtils.unescapeHtml4(str);
       if (!testIfValid(unescapedStr)) {
@@ -592,170 +593,173 @@ public class Roster {
 
   public String getExcelHeader() {
     int i;
-    String qryString = "";
+    StringBuilder qryString = new StringBuilder();
     for (i = 0; i < DB_SIZE; ++i) {
-      qryString += dbData[order[i]][DB_NAME];
-      if (i + 1 < DB_SIZE) {
-        qryString += "\t";      //tab between fields
+      if (i > 0) {
+        qryString.append("\t");      //tab between fields
       }
+      qryString.append(dbData[order[i]][DB_NAME]);
     }
 //Log.log(qryString);
-    return qryString;
+    return qryString.toString();
   }
 
   public String getExcelString() {
     int i;
-    String qryString = "";
+    StringBuilder qryString = new StringBuilder();
     String szTmp;
     for (i = 0; i < DB_SIZE; ++i) {
       szTmp = memberData[order[i]].replace(',', ' ');  //remove all commas
-      if (i == 0) {
-        qryString = szTmp;
+      if (i != 0) {
+        qryString.append("\t");
       }
-      else {
-        qryString += "\t" + szTmp;
-      }
+      qryString.append(szTmp);
     }
 //Log.log(qryString);
-    return qryString;
+    return qryString.toString();
   }
 
-  public String getPalmString() {
-    int i;
-    int[] palmOrder = {LAST, FIRST, CLASSIFICATION, SPOUSE,
-        WORKPHONE, HOMEPHONE, PAGER, CELLPHONE, EMAIL, ADDRESS, CITY, STATE, ZIPCODE};
-    String qryString = "";
-    String szTmp;
-    for (i = 0; i < 13; ++i) {
-
-      szTmp = memberData[palmOrder[i]].trim().replace(',', ' ');   //remove all commas
-      szTmp = szTmp.replace('"', ' '); //remove all quotes
-      if (i > 0) {
-        qryString += ",";
-      }
-      if (palmOrder[i] == CLASSIFICATION) {
-        qryString += "\"Classification: " + getFullClassification() + "\"";
-      }
-      else if (palmOrder[i] == SPOUSE) {
-        qryString += "\"Spouse: " + szTmp + "\"";
-      }
-      else if (szTmp.length() > 0) {
-        qryString += "\"" + szTmp + "\"";
-      }
-    }
-    qryString += ",,,,,,,\"0\",\"Ski Patrol\""; //country,1,2,3,4,note,private,catagory
-//Log.log(memberData[0]+" = ("+qryString+")");
-    return qryString;
-  }
-
-  public String getInsertSQLString(String resort) {
+  public String getInsertSQLString(String resort, SessionData sessionData) {
     int i;
     //at time of insert/Modify, set the lastModified date value
 //lastUpdated
-    String str;
-    Calendar rightNow = Calendar.getInstance();
-    //str = rightNow.getTimeInMillis() + "";  //convert long to string
-//Log.log("in getInsertSQLString, time=(string)"+str+" or (long)"+rightNow.getTimeInMillis());
-    int m = rightNow.get(Calendar.MONTH) + 1;
-    int d = rightNow.get(Calendar.DATE);
-    int y = rightNow.get(Calendar.YEAR);
-
-    str = y + "-";
-    if (m < 10) {
-      str += "0";
-    }
-    str += m + "-";
-    if (d < 10) {
-      str += "0";
-    }
-    str += d;
-    memberData[LAST_UPDATED] = str;
+    setLastUpdatedFieldToNow();
 
     String qryString = "INSERT INTO roster (";
-
-    for (i = 0; i < DB_SIZE; ++i) {
-      qryString += dbData[order[i]][DB_NAME];
-      if (i < DB_SIZE - 1) {
-        qryString += ", ";
-      }
-    }
+    qryString += buildFieldsForInsertQuery();
     qryString += ") VALUES (";
 
-    for (i = 0; i < DB_SIZE; ++i) {
-      String valueStr = memberData[order[i]].replaceAll("'", "''");
-      if (order[i] == CARRY_OVER_CREDITS || order[i] == CREDITS_USED) {
-        valueStr = "0";
-      }
-      qryString += "'" + valueStr + "'";
-      if (i < DB_SIZE - 1) {
-        qryString += ", ";
-      }
-    }
+    qryString += buildValuesForInsertQuery(sessionData);
     qryString += " )";
     LOG.logSqlStatement(qryString);
     return qryString;
   }
 
-  public String getUpdateSQLString(String resort) {
+  private String buildFieldsForInsertQuery() {
     int i;
-//at time of insert/Modify, set the lastUpdated date value
-    String str;
-    Calendar rightNow = Calendar.getInstance();
-    //str = rightNow.getTimeInMillis() + "";  //convert long to string
-//Log.log("in getUpdateSQLString, time=(string)"+str+" or (long)"+rightNow.getTimeInMillis());
-    int m = rightNow.get(Calendar.MONTH) + 1;
-    int d = rightNow.get(Calendar.DATE);
-    int y = rightNow.get(Calendar.YEAR);
-    str = y + "-";
-    if (m < 10) {
-      str += "0";
-    }
-    str += m + "-";
-    if (d < 10) {
-      str += "0";
-    }
-    str += d;
-    memberData[LAST_UPDATED] = str;
-//UPDATE phone_book SET name = 'John Doe', number = '555-1212'
-
-    String qryString = "UPDATE roster SET ";
-    for (i = 1; i < DB_SIZE; ++i) { //don't start with the key value (ID_NUM)
-      String valueStr = memberData[order[i]].replaceAll("'", "''");
-      //CARRY_OVER_CREDITS & CREDITS_USED
-      if (order[i] == CARRY_OVER_CREDITS || order[i] == CREDITS_USED) {
-        valueStr = "0";
-      }
-      qryString += dbData[order[i]][DB_NAME] + " = \"" + valueStr + "\" ";
+    StringBuilder qryString = new StringBuilder();
+    for (i = 0; i < DB_SIZE; ++i) {
+      qryString.append(dbData[order[i]][DB_NAME]);
       if (i < DB_SIZE - 1) {
-        qryString += ", ";
+        qryString.append(", ");
       }
     }
+    return qryString.toString();
+  }
+
+
+  public String getUpdateSQLString(String resort, SessionData sessionData) {
+//at time of insert/Modify, set the lastUpdated date value
+    setLastUpdatedFieldToNow();
+//UPDATE phone_book SET name = 'John Doe', number = '555-1212'
+    LOG.debug("starting getUpdateRosterSQLString DB_SIZE=" + DB_SIZE);
+    String qryString = "UPDATE roster SET ";
+    qryString += buildBodyForUpdateQuery(sessionData);
     qryString += " WHERE " + dbData[ID_NUM][DB_NAME] + " =" + memberData[ID_NUM];
     LOG.logSqlStatement(qryString);
     return qryString;
   }
 
+  private void setLastUpdatedFieldToNow() {
+    StringBuilder str = new StringBuilder();
+    Calendar rightNow = Calendar.getInstance();
+    int m = rightNow.get(Calendar.MONTH) + 1;
+    int d = rightNow.get(Calendar.DATE);
+    int y = rightNow.get(Calendar.YEAR);
 
-  public static String creditsToVouchers(String szCredits) {
-    String szVouchers = "0";
-    try {
-//            double xx = (double)Integer.parseInt(szCredits) / 2.0;
-      double xx = (double) Integer.parseInt(szCredits);
-//Log.log("xx="+xx);
-      NumberFormat fmtr = NumberFormat.getInstance();
-      // fmtr.applyPattern("#,##0.#;(#,##0.#)");
-      szVouchers = fmtr.format(xx);
-//Log.log("yy="+szDefault);
+    str.append(y).append("-");
+    if (m < 10) {
+      str.append("0");
     }
-    catch (Exception e) {
-      //ignore
+    str.append(m).append("-");
+    if (d < 10) {
+      str.append("0");
     }
-    return szVouchers;
+    str.append(d);
+    memberData[LAST_UPDATED] = str.toString();
+  }
+
+  private String buildValuesForInsertQuery(SessionData sessionData) {
+    //NOTE: any changes to this code, should also be reflected in buildBodyForUpdateQuery
+    int i;
+    StringBuilder qryString = new StringBuilder();
+    for (i = 0; i < DB_SIZE; ++i) {
+      String originalValue = memberData[order[i]];
+      //this mapping must also be done on deserialization 'O'Keefe' -> 'O''Keefe'
+      String valueStr = originalValue == null ? "" : originalValue.replaceAll("'", "''");
+      if (isUnsupportedCreditsField(order[i])) {
+        valueStr = "0";
+      }
+      else if ( i == NEW_PASSWORD) {
+        //new password is calculated,  it did not previously exist
+        try {
+          SaltUtils saltShaker = new SaltUtils();
+          valueStr = saltShaker.hashPassword(sessionData, memberData[PASSWORD]);
+          /*
+          TODO FUTURE, zero out PASSWORD memberData[PASSWORD]
+           */
+        }
+        catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+        }
+      }
+      qryString.append("'").append(valueStr).append("'");
+      if (i < DB_SIZE - 1) {
+        qryString.append(", ");
+      }
+    }
+    return qryString.toString();
+  }
+
+  @SuppressWarnings("DuplicatedCode")
+  private String buildBodyForUpdateQuery(SessionData sessionData) {
+    //NOTE: any changes to this code, should also be reflected in buildValuesForInsertQuery
+    int i;
+    StringBuilder qryString = new StringBuilder();
+    for (i = 1; i < DB_SIZE; ++i) { //don't start with the key value (ID_NUM)
+      String originalValue = memberData[order[i]];
+      //this mapping must also be done on deserialization 'O'Keefe' -> 'O''Keefe'
+      String valueStr = originalValue == null ? "" : originalValue.replaceAll("'", "''");
+      //CARRY_OVER_CREDITS & CREDITS_USED
+      if (isUnsupportedCreditsField(order[i])) {
+        valueStr = "0";
+      }
+      else if (order[i] == PASSWORD && (memberData[PASSWORD] == null || memberData[PASSWORD].trim().isEmpty())) {
+        //the password field is blank, which is normal when not CHANGING the password.  So DON'T accidentally overwrite the existing password
+        continue;
+      }
+      else if ( order[i] == NEW_PASSWORD) {
+        if (memberData[PASSWORD] == null || memberData[PASSWORD].trim().isEmpty()) {
+          //the password field is blank, which is normal when not CHANGING the password.  So DON'T accidentally overwrite the existing "new password"
+          continue;
+        }
+        //the "new password" is calculated from a non-empty password field
+        try {
+          SaltUtils saltShaker = new SaltUtils();
+          valueStr = saltShaker.hashPassword(sessionData, memberData[PASSWORD]);
+          /*
+          TODO FUTURE, zero out PASSWORD memberData[PASSWORD]
+           */
+        }
+        catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+        }
+      }
+      qryString.append(dbData[order[i]][DB_NAME]).append(" = \"").append(valueStr).append("\" ");
+      if (i < DB_SIZE - 1) {
+        qryString.append(", ");
+      }
+    }
+    String qry = qryString.toString();
+    //if body ends in a ", " then trim that off
+    if (qry.endsWith(", ")) {
+      int last = qry.length() - 2;
+      return qry.substring(0, last);
+    }
+    return qry;
   }
 
   public String getDeleteSQLString(String resort) {
-    int i;
-    //noinspection UnnecessaryLocalVariable
     String qryString = "DELETE FROM roster WHERE " + dbData[ID_NUM][DB_NAME] + " = '" + memberData[ID_NUM] + "'";
     LOG.logSqlStatement(qryString);
     return qryString;
@@ -764,9 +768,7 @@ public class Roster {
   public boolean isDirector() {
     String dir = getDirector();
     if (testIfValid(dir)) {
-      if (dir.substring(0, 1).equalsIgnoreCase("Y")) {
-        return true;
-      }
+      return dir.substring(0, 1).equalsIgnoreCase("Y");
     }
     return false;
   }
@@ -904,6 +906,10 @@ public class Roster {
 
   public String getLastCreditDate() {
     return memberData[LAST_CREDIT_UPDATE];
+  }
+
+  public static boolean isUnsupportedCreditsField(int i) {
+    return i == Roster.CAN_EARN_CREDITS || i == Roster.LAST_CREDIT_UPDATE || i == Roster.CARRY_OVER_CREDITS || i == Roster.CREDITS_EARNED || i == Roster.CREDITS_USED;
   }
 
   public String getLastCreditDateStr() {
@@ -1045,7 +1051,7 @@ public class Roster {
 //----end overrides
 
 //1st test classification
-    if (vClassificationsToDisplay.indexOf(getClassification()) == -1) {
+    if (!vClassificationsToDisplay.contains(getClassification())) {
       return false;
     }
 
@@ -1095,9 +1101,7 @@ public class Roster {
         totalDays += AssignmentCount[j];
       }
 //Log.log("in OKToDisplay, "+getID()+": totalDays="+totalDays+", MinDays="+MinDays);
-      if (totalDays >= MinDays) {
-        return false;
-      }
+      return totalDays < MinDays;
     }
 
     return true;

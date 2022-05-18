@@ -1,9 +1,6 @@
 package org.nsponline.calendar.utils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,13 +35,16 @@ public class SaltUtils {
     }
   }
 
-  private byte[] hashPassword(SessionData sessionData, String passwordToHash) {
+  public String hashPassword(SessionData sessionData, String passwordToHash) {
     byte[] salt = sessionData.readSalt();
     if (salt == null) {
       return null;
     }
     md.update(salt);
-    return md.digest(passwordToHash.getBytes(StandardCharsets.UTF_8));
+    //produces a 64 byte binary value
+    //trim and convert to lower case
+    passwordToHash = passwordToHash.trim().toLowerCase();
+    return Hex.encodeHexString(md.digest(passwordToHash.getBytes(StandardCharsets.UTF_8)));
   }
 
   @SuppressWarnings("DuplicatedCode")
@@ -62,7 +62,7 @@ public class SaltUtils {
     }
     new SaltUtils().doOneTimeWriteToProperties();
     String pass = "xyzzy";
-    byte[] saltedPass = new SaltUtils().hashPassword(sessionData, pass);
-//    System.out.println(new String(saltedPass));
+    String saltedPass = new SaltUtils().hashPassword(sessionData, pass);
+    System.out.println(saltedPass + " len=" + saltedPass.length());
   }
 }

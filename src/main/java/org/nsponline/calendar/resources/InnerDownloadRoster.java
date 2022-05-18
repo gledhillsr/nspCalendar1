@@ -15,8 +15,6 @@ import org.nsponline.calendar.utils.SessionData;
 
 public class InnerDownloadRoster extends ResourceBase {
 
-  private static final int MIN_LOG_LEVEL = Logger.DEBUG;
-
   boolean debug = true;	//-----------
   //    ResourceBundle rb = ResourceBundle.getBundle("LocalStrings");
   final private HttpServletResponse response; //todo move into ResourceBase

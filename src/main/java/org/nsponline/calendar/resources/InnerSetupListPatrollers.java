@@ -149,14 +149,14 @@ public class InnerSetupListPatrollers extends ResourceBase {
     out.println("          <input type=\"checkbox\" name=\"CITY\">City<br>");
     out.println("          <input type=\"checkbox\" name=\"STATE\">State<br>");
     out.println("          <input type=\"checkbox\" name=\"ZIP\">Zip&nbsp;Code<br>");
-    if (resort.equalsIgnoreCase("Brighton") && isDirector) {
-      out.println("<font color=RED>");
-      out.println("<br>   <input type=\"checkbox\" name=\"CAN_EARN_CREDITS\">Can&nbsp;Earn&nbsp;Credit<br>");
-      //        out.println("          <input type=\"checkbox\" name=\"CARRY_OVER_CREDITS\">Old&nbsp;Credits");
-      out.println(" <input type=\"checkbox\" name=\"CREDITS_EARNED\">Credits&nbsp;Available<br>");
-      out.println(" <input type=\"checkbox\" name=\"LAST_CREDIT_UPDATE\">Date of Credit Update");
-      out.println("</font>");
-    }
+//    if (resort.equalsIgnoreCase("Brighton") && isDirector) {
+//      out.println("<font color=RED>");
+//      out.println("<br>   <input type=\"checkbox\" name=\"CAN_EARN_CREDITS\">Can&nbsp;Earn&nbsp;Credit<br>");
+//      //        out.println("          <input type=\"checkbox\" name=\"CARRY_OVER_CREDITS\">Old&nbsp;Credits");
+//      out.println(" <input type=\"checkbox\" name=\"CREDITS_EARNED\">Credits&nbsp;Available<br>");
+//      out.println(" <input type=\"checkbox\" name=\"LAST_CREDIT_UPDATE\">Date of Credit Update");
+//      out.println("</font>");
+//    }
     out.println("        </td>");
     out.println("        <td width=\"15%\" bgcolor=\"#E5E5E5\">");
     out.println("          <input type=\"checkbox\" name=\"HOME\" Checked >Home Phone<br>");

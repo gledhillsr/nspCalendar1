@@ -84,7 +84,7 @@ public class InnerWebResource {
    * @author Steve Gledhill
    */
   public static class WebSitePreferences extends HttpServlet {
-    private static final int MIN_LOG_LEVEL = Logger.DEBUG;
+    private static final int MIN_LOG_LEVEL = Logger.INFO;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       Logger LOG = new Logger(this.getClass(), request, "GET", null, MIN_LOG_LEVEL);

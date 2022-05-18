@@ -14,7 +14,7 @@ import org.nsponline.calendar.utils.Logger;
  */
 public class NspSession {
 
-  private static final Logger LOG = new Logger(NspSession.class, Logger.DEBUG);
+  private static final Logger LOG = new Logger(NspSession.class, Logger.INFO);
   private static final String TABLE_NAME = "session";
 
   static final String SESSION_ID = "sessionId";

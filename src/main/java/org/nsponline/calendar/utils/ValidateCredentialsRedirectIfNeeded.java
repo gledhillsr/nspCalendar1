@@ -4,8 +4,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.amazonaws.util.StringUtils.isNullOrEmpty;
-
 /**
  * Look at QueryParameters 'ID', and 'resort'
  * if ID is empty, goto login in page!
