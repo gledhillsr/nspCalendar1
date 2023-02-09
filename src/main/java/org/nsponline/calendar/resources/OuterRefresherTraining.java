@@ -36,7 +36,7 @@ public class OuterRefresherTraining extends ResourceBase {
     //scary stuff
     out.println("<br><br><br>Please do NOT share this link.  IT IS NOT PUBLIC INFORMATION. <br><br>Also, this link is specific to you, it will be how we track your progress!<br>");
     //other stuff
-    out.println("<br><br><br>Support Brighton patrol via <A href='http://gledhills.com/Brighton/BrightonSmiths_4.20222' target='_blank'><b>Smith’s Inspiring Donations</b></a> program.<br><br>");
+    out.println("<br><br>Support Brighton Ski Patrol via donations from <A href='http://gledhills.com/Brighton/BrightonSmiths_4.20222.pdf' target='_blank'><b>Smith&lsquo;s Inspiring Donations</b></a> program.<br><br>");
         //Training
     out.println("<h3>Ongoing Training</h3><br>");
     out.println("<font size =\"2\" color=\"red\" face=verdana,arial><A href='https://youtu.be/b2gi3gqgYSg' target='_blank'><b>December 2021 Brighton Ski Patrol Meeting</b></a></font><br>");

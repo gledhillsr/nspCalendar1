@@ -316,7 +316,7 @@ public class InnerEmailForm extends ResourceBase {
     if (Submit != null) {
       out.println("<H2>Emails sent.</H2>");
     } else {
-      out.println("<H2>Prepare Emails (new setup, please let me know if there are bugs).</H2>");
+      out.println("<H3>Prepare Emails.</H2>");
     }
   }
 
