@@ -37,6 +37,7 @@ public class PatrolData {
     resortMap.put("AntelopeButte",  new ResortData("AntelopeButte", "Antelope Butte", null, "http://www.antelopebuttefoundation.org", "/images/AntelopeButte.png", IMG_HEIGHT, 80));
 //BigHorn, and changed to Meadowlark (for now, use the BigHorn DB)
     resortMap.put("BigHorn",        new ResortData("BigHorn", "Meadowlark", "Meadowlarkskipatrol@gmail.com", "https://www.lodgesofthebighorns.com/", "/images/Meadowlark.png", IMG_HEIGHT, 80));
+    resortMap.put("BigRock",        new ResortData("BigRock", "BigRock", "null", "https://www.bigrockmaine.com", "/images/BigRock.jpeg", IMG_HEIGHT, 80));
     resortMap.put("BlackjackMountain", new ResortData("BlackjackMountain", "Black River Basin", null, "http://www.snowriver.com", "/images/SnowRiver.png", IMG_HEIGHT, 80));
     resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "brightonskipatrol@gmail.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
@@ -83,6 +84,7 @@ public class PatrolData {
     resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", null, "http://www.SnowKing.com", "/images/SnowKing.jpg", IMG_HEIGHT, 80));
 //    resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", null, "http://utaholympiclegacy.org/soldier-hollow/", "/images/SOHO_II.jpg", IMG_HEIGHT, 60));
     resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", null, "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
+    resortMap.put("Steeplechase", new ResortData("Steeplechase", "Steeplechase", null, "http://www.steeplechaseevents.com", "/images/Steeplechase.gif", IMG_HEIGHT, 80));
 
 //    resortMap.put("WelchVillage",   new ResortData("WelchVillage", "Welch Village", null, "http://www.welchvillage.com", "/images/WelchVillage.jpg", IMG_HEIGHT, 80));
     resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", "gawilson@wyoming.com", "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
