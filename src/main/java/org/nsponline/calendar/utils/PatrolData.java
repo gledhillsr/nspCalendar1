@@ -84,11 +84,11 @@ public class PatrolData {
     resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", null, "http://www.SnowKing.com", "/images/SnowKing.jpg", IMG_HEIGHT, 80));
 //    resortMap.put("SoldierHollow", new ResortData("SoldierHollow", "Soldier Hollow", null, "http://utaholympiclegacy.org/soldier-hollow/", "/images/SOHO_II.jpg", IMG_HEIGHT, 60));
     resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", null, "http://www.soldiermountain.com", "/images/SoldierMountain.gif", IMG_HEIGHT, 80));
-    resortMap.put("Steeplechase", new ResortData("Steeplechase", "Steeplechase", null, "http://www.steeplechaseevents.com", "/images/Steeplechase.gif", IMG_HEIGHT, 80));
+    resortMap.put("Steeplechase", new ResortData("Steeplechase", "Steeplechase", null, "http://www.steeplechaseevents.com", "/images/Steeplechase.png", IMG_HEIGHT, 80));
 
 //    resortMap.put("WelchVillage",   new ResortData("WelchVillage", "Welch Village", null, "http://www.welchvillage.com", "/images/WelchVillage.jpg", IMG_HEIGHT, 80));
     resortMap.put("WhitePine",      new ResortData("WhitePine", "White Pine", "gawilson@wyoming.com", "http://www.WhitePineSki.com", "/images/WhitePine.jpg", IMG_HEIGHT, 80));
-    resortMap.put("WildMountain",     new ResortData("WildMountain", "Wild Mountain", null, "http://www.wildmountain.com/", "/images/WildMountain.jpeg", IMG_HEIGHT, 169));
+//    resortMap.put("WildMountain",     new ResortData("WildMountain", "Wild Mountain", null, "http://www.wildmountain.com/", "/images/WildMountain.jpeg", IMG_HEIGHT, 169));
     resortMap.put("Willamette",     new ResortData("Willamette", "Willamette Backcountry", null, "http://www.deetour.net/wbsp", "/images/Willamette.jpeg", IMG_HEIGHT, 80));
   }
 
