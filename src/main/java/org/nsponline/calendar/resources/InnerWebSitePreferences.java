@@ -301,7 +301,7 @@ class InnerWebSitePreferences extends ResourceBase {
     //When can Patrollers can REMOVE a name
     String enableDisable = (madeUpdate || onlyDirectors) ? " DISABLED " : "";
 
-    out.println("&nbsp;&nbsp;-or-, When can patrollers <b>REMOVE</b> a name from the <B>Calendar</B>.<br>");
+    out.println("&nbsp;&nbsp;-or-, When can patrollers <b>REMOVE</b> a name from the <B>Calendar</B>");
     out.println("&nbsp;&nbsp;<select " + enableDisable + " size=1 name=\"" + DirectorSettings.REMOVE_ACCESS_FIELD + "\">");    //todo fix
     out.println("<option value=0 " + ((removeAccess == 0 ? "selected" : "")) + ">Day of event or anytime BEFORE</option>");
     out.println("<option value=1 " + ((removeAccess == 1 ? "selected" : "")) + ">more than 1 day BEFORE event</option>");
@@ -310,7 +310,7 @@ class InnerWebSitePreferences extends ResourceBase {
     out.println("<option value=14 " + ((removeAccess == 14 ? "selected" : "")) + ">more than 14 days BEFORE event</option>");
     //127 is max # value to store in tinyint
     out.println("<option value=127 " + ((removeAccess == 127 ? "selected" : "")) + ">Never.  REMOVE not allowed!</option>");
-    out.println("</select>");
+    out.println("</select><br>");
 
 
     //blackout dates
