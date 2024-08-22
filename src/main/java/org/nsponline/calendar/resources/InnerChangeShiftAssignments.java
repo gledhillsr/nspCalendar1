@@ -17,6 +17,10 @@ import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 public class InnerChangeShiftAssignments extends ResourceBase  {
   final private HttpServletResponse response;
 
+  private final static boolean LIMIT_BRIGHTON = false;
+  private final static List<Integer> LIMITED_MONTHS = new ArrayList<>(Arrays.asList(1, 2, 3)); //0 based
+  private final static int MAX_SHIFTS = 3;
+
   /**
    * From the calendar, clicked on a specific shift
    * Modify a single specific shift yyyy/mm/dd/shiftIndex/positionIndex to insert/modify/delete the assignment for that shift
@@ -41,8 +45,8 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
 
     printCommonHeader();
     printTop(out, parameters, resort);
-    printMiddle(out, patrolData, shiftInfo.loggedInUserId, parameters, shiftInfo);
-    printBottom(out, shiftInfo.loggedInUserId, parameters, shiftInfo);
+    int visibleButtons = printMiddle(out, patrolData, shiftInfo.loggedInUserId, parameters, shiftInfo);
+    printBottom(out, shiftInfo.loggedInUserId, parameters, shiftInfo, visibleButtons);
     printCommonFooter();
     patrolData.close();
   }
@@ -129,7 +133,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     return posWasEmpty;
   }
 
-  private void printMiddle(PrintWriter out, PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo) {
+  private int printMiddle(PrintWriter out, PatrolData patrol, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo) {
     int visibleRadioButtons = 0;
 
     boolean posWasEmpty = findIfPositionWasEmpty(parameters, patrol, shiftInfo);
@@ -143,14 +147,21 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
     boolean editingMyself = (shiftInfo.newName != null && shiftInfo.newName.equals(shiftInfo.myName));
     LOG.debug("CALLING ProcessChangeShiftAssignments with: loggedInUserId=" + loggedInUserId
-               + ", newName=" + shiftInfo.newName
-               + ", myName=" + shiftInfo.myName
-               + ", posWasEmpty=" + posWasEmpty
-               + ", allowEditing=" + shiftInfo.allowEditing
-               + ", editingMyself=" + editingMyself);
+                  + ", newName=" + shiftInfo.newName
+                  + ", myName=" + shiftInfo.myName
+                  + ", posWasEmpty=" + posWasEmpty
+                  + ", allowEditing=" + shiftInfo.allowEditing
+                  + ", editingMyself=" + editingMyself);
+    boolean outsideEarlyLimit = insertIsMaxedOut(loggedInUserId, parameters, patrol);
     if (shiftInfo.allowEditing && shiftInfo.myName != null) {
       //==INSERT== only used if position is empty
-      if (posWasEmpty) {
+      if (outsideEarlyLimit) {
+        out.println("  <tr>");
+        out.println("    <td width=\"100%\" colspan=\"2\">Sorry, outside <b>early</b> limit of " + MAX_SHIFTS + " day/swing shifts per month");
+        out.println("    </td>");
+        out.println("  </tr>");
+      }
+      else if (posWasEmpty) {
         out.println("  <tr>");
         visibleRadioButtons++;
         out.println("    <td width=\"100%\" colspan=\"2\"><INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"insertMyName\" CHECKED>");
@@ -169,24 +180,26 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
       }
     }
     //==REPLACE/INSERT== some one else
-    out.println("  <tr>");
-    String isChecked = "";
-    if (!shiftInfo.allowEditing) {
-      isChecked = " CHECKED ";
+    if (!outsideEarlyLimit) {
+      out.println("  <tr>");
+      String isChecked = "";
+      if (!shiftInfo.allowEditing) {
+        isChecked = " CHECKED ";
+      }
+      visibleRadioButtons++;
+      out.println("    <td width=\"50%\"><INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"replaceWithSomeoneElse\" " + isChecked + ">");
+      if (!posWasEmpty) {
+        out.println("      <b>Replace</b> (" + shiftInfo.newName1 + ") with someone else&nbsp;</td>");
+      }
+      else {
+        out.println("      <b>Insert</b> someone else&nbsp;</td>");
+      }
+      out.println("    <td width=\"50%\"><SELECT NAME=\"listName\" SIZE=10 onclick=autoSelectRadioBtn(" + (visibleRadioButtons - 1) + ")>");
+      addNames(out, shiftInfo.myName, shiftInfo);
+      out.println("</SELECT>");
+      out.println("    </td>");
+      out.println("  </tr>");
     }
-    visibleRadioButtons++;
-    out.println("    <td width=\"50%\"><INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"replaceWithSomeoneElse\" " + isChecked + ">");
-    if (!posWasEmpty) {
-      out.println("      <b>Replace</b> (" + shiftInfo.newName1 + ") with someone else&nbsp;</td>");
-    }
-    else {
-      out.println("      <b>Insert</b> someone else&nbsp;</td>");
-    }
-    out.println("    <td width=\"50%\"><SELECT NAME=\"listName\" SIZE=10 onclick=autoSelectRadioBtn(" + (visibleRadioButtons - 1) + ")>");
-    addNames(out, shiftInfo.myName, shiftInfo);
-    out.println("</SELECT>");
-    out.println("    </td>");
-    out.println("  </tr>");
     //==REMOVE== only is position is NOT empty
     //get today's date in days (Julian date)
     long calendarDay = (new java.util.Date(parameters.year - 1900, parameters.month, parameters.dayOfMonth)).getTime() / 1000 / 3600 / 24;    //get time in days
@@ -215,6 +228,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     boolean wasMarkedAsNeedingReplacement = false;
     HashMap<String, NewIndividualAssignment> monthNewIndividualAssignments = patrol.readNewIndividualAssignments(parameters.year, parameters.month + 1, parameters.dayOfMonth); //entire day
     String key = NewIndividualAssignment.buildKey(parameters.year, parameters.month + 1, parameters.dayOfMonth, parameters.pos, parameters.index);
+    //key in format yyyy-mm-dd_idx_p
     if (monthNewIndividualAssignments.containsKey(key)) {
       //key found
       NewIndividualAssignment newIndividualAssignment = monthNewIndividualAssignments.get(key);
@@ -233,9 +247,45 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
       out.println("      <b>Highlight</b> as -Needs a Replacement-");
       out.println("  </td> </tr>");
     }
+    return visibleRadioButtons;
   }
 
-  private void printBottom(PrintWriter out, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo) {
+  private boolean insertIsMaxedOut(String loggedInUserId, Parameters parameters, PatrolData patrol) {
+    //only limit for Brighton resort
+    if (!LIMIT_BRIGHTON || !"Sample".equals(resort)) {
+      return false;
+    }
+    LOG.info("**** id=" + loggedInUserId + ", year=" + parameters.year + ", month=" + parameters.month); //todo hack
+    if (parameters.year != 2024) {
+      return false;
+    }
+    if (!LIMITED_MONTHS.contains(parameters.month)) {
+      return false;
+    }
+
+    //git shift assignments this month
+    int myShiftsThisMonth = getDaySwingShiftCount(loggedInUserId, parameters, patrol);
+    LOG.info("***** for patroller=" + loggedInUserId + ", maxedOut=" + (myShiftsThisMonth >= MAX_SHIFTS));
+    return myShiftsThisMonth >= MAX_SHIFTS;
+  }
+
+  private int getDaySwingShiftCount(String loggedInUserId, Parameters parameters, PatrolData patrol) {
+    int foundCount = 0;
+    ArrayList<Assignments> monthAssignments = patrol.readSortedAssignments(parameters.year, parameters.month + 1);
+    LOG.info("***** getDaySwingShiftCount monthAssignments.size=" + monthAssignments.size());
+    for(Assignments assignment : monthAssignments) {
+//      LOG.info("   count="+ assignment.getCount()
+//                   + ", isDayShift=" + assignment.isDayShift()
+//                   + ", isSwingShift=" + assignment.isSwingShift()
+//                   + ", foundAtPos=" + assignment.getPosIndex(loggedInUserId)); //todo remove debugging
+      if (assignment.getPosIndex(loggedInUserId) >= 0) {
+        ++foundCount;
+      }
+    }
+    return foundCount;
+  }
+
+  private void printBottom(PrintWriter out, String loggedInUserId, Parameters parameters, ShiftInfo shiftInfo, int visibleButtons) {
     out.println("</table>");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"submitterID\" VALUE=\"" + loggedInUserId + "\">");
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"pos1\" VALUE=\"" + parameters.pos + "\">");
@@ -247,7 +297,9 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     out.println("<INPUT TYPE=\"HIDDEN\" NAME=\"date1\" VALUE=\"" + strDate + "\">");
 
     out.println("<p align=\"center\">");
-    out.println("<INPUT TYPE=SUBMIT VALUE=\"Submit\">");
+    if (visibleButtons > 0) {
+      out.println("<INPUT TYPE=SUBMIT VALUE=\"Submit\">");
+    }
     out.println("<INPUT TYPE=\"button\" VALUE=\"Cancel\" onClick=\"goHome()\">");
     out.println("</FORM>");
     out.println("<HR>");    //Horizontal Rule

@@ -192,7 +192,7 @@ public class NewIndividualAssignment {
   }
 
   public static String buildKey(int year, int month, int day, int idx, int pos) {
-    //build key in the form yyyy-mm-dd-p  (p is a single digit 1-9ABCDEF...)
+    //build key in the form yyyy-mm-dd_idx_p  (p is a single digit 1-9ABCDEF...)
     String key = year + "-";
     if (month < 10) {
       key += "0";
