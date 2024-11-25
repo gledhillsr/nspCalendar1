@@ -8,16 +8,16 @@ import java.text.SimpleDateFormat;
 
 /**
  * @author Steve Gledhill
+ *
+ * Example    EventName     StartTime    EndTime    Count    ShiftType
+ *          Saturday_0      08:00        16:30      8        0  (day)
+ *          Saturday_1      14:00        21:30      3        2  (night)
+ *          OEC Final_0     18:00        20:00      10       3  (training)
  */
 @SuppressWarnings("unused")
 public class ShiftDefinitions {
   private Logger LOG;
 
-  //static data
-  //format EventName Saturday_0, Saturday_1, World Cup_0 etc
-  //format StartTime 08:00 (text format)
-  //format EndTime 08:00 (text format)
-  //format Count (int)
   public static final String[] tags = {"EventName", "StartTime", "EndTime", "Count", "ShiftType"};  //string on form
   private static final int EVENT_NAME_INDEX = 0;
   private static final int START_TIME_INDEX = 1;

@@ -39,7 +39,7 @@ public class PatrolData {
     resortMap.put("BigHorn",        new ResortData("BigHorn", "Meadowlark", "Meadowlarkskipatrol@gmail.com", "https://www.lodgesofthebighorns.com/", "/images/Meadowlark.png", IMG_HEIGHT, 80));
     resortMap.put("BigRock",        new ResortData("BigRock", "BigRock", "null", "https://www.bigrockmaine.com", "/images/BigRock.jpeg", IMG_HEIGHT, 80));
     //note Black River Basin was BlackjackMountain
-    resortMap.put("BlackjackMountain", new ResortData("BlackjackMountain", "Black River Basin", "Christy.parks@snowriver.com", "http://www.snowriver.com", "/images/SnowRiver.png", IMG_HEIGHT, 80));
+    resortMap.put("BlackjackMountain", new ResortData("BlackjackMountain", "Black River Basin", "Teagan.knudson@snowriver.com", "http://www.snowriver.com", "/images/SnowRiver.png", IMG_HEIGHT, 80));
     resortMap.put("Brighton",       new ResortData("Brighton", "Brighton", "brightonskipatrol@gmail.com", "http://www.brightonresort.com", "/images/Brighton.gif", 60, 261));
     resortMap.put("BuenaVista",     new ResortData("BuenaVista", "Buena Vista", null, "http://www.bvskiarea.com", "/images/BuenaVista.gif", 75, 300));
 
@@ -61,7 +61,7 @@ public class PatrolData {
     resortMap.put("IFNordic",       new ResortData("IFNordic", "IF Nordic", null, "", "/images/IFNordic.gif", IMG_HEIGHT, 80));
 //Jackson Creek Summit email was "Skipatrol@bigsnow.com"
 //Jackson Creek Summit was IndianHeadMountain
-    resortMap.put("IndianHeadMountain", new ResortData("IndianHeadMountain", "Jackson Creek Summit", "Christy.parks@snowriver.com", "http://www.snowriver.com", "/images/SnowRiver.png", IMG_HEIGHT, 80));
+    resortMap.put("IndianHeadMountain", new ResortData("IndianHeadMountain", "Jackson Creek Summit", "Teagan.knudson@snowriver.com", "http://www.snowriver.com", "/images/SnowRiver.png", IMG_HEIGHT, 80));
     resortMap.put("KellyCanyon",    new ResortData("KellyCanyon", "Kelly Canyon", null, "http://www.SkiKelly.com", "/images/KellyCanyon.jpg", IMG_HEIGHT, 80));
     resortMap.put("LeeCanyon",      new ResortData("LeeCanyon", "Lee Canyon", "schedule@leecanyonskipatrol.org", "http://www.leecanyonskipatrol.org", "/images/LeeCanyon.png", IMG_HEIGHT, 80));
     resortMap.put("LonesomePine",   new ResortData("LonesomePine", "Lonesome Pine Trails", null, "http://www.lonesomepines.org", "/images/lonesomepines.gif", IMG_HEIGHT, 80));
@@ -606,8 +606,8 @@ public class PatrolData {
 //delete button
 //              out.println("<td width=\"103\"><input onClick=\"DeleteBtn()\" type=\"button\" value=\"Delete\" name=\"delete_"+validShifts+"\"></td>");
         out.println("<td><input type='submit' value='Delete' name='delete_" + validShifts + "'></td>");
-        out.println("<td>Start: <input type='text' onKeyDown='javascript:return captureEnter(event.keyCode)' name='startTime_" + validShifts + "' size='7' value='" + data.getStartString() + "'></td>");
-        out.println("<td>End: <input type='text' onKeyDown='javascript:return captureEnter(event.keyCode)' name='endTime_" + validShifts + "' size='7' value='" + data.getEndString() + "'></td>");
+        out.println("<td>Start: <input type='text' onKeyDown='javascript:return captureEnter(event.keyCode)' maxlength='11' name='startTime_" + validShifts + "' size='7' value='" + data.getStartString() + "'></td>");
+        out.println("<td>End: <input type='text' onKeyDown='javascript:return captureEnter(event.keyCode)' maxlength='11' name='endTime_" + validShifts + "' size='7' value='" + data.getEndString() + "'></td>");
         out.println("<td>Patroller&nbsp;Count:&nbsp;");
 //                out.println("<input type=\"text\" name=\"count_"+validShifts+"\" size=\"4\" value=\""+data.getCount()+"\">");
         countDropDown(out, "count_" + validShifts, data.getCount());
@@ -646,8 +646,8 @@ public class PatrolData {
 //delete button
 //              out.println("<td width=\"103\"><input onClick=\"DeleteBtn()\" type=\"button\" value=\"Delete\" name=\"delete_"+validShifts+"\"></td>");
       out.println("<td><input type=\"submit\" value=\"Delete\" onclick=\"return confirmShiftDelete(" + useCount + ")\" name=\"delete_" + validShifts + "\"></td>");
-      out.println("<td>Start: <input type=\"text\" name=\"startTime_" + validShifts + "\" onKeyDown=\"javascript:return captureEnter(event.keyCode)\" size=\"7\" value=\"" + data.getStartingTimeString() + "\"></td>");
-      out.println("<td>End: <input type=\"text\" name=\"endTime_" + validShifts + "\" onKeyDown=\"javascript:return captureEnter(event.keyCode)\" size=\"7\" value=\"" + data.getEndingTimeString() + "\"></td>");
+      out.println("<td>Start: <input type=\"text\" maxlength=\"11\" name=\"startTime_" + validShifts + "\" onKeyDown=\"javascript:return captureEnter(event.keyCode)\" size=\"7\" value=\"" + data.getStartingTimeString() + "\"></td>");
+      out.println("<td>End: <input type=\"text\" maxlength=\"11\" name=\"endTime_" + validShifts + "\" onKeyDown=\"javascript:return captureEnter(event.keyCode)\" size=\"7\" value=\"" + data.getEndingTimeString() + "\"></td>");
       out.println("<td>Patroller&nbsp;Count:&nbsp;");
 //                out.println("<input type=\"text\" name=\"count_"+validShifts+"\" size=\"4\" value=\""+data.getCount()+"\">");
       countDropDown(out, "count_" + validShifts, data.getCount());
@@ -903,7 +903,7 @@ public class PatrolData {
           SaltUtils saltShaker = new SaltUtils();
           String newHash = saltShaker.hashPassword(sessionData, incomingPass);
           validLogin = hashedPassword.equals(newHash);
-          LOG.warn("DEBUG newHash=" + newHash + ", hashedPassword=" + hashedPassword + (hasPassword ? " OLD PASSWORD STILL EXISTS" : " NO old password exists"));
+//          LOG.warn("DEBUG newHash=" + newHash + ", hashedPassword=" + hashedPassword + (hasPassword ? " OLD PASSWORD STILL EXISTS" : " NO old password exists"));
         }
         else if (hasPassword) {
           if (originalPassword.equalsIgnoreCase(incomingPass)) {

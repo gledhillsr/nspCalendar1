@@ -16,6 +16,11 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 
 /**
+ * The "assignments" represents each unique shift on each unique day, and will have 1-10 patrollers assigned to it.
+ *  Example Date         StartTime EndTime EventName      ShiftType Count P0  P1  P2 P3 P4 P5 P6 P7 P8 P9
+ *          2025-01-01_1  6         21:30  New Year's Day   2        3    123 456 789
+ *          2025-01-01_2  6:30      21:30  New Year's Day   2        1    543
+ *
  * @author Steve Gledhill
  */
 public class Assignments {

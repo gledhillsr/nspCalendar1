@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.nsponline.calendar.store.Assignments;
-import org.nsponline.calendar.store.DirectorSettings;
-import org.nsponline.calendar.store.NewIndividualAssignment;
-import org.nsponline.calendar.store.Roster;
+import org.nsponline.calendar.store.*;
 import org.nsponline.calendar.utils.*;
 
 import static com.amazonaws.util.StringUtils.isNullOrEmpty;
@@ -17,9 +15,20 @@ import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 public class InnerChangeShiftAssignments extends ResourceBase  {
   final private HttpServletResponse response;
 
-  private final static boolean LIMIT_BRIGHTON = false;
-  private final static List<Integer> LIMITED_MONTHS = new ArrayList<>(Arrays.asList(1, 2, 3)); //0 based
-  private final static int MAX_SHIFTS = 3;
+  private final static String LIMIT_DAY_SHIFTS_FOR_RESORT = "zz_Brighton";  //todo Brighton or Sample
+  private final static List<Integer> LIMITED_MONTH_MAX = new ArrayList<>(Arrays.asList(
+      1,  //Jan (0 based months)
+      30,  //Feb
+      30,  //Mar
+      30,  //Apr
+      30,  //May
+      30,  //Jun
+      30,  //Jul
+      30,  //Aug
+      30,  //Sep
+      30,  //Oct
+      1,  //Nov
+      2));  //Dec
 
   /**
    * From the calendar, clicked on a specific shift
@@ -145,19 +154,25 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
 
     //start of selection table
     out.println("<table border=\"1\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">");
-    boolean editingMyself = (shiftInfo.newName != null && shiftInfo.newName.equals(shiftInfo.myName));
-    LOG.debug("CALLING ProcessChangeShiftAssignments with: loggedInUserId=" + loggedInUserId
+
+//note newName=Shorts, Jim, newName1=Jim Shorts, myName=Jane Doe,
+    boolean editingMyself = shiftInfo.newName1 != null && shiftInfo.newName1.equals(shiftInfo.myName);
+    AtomicInteger myShiftsThisMonth = new AtomicInteger();
+    boolean outsideEarlyLimit = shouldLimitAndInsertIsMaxedOut(loggedInUserId, parameters, patrol, myShiftsThisMonth);
+    LOG.info("CALLING ProcessChangeShiftAssignments with: loggedInUserId=" + loggedInUserId
                   + ", newName=" + shiftInfo.newName
+                  + ", newName1=" + shiftInfo.newName1
                   + ", myName=" + shiftInfo.myName
                   + ", posWasEmpty=" + posWasEmpty
                   + ", allowEditing=" + shiftInfo.allowEditing
-                  + ", editingMyself=" + editingMyself);
-    boolean outsideEarlyLimit = insertIsMaxedOut(loggedInUserId, parameters, patrol);
+                  + ", editingMyself=" + editingMyself
+                  + ", outsideEarlyLimit=" + outsideEarlyLimit);
     if (shiftInfo.allowEditing && shiftInfo.myName != null) {
       //==INSERT== only used if position is empty
-      if (outsideEarlyLimit) {
+      if (outsideEarlyLimit && posWasEmpty && !isNightShift(patrol, parameters)) { //should be Brighton ONLY
+        int maxLimitedShiftsThisMonth = LIMITED_MONTH_MAX.get(parameters.month);
         out.println("  <tr>");
-        out.println("    <td width=\"100%\" colspan=\"2\">Sorry, outside <b>early</b> limit of " + MAX_SHIFTS + " day/swing shifts per month");
+        out.println("    <td width=\"100%\" colspan=\"2\">Sorry, outside <b>early</b> limit of " + maxLimitedShiftsThisMonth + " day/swing shifts per month");
         out.println("    </td>");
         out.println("  </tr>");
       }
@@ -170,7 +185,7 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
         out.println("  </tr>");
       }
       //==REPLACE== used if position is NOT empty
-      else if (!editingMyself) {
+      else if (!editingMyself && !outsideEarlyLimit) {
         out.println("  <tr>");
         visibleRadioButtons++;
         out.println("    <td width=\"100%\" colspan=\"2\"><INPUT TYPE=RADIO NAME=\"transaction\" VALUE=\"ReplaceWithMyName\" CHECKED>");
@@ -250,35 +265,76 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     return visibleRadioButtons;
   }
 
-  private boolean insertIsMaxedOut(String loggedInUserId, Parameters parameters, PatrolData patrol) {
+  private boolean isNightShift(PatrolData patrol, Parameters parameters) {
+/*
+Parameters - args passed in
+    int dayOfWeek;  //0=Sunday
+    int dayOfMonth; //1 based
+    int month;      //0 based
+    int year;       //duh
+    int pos;        //1 based line defining each shift definition withing the day
+    int index;      //0 based offset for each shift's patrollerId array
+Assignments - DB row represents each unique shift on each unique day, and will have 1-10 patrollers assigned to it.
+ *  Assignments     Date         StartTime EndTime EventName      ShiftType Count P0  P1  P2 P3 P4 P5 P6 P7 P8 P9
+ *                  2025-01-01_1  6         21:30  New Year's Day   2        3    123 456 789  (FIRST ROW)
+ *                  2025-01-01_2  6:30      21:30  New Year's Day   2        1    543          (SECOND ROW)
+ShiftDefinitions use if there is no assignment on that date
+ * ShiftDefinitions    EventName     StartTime    EndTime    Count    ShiftType
+ *                     Saturday_0      08:00        16:30      8        0  (day)
+ *                     Saturday_1      14:00        21:30      3        2  (night)
+ *                     OEC Final_0     18:00        20:00      10       3  (training)
+*/
+    //note the values passes in are used in a SQL query
+    ArrayList<Assignments> shiftAssignments = patrol.readSortedAssignments(parameters.year, parameters.month + 1, parameters.dayOfMonth);
+    if (shiftAssignments.isEmpty()) {
+      //eventName values like: "Saturday_0" or "Saturday_1"
+      String eventName =  StaticUtils.szDays[parameters.dayOfWeek] + "_" + (parameters.pos - 1);
+      for (ShiftDefinitions shiftDefinition : patrol.readShiftDefinitions()) {
+        String parsedName = shiftDefinition.getEventName();
+        if (eventName.equals(parsedName)) {
+          return shiftDefinition.getType() == 2; //night shift
+        }
+      }
+
+        return false;
+    }
+    if (shiftAssignments.size() < parameters.pos || parameters.pos  < 1) {
+      LOG.error("isNightShift should NEVER happen.. shiftAssignments.size=" + shiftAssignments.size() + ", parameters.pos=" + parameters.pos);
+      return false;
+    }
+    Assignments assignment = shiftAssignments.get(parameters.pos - 1);
+    return assignment.isNightShift();
+  }
+
+  private boolean shouldLimitAndInsertIsMaxedOut(String loggedInUserId, Parameters parameters, PatrolData patrol, AtomicInteger myShiftsThisMonth) {
     //only limit for Brighton resort
-    if (!LIMIT_BRIGHTON || !"Sample".equals(resort)) {
-      return false;
-    }
-    LOG.info("**** id=" + loggedInUserId + ", year=" + parameters.year + ", month=" + parameters.month); //todo hack
-    if (parameters.year != 2024) {
-      return false;
-    }
-    if (!LIMITED_MONTHS.contains(parameters.month)) {
+    if (!shouldLimitDays()) {
       return false;
     }
 
-    //git shift assignments this month
-    int myShiftsThisMonth = getDaySwingShiftCount(loggedInUserId, parameters, patrol);
-    LOG.info("***** for patroller=" + loggedInUserId + ", maxedOut=" + (myShiftsThisMonth >= MAX_SHIFTS));
-    return myShiftsThisMonth >= MAX_SHIFTS;
+   //git shift assignments this month
+    myShiftsThisMonth.set(getDaySwingShiftCount(loggedInUserId, parameters, patrol));
+    Integer maxDaysForTheMonth = LIMITED_MONTH_MAX.get(parameters.month);
+    //compute isMaxedOut
+    return myShiftsThisMonth.get() >= maxDaysForTheMonth;
+  }
+
+  private boolean shouldLimitDays() {
+    if (LIMIT_DAY_SHIFTS_FOR_RESORT.equals(resort)) {
+      return true;
+    }
+    return false;
   }
 
   private int getDaySwingShiftCount(String loggedInUserId, Parameters parameters, PatrolData patrol) {
     int foundCount = 0;
+    // The "monthAssignments" represents each unique shift on each unique day, and will have 1-10 patrollers assigned to it.
     ArrayList<Assignments> monthAssignments = patrol.readSortedAssignments(parameters.year, parameters.month + 1);
-    LOG.info("***** getDaySwingShiftCount monthAssignments.size=" + monthAssignments.size());
     for(Assignments assignment : monthAssignments) {
-//      LOG.info("   count="+ assignment.getCount()
-//                   + ", isDayShift=" + assignment.isDayShift()
-//                   + ", isSwingShift=" + assignment.isSwingShift()
-//                   + ", foundAtPos=" + assignment.getPosIndex(loggedInUserId)); //todo remove debugging
-      if (assignment.getPosIndex(loggedInUserId) >= 0) {
+      //within each shift, loop through each patroller assigned to that shift
+      boolean dayOrSwingShift = assignment.isDayShift() || assignment.isSwingShift();
+      if (assignment.getPosIndex(loggedInUserId) >= 0 && dayOrSwingShift) { // was this patroller assigned to this shift?
+//        LOG.info("ZZZ getDaySwingShiftCount, shift's found this month for user=" + loggedInUserId + ", foundCount=" + foundCount + ", dayOrSwingShift=" + dayOrSwingShift);
         ++foundCount;
       }
     }
@@ -317,8 +373,8 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
     int dayOfMonth; //1 based
     int month;      //0 based
     int year;       //duh
-    int pos;        //
-    int index;      //
+    int pos;        //1 based line defining each shift definition withing the day
+    int index;      //0 based offset for each shift's patrollerId array
 
     Parameters(HttpServletRequest request) {
       String szDayOfWeek = request.getParameter("dayOfWeek"); //Sunday (=0), Monday, Tuesday, etc.
@@ -333,14 +389,14 @@ public class InnerChangeShiftAssignments extends ResourceBase  {
         dayOfMonth = Integer.parseInt(szDate);
         month = Integer.parseInt(szMonth);
         year = Integer.parseInt(szYear);
-        pos = Integer.parseInt(szPos);
-        index = Integer.parseInt(szIndex);
+        pos = Integer.parseInt(szPos);     //1 based line defining each shift definition withing the day
+        index = Integer.parseInt(szIndex); //0 based offset for each shift's row
         LOG.debug("dayOfWeek=" + dayOfWeek + ", year=" + year + ", month(0-based)=" + month + ", date=" + dayOfMonth + ",  pos=" + pos + ", index=" + index);
       } catch (NumberFormatException ex) {
         dayOfWeek = 7;
         dayOfMonth = 1;
         month = 1;
-        year = 2020;
+        year = 2024;
         pos = 1;
         LOG.debug("ERROR, numeric processing exception, using default values");
       }   //err
