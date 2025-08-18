@@ -390,7 +390,7 @@ public class DirectorSettings {
         "', " + END_BLACKOUT_FIELD + "='" + szEndBlackout +
         "', " + REMOVE_ACCESS_FIELD + "='" + nRemoveAccess +
         "' WHERE " + PATROL_NAME_FIELD + "= '" + szPatrolName + "'";
-    LOG.info(qryString);
+    LOG.logSqlStatement(qryString);
     return qryString;
   }
 

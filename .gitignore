@@ -1,5 +1,6 @@
 *.class
-
+dependency.tree
+createNewEc2Instance.txt
 # Package Files #
 *.jar
 *.war

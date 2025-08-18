@@ -15,20 +15,21 @@ import static com.amazonaws.util.StringUtils.isNullOrEmpty;
 public class InnerChangeShiftAssignments extends ResourceBase  {
   final private HttpServletResponse response;
 
-  private final static String LIMIT_DAY_SHIFTS_FOR_RESORT = "zz_Brighton";  //todo Brighton or Sample
+  private final static String LIMIT_DAY_SHIFTS_FOR_RESORT = "Brightonzz";  //todo Brighton or Sample
+  private final static int MAX_DAY_SHIFTS_PER_MONTH = 30;
   private final static List<Integer> LIMITED_MONTH_MAX = new ArrayList<>(Arrays.asList(
-      1,  //Jan (0 based months)
-      30,  //Feb
-      30,  //Mar
-      30,  //Apr
-      30,  //May
-      30,  //Jun
-      30,  //Jul
-      30,  //Aug
-      30,  //Sep
-      30,  //Oct
-      1,  //Nov
-      2));  //Dec
+      MAX_DAY_SHIFTS_PER_MONTH,  //Jan (0 based months)
+      MAX_DAY_SHIFTS_PER_MONTH,  //Feb
+      MAX_DAY_SHIFTS_PER_MONTH,  //Mar
+      MAX_DAY_SHIFTS_PER_MONTH,  //Apr
+      MAX_DAY_SHIFTS_PER_MONTH,  //May
+      MAX_DAY_SHIFTS_PER_MONTH,  //Jun
+      MAX_DAY_SHIFTS_PER_MONTH,  //Jul
+      MAX_DAY_SHIFTS_PER_MONTH,  //Aug
+      MAX_DAY_SHIFTS_PER_MONTH,  //Sep
+      MAX_DAY_SHIFTS_PER_MONTH,  //Oct
+      MAX_DAY_SHIFTS_PER_MONTH,  //Nov
+      MAX_DAY_SHIFTS_PER_MONTH));  //Dec
 
   /**
    * From the calendar, clicked on a specific shift

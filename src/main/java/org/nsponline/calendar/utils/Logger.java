@@ -195,8 +195,12 @@ public class Logger {
   }
 
   public void logSqlStatement(String qryString) {
-    String prefix = qryString.contains("SELECT") ? "  " : "";
-    info(prefix + "sql=\"" + qryString + "\"");
+    if (qryString.contains("SELECT")) {
+      debug(" sql=\"" + qryString + "\"");
+    }
+    else {
+      info("sql=\"" + qryString + "\"");
+    }
   }
 
   private void writeToLogFile(HttpServletRequest request, String msg) {
