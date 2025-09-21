@@ -33,7 +33,7 @@ public class PatrolData {
   static {
     resortMap.put("Afton",          new ResortData("Afton", "Afton Alps", null, "http://www.aftonalpsskipatrol.org", "/images/AftonLogo.jpg", IMG_HEIGHT, 90));
 //    resortMap.put("AlpineMt",       new ResortData("AlpineMt", "Alpine Mt", null, "http://www.alpinemtskipatrol.org", "/images/AlpineMt.jpg", IMG_HEIGHT, 80));
-    resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", "votavagang@prtel.com", "http://www.andestowerhills.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
+    resortMap.put("Andes",          new ResortData("Andes", "Andes Tower Hills", "andestowerhillsskipatrol@gmail.com", "http://www.andestowerhills.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("AntelopeButte",  new ResortData("AntelopeButte", "Antelope Butte", null, "http://www.antelopebuttefoundation.org", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
 //BigHorn, and changed to Meadowlark (for now, use the BigHorn DB)
     resortMap.put("BigHorn",        new ResortData("BigHorn", "Meadowlark", "Meadowlarkskipatrol@gmail.com", "https://www.lodgesofthebighorns.com/", "/images/Meadowlark.png", IMG_HEIGHT, 80));
@@ -884,34 +884,36 @@ public class PatrolData {
         originalPassword = originalPassword.trim();
         lastName = lastName.trim();
         incomingPass = incomingPass.trim();
+        String newHash = "noInitialHash"; //used for debugging
         boolean hasPassword = (originalPassword.length() > 0);
         if (hashedPassword != null && !hashedPassword.isEmpty()) {
           SaltUtils saltShaker = new SaltUtils();
-          String newHash = saltShaker.hashPassword(sessionData, incomingPass);
+          newHash = saltShaker.hashPassword(sessionData, incomingPass);
           validLogin = hashedPassword.equals(newHash);
           if (!validLogin) {
-            LOG.warn("DEBUG login failed: resort=" + resort + ", id=" + ID + ", newHash=" + newHash + ", hashedPassword=" + hashedPassword  + ", originalPass=" + originalPassword + ", incomingPass=" + incomingPass);
+            LOG.error("DEBUG login failed: resort=" + resort + ", id=" + ID + ", newHash=" + newHash + ", hashedPassword=" + hashedPassword  + ", originalPass=" + originalPassword + ", incomingPass=" + incomingPass);
           }
         }
         if (!validLogin && hasPassword) {
           if (originalPassword.equalsIgnoreCase(incomingPass)) {
             validLogin = true;
             if (!validLogin) {
-              LOG.warn("DEBUG login failed: resort=" + resort + ", id=" + ID + ", originalPass=" + originalPassword + ", incomingPass=" + incomingPass);
+              LOG.error("DEBUG login failed: resort=" + resort + ", id=" + ID + ", originalPass=" + originalPassword + ", incomingPass=" + incomingPass);
             }
           }
         }
-        if (!validLogin && hasPassword) {
+        if (!validLogin) { //this did have && hasPassword, but but I found cases where the password was empty
           if (lastName.equalsIgnoreCase(incomingPass)) {
             validLogin = true;
-            LOG.warn("DEBUG using Last name as password  GET RID OF THIS hack! resort=" + resort + ", id=" + ID + "  (" + firstName + " " + lastName + ")");
+            LOG.error("DEBUG using Last name as password  GET RID OF THIS hack! resort=" + resort + ", id=" + ID + "  (" + firstName + " " + lastName + ")");
           }
         }
 
         if (validLogin) {
-          LOG.info("Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
+          LOG.error("Login Sucessful: " + firstName + " " + lastName + ", " + ID + " (" + resort + ") " + emailAddress);
         }
         else {
+          LOG.error("DEBUG login failed: resort=" + resort + ", id=" + ID + ", newHash=" + newHash + ", hashedPassword=" + hashedPassword  + ", originalPass=" + originalPassword + ", incomingPass=" + incomingPass);
           LOG.error( "sleep(500).  Login Failed: ID=[" + ID + "] LastName=[" + lastName + "] suppliedPass=[" + incomingPass + "]");
           Thread.sleep(500);
         }
