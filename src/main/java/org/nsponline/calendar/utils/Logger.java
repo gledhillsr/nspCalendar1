@@ -71,9 +71,13 @@ public class Logger {
         }
 //      ip = "<<null request>>";
       agent = "";
-    } else {
+    }
+    else {
 //      ip = request.getHeader("x-forwarded-for"); //x-forwarded-for: 216.49.181.51
       agent = request.getHeader("user-agent");//user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1)
+      if (agent == null) {
+        agent = "";
+      }
       //get 'resort' the hard way
 //      String referer = request.getHeader("referer");
 //todo, fails of logout

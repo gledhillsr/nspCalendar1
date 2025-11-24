@@ -22,6 +22,8 @@ public class OuterMemberLogin extends ResourceBase {
     }
 
     String szParent = request.getParameter("NSPgoto");
+    //Note to Steve, the "id" should be UNKNOWN here, as we are querying it for the first time
+    //Note to Steve, the "path" can be missing here, because it may be a starting point
     debugOut("resort=" + resort + ", szParent=" + szParent);
     if (StaticUtils.isEmpty(szParent)) {
       debugOut("ERROR, szParent was not specified");
