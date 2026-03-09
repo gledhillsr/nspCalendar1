@@ -65,7 +65,7 @@ public class PatrolData {
     resortMap.put("MountKato",      new ResortData("MountKato", "Mount Kato", null, "http://www.mtkatoskipatrol.com", "/images/MountKato.jpg", IMG_HEIGHT, 80));
     resortMap.put("MountPleasant",  new ResortData("MountPleasant", "Mount Pleasant", "dfarbotnik@gmail.com", "http://www.skimountpleasant.com ", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("NorwayMountain", new ResortData("NorwayMountain", "Norway Mountain", null, "http://www.norwaymt.com", "/images/NorwayMtnLogo.png", IMG_HEIGHT, 80));
-    resortMap.put("PaidSnowCreek",  new ResortData("PaidSnowCreek", "Paid SnowCreek", null, "http://www.skisnowcreek.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
+    resortMap.put("PaidSnowCreek",  new ResortData("PaidSnowCreek", "Paid Snow Creek", null, "http://www.skisnowcreek.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("PaulBunyan",  new ResortData("PaulBunyan", "Paul Bunyan", null, "http://www.nspOnline.org", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("PineCreek",      new ResortData("PineCreek", "Pine Creek", null, "http://www.pinecreekskiresort.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("PineMountain",   new ResortData("PineMountain", "Pine Mountain", "schedule@PineMountainSkiPatrol.com", "http://www.PineMountainResort.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
@@ -75,7 +75,7 @@ public class PatrolData {
     resortMap.put("RMSP",           new ResortData("RMSP", "Ragged Mountain", null, "http://www.rmskipatrol.com", "/images/RMSP_logo.JPG", IMG_HEIGHT, 80));
     resortMap.put("Sample",         new ResortData("Sample", "Sample Resort", null, "http://www.nspOnline.org", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("Snowbowl",      new ResortData("Snowbowl", "Snowbowl", null, "http://www.snowbowlskipatrol.org", "/images/Coldbarnstar.png", 80, 80));
-    resortMap.put("SnowCreek",      new ResortData("SnowCreek", "SnowCreek", null, "http://www.skisnowcreek.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
+    resortMap.put("SnowCreek",      new ResortData("SnowCreek", "Snow Creek", null, "http://www.skisnowcreek.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("SnowKing",       new ResortData("SnowKing", "SnowKing", null, "http://www.SnowKing.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("SoldierMountain", new ResortData("SoldierMountain", "Soldier Mountain", null, "http://www.soldiermountain.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
     resortMap.put("Steeplechase", new ResortData("Steeplechase", "Steeplechase", null, "http://www.steeplechaseevents.com", "/images/Coldbarnstar.png", IMG_HEIGHT, 80));
